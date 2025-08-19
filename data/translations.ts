@@ -27,7 +27,7 @@ export const translations = {
             search: 'بحث',
         },
         services: {
-            title: 'خدماتنا المتكاملة في هليوبوليس الجديدة',
+            title: 'خدماتنا المتكاملة',
             description: 'نقدم حلولاً شاملة ومخصصة لمدينة هليوبوليس الجديدة، تلبي كافة احتياجاتكم العقارية من التصميم والديكور إلى التشطيبات والتسويق.',
             feature1Title: 'الخدمات العقارية',
             feature1Desc: 'نوفر خدمات بيع وشراء وتأجير العقارات، مع إمكانية عرض عقارك مباشرة على منصتنا.',
@@ -52,26 +52,41 @@ export const translations = {
         },
         whyUs: {
             title: 'لماذا تختار ONLY HELIO؟',
-            description: 'لأننا نختص بمدينة هليوبوليس الجديدة، فنحن ندرك أدق تفاصيلها. نساعدك في إيجاد منزلك المثالي ونقدم لك تجربة عقارية فريدة ومصممة خصيصًا لهذه المدينة الواعدة.',
+            description: 'نحن لا نبيع العقارات فقط، بل نبني علاقات مبنية على الثقة والخبرة العميقة في مدينة هليوبوليس الجديدة. اكتشف المزايا التي تجعلنا خيارك الأول.',
             feature1Title: 'عقارات متنوعة',
             feature1Desc: 'نقدم مجموعة واسعة من العقارات التي تناسب جميع الاحتياجات والميزانيات.',
             feature2Title: 'أفضل الأسعار',
             feature2Desc: 'نضمن لك الحصول على أفضل العروض والأسعار التنافسية في السوق.',
             feature3Title: 'دعم متكامل',
-            feature3Desc: 'فريقنا المتخصص جاهز لمساعدتك في كل خطوة من خطوات رحلتك العقارية.'
+            feature3Desc: 'فريقنا المتخصص جاهز لمساعدتك في كل خطوة من خطوات رحلتك العقارية.',
+            feature4Title: 'تخصص عميق في هليوبوليس',
+            feature4Desc: 'تركيزنا الحصري على هليوبوليس الجديدة يمنحنا معرفة لا تضاهى بسوقها، مما يضمن لك أفضل الفرص.'
         },
         partners: {
             title: 'شركاء النجاح',
-            description: 'نفخر بالتعاون مع نخبة من أفضل الشركات في مجال التطوير العقاري والمقاولات.',
-            partner1: 'الشركة المتحدة',
-            partner2: 'المتحدة جروب',
-            partner3: 'مجموعة البناء الحديث',
-            partner4: 'الرواد للهندسة',
-        },
-        testimonial: {
-            quote: 'كانت ONLY HELIO بمثابة نقطة تحول لنا. وجدنا منزل أحلامنا من خلالهم، وكانت الخدمة أكثر من ممتازة.',
-            name: 'أحمد علي',
-            title: 'عميل سعيد'
+            description: 'مسيرتنا نحو التميز مبنية على الثقة والتعاون مع نخبة من أفضل الشركات في مختلف المجالات.',
+            list: [
+                {
+                    name: 'الشركة المتحدة للتطوير',
+                    description: 'شريكنا الاستراتيجي في تطوير المشاريع السكنية الفاخرة، معروفون بالجودة والالتزام.',
+                    imageUrl: 'https://images.unsplash.com/photo-1542361303-334a16de71b1?q=80&w=2070&auto=format&fit=crop'
+                },
+                {
+                    name: 'المتحدة جروب للمقاولات',
+                    description: 'ذراعنا التنفيذي في مجال المقاولات والتشطيبات، يمتلكون خبرة واسعة في تنفيذ المشاريع الكبرى.',
+                    imageUrl: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2070&auto=format&fit=crop'
+                },
+                {
+                    name: 'مجموعة البناء الحديث',
+                    description: 'متخصصون في توفير مواد البناء عالية الجودة التي نعتمد عليها في جميع مشاريعنا لضمان المتانة والأمان.',
+                    imageUrl: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=80&w=2071&auto=format&fit=crop'
+                },
+                {
+                    name: 'الرواد للهندسة والاستشارات',
+                    description: 'يقدمون لنا الدعم الهندسي والاستشارات الفنية لضمان أن جميع تصاميمنا تتبع أعلى المعايير العالمية.',
+                    imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop'
+                }
+            ]
         },
         cta: {
             title: 'هل أنت مستعد للبدء؟',
@@ -204,7 +219,7 @@ export const translations = {
             subtitle: "نحن هنا لمساعدتك. إذا كان لديك استفسار حول خدماتنا وعقاراتنا داخل هليوبوليس الجديدة، أو ترغب في بدء مشروع، لا تتردد في التواصل معنا.",
             formTitle: "أرسل لنا رسالة",
             namePlaceholder: "الاسم الكامل",
-            emailPlaceholder: "البريد الإلكتروني",
+            phonePlaceholder: "رقم الهاتف",
             messagePlaceholder: "اكتب رسالتك هنا...",
             sendButton: "إرسال",
             contactInfoTitle: "معلومات الاتصال",
@@ -214,6 +229,11 @@ export const translations = {
             emailTitle: "البريد الإلكتروني",
             hoursTitle: "ساعات العمل",
             hoursText: "الأحد - الخميس: 9 صباحًا - 6 مساءً",
+            contactTimeLabel: "موعد التواصل المناسب",
+            contactTimeDefault: "اختر الوقت المناسب...",
+            contactTimeMorning: "صباحاً (9ص - 12م)",
+            contactTimeAfternoon: "ظهراً (12م - 3م)",
+            contactTimeEvening: "مساءً (3م - 6م)",
         },
         chatbot: {
             title: "HelioBot",
@@ -252,7 +272,7 @@ export const translations = {
             search: 'Search',
         },
         services: {
-            title: 'Our Integrated Services in New Heliopolis',
+            title: 'Our Integrated Services',
             description: 'We provide comprehensive and customized solutions for New Heliopolis city, meeting all your real estate needs from design and decor to finishing and marketing.',
             feature1Title: 'Real Estate Services',
             feature1Desc: 'We offer services for buying, selling, and renting properties, with the ability to list your property directly on our platform.',
@@ -277,26 +297,41 @@ export const translations = {
         },
         whyUs: {
             title: 'Why Choose ONLY HELIO?',
-            description: 'Because we specialize in New Heliopolis, we understand its finest details. We help you find your perfect home and offer a unique real estate experience tailored for this promising city.',
+            description: "We don't just sell properties; we build relationships based on trust and deep expertise in New Heliopolis. Discover the advantages that make us your first choice.",
             feature1Title: 'Diverse Properties',
             feature1Desc: 'We offer a wide range of properties to suit all needs and budgets.',
             feature2Title: 'Best Prices',
             feature2Desc: 'We guarantee you the best deals and competitive prices in the market.',
             feature3Title: 'Integrated Support',
-            feature3Desc: 'Our specialized team is ready to assist you at every step of your real estate journey.'
+            feature3Desc: 'Our specialized team is ready to assist you at every step of your real estate journey.',
+            feature4Title: 'Deep Heliopolis Specialization',
+            feature4Desc: 'Our exclusive focus on New Heliopolis gives us unparalleled knowledge of its market, ensuring you the best opportunities.'
         },
         partners: {
-            title: 'Our Partners',
-            description: 'We are proud to collaborate with a selection of the best companies in real estate development and contracting.',
-            partner1: 'United Company',
-            partner2: 'El Mottaheda Group',
-            partner3: 'Modern Construction Group',
-            partner4: 'Alrowad Engineering',
-        },
-        testimonial: {
-            quote: 'ONLY HELIO was a game-changer for us. We found our dream home through them, and the service was more than excellent.',
-            name: 'Ahmed Ali',
-            title: 'Happy Client'
+            title: 'Our Partners in Success',
+            description: 'Our journey towards excellence is built on trust and collaboration with a selection of the best companies in various fields.',
+            list: [
+                {
+                    name: 'United Development Co.',
+                    description: 'Our strategic partner in developing luxury residential projects, known for quality and commitment.',
+                    imageUrl: 'https://images.unsplash.com/photo-1542361303-334a16de71b1?q=80&w=2070&auto=format&fit=crop'
+                },
+                {
+                    name: 'El Mottaheda Group for Contracting',
+                    description: 'Our executive arm in contracting and finishing, with extensive experience in executing major projects.',
+                    imageUrl: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2070&auto=format&fit=crop'
+                },
+                {
+                    name: 'Modern Construction Group',
+                    description: 'Specialists in providing high-quality building materials that we rely on in all our projects to ensure durability and safety.',
+                    imageUrl: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=80&w=2071&auto=format&fit=crop'
+                },
+                {
+                    name: 'Alrowad Engineering & Consulting',
+                    description: 'Providing us with engineering support and technical consultations to ensure all our designs meet the highest international standards.',
+                    imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop'
+                }
+            ]
         },
         cta: {
             title: 'Ready to Get Started?',
@@ -429,7 +464,7 @@ export const translations = {
             subtitle: "We are here to help. If you have an inquiry about our services and properties in New Heliopolis, or want to start a project, do not hesitate to contact us.",
             formTitle: "Send Us a Message",
             namePlaceholder: "Full Name",
-            emailPlaceholder: "Email Address",
+            phonePlaceholder: "Phone Number",
             messagePlaceholder: "Write your message here...",
             sendButton: "Send",
             contactInfoTitle: "Contact Information",
@@ -439,6 +474,11 @@ export const translations = {
             emailTitle: "Email",
             hoursTitle: "Working Hours",
             hoursText: "Sunday - Thursday: 9 AM - 6 PM",
+            contactTimeLabel: "Preferred Contact Time",
+            contactTimeDefault: "Select a suitable time...",
+            contactTimeMorning: "Morning (9am - 12pm)",
+            contactTimeAfternoon: "Afternoon (12pm - 3pm)",
+            contactTimeEvening: "Evening (3pm - 6pm)",
         },
         chatbot: {
             title: "HelioBot",

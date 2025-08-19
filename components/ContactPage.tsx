@@ -27,8 +27,17 @@ const ContactPage: React.FC<ContactPageProps> = ({ language }) => {
                                 <input type="text" id="name" placeholder={t.namePlaceholder} className={inputClasses} required />
                             </div>
                             <div>
-                                <label htmlFor="email" className="sr-only">{t.emailPlaceholder}</label>
-                                <input type="email" id="email" placeholder={t.emailPlaceholder} className={inputClasses} required />
+                                <label htmlFor="phone" className="sr-only">{t.phonePlaceholder}</label>
+                                <input type="tel" id="phone" placeholder={t.phonePlaceholder} className={inputClasses} required dir="ltr" />
+                            </div>
+                            <div>
+                                <label htmlFor="contactTime" className="sr-only">{t.contactTimeLabel}</label>
+                                <select id="contactTime" className={`${inputClasses} text-gray-400`} required defaultValue="">
+                                    <option value="" disabled>{t.contactTimeDefault}</option>
+                                    <option value="morning" className="text-white">{t.contactTimeMorning}</option>
+                                    <option value="afternoon" className="text-white">{t.contactTimeAfternoon}</option>
+                                    <option value="evening" className="text-white">{t.contactTimeEvening}</option>
+                                </select>
                             </div>
                             <div>
                                 <label htmlFor="message" className="sr-only">{t.messagePlaceholder}</label>

@@ -5,7 +5,6 @@ import Services from './Services';
 import AboutCity from './AboutCity';
 import Partners from './Partners';
 import Integrations from './Integrations';
-import Testimonial from './Testimonial';
 import CTA from './CTA';
 import type { Language } from '../App';
 
@@ -22,7 +21,6 @@ const HomePage: React.FC<HomePageProps> = ({ language }) => {
       <Integrations language={language} />
       <SocialProof language={language} />
       <Partners language={language} />
-      <Testimonial language={language} />
       <CTA language={language} />
     </>
   );
