@@ -6,6 +6,7 @@ export const translations = {
         nav: {
             home: 'الرئيسية',
             properties: 'العقارات',
+            map: 'خريطة العقارات',
             finishing: 'التشطيبات',
             decorations: 'الديكورات',
             contact: 'تواصل معنا',
@@ -120,6 +121,11 @@ export const translations = {
             priceRange2: '1,000,000 - 3,000,000',
             priceRange3: 'أكثر من 3,000,000',
             noResults: 'لا توجد عقارات تطابق معايير البحث الحالية.',
+        },
+        propertiesMapPage: {
+            title: 'خريطة العقارات التفاعلية',
+            subtitle: 'استكشف عقاراتنا بشكل بصري في هليوبوليس الجديدة. اضغط على أي عقار لعرض التفاصيل.',
+            viewDetails: 'عرض التفاصيل',
         },
         propertyDetailsPage: {
             notFoundTitle: 'لم يتم العثور على العقار',
@@ -251,6 +257,7 @@ export const translations = {
         nav: {
             home: 'Home',
             properties: 'Properties',
+            map: 'Property Map',
             finishing: 'Finishing',
             decorations: 'Decorations',
             contact: 'Contact Us',
@@ -365,6 +372,11 @@ export const translations = {
             priceRange2: '1,000,000 - 3,000,000',
             priceRange3: 'More than 3,000,000',
             noResults: 'No properties match the current search criteria.',
+        },
+        propertiesMapPage: {
+            title: 'Interactive Property Map',
+            subtitle: 'Visually explore our properties in New Heliopolis. Click on any property to see details.',
+            viewDetails: 'View Details',
         },
         propertyDetailsPage: {
             notFoundTitle: 'Property Not Found',

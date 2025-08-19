@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
 import { GoogleGenAI, Type } from "@google/genai";
+import { getApiKey } from '../apiKey';
 
 interface AddPropertyModalProps {
   onClose: () => void;
@@ -49,7 +50,8 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ onClose, language }
     
     setIsGenerating(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+      const apiKey = await getApiKey();
+      const ai = new GoogleGenAI({ apiKey });
       
       const prompt = `
         Act as a professional real estate marketer. Based on the following details, write a compelling and attractive property description in both Arabic and English.

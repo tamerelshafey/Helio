@@ -2,20 +2,23 @@ import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
+import { QuietZoneIcon } from './icons/Icons';
 
 interface HeaderProps {
   onAddPropertyClick: () => void;
+  onToggleQuietZone: () => void;
   language: Language;
   onLanguageChange: (lang: Language) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onAddPropertyClick, language, onLanguageChange }) => {
+const Header: React.FC<HeaderProps> = ({ onAddPropertyClick, onToggleQuietZone, language, onLanguageChange }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const t = translations[language];
 
   const navLinks = [
     { name: t.nav.home, href: "/" },
     { name: t.nav.properties, href: "/properties" },
+    { name: t.nav.map, href: "/map" },
     { name: t.nav.finishing, href: "/finishing" },
     { name: t.nav.decorations, href: "/decorations" },
     { name: t.nav.contact, href: "/contact" },
@@ -61,6 +64,13 @@ const Header: React.FC<HeaderProps> = ({ onAddPropertyClick, language, onLanguag
                 AR
               </button>
             </div>
+             <button
+              onClick={onToggleQuietZone}
+              className="hidden sm:block text-gray-400 hover:text-amber-500 transition-colors"
+              aria-label="Toggle Quiet Zone"
+            >
+              <QuietZoneIcon className="h-6 w-6" />
+            </button>
             <button 
               onClick={onAddPropertyClick}
               className="bg-amber-500 text-gray-900 font-semibold px-5 py-2 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-md shadow-amber-500/20"

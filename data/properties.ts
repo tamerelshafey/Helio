@@ -34,6 +34,10 @@ export interface Property {
     ar: string[];
     en: string[];
   };
+  location: {
+    lat: number;
+    lng: number;
+  };
 }
 
 export const propertiesData: Property[] = [
@@ -52,7 +56,7 @@ export const propertiesData: Property[] = [
       priceNumeric: 3850000,
       type: { ar: "فيلا", en: "Villa" },
       title: { ar: "فيلا بتصميم عصري مميز للبيع", en: "Villa with a Unique Modern Design for Sale" },
-      address: { ar: "شارع 5، هليوبوليس الجديدة، القاهرة", en: "Street 5, New Heliopolis, Cairo" },
+      address: { ar: "شارع 5، الحى الثانى، هليوبوليس الجديدة", en: "Street 5, 2nd District, New Heliopolis" },
       description: {
           ar: "فيلا فاخرة بتصميم عصري تقع في قلب هليوبوليس الجديدة.\nتتميز الفيلا بحديقة خاصة واسعة وحمام سباحة، بالإضافة إلى تشطيبات عالية الجودة. تتكون من طابقين، وتحتوي على 7 غرف نوم ماستر، وغرفة معيشة كبيرة، ومطبخ مجهز بالكامل. مثالية للعائلات الكبيرة التي تبحث عن الرفاهية والخصوصية.",
           en: "A luxurious modern design villa located in the heart of New Heliopolis.\nThe villa features a large private garden and a swimming pool, in addition to high-quality finishes. It consists of two floors, containing 7 master bedrooms, a large living room, and a fully equipped kitchen. Ideal for large families looking for luxury and privacy."
@@ -63,7 +67,8 @@ export const propertiesData: Property[] = [
       amenities: {
           ar: ["حديقة خاصة", "حمام سباحة", "موقف سيارات مغطى", "أمن 24 ساعة", "شرفة", "غرفة خادمة"],
           en: ["Private Garden", "Swimming Pool", "Covered Parking", "24/7 Security", "Balcony", "Maid's Room"]
-      }
+      },
+      location: { lat: 30.125, lng: 31.608 }
     },
     {
       id: 'apartment-rent-2',
@@ -91,7 +96,8 @@ export const propertiesData: Property[] = [
       amenities: {
           ar: ["إطلالة بانورامية", "مكيفة بالكامل", "أمن وحراسة", "نادي صحي مشترك", "مصعد"],
           en: ["Panoramic View", "Fully Air-Conditioned", "Security", "Shared Health Club", "Elevator"]
-      }
+      },
+      location: { lat: 30.118, lng: 31.615 }
     },
     {
       id: 'apartment-sale-3',
@@ -108,7 +114,7 @@ export const propertiesData: Property[] = [
       priceNumeric: 2100000,
       type: { ar: "شقة", en: "Apartment" },
       title: { ar: "شقة للبيع في موقع حيوي", en: "Apartment for Sale in a Prime Location" },
-      address: { ar: "شارع النزهة، هليوبوليس الجديدة", en: "El Nozha Street, New Heliopolis" },
+      address: { ar: "شارع النزهة، الحى الأول، هليوبوليس الجديدة", en: "El Nozha Street, 1st District, New Heliopolis" },
       description: {
           ar: "شقة للبيع في موقع حيوي واستراتيجي، قريبة من جميع الخدمات والمناطق التجارية. تتميز بتصميم داخلي ممتاز واستغلال أمثل للمساحات. تصلح للسكن الفوري أو للاستثمار.",
           en: "Apartment for sale in a vibrant and strategic location, close to all services and commercial areas. It features an excellent interior design and optimal use of space. Suitable for immediate residence or investment."
@@ -119,7 +125,8 @@ export const propertiesData: Property[] = [
       amenities: {
           ar: ["موقع حيوي", "قريبة من الخدمات", "تشطيب جيد", "عدادات مستقلة"],
           en: ["Prime Location", "Close to Services", "Good Finishing", "Separate Meters"]
-      }
+      },
+      location: { lat: 30.128, lng: 31.620 }
     },
      {
       id: 'penthouse-sale-4',
@@ -147,7 +154,8 @@ export const propertiesData: Property[] = [
       amenities: {
           ar: ["رووف خاص", "إطلالة مفتوحة", "جاكوزي", "غرفة ملابس", "أمن 24 ساعة"],
           en: ["Private Roof", "Open View", "Jacuzzi", "Dressing Room", "24/7 Security"]
-      }
+      },
+      location: { lat: 30.122, lng: 31.625 }
     },
     {
       id: 'villa-sale-5',
@@ -175,7 +183,8 @@ export const propertiesData: Property[] = [
       amenities: {
           ar: ["تصميم حديث", "حديقة كبيرة", "خصوصية تامة", "نوافذ بانورامية", "جراج خاص"],
           en: ["Modern Design", "Large Garden", "Complete Privacy", "Panoramic Windows", "Private Garage"]
-      }
+      },
+      location: { lat: 30.115, lng: 31.605 }
     },
     {
       id: 'apartment-rent-6',
@@ -192,7 +201,7 @@ export const propertiesData: Property[] = [
       priceNumeric: 15000,
       type: { ar: "شقة", en: "Apartment" },
       title: { ar: "شقة مفروشة بالكامل", en: "Fully Furnished Apartment" },
-      address: { ar: "الحي الأول، هليوبوليس الجديدة", en: "First District, New Heliopolis" },
+      address: { ar: "الحي الثالث، هليوبوليس الجديدة", en: "Third District, New Heliopolis" },
       description: {
           ar: "شقة مفروشة بالكامل بأثاث عصري وجديد للإيجار. جاهزة للسكن فوراً، ولا تحتاج لأي مصاريف. تقع في بناية هادئة وقريبة من المواصلات والأسواق.",
           en: "Fully furnished apartment with modern and new furniture for rent. Ready for immediate occupancy and requires no extra expenses. Located in a quiet building close to transportation and markets."
@@ -203,6 +212,7 @@ export const propertiesData: Property[] = [
       amenities: {
           ar: ["مفروشة بالكامل", "أجهزة كهربائية حديثة", "جاهزة للسكن", "إنترنت فائق السرعة"],
           en: ["Fully Furnished", "Modern Appliances", "Ready to Move In", "High-Speed Internet"]
-      }
+      },
+      location: { lat: 30.120, lng: 31.600 }
     },
 ];
