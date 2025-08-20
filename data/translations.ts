@@ -89,6 +89,10 @@ export const translations = {
                 }
             ]
         },
+        wisdomQuotes: {
+            title: 'كلمات من الحكمة',
+            description: 'اقتباسات ملهمة في الهندسة المعمارية والتصميم والمنزل.'
+        },
         cta: {
             title: 'هل أنت مستعد للبدء؟',
             subtitle: 'انضم إلى آلاف العملاء الذين وجدوا منزل أحلامهم وخدماتهم المثالية معنا في هليوبوليس الجديدة.',
@@ -339,6 +343,10 @@ export const translations = {
                     imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop'
                 }
             ]
+        },
+        wisdomQuotes: {
+            title: 'Words of Wisdom',
+            description: 'Inspirational quotes on architecture, design, and home.'
         },
         cta: {
             title: 'Ready to Get Started?',

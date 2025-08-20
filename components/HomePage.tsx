@@ -6,6 +6,7 @@ import AboutCity from './AboutCity';
 import Partners from './Partners';
 import Integrations from './Integrations';
 import CTA from './CTA';
+import WisdomQuotes from './Testimonial';
 import type { Language } from '../App';
 
 interface HomePageProps {
@@ -21,6 +22,7 @@ const HomePage: React.FC<HomePageProps> = ({ language }) => {
       <Integrations language={language} />
       <SocialProof language={language} />
       <Partners language={language} />
+      <WisdomQuotes language={language} />
       <CTA language={language} />
     </>
   );

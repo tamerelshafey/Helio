@@ -4,7 +4,6 @@ import type { Language } from '../App';
 import { translations } from '../data/translations';
 import { propertiesData } from '../data/properties';
 import { ChatIcon, CloseIcon, SendIcon } from './icons/Icons';
-import { getApiKey } from '../apiKey';
 
 interface ChatbotProps {
   language: Language;
@@ -43,8 +42,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ language }) => {
     setIsLoading(true);
 
     try {
-      const apiKey = await getApiKey();
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const propertiesJSON = JSON.stringify(propertiesData.map(p => ({
         id: p.id,
         title: p.title[language],

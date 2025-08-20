@@ -21,37 +21,32 @@ const QuietZone: React.FC<QuietZoneProps> = ({ onClose, language }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 text-white animate-fadeIn animate-calm-background"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn"
       role="dialog"
       aria-modal="true"
       aria-labelledby="quiet-zone-title"
+      onClick={onClose}
     >
-      <button 
-        onClick={onClose} 
-        className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors z-10"
-        aria-label="Close Quiet Zone"
+      <div
+        className="relative w-full max-w-3xl p-12 rounded-2xl shadow-2xl animate-calm-background flex flex-col items-center text-center overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
       >
-        <CloseIcon className="h-8 w-8" />
-      </button>
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors z-10"
+          aria-label="Close Quiet Zone"
+        >
+          <CloseIcon className="h-7 w-7" />
+        </button>
 
-      <div className="text-center max-w-4xl flex flex-col items-center">
         <blockquote className="relative">
-          <p id="quiet-zone-title" className="text-2xl md:text-4xl lg:text-5xl font-semibold leading-tight md:leading-tight lg:leading-tight">
+          <p id="quiet-zone-title" className="text-2xl md:text-3xl font-semibold leading-normal text-white">
             "{currentQuote.quote}"
           </p>
         </blockquote>
-        <cite className="mt-6 text-lg md:text-xl text-amber-400 font-medium tracking-wide">
+        <cite className="mt-6 text-lg text-amber-400 font-medium tracking-wide">
           - {currentQuote.author}
         </cite>
-      </div>
-
-      <div className="absolute bottom-8 text-center">
-         <button 
-            onClick={onClose}
-            className="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold px-8 py-3 rounded-lg hover:bg-white/20 transition-colors duration-200"
-        >
-            {language === 'ar' ? 'الخروج من الوضع الهادئ' : 'Exit Quiet Zone'}
-        </button>
       </div>
     </div>
   );
