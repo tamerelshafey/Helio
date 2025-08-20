@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
-import { QuietZoneIcon } from './icons/Icons';
+import { QuietZoneIcon, HeartIcon } from './icons/Icons';
+import { HelioLogo } from './HelioLogo';
 
 interface HeaderProps {
   onAddPropertyClick: () => void;
@@ -21,6 +22,7 @@ const Header: React.FC<HeaderProps> = ({ onAddPropertyClick, onToggleQuietZone, 
     { name: t.nav.map, href: "/map" },
     { name: t.nav.finishing, href: "/finishing" },
     { name: t.nav.decorations, href: "/decorations" },
+    { name: t.nav.favorites, href: "/favorites" },
     { name: t.nav.contact, href: "/contact" },
   ];
 
@@ -32,8 +34,9 @@ const Header: React.FC<HeaderProps> = ({ onAddPropertyClick, onToggleQuietZone, 
       <div className="container mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-10">
-            <Link to="/" className="text-2xl font-bold text-amber-500">
-              ONLY HELIO
+            <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-amber-500">
+              <HelioLogo className="h-8 w-8 text-amber-500" />
+              <span className="hidden sm:inline">ONLY HELIO</span>
             </Link>
             <nav className="hidden lg:flex items-center gap-8">
               {navLinks.map((link) => (
@@ -41,8 +44,9 @@ const Header: React.FC<HeaderProps> = ({ onAddPropertyClick, onToggleQuietZone, 
                   key={link.name} 
                   to={link.href} 
                   end={link.href === '/'}
-                  className={({ isActive }) => `${isActive ? activeLinkClass : inactiveLinkClass} transition-colors duration-200`}
+                  className={({ isActive }) => `${isActive ? activeLinkClass : inactiveLinkClass} transition-colors duration-200 flex items-center gap-2`}
                 >
+                  {link.href === '/favorites' && <HeartIcon className="h-4 w-4" />}
                   {link.name}
                 </NavLink>
               ))}
@@ -104,9 +108,10 @@ const Header: React.FC<HeaderProps> = ({ onAddPropertyClick, onToggleQuietZone, 
                   to={link.href} 
                   end={link.href === '/'}
                   onClick={() => setIsMenuOpen(false)}
-                  className={({ isActive }) => `w-full ${language === 'ar' ? 'text-right' : 'text-left'} p-3 rounded-md ${isActive ? activeLinkClass + ' bg-gray-800' : inactiveLinkClass} transition-colors duration-200`}
+                  className={({ isActive }) => `w-full ${language === 'ar' ? 'text-right' : 'text-left'} p-3 rounded-md ${isActive ? activeLinkClass + ' bg-gray-800' : inactiveLinkClass} transition-colors duration-200 flex items-center gap-3`}
                 >
-                  {link.name}
+                   {link.href === '/favorites' && <HeartIcon className="h-5 w-5" />}
+                  <span>{link.name}</span>
                 </NavLink>
               ))}
             </nav>
@@ -116,7 +121,7 @@ const Header: React.FC<HeaderProps> = ({ onAddPropertyClick, onToggleQuietZone, 
                   className="w-full flex items-center gap-3 p-3 rounded-md text-gray-300 hover:text-amber-500 hover:bg-gray-800 transition-colors"
                 >
                   <QuietZoneIcon className="h-6 w-6" />
-                  <span>المنطقة الهادئة</span>
+                  <span>{language === 'ar' ? 'المنطقة الهادئة' : 'Quiet Zone'}</span>
                 </button>
                 <div className="flex items-center gap-2 text-sm p-3">
                   <button 

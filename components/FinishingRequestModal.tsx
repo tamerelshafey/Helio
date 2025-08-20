@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
 import FormField, { inputClasses } from './shared/FormField';
@@ -11,6 +11,50 @@ interface FinishingRequestModalProps {
 
 const FinishingRequestModal: React.FC<FinishingRequestModalProps> = ({ onClose, serviceTitle, language }) => {
     const t = translations[language].finishingRequestModal;
+    const modalRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+
+        const focusableElements = modalRef.current?.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusableElements || focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        
+        firstElement.focus();
+
+        const handleTabKeyPress = (event: KeyboardEvent) => {
+            if (event.key === 'Tab') {
+                if (event.shiftKey) {
+                    if (document.activeElement === firstElement) {
+                        lastElement.focus();
+                        event.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastElement) {
+                        firstElement.focus();
+                        event.preventDefault();
+                    }
+                }
+            }
+        };
+        
+        const currentModalRef = modalRef.current;
+        currentModalRef?.addEventListener('keydown', handleTabKeyPress);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+            currentModalRef?.removeEventListener('keydown', handleTabKeyPress);
+        };
+    }, [onClose]);
     
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -27,6 +71,7 @@ const FinishingRequestModal: React.FC<FinishingRequestModalProps> = ({ onClose, 
             role="dialog"
         >
             <div 
+                ref={modalRef}
                 className="bg-gray-800 border border-gray-700 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative"
                 onClick={(e) => e.stopPropagation()}
             >

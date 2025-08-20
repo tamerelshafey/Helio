@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI } from "@google/genai";
+import { Link } from 'react-router-dom';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
 import { propertiesData } from '../data/properties';
@@ -16,6 +17,26 @@ type Message = {
   sender: 'user' | 'bot';
   text: string;
 };
+
+// Renders bot messages, converting markdown links to react-router Links
+const RenderBotMessage: React.FC<{ text: string }> = ({ text }) => {
+    const parts = text.split(/(\[.*?\]\(.*?\))/g);
+
+    return (
+        <p className="text-sm" style={{ whiteSpace: 'pre-wrap' }}>
+            {parts.map((part, index) => {
+                const match = /\[(.*?)\]\((.*?)\)/.exec(part);
+                if (match) {
+                    const linkText = match[1];
+                    const linkUrl = match[2];
+                    return <Link key={index} to={linkUrl} className="text-amber-400 underline hover:text-amber-300">{linkText}</Link>;
+                }
+                return <span key={index}>{part}</span>;
+            })}
+        </p>
+    );
+};
+
 
 const Chatbot: React.FC<ChatbotProps> = ({ language }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -66,7 +87,9 @@ const Chatbot: React.FC<ChatbotProps> = ({ language }) => {
 
       - ALWAYS answer in ${language === 'ar' ? 'Arabic' : 'English'}.
       - Use the provided JSON data of current property listings to answer questions about available properties.
-      - When recommending a property, mention its title and key features (price, area, beds) and its ID. Do not make up properties.
+      - When recommending a property, you MUST format it as a markdown link like this: [Property Title](/properties/property-id). For example: [Villa with a Unique Modern Design for Sale](/properties/villa-heliopolis-1). Do this for every property you mention.
+      - Mention its key features (price, area, beds) along with the link.
+      - Do not make up properties.
       - Be conversational and helpful.
       - Keep your answers concise and to the point.
       - Here is the current property listings available on the website:
@@ -123,7 +146,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ language }) => {
             {messages.map((msg, index) => (
               <div key={index} className={`flex mb-4 ${msg.sender === 'user' ? `justify-end ${language === 'ar' ? 'ml-auto' : 'mr-auto'}` : `justify-start ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}`}>
                 <div className={`max-w-[80%] p-3 rounded-lg ${msg.sender === 'user' ? 'bg-amber-500 text-gray-900 rounded-br-none' : 'bg-gray-700 text-gray-200 rounded-bl-none'}`}>
-                  <p className="text-sm" style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</p>
+                  {msg.sender === 'bot' ? <RenderBotMessage text={msg.text} /> : <p className="text-sm" style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</p>}
                 </div>
               </div>
             ))}

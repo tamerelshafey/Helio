@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import FeatureSection from './FeatureSection';
-import { propertiesData } from '../data/properties';
+import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
+import { getFeaturedProperties } from '../api/properties';
+import type { Property } from '../data/properties';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
 
@@ -11,7 +13,19 @@ interface SocialProofProps {
 
 const SocialProof: React.FC<SocialProofProps> = ({ language }) => {
   const t = translations[language];
-  const properties = propertiesData.slice(0, 4);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      setIsLoading(true);
+      const props = await getFeaturedProperties();
+      setProperties(props);
+      setIsLoading(false);
+    };
+    fetchProperties();
+  }, []);
+
 
   return (
     <div className="py-20 bg-gray-800">
@@ -25,9 +39,13 @@ const SocialProof: React.FC<SocialProofProps> = ({ language }) => {
             </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {properties.map((prop) => (
-            <FeatureSection key={prop.id} {...prop} language={language} />
-          ))}
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, index) => <PropertyCardSkeleton key={index} />)
+          ) : (
+            properties.map((prop) => (
+              <FeatureSection key={prop.id} {...prop} language={language} />
+            ))
+          )}
         </div>
       </div>
     </div>

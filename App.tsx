@@ -11,9 +11,11 @@ import PropertyDetailsPage from './components/PropertyDetailsPage';
 import FinishingPage from './components/FinishingPage';
 import DecorationsPage from './components/DecorationsPage';
 import ContactPage from './components/ContactPage';
+import FavoritesPage from './components/FavoritesPage';
 import ScrollToTop from './components/ScrollToTop';
 import Chatbot from './components/Chatbot';
 import QuietZone from './components/QuietZone';
+import { FavoritesProvider } from './components/shared/FavoritesContext';
 
 export type Language = 'ar' | 'en';
 
@@ -32,30 +34,33 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-gray-200 flex flex-col min-h-screen">
-      <ScrollToTop />
-      <Header 
-        onAddPropertyClick={() => setIsModalOpen(true)} 
-        onToggleQuietZone={() => setIsQuietZoneActive(true)}
-        language={language}
-        onLanguageChange={handleLanguageChange}
-      />
-      <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<HomePage language={language} />} />
-          <Route path="/properties" element={<PropertiesPage language={language} onAddPropertyClick={() => setIsModalOpen(true)} />} />
-          <Route path="/map" element={<PropertiesMapPage language={language} />} />
-          <Route path="/properties/:propertyId" element={<PropertyDetailsPage language={language} />} />
-          <Route path="/finishing" element={<FinishingPage language={language} />} />
-          <Route path="/decorations" element={<DecorationsPage language={language} />} />
-          <Route path="/contact" element={<ContactPage language={language} />} />
-        </Routes>
-      </main>
-      <Footer language={language} />
-      {isModalOpen && <AddPropertyModal onClose={() => setIsModalOpen(false)} language={language} />}
-      {isQuietZoneActive && <QuietZone onClose={() => setIsQuietZoneActive(false)} language={language} />}
-      <Chatbot language={language} />
-    </div>
+    <FavoritesProvider>
+      <div className="bg-gray-900 text-gray-200 flex flex-col min-h-screen">
+        <ScrollToTop />
+        <Header 
+          onAddPropertyClick={() => setIsModalOpen(true)} 
+          onToggleQuietZone={() => setIsQuietZoneActive(true)}
+          language={language}
+          onLanguageChange={handleLanguageChange}
+        />
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<HomePage language={language} />} />
+            <Route path="/properties" element={<PropertiesPage language={language} onAddPropertyClick={() => setIsModalOpen(true)} />} />
+            <Route path="/map" element={<PropertiesMapPage language={language} />} />
+            <Route path="/properties/:propertyId" element={<PropertyDetailsPage language={language} />} />
+            <Route path="/finishing" element={<FinishingPage language={language} />} />
+            <Route path="/decorations" element={<DecorationsPage language={language} />} />
+            <Route path="/contact" element={<ContactPage language={language} />} />
+            <Route path="/favorites" element={<FavoritesPage language={language} />} />
+          </Routes>
+        </main>
+        <Footer language={language} />
+        {isModalOpen && <AddPropertyModal onClose={() => setIsModalOpen(false)} language={language} />}
+        {isQuietZoneActive && <QuietZone onClose={() => setIsQuietZoneActive(false)} language={language} />}
+        <Chatbot language={language} />
+      </div>
+    </FavoritesProvider>
   );
 };
 

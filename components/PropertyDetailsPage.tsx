@@ -1,9 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { propertiesData } from '../data/properties';
-import { BedIcon, BathIcon, AreaIcon, CheckCircleIcon, ShareIcon } from './icons/Icons';
+import { getPropertyById } from '../api/properties';
+import type { Property } from '../data/properties';
+import { BedIcon, BathIcon, AreaIcon, CheckCircleIcon, ShareIcon, HeartIcon } from './icons/Icons';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
+import { useFavorites } from './shared/FavoritesContext';
 
 interface PropertyDetailsPageProps {
     language: Language;
@@ -13,11 +15,34 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
     const { propertyId } = useParams<{ propertyId: string }>();
     const t = translations[language];
     
-    const property = useMemo(() => 
-        propertiesData.find(p => p.id === propertyId),
-    [propertyId]);
+    const [property, setProperty] = useState<Property | null | undefined>(undefined);
+    const [isLoading, setIsLoading] = useState(true);
+    const [mainImage, setMainImage] = useState<string | undefined>(undefined);
 
-    const [mainImage, setMainImage] = useState(property?.imageUrl);
+    useEffect(() => {
+        const fetchProperty = async () => {
+            if (!propertyId) {
+                setProperty(null);
+                setIsLoading(false);
+                return;
+            }
+            setIsLoading(true);
+            const prop = await getPropertyById(propertyId);
+            setProperty(prop);
+            setMainImage(prop?.imageUrl);
+            setIsLoading(false);
+        };
+        fetchProperty();
+    }, [propertyId]);
+
+    const { isFavorite, toggleFavorite } = useFavorites();
+    const isFav = property ? isFavorite(property.id) : false;
+
+    const handleFavoriteClick = () => {
+        if (property) {
+            toggleFavorite(property.id);
+        }
+    };
 
     const handleShare = async () => {
         if (!property) return;
@@ -47,6 +72,14 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
         }
     };
 
+    if (isLoading) {
+        return (
+             <div className="py-20 text-center text-white text-xl">
+                Loading property details...
+            </div>
+        )
+    }
+
     if (!property) {
         return (
             <div className="py-20 text-center">
@@ -70,13 +103,22 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                         <h1 className="text-4xl md:text-5xl font-bold">{property.title[language]}</h1>
                         <p className="text-lg text-gray-400 mt-2">{property.address[language]}</p>
                     </div>
-                    <button 
-                        onClick={handleShare}
-                        className="flex-shrink-0 w-full sm:w-auto flex items-center justify-center gap-2 border border-gray-600 text-gray-300 px-4 py-2 rounded-lg hover:border-amber-500 hover:text-amber-500 transition-colors"
-                    >
-                        <ShareIcon className="w-6 h-6" />
-                        <span>{t.sharing.shareProperty}</span>
-                    </button>
+                    <div className="flex-shrink-0 w-full sm:w-auto flex items-center gap-2">
+                         <button 
+                            onClick={handleFavoriteClick}
+                            className="flex-shrink-0 flex items-center justify-center gap-2 border border-gray-600 text-gray-300 px-4 py-2 rounded-lg hover:border-red-500 hover:text-red-500 transition-colors"
+                            aria-label={isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}
+                        >
+                            <HeartIcon className={`w-6 h-6 transition-colors ${isFav ? 'text-red-500 fill-current' : ''}`} />
+                        </button>
+                        <button 
+                            onClick={handleShare}
+                            className="flex-shrink-0 flex items-center justify-center gap-2 border border-gray-600 text-gray-300 px-4 py-2 rounded-lg hover:border-amber-500 hover:text-amber-500 transition-colors"
+                        >
+                            <ShareIcon className="w-6 h-6" />
+                            <span>{t.sharing.shareProperty}</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

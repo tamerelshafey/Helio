@@ -1,10 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import FeatureSection from './FeatureSection';
-import { propertiesData } from '../data/properties';
+import type { Property } from '../data/properties';
+import { getProperties } from '../api/properties';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
 import { SearchIcon } from './icons/Icons';
+import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 
 const inputClasses = "w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-white placeholder-gray-400";
 const selectClasses = "w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-white";
@@ -17,6 +19,18 @@ interface PropertiesPageProps {
 const PropertiesPage: React.FC<PropertiesPageProps> = ({ onAddPropertyClick, language }) => {
     const t = translations[language].propertiesPage;
     const [searchParams, setSearchParams] = useSearchParams();
+    const [properties, setProperties] = useState<Property[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProperties = async () => {
+            setIsLoading(true);
+            const props = await getProperties();
+            setProperties(props);
+            setIsLoading(false);
+        };
+        fetchProperties();
+    }, []);
 
     const statusFilter = searchParams.get('status') || 'all';
     const typeFilter = searchParams.get('type') || 'all';
@@ -34,7 +48,7 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ onAddPropertyClick, lan
     };
 
     const filteredProperties = useMemo(() => {
-        return propertiesData.filter(p => {
+        return properties.filter(p => {
             const statusMatch = statusFilter === 'all' || p.status.en === statusFilter;
             const typeMatch = typeFilter === 'all' || p.type.en === typeFilter;
             
@@ -52,7 +66,7 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ onAddPropertyClick, lan
 
             return statusMatch && typeMatch && priceMatch && queryMatch;
         });
-    }, [statusFilter, typeFilter, priceFilter, queryFilter]);
+    }, [properties, statusFilter, typeFilter, priceFilter, queryFilter]);
 
     return (
         <div className="py-20 bg-gray-900">
@@ -104,7 +118,9 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ onAddPropertyClick, lan
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-              {filteredProperties.length > 0 ? (
+              {isLoading ? (
+                Array.from({ length: 6 }).map((_, index) => <PropertyCardSkeleton key={index} />)
+              ) : filteredProperties.length > 0 ? (
                 filteredProperties.map((prop) => (
                     <FeatureSection key={prop.id} {...prop} language={language} />
                 ))

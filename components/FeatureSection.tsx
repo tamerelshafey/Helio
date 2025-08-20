@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BedIcon, BathIcon, AreaIcon, ShareIcon } from './icons/Icons';
+import { BedIcon, BathIcon, AreaIcon, ShareIcon, HeartIcon } from './icons/Icons';
 import type { Property } from '../data/properties';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
+import { useFavorites } from './shared/FavoritesContext';
 
 interface FeatureSectionProps extends Property {
   language: Language;
@@ -21,7 +22,15 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
   language,
 }) => {
   const t = translations[language];
+  const { isFavorite, toggleFavorite } = useFavorites();
   const isForSale = status.en === 'For Sale';
+  const isFav = isFavorite(id);
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(id);
+  };
 
   const handleShareClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -63,6 +72,13 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
             {status[language]}
           </span>
           <div className={`absolute top-4 ${language === 'ar' ? 'left-4' : 'right-4'} flex gap-2`}>
+            <button
+              onClick={handleFavoriteClick}
+              className="p-2 rounded-full bg-black/50 hover:bg-black/75 transition-colors"
+              aria-label={isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}
+            >
+              <HeartIcon className={`w-6 h-6 transition-colors ${isFav ? 'text-red-500 fill-current' : 'text-white'}`} />
+            </button>
             <button
               onClick={handleShareClick}
               className="p-2 rounded-full bg-black/50 hover:bg-black/75 transition-colors"

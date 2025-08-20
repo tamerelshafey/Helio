@@ -131,10 +131,10 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
                                 {activeTabData.gallery.map((img, index) => (
                                     <div key={index} className="group relative overflow-hidden rounded-lg shadow-lg aspect-w-1 aspect-h-1 bg-gray-800">
                                         <img src={img.src} alt={img.alt} className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-105" />
-                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2">
                                             <button 
                                                 onClick={() => openModal(activeTabData.serviceType, 'similar', img.src)}
-                                                className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors transform translate-y-2 group-hover:translate-y-0"
+                                                className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors transform translate-y-2 group-hover:translate-y-0 text-center"
                                             >
                                                 {t.requestSimilarButton}
                                             </button>

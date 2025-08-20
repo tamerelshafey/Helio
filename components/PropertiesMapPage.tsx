@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
-import { propertiesData } from '../data/properties';
+import { getProperties } from '../api/properties';
+import type { Property } from '../data/properties';
 import { BedIcon, BathIcon, AreaIcon } from './icons/Icons';
 
 interface PropertiesMapPageProps {
@@ -25,7 +26,16 @@ const PropertiesMapPage: React.FC<PropertiesMapPageProps> = ({ language }) => {
     const t = translations[language];
     const map_t = t.propertiesMapPage;
     const card_t = t.propertyCard;
+    const [properties, setProperties] = useState<Property[]>([]);
     const position: [number, number] = [30.122421, 31.605335]; // Center of New Heliopolis
+
+    useEffect(() => {
+        const fetchProperties = async () => {
+            const props = await getProperties();
+            setProperties(props);
+        };
+        fetchProperties();
+    }, []);
 
     return (
         <div className="bg-gray-900">
@@ -41,7 +51,7 @@ const PropertiesMapPage: React.FC<PropertiesMapPageProps> = ({ language }) => {
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
-                    {propertiesData.map(prop => (
+                    {properties.map(prop => (
                         <Marker key={prop.id} position={[prop.location.lat, prop.location.lng]} icon={amberIcon}>
                             <Popup>
                                <div className="w-full">

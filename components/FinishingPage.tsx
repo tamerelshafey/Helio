@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import FinishingRequestModal from './FinishingRequestModal';
 import { EyeIcon, CubeIcon, WrenchScrewdriverIcon } from './icons/Icons';
