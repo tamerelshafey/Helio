@@ -37,7 +37,7 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
               {t.rent}
             </button>
           </div>
-          <form className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+          <form className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center" onSubmit={(e) => e.preventDefault()}>
             <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
               <input type="text" placeholder={t.searchPlaceholder} className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-white placeholder-gray-400"/>
               <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-gray-400">

@@ -52,14 +52,14 @@ const Header: React.FC<HeaderProps> = ({ onAddPropertyClick, onToggleQuietZone, 
             <div className="hidden sm:flex items-center gap-2 text-sm">
               <button 
                 onClick={() => onLanguageChange('en')}
-                className={language === 'en' ? "text-amber-500 font-semibold" : "text-gray-400 font-semibold"}
+                className={`transition-colors ${language === 'en' ? "text-amber-500 font-semibold" : "text-gray-400 hover:text-amber-500"}`}
               >
                 EN
               </button>
               <span className="text-gray-500">|</span>
               <button 
                 onClick={() => onLanguageChange('ar')}
-                className={language === 'ar' ? "text-amber-500 font-semibold" : "text-gray-400 font-semibold"}
+                className={`transition-colors ${language === 'ar' ? "text-amber-500 font-semibold" : "text-gray-400 hover:text-amber-500"}`}
               >
                 AR
               </button>
@@ -96,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({ onAddPropertyClick, onToggleQuietZone, 
           </div>
         </div>
         {isMenuOpen && (
-          <div className="lg:hidden mt-4 border-t border-gray-700/50 pt-4">
+          <div className="lg:hidden mt-4 border-t border-gray-700/50 pt-4 animate-fadeIn">
             <nav className="flex flex-col items-start gap-2">
               {navLinks.map((link) => (
                 <NavLink 
@@ -104,12 +104,36 @@ const Header: React.FC<HeaderProps> = ({ onAddPropertyClick, onToggleQuietZone, 
                   to={link.href} 
                   end={link.href === '/'}
                   onClick={() => setIsMenuOpen(false)}
-                  className={({ isActive }) => `w-full ${language === 'ar' ? 'text-right' : 'text-left'} p-2 rounded-md ${isActive ? activeLinkClass + ' bg-gray-800' : inactiveLinkClass} transition-colors duration-200`}
+                  className={({ isActive }) => `w-full ${language === 'ar' ? 'text-right' : 'text-left'} p-3 rounded-md ${isActive ? activeLinkClass + ' bg-gray-800' : inactiveLinkClass} transition-colors duration-200`}
                 >
                   {link.name}
                 </NavLink>
               ))}
             </nav>
+            <div className="border-t border-gray-700/50 mt-4 pt-4 flex flex-col items-start gap-3">
+               <button
+                  onClick={() => { onToggleQuietZone(); setIsMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 p-3 rounded-md text-gray-300 hover:text-amber-500 hover:bg-gray-800 transition-colors"
+                >
+                  <QuietZoneIcon className="h-6 w-6" />
+                  <span>المنطقة الهادئة</span>
+                </button>
+                <div className="flex items-center gap-2 text-sm p-3">
+                  <button 
+                    onClick={() => onLanguageChange('en')}
+                    className={`transition-colors ${language === 'en' ? "text-amber-500 font-semibold" : "text-gray-400 hover:text-amber-500"}`}
+                  >
+                    EN
+                  </button>
+                  <span className="text-gray-500">|</span>
+                  <button 
+                    onClick={() => onLanguageChange('ar')}
+                    className={`transition-colors ${language === 'ar' ? "text-amber-500 font-semibold" : "text-gray-400 hover:text-amber-500"}`}
+                  >
+                    AR
+                  </button>
+                </div>
+            </div>
           </div>
         )}
       </div>
