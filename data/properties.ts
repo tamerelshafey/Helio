@@ -12,8 +12,8 @@ export interface Property {
   };
   priceNumeric: number;
   type: {
-    ar: 'فيلا' | 'شقة' | 'بنتهاوس' | 'أرض';
-    en: 'Villa' | 'Apartment' | 'Penthouse' | 'Land';
+    ar: 'فيلا' | 'شقة' | 'تجاري' | 'أرض';
+    en: 'Villa' | 'Apartment' | 'Commercial' | 'Land';
   };
   title: {
     ar: string;
@@ -141,8 +141,8 @@ export const propertiesData: Property[] = [
       status: { ar: "للبيع", en: "For Sale" },
       price: { ar: "4,000,000 ج.م", en: "EGP 4,000,000" },
       priceNumeric: 4000000,
-      type: { ar: "بنتهاوس", en: "Penthouse" },
-      title: { ar: "بنتهاوس فاخر للبيع", en: "Luxury Penthouse for Sale" },
+      type: { ar: "شقة", en: "Apartment" },
+      title: { ar: "شقة بنتهاوس فاخرة للبيع", en: "Luxury Penthouse Apartment for Sale" },
       address: { ar: "برج النخبة، هليوبوليس الجديدة", en: "El Nokhba Tower, New Heliopolis" },
       description: {
           ar: "بنتهاوس دوبلكس فاخر مع رووف خاص وإطلالة مفتوحة. يتميز بتصميم فريد وتشطيبات على أعلى مستوى. يوفر مساحة معيشة واسعة ومثالية للاسترخاء والترفيه.",

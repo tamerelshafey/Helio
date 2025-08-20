@@ -2,21 +2,15 @@ import React, { useState } from 'react';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
 import { GoogleGenAI, Type } from "@google/genai";
+import FormField, { inputClasses, selectClasses } from './shared/FormField';
+
+// Initialize the AI client once to avoid re-creation on every call
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 interface AddPropertyModalProps {
   onClose: () => void;
   language: Language;
 }
-
-const inputClasses = "w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-white placeholder-gray-400";
-const selectClasses = `${inputClasses} appearance-none`;
-
-const FormField: React.FC<{ label: string; id: string; children: React.ReactNode }> = ({ label, id, children }) => (
-  <div>
-    <label htmlFor={id} className="block text-sm font-medium text-gray-300 mb-2">{label}</label>
-    {children}
-  </div>
-);
 
 const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ onClose, language }) => {
   const t = translations[language].addPropertyModal;
@@ -49,8 +43,6 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ onClose, language }
     
     setIsGenerating(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      
       const prompt = `
         Act as a professional real estate marketer. Based on the following details, write a compelling and attractive property description in both Arabic and English.
         - Property Type: ${formData.propertyType}
@@ -141,7 +133,7 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ onClose, language }
                                 <option value="">{t.selectType}</option>
                                 <option value="apartment">{t.apartment}</option>
                                 <option value="villa">{t.villa}</option>
-                                <option value="commercial">{t.commercialUnit}</option>
+                                <option value="commercial">{t.commercial}</option>
                                 <option value="land">{t.land}</option>
                             </select>
                         </FormField>

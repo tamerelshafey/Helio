@@ -5,6 +5,9 @@ import { translations } from '../data/translations';
 import { propertiesData } from '../data/properties';
 import { ChatIcon, CloseIcon, SendIcon } from './icons/Icons';
 
+// Initialize the AI client once to avoid re-creation on every message
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
 interface ChatbotProps {
   language: Language;
 }
@@ -42,7 +45,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ language }) => {
     setIsLoading(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const propertiesJSON = JSON.stringify(propertiesData.map(p => ({
         id: p.id,
         title: p.title[language],

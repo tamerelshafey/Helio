@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BedIcon, BathIcon, AreaIcon } from './icons/Icons';
+import { BedIcon, BathIcon, AreaIcon, ShareIcon } from './icons/Icons';
 import type { Property } from '../data/properties';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
@@ -20,8 +20,39 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
   area,
   language,
 }) => {
-  const t = translations[language].propertyCard;
+  const t = translations[language];
   const isForSale = status.en === 'For Sale';
+
+  const handleShareClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const baseUrl = window.location.href.split('#')[0];
+    const propertyUrl = `${baseUrl}#/properties/${id}`;
+    const shareData = {
+        title: title[language],
+        text: `${title[language]} - ${price[language]}`,
+        url: propertyUrl,
+    };
+
+    if (navigator.share) {
+        try {
+            await navigator.share(shareData);
+        } catch (err) {
+            console.error('Error sharing:', err);
+        }
+    } else {
+        // Fallback: copy to clipboard
+        try {
+            await navigator.clipboard.writeText(propertyUrl);
+            alert(t.sharing.linkCopied);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+            alert(t.sharing.shareFailed);
+        }
+    }
+  };
+
 
   return (
     <Link to={`/properties/${id}`} className="block h-full">
@@ -31,6 +62,15 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
           <span className={`absolute top-4 ${language === 'ar' ? 'right-4' : 'left-4'} text-white font-semibold px-3 py-1 rounded-md text-sm ${isForSale ? 'bg-green-600' : 'bg-sky-600'}`}>
             {status[language]}
           </span>
+          <div className={`absolute top-4 ${language === 'ar' ? 'left-4' : 'right-4'} flex gap-2`}>
+            <button
+              onClick={handleShareClick}
+              className="p-2 rounded-full bg-black/50 hover:bg-black/75 transition-colors"
+              aria-label={t.sharing.share}
+            >
+              <ShareIcon className="w-6 h-6 text-white" />
+            </button>
+          </div>
         </div>
         <div className="p-5 flex flex-col flex-grow">
           <p className="text-2xl font-bold text-amber-500 mb-2">{price[language]}</p>
@@ -38,15 +78,15 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
           <div className="flex justify-between items-center text-gray-400 border-t border-gray-700 pt-4 mt-auto">
             <div className="flex items-center gap-2">
               <BedIcon className="w-5 h-5 text-gray-500" />
-              <span>{beds} {t.beds}</span>
+              <span>{beds} {t.propertyCard.beds}</span>
             </div>
             <div className="flex items-center gap-2">
               <BathIcon className="w-5 h-5 text-gray-500" />
-              <span>{baths} {t.baths}</span>
+              <span>{baths} {t.propertyCard.baths}</span>
             </div>
             <div className="flex items-center gap-2">
               <AreaIcon className="w-5 h-5 text-gray-500" />
-              <span>{area} {t.area}</span>
+              <span>{area} {t.propertyCard.area}</span>
             </div>
           </div>
         </div>

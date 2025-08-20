@@ -3,28 +3,21 @@ import type { Language } from '../App';
 import { translations } from '../data/translations';
 import FormField, { inputClasses } from './shared/FormField';
 
-interface DecorationRequestModalProps {
+interface FinishingRequestModalProps {
     onClose: () => void;
     serviceTitle: string;
-    serviceType: string;
-    requestType: 'custom' | 'similar';
-    imageUrl?: string;
     language: Language;
 }
 
-const DecorationRequestModal: React.FC<DecorationRequestModalProps> = ({ onClose, serviceTitle, serviceType, requestType, imageUrl, language }) => {
-    const t = translations[language].decorationRequestModal;
+const FinishingRequestModal: React.FC<FinishingRequestModalProps> = ({ onClose, serviceTitle, language }) => {
+    const t = translations[language].finishingRequestModal;
     
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Decoration request submitted for:", serviceTitle, { requestType, imageUrl });
+        console.log("Finishing request submitted for:", serviceTitle);
         alert(t.successMessage);
         onClose();
     };
-
-    const isWallDecor = serviceType === 'wall-decor';
-    const isSimilarRequest = requestType === 'similar';
-    const subtitle = isSimilarRequest ? t.similarRequestSubtitle : t.customRequestSubtitle;
 
     return (
         <div 
@@ -43,15 +36,8 @@ const DecorationRequestModal: React.FC<DecorationRequestModalProps> = ({ onClose
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                    <h2 className="text-3xl font-bold text-amber-500 mb-2 text-center">{serviceTitle}</h2>
-                    <p className="text-gray-400 text-center mb-6">{subtitle}</p>
-                    
-                    {isSimilarRequest && imageUrl && (
-                        <div className="mb-6 p-4 bg-gray-700/50 rounded-lg flex items-center gap-4 border border-gray-600">
-                            <img src={imageUrl} alt="Reference design" className="w-20 h-20 object-cover rounded-md" />
-                            <p className="text-sm text-gray-300">{t.similarRequestReference}</p>
-                        </div>
-                    )}
+                    <h2 className="text-3xl font-bold text-amber-500 mb-2 text-center">{t.title}</h2>
+                    <p className="text-gray-400 text-center mb-6">({serviceTitle})</p>
                     
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -62,24 +48,19 @@ const DecorationRequestModal: React.FC<DecorationRequestModalProps> = ({ onClose
                                 <input type="tel" id="phone" className={inputClasses} required dir="ltr" />
                             </FormField>
                         </div>
-                        
-                        {isWallDecor && (
-                             <FormField label={t.dimensions} id="dimensions">
-                                <input type="text" id="dimensions" placeholder={t.dimensionsPlaceholder} className={inputClasses} />
-                            </FormField>
-                        )}
 
-                        <FormField label={t.description} id="description">
-                            <textarea id="description" rows={4} placeholder={t.descriptionPlaceholder} className={inputClasses} required></textarea>
+                         <FormField label={t.preferredContactTime} id="contactTime">
+                            <select id="contactTime" className={`${inputClasses} text-gray-400`} required defaultValue="">
+                                <option value="" disabled>{t.preferredContactTimeDefault}</option>
+                                <option value="morning" className="text-white">{t.preferredContactTimeMorning}</option>
+                                <option value="afternoon" className="text-white">{t.preferredContactTimeAfternoon}</option>
+                                <option value="evening" className="text-white">{t.preferredContactTimeEvening}</option>
+                            </select>
                         </FormField>
-
-                        {!isSimilarRequest && (
-                            <FormField label={t.attachImage} id="imageUpload">
-                                <p className="text-xs text-gray-500 mb-2">{t.attachImageHint}</p>
-                                <input type="file" id="imageUpload" className={`${inputClasses} file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-500 file:text-gray-900 hover:file:bg-amber-600 cursor-pointer`} />
-                            </FormField>
-                        )}
-
+                        
+                        <FormField label={t.notes} id="notes">
+                            <textarea id="notes" rows={4} placeholder={t.notesPlaceholder} className={inputClasses}></textarea>
+                        </FormField>
 
                         <div className="pt-2 flex justify-end">
                             <button type="submit" className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200">
@@ -93,4 +74,4 @@ const DecorationRequestModal: React.FC<DecorationRequestModalProps> = ({ onClose
     );
 };
 
-export default DecorationRequestModal;
+export default FinishingRequestModal;

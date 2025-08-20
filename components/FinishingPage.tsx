@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircleIcon } from './icons/Icons';
+import FinishingRequestModal from './FinishingRequestModal';
+import { EyeIcon, CubeIcon, WrenchScrewdriverIcon } from './icons/Icons';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
 
@@ -8,30 +9,66 @@ interface FinishingPageProps {
   language: Language;
 }
 
-const Step: React.FC<{ number: string; title: string; description: string; }> = ({ number, title, description }) => (
-    <div className="flex items-start gap-4">
-        <div className="flex-shrink-0 bg-amber-500 text-gray-900 w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl">
-            {number}
+interface ServiceCardProps {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    onRequest: () => void;
+    buttonText: string;
+}
+
+const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, onRequest, buttonText }) => (
+    <div className="bg-gray-800 p-8 rounded-lg border border-gray-700 text-center flex flex-col items-center h-full">
+        <div className="flex-shrink-0 bg-amber-500/10 text-amber-500 p-4 rounded-full mb-6">
+            {icon}
         </div>
-        <div>
-            <h3 className="text-xl font-bold text-white mb-1">{title}</h3>
-            <p className="text-gray-400">{description}</p>
-        </div>
+        <h3 className="text-2xl font-bold text-white mb-3">{title}</h3>
+        <p className="text-gray-400 leading-relaxed flex-grow">{description}</p>
+        <button 
+            onClick={onRequest}
+            className="mt-6 bg-amber-500 text-gray-900 font-semibold px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors duration-200"
+        >
+            {buttonText}
+        </button>
     </div>
 );
 
+
 const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
     const t = translations[language].finishingPage;
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
 
-    const galleryImages = [
-        "https://images.unsplash.com/photo-1600607687939-ce8a67767e5c?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1537726235470-8504e3b77ce8?q=80&w=1950&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1600607686527-6fb88629f44b?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000&auto=format&fit=crop",
+    const openModal = (title: string) => {
+        setModalTitle(title);
+        setIsModalOpen(true);
+    };
+
+    const services = [
+        {
+            icon: <EyeIcon className="w-8 h-8" />,
+            title: t.service1Title,
+            description: t.service1Desc,
+            onRequest: () => openModal(t.service1Title),
+        },
+        {
+            icon: <CubeIcon className="w-8 h-8" />,
+            title: t.service2Title,
+            description: t.service2Desc,
+            onRequest: () => openModal(t.service2Title),
+        },
+        {
+            icon: <WrenchScrewdriverIcon className="w-8 h-8" />,
+            title: t.service3Title,
+            description: t.service3Desc,
+            onRequest: () => openModal(t.service3Title),
+        }
     ];
 
     return (
         <div className="bg-gray-900 text-white">
+             {isModalOpen && <FinishingRequestModal onClose={() => setIsModalOpen(false)} serviceTitle={modalTitle} language={language} />}
+
             {/* Hero Section */}
             <section className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071&auto=format&fit=crop')" }}>
                 <div className="absolute top-0 left-0 w-full h-full bg-black/70 z-10"></div>
@@ -41,23 +78,17 @@ const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
                 </div>
             </section>
 
-            {/* Our Process Section */}
+            {/* Services Section */}
             <section className="py-20">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold">{t.processTitle}</h2>
-                        <p className="text-lg text-gray-400 mt-4 max-w-2xl mx-auto">{t.processSubtitle}</p>
+                        <h2 className="text-3xl md:text-4xl font-bold">{t.servicesTitle}</h2>
+                        <p className="text-lg text-gray-400 mt-4 max-w-2xl mx-auto">{t.servicesSubtitle}</p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                        <div className="space-y-8">
-                           <Step number="01" title={t.step1Title} description={t.step1Desc} />
-                           <Step number="02" title={t.step2Title} description={t.step2Desc} />
-                           <Step number="03" title={t.step3Title} description={t.step3Desc} />
-                           <Step number="04" title={t.step4Title} description={t.step4Desc} />
-                        </div>
-                        <div>
-                            <img src="https://images.unsplash.com/photo-1542349332-9a28a980283a?q=80&w=1974&auto=format&fit=crop" alt="Interior design planning" className="rounded-lg shadow-xl w-full h-auto object-cover" />
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {services.map((service) => (
+                            <ServiceCard key={service.title} {...service} buttonText={t.requestButton} />
+                        ))}
                     </div>
                 </div>
             </section>
@@ -69,12 +100,19 @@ const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
                         <h2 className="text-3xl md:text-4xl font-bold">{t.galleryTitle}</h2>
                         <p className="text-lg text-gray-400 mt-4 max-w-2xl mx-auto">{t.gallerySubtitle}</p>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {galleryImages.map((src, index) => (
-                            <div key={index} className="overflow-hidden rounded-lg shadow-lg">
-                                <img src={src} alt={`Finished project ${index + 1}`} className="w-full h-64 object-cover transform hover:scale-105 transition-transform duration-300" />
-                            </div>
-                        ))}
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="overflow-hidden rounded-lg shadow-lg">
+                            <img src="https://images.unsplash.com/photo-1600607687939-ce8a67767e5c?q=80&w=2070&auto=format&fit=crop" alt="Finished project 1" className="w-full h-64 object-cover transform hover:scale-105 transition-transform duration-300" />
+                        </div>
+                        <div className="overflow-hidden rounded-lg shadow-lg">
+                            <img src="https://images.unsplash.com/photo-1537726235470-8504e3b77ce8?q=80&w=1950&auto=format&fit=crop" alt="Finished project 2" className="w-full h-64 object-cover transform hover:scale-105 transition-transform duration-300" />
+                        </div>
+                        <div className="overflow-hidden rounded-lg shadow-lg">
+                             <img src="https://images.unsplash.com/photo-1600607686527-6fb88629f44b?q=80&w=2070&auto=format&fit=crop" alt="Finished project 3" className="w-full h-64 object-cover transform hover:scale-105 transition-transform duration-300" />
+                        </div>
+                        <div className="overflow-hidden rounded-lg shadow-lg">
+                             <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000&auto=format&fit=crop" alt="Finished project 4" className="w-full h-64 object-cover transform hover:scale-105 transition-transform duration-300" />
+                        </div>
                     </div>
                 </div>
             </section>

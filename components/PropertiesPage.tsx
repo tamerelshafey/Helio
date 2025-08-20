@@ -1,10 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import FeatureSection from './FeatureSection';
 import { propertiesData } from '../data/properties';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
+import { SearchIcon } from './icons/Icons';
 
-const selectClasses = "w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-white placeholder-gray-400";
+const inputClasses = "w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-white placeholder-gray-400";
+const selectClasses = "w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-white";
 
 interface PropertiesPageProps {
   onAddPropertyClick: () => void;
@@ -13,9 +16,22 @@ interface PropertiesPageProps {
 
 const PropertiesPage: React.FC<PropertiesPageProps> = ({ onAddPropertyClick, language }) => {
     const t = translations[language].propertiesPage;
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [typeFilter, setTypeFilter] = useState('all');
-    const [priceFilter, setPriceFilter] = useState('all');
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const statusFilter = searchParams.get('status') || 'all';
+    const typeFilter = searchParams.get('type') || 'all';
+    const priceFilter = searchParams.get('price') || 'all';
+    const queryFilter = searchParams.get('q') || '';
+
+    const handleFilterChange = (filterName: string, value: string) => {
+        const newParams = new URLSearchParams(searchParams.toString());
+        if (value === 'all' || !value) {
+            newParams.delete(filterName);
+        } else {
+            newParams.set(filterName, value);
+        }
+        setSearchParams(newParams, { replace: true });
+    };
 
     const filteredProperties = useMemo(() => {
         return propertiesData.filter(p => {
@@ -28,9 +44,15 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ onAddPropertyClick, lan
                 (priceFilter === 'high' && p.priceNumeric > 3000000)
             );
 
-            return statusMatch && typeMatch && priceMatch;
+            const queryMatch = !queryFilter || 
+              p.title.ar.toLowerCase().includes(queryFilter.toLowerCase()) ||
+              p.title.en.toLowerCase().includes(queryFilter.toLowerCase()) ||
+              p.address.ar.toLowerCase().includes(queryFilter.toLowerCase()) ||
+              p.address.en.toLowerCase().includes(queryFilter.toLowerCase());
+
+            return statusMatch && typeMatch && priceMatch && queryMatch;
         });
-    }, [statusFilter, typeFilter, priceFilter]);
+    }, [statusFilter, typeFilter, priceFilter, queryFilter]);
 
     return (
         <div className="py-20 bg-gray-900">
@@ -49,19 +71,30 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ onAddPropertyClick, lan
             </div>
             
             <div className="mb-12 p-6 bg-gray-800 rounded-lg border border-gray-700">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className={selectClasses}>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="relative">
+                        <input 
+                            type="text" 
+                            value={queryFilter} 
+                            onChange={e => handleFilterChange('q', e.target.value)} 
+                            placeholder={t.searchPlaceholder}
+                            className={`${inputClasses} ${language === 'ar' ? 'pr-10' : 'pl-10'}`}
+                        />
+                         <SearchIcon className={`absolute top-1/2 -translate-y-1/2 ${language === 'ar' ? 'right-3' : 'left-3'} h-5 w-5 text-gray-400`} />
+                    </div>
+                    <select value={statusFilter} onChange={e => handleFilterChange('status', e.target.value)} className={selectClasses}>
                         <option value="all">{t.allStatuses}</option>
                         <option value="For Sale">{t.forSale}</option>
                         <option value="For Rent">{t.forRent}</option>
                     </select>
-                    <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className={selectClasses}>
+                    <select value={typeFilter} onChange={e => handleFilterChange('type', e.target.value)} className={selectClasses}>
                         <option value="all">{t.allTypes}</option>
                         <option value="Apartment">{t.apartment}</option>
                         <option value="Villa">{t.villa}</option>
-                        <option value="Penthouse">{t.penthouse}</option>
+                        <option value="Commercial">{t.commercial}</option>
+                        <option value="Land">{t.land}</option>
                     </select>
-                    <select value={priceFilter} onChange={e => setPriceFilter(e.target.value)} className={selectClasses}>
+                    <select value={priceFilter} onChange={e => handleFilterChange('price', e.target.value)} className={selectClasses}>
                         <option value="all">{t.allPrices}</option>
                         <option value="low">{t.priceRange1}</option>
                         <option value="medium">{t.priceRange2}</option>
@@ -78,6 +111,7 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ onAddPropertyClick, lan
               ) : (
                 <div className="col-span-full text-center py-16">
                     <p className="text-xl text-gray-400">{t.noResults}</p>
+
                 </div>
               )}
             </div>

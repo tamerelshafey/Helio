@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { propertiesData } from '../data/properties';
-import { BedIcon, BathIcon, AreaIcon, CheckCircleIcon } from './icons/Icons';
+import { BedIcon, BathIcon, AreaIcon, CheckCircleIcon, ShareIcon } from './icons/Icons';
 import type { Language } from '../App';
 import { translations } from '../data/translations';
 
@@ -11,7 +11,7 @@ interface PropertyDetailsPageProps {
 
 const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) => {
     const { propertyId } = useParams<{ propertyId: string }>();
-    const t = translations[language].propertyDetailsPage;
+    const t = translations[language];
     
     const property = useMemo(() => 
         propertiesData.find(p => p.id === propertyId),
@@ -19,13 +19,41 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
 
     const [mainImage, setMainImage] = useState(property?.imageUrl);
 
+    const handleShare = async () => {
+        if (!property) return;
+        
+        const baseUrl = window.location.href.split('#')[0];
+        const propertyUrl = `${baseUrl}#/properties/${property.id}`;
+        const shareData = {
+            title: property.title[language],
+            text: `${property.title[language]} - ${property.price[language]}`,
+            url: propertyUrl,
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.error('Error sharing property:', err);
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(propertyUrl);
+                alert(t.sharing.linkCopied);
+            } catch (err) {
+                console.error('Failed to copy link:', err);
+                alert(t.sharing.shareFailed);
+            }
+        }
+    };
+
     if (!property) {
         return (
             <div className="py-20 text-center">
-                <h1 className="text-4xl font-bold text-white">{t.notFoundTitle}</h1>
-                <p className="text-gray-400 mt-4">{t.notFoundText}</p>
+                <h1 className="text-4xl font-bold text-white">{t.propertyDetailsPage.notFoundTitle}</h1>
+                <p className="text-gray-400 mt-4">{t.propertyDetailsPage.notFoundText}</p>
                 <Link to="/properties" className="mt-8 inline-block bg-amber-500 text-gray-900 font-semibold px-6 py-3 rounded-lg hover:bg-amber-600">
-                    {t.backButton}
+                    {t.propertyDetailsPage.backButton}
                 </Link>
             </div>
         );
@@ -37,9 +65,18 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
         <div className="bg-gray-900 text-white py-12">
             <div className="container mx-auto px-6">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl md:text-5xl font-bold">{property.title[language]}</h1>
-                    <p className="text-lg text-gray-400 mt-2">{property.address[language]}</p>
+                <div className="mb-8 flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div>
+                        <h1 className="text-4xl md:text-5xl font-bold">{property.title[language]}</h1>
+                        <p className="text-lg text-gray-400 mt-2">{property.address[language]}</p>
+                    </div>
+                    <button 
+                        onClick={handleShare}
+                        className="flex-shrink-0 w-full sm:w-auto flex items-center justify-center gap-2 border border-gray-600 text-gray-300 px-4 py-2 rounded-lg hover:border-amber-500 hover:text-amber-500 transition-colors"
+                    >
+                        <ShareIcon className="w-6 h-6" />
+                        <span>{t.sharing.shareProperty}</span>
+                    </button>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -68,13 +105,13 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
 
                         {/* Description */}
                         <div className="bg-gray-800 p-8 rounded-lg border border-gray-700 mb-8">
-                            <h2 className="text-2xl font-bold text-amber-500 mb-4">{t.description}</h2>
+                            <h2 className="text-2xl font-bold text-amber-500 mb-4">{t.propertyDetailsPage.description}</h2>
                             <p className="text-gray-300 leading-relaxed whitespace-pre-line">{property.description[language]}</p>
                         </div>
                         
                         {/* Amenities */}
                         <div className="bg-gray-800 p-8 rounded-lg border border-gray-700 mb-8">
-                             <h2 className="text-2xl font-bold text-amber-500 mb-6">{t.amenities}</h2>
+                             <h2 className="text-2xl font-bold text-amber-500 mb-6">{t.propertyDetailsPage.amenities}</h2>
                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 {property.amenities[language].map(amenity => (
                                     <div key={amenity} className="flex items-center gap-3">
@@ -87,7 +124,7 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
 
                         {/* Map */}
                         <div className="bg-gray-800 p-8 rounded-lg border border-gray-700">
-                             <h2 className="text-2xl font-bold text-amber-500 mb-4">{t.mapLocation}</h2>
+                             <h2 className="text-2xl font-bold text-amber-500 mb-4">{t.propertyDetailsPage.mapLocation}</h2>
                              <div className="overflow-hidden rounded-lg">
                                  <iframe 
                                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d27625.686876055146!2d31.60533565!3d30.122421899999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14581bb448a04499%3A0x3977a7c06ac29759!2sNew%20Heliopolis%2C%20El%20Shorouk%2C%20Cairo%20Governorate!5e0!3m2!1sen!2seg!4v1678886543210!5m2!1sen!2seg"
@@ -111,26 +148,26 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                                 <div className="flex flex-col items-center gap-2">
                                     <BedIcon className="w-8 h-8 text-gray-400" />
                                     <span className="font-bold">{property.beds}</span>
-                                    <span>{t.bedrooms}</span>
+                                    <span>{t.propertyDetailsPage.bedrooms}</span>
                                 </div>
                                 <div className="flex flex-col items-center gap-2">
                                     <BathIcon className="w-8 h-8 text-gray-400" />
                                     <span className="font-bold">{property.baths}</span>
-                                    <span>{t.bathrooms}</span>
+                                    <span>{t.propertyDetailsPage.bathrooms}</span>
                                 </div>
                                 <div className="flex flex-col items-center gap-2">
                                     <AreaIcon className="w-8 h-8 text-gray-400" />
                                     <span className="font-bold">{property.area} m²</span>
-                                    <span>{t.area}</span>
+                                    <span>{t.propertyDetailsPage.area}</span>
                                 </div>
                             </div>
                              
-                            <h3 className="text-xl font-bold text-white mb-4">{t.contactAgent}</h3>
+                            <h3 className="text-xl font-bold text-white mb-4">{t.propertyDetailsPage.contactAgent}</h3>
                             <div className="space-y-4 mb-6">
-                                <p className="text-gray-400">{t.contactText}</p>
+                                <p className="text-gray-400">{t.propertyDetailsPage.contactText}</p>
                             </div>
                             <Link to="/contact" className="w-full block text-center bg-amber-500 text-gray-900 font-bold px-6 py-4 rounded-lg text-lg hover:bg-amber-600 transition-colors duration-200">
-                                {t.contactButton}
+                                {t.propertyDetailsPage.contactButton}
                             </Link>
                         </div>
                     </div>
