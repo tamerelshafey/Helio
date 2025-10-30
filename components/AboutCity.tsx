@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Language } from '../App';
+import type { Language } from '../types';
 import { translations } from '../data/translations';
 
 interface AboutCityProps {
@@ -44,36 +44,36 @@ const AboutCity: React.FC<AboutCityProps> = ({ language }) => {
     }
 
     return (
-        <section className="py-20 bg-gray-800">
+        <section className="py-20 bg-gray-50 dark:bg-gray-800">
             <div className="container mx-auto px-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div className="space-y-6">
-                        <h2 className="text-3xl md:text-4xl font-bold text-white">
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
                            {t.title}
                         </h2>
-                        <p className="text-gray-400 text-lg">
+                        <p className="text-gray-600 dark:text-gray-400 text-lg">
                            {t.description}
                         </p>
                         <div className="grid grid-cols-2 gap-6 text-center">
-                            <div className="bg-gray-900 p-4 rounded-lg">
+                            <div className="bg-white dark:bg-gray-900 p-4 rounded-lg">
                                 <p className="text-amber-500 text-2xl font-bold">{t.time1Value}</p>
-                                <p className="text-gray-400 text-sm">{t.time1Desc}</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm">{t.time1Desc}</p>
                             </div>
-                            <div className="bg-gray-900 p-4 rounded-lg">
+                            <div className="bg-white dark:bg-gray-900 p-4 rounded-lg">
                                 <p className="text-amber-500 text-2xl font-bold">{t.time2Value}</p>
-                                <p className="text-gray-400 text-sm">{t.time2Desc}</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm">{t.time2Desc}</p>
                             </div>
-                             <div className="bg-gray-900 p-4 rounded-lg">
+                             <div className="bg-white dark:bg-gray-900 p-4 rounded-lg">
                                 <p className="text-amber-500 text-2xl font-bold">{t.time3Value}</p>
-                                <p className="text-gray-400 text-sm">{t.time3Desc}</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm">{t.time3Desc}</p>
                             </div>
-                             <div className="bg-gray-900 p-4 rounded-lg">
+                             <div className="bg-white dark:bg-gray-900 p-4 rounded-lg">
                                 <p className="text-amber-500 text-2xl font-bold">{t.time4Value}</p>
-                                <p className="text-gray-400 text-sm">{t.time4Desc}</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm">{t.time4Desc}</p>
                             </div>
                         </div>
                     </div>
-                     <div className="relative w-full h-[500px] rounded-2xl shadow-xl overflow-hidden border-4 border-gray-700">
+                     <div className="relative w-full h-[500px] rounded-2xl shadow-xl overflow-hidden border-4 border-gray-200 dark:border-gray-700">
                         {images.map((image, index) => (
                             <div
                                 key={index}

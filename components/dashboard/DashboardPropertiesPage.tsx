@@ -1,0 +1,171 @@
+import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import type { Language, Property } from '../../types';
+import { translations } from '../../data/translations';
+import { useAuth } from '../auth/AuthContext';
+import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
+import { inputClasses, selectClasses } from '../shared/FormField';
+import { useData } from '../shared/DataContext';
+
+type SortConfig = {
+    key: 'title' | 'status' | 'priceNumeric';
+    direction: 'ascending' | 'descending';
+} | null;
+
+const DashboardPropertiesPage: React.FC<{ language: Language }> = ({ language }) => {
+    const t = translations[language].dashboard;
+    const { currentUser } = useAuth();
+    const { properties, loading, deleteProperty } = useData();
+    
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+
+    const partnerProperties = useMemo(() => {
+        if (!currentUser) return [];
+        return properties.filter(p => p.partnerId === currentUser.id);
+    }, [properties, currentUser]);
+
+
+    const sortedAndFilteredProperties = useMemo(() => {
+        let filteredProps = [...partnerProperties];
+
+        if (searchTerm) {
+            const lowercasedFilter = searchTerm.toLowerCase();
+            filteredProps = filteredProps.filter(prop =>
+                prop.title[language].toLowerCase().includes(lowercasedFilter)
+            );
+        }
+
+        if (statusFilter !== 'all') {
+            filteredProps = filteredProps.filter(prop => prop.status.en === statusFilter);
+        }
+
+        if (sortConfig !== null) {
+            filteredProps.sort((a, b) => {
+                let aValue: string | number;
+                let bValue: string | number;
+
+                if (sortConfig.key === 'title' || sortConfig.key === 'status') {
+                    aValue = a[sortConfig.key][language];
+                    bValue = b[sortConfig.key][language];
+                } else {
+                    aValue = a[sortConfig.key];
+                    bValue = b[sortConfig.key];
+                }
+
+                if (aValue < bValue) {
+                    return sortConfig.direction === 'ascending' ? -1 : 1;
+                }
+                if (aValue > bValue) {
+                    return sortConfig.direction === 'ascending' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return filteredProps;
+    }, [partnerProperties, searchTerm, statusFilter, sortConfig, language]);
+
+    const requestSort = (key: 'title' | 'status' | 'priceNumeric') => {
+        let direction: 'ascending' | 'descending' = 'ascending';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const getSortIcon = (key: 'title' | 'status' | 'priceNumeric') => {
+        if (!sortConfig || sortConfig.key !== key) {
+            return <span className="w-4 h-4 ml-1 inline-block"></span>;
+        }
+        return sortConfig.direction === 'ascending'
+            ? <ArrowUpIcon className="w-4 h-4 ml-1 inline-block" />
+            : <ArrowDownIcon className="w-4 h-4 ml-1 inline-block" />;
+    };
+
+    const handleDelete = async (propertyId: string) => {
+        if (window.confirm(t.propertyTable.confirmDelete)) {
+            await deleteProperty(propertyId);
+        }
+    };
+    
+    if (currentUser?.type === 'finishing') {
+        return null;
+    }
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t.propertiesTitle}</h1>
+                <Link to="/dashboard/properties/new" className="bg-amber-500 text-gray-900 font-semibold px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors">
+                    {t.addProperty}
+                </Link>
+            </div>
+
+            <div className="mb-4 flex flex-wrap items-center gap-4">
+                <input
+                    type="text"
+                    placeholder={t.filter.search}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className={inputClasses + " max-w-xs"}
+                />
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className={selectClasses + " max-w-xs"}
+                >
+                    <option value="all">{t.filter.filterByStatus} ({t.filter.all})</option>
+                    <option value="For Sale">{translations[language].propertiesPage.forSale}</option>
+                    <option value="For Rent">{translations[language].propertiesPage.forRent}</option>
+                </select>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
+                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" className="px-6 py-3">{t.propertyTable.image}</th>
+                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('title')}>
+                                <div className="flex items-center">{t.propertyTable.title}{getSortIcon('title')}</div>
+                            </th>
+                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
+                                <div className="flex items-center">{t.propertyTable.status}{getSortIcon('status')}</div>
+                            </th>
+                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('priceNumeric')}>
+                                <div className="flex items-center">{t.propertyTable.price}{getSortIcon('priceNumeric')}</div>
+                            </th>
+                            <th scope="col" className="px-6 py-3">{t.propertyTable.actions}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan={5} className="text-center p-8">Loading...</td></tr>
+                        ) : sortedAndFilteredProperties.length > 0 ? (
+                            sortedAndFilteredProperties.map(prop => (
+                                <tr key={prop.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td className="px-6 py-4">
+                                        <img src={prop.imageUrl} alt={prop.title[language]} className="w-16 h-16 object-cover rounded-md" />
+                                    </td>
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {prop.title[language]}
+                                    </th>
+                                    <td className="px-6 py-4">{prop.status[language]}</td>
+                                    <td className="px-6 py-4">{prop.price[language]}</td>
+                                    <td className="px-6 py-4 space-x-2 whitespace-nowrap">
+                                        <Link to={`/dashboard/properties/edit/${prop.id}`} className="font-medium text-amber-600 dark:text-amber-500 hover:underline">{t.propertyTable.edit}</Link>
+                                        <button onClick={() => handleDelete(prop.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t.propertyTable.delete}</button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                             <tr><td colSpan={5} className="text-center p-8">{t.propertyTable.noProperties}</td></tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+export default DashboardPropertiesPage;

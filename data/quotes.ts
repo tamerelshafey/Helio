@@ -1,13 +1,4 @@
-export interface Quote {
-    quote: {
-        ar: string;
-        en: string;
-    };
-    author: {
-        ar: string;
-        en: string;
-    };
-}
+import type { Quote } from '../types';
 
 export const quotes: Quote[] = [
     {

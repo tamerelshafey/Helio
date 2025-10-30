@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { TwitterIcon, LinkedInIcon, FacebookIcon, InstagramIcon } from './icons/Icons';
-import type { Language } from '../App';
+import type { Language } from '../types';
 import { translations } from '../data/translations';
 
 interface FooterProps {
@@ -10,25 +10,25 @@ interface FooterProps {
 
 const FooterLink: React.FC<{ to: string; children: React.ReactNode }> = ({ to, children }) => (
     <li>
-        <Link to={to} className="text-gray-400 hover:text-amber-500 transition-colors duration-200">{children}</Link>
+        <Link to={to} className="text-gray-600 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200">{children}</Link>
     </li>
 );
 
 const SocialLink: React.FC<{ href: string; children: React.ReactNode }> = ({ href, children }) => (
-     <a href={href} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white bg-gray-700 hover:bg-amber-500 p-2 rounded-full transition-colors duration-200">{children}</a>
+     <a href={href} target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-white bg-gray-200 dark:bg-gray-700 hover:bg-amber-500 p-2 rounded-full transition-colors duration-200">{children}</a>
 );
 
 const Footer: React.FC<FooterProps> = ({ language }) => {
     const t = translations[language];
     return (
-        <footer className="bg-gray-800 text-white">
+        <footer className="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white">
             <div className="container mx-auto px-6 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
                     <div className="md:col-span-2">
                         <Link to="/" className="text-3xl font-bold text-amber-500 mb-4 block">
                           ONLY HELIO
                         </Link>
-                        <p className="text-gray-400 max-w-md">
+                        <p className="text-gray-600 dark:text-gray-400 max-w-md">
                            {t.footer.description}
                         </p>
                         <div className={`flex space-x-4 mt-6 ${language === 'ar' ? 'space-x-reverse' : ''}`}>
@@ -39,18 +39,20 @@ const Footer: React.FC<FooterProps> = ({ language }) => {
                         </div>
                     </div>
                     <div>
-                        <h3 className="font-bold text-lg mb-4">{t.footer.quickLinks}</h3>
+                        <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">{t.footer.quickLinks}</h3>
                         <ul className="space-y-3">
                             <FooterLink to="/">{t.nav.home}</FooterLink>
                             <FooterLink to="/properties">{t.nav.properties}</FooterLink>
                             <FooterLink to="/finishing">{t.nav.finishing}</FooterLink>
                             <FooterLink to="/decorations">{t.nav.decorations}</FooterLink>
                             <FooterLink to="/contact">{t.nav.contact}</FooterLink>
+                            <FooterLink to="/add-property">{t.addProperty}</FooterLink>
+                            <FooterLink to="/register">{t.joinAsPartner}</FooterLink>
                         </ul>
                     </div>
                     <div>
-                        <h3 className="font-bold text-lg mb-4">{t.footer.contactUs}</h3>
-                        <ul className="space-y-3 text-gray-400">
+                        <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">{t.footer.contactUs}</h3>
+                        <ul className="space-y-3 text-gray-600 dark:text-gray-400">
                             <li className="flex items-start gap-3">
                                 <span>📍</span>
                                 <span>{t.footer.address}</span>
@@ -67,8 +69,8 @@ const Footer: React.FC<FooterProps> = ({ language }) => {
                     </div>
                 </div>
 
-                <div className="mt-16 pt-8 border-t border-gray-700 text-center">
-                    <p className="text-gray-500 text-sm">&copy; {new Date().getFullYear()} ONLY HELIO. {t.footer.rightsReserved}</p>
+                <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700 text-center">
+                    <p className="text-gray-500 dark:text-gray-500 text-sm">&copy; {new Date().getFullYear()} ONLY HELIO. {t.footer.rightsReserved}</p>
                 </div>
             </div>
         </footer>

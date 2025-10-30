@@ -1,20 +1,27 @@
-import React, { useRef, useEffect } from 'react';
-import type { Language } from '../App';
+import React, { useRef, useEffect, useState } from 'react';
+import type { Language, PortfolioItem } from '../types';
 import { translations } from '../data/translations';
 import FormField, { inputClasses } from './shared/FormField';
+import { addLead } from '../api/leads';
+import Lightbox from './shared/Lightbox';
 
 interface DecorationRequestModalProps {
     onClose: () => void;
-    serviceTitle: string;
-    serviceType: string;
-    requestType: 'custom' | 'similar';
-    imageUrl?: string;
+    workItem: PortfolioItem;
     language: Language;
 }
 
-const DecorationRequestModal: React.FC<DecorationRequestModalProps> = ({ onClose, serviceTitle, serviceType, requestType, imageUrl, language }) => {
+const DecorationRequestModal: React.FC<DecorationRequestModalProps> = ({ onClose, workItem, language }) => {
     const t = translations[language].decorationRequestModal;
     const modalRef = useRef<HTMLDivElement>(null);
+    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+    const [formData, setFormData] = useState({
+        customerName: '',
+        customerPhone: '',
+        customerNotes: '',
+        contactTime: '',
+    });
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -23,54 +30,34 @@ const DecorationRequestModal: React.FC<DecorationRequestModalProps> = ({ onClose
             }
         };
         document.addEventListener('keydown', handleKeyDown);
-
-        const focusableElements = modalRef.current?.querySelectorAll<HTMLElement>(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (!focusableElements || focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-        
-        firstElement.focus();
-
-        const handleTabKeyPress = (event: KeyboardEvent) => {
-            if (event.key === 'Tab') {
-                if (event.shiftKey) {
-                    if (document.activeElement === firstElement) {
-                        lastElement.focus();
-                        event.preventDefault();
-                    }
-                } else {
-                    if (document.activeElement === lastElement) {
-                        firstElement.focus();
-                        event.preventDefault();
-                    }
-                }
-            }
-        };
-        
-        const currentModalRef = modalRef.current;
-        currentModalRef?.addEventListener('keydown', handleTabKeyPress);
-
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-            currentModalRef?.removeEventListener('keydown', handleTabKeyPress);
-        };
+        const firstFocusableElement = modalRef.current?.querySelector<HTMLElement>('input, select, textarea, button');
+        firstFocusableElement?.focus();
+        return () => document.removeEventListener('keydown', handleKeyDown);
     }, [onClose]);
     
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Decoration request submitted for:", serviceTitle, { requestType, imageUrl });
+        const serviceTitle = `${t.reference} ${workItem.title[language]}`;
+        await addLead({ ...formData, partnerId: workItem.partnerId, serviceTitle });
         alert(t.successMessage);
         onClose();
     };
 
-    const isWallDecor = serviceType === 'wall-decor';
-    const isSimilarRequest = requestType === 'similar';
-    const subtitle = isSimilarRequest ? t.similarRequestSubtitle : t.customRequestSubtitle;
-
     return (
+        <>
+        {isLightboxOpen && (
+             <Lightbox 
+                images={[workItem.src]}
+                startIndex={0}
+                onClose={() => setIsLightboxOpen(false)}
+                language={language}
+            />
+        )}
         <div 
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4 transition-opacity duration-300 animate-fadeIn"
             onClick={onClose}
@@ -79,52 +66,54 @@ const DecorationRequestModal: React.FC<DecorationRequestModalProps> = ({ onClose
         >
             <div 
                 ref={modalRef}
-                className="bg-gray-800 border border-gray-700 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative"
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-8">
-                    <button onClick={onClose} className={`absolute top-4 ${language === 'ar' ? 'left-4' : 'right-4'} text-gray-400 hover:text-white transition-colors`}>
+                    <button onClick={onClose} className={`absolute top-4 ${language === 'ar' ? 'left-4' : 'right-4'} text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors z-10`}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                    <h2 className="text-3xl font-bold text-amber-500 mb-2 text-center">{serviceTitle}</h2>
-                    <p className="text-gray-400 text-center mb-6">{subtitle}</p>
-                    
-                    {isSimilarRequest && imageUrl && (
-                        <div className="mb-6 p-4 bg-gray-700/50 rounded-lg flex items-center gap-4 border border-gray-600">
-                            <img src={imageUrl} alt="Reference design" className="w-20 h-20 object-cover rounded-md" />
-                            <p className="text-sm text-gray-300">{t.similarRequestReference}</p>
-                        </div>
-                    )}
+                    <div className="text-center mb-6">
+                        <h2 className="text-3xl font-bold text-amber-500 mb-2">{t.title}</h2>
+                        <p className="text-gray-500 dark:text-gray-400">{t.subtitle}</p>
+                    </div>
+
+                     <div className="mb-6">
+                        <p className="text-sm text-center text-gray-600 dark:text-gray-400 mb-2">{t.reference}</p>
+                        <button 
+                            type="button" 
+                            onClick={() => setIsLightboxOpen(true)}
+                            className="w-full block rounded-lg overflow-hidden group relative shadow-md"
+                            aria-label={t.viewLarger}
+                        >
+                            <img src={workItem.src} alt={workItem.alt} className="w-full h-64 object-cover rounded-lg" />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <span className="text-white font-bold text-lg">{t.viewLarger}</span>
+                            </div>
+                        </button>
+                        <h3 className="font-semibold text-gray-900 dark:text-white text-center mt-3 text-lg">{workItem.title[language]}</h3>
+                    </div>
                     
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField label={t.fullName} id="fullName">
-                                <input type="text" id="fullName" className={inputClasses} required />
-                            </FormField>
-                            <FormField label={t.phone} id="phone">
-                                <input type="tel" id="phone" className={inputClasses} required dir="ltr" />
-                            </FormField>
-                        </div>
-                        
-                        {isWallDecor && (
-                             <FormField label={t.dimensions} id="dimensions">
-                                <input type="text" id="dimensions" placeholder={t.dimensionsPlaceholder} className={inputClasses} />
-                            </FormField>
-                        )}
-
-                        <FormField label={t.description} id="description">
-                            <textarea id="description" rows={4} placeholder={t.descriptionPlaceholder} className={inputClasses} required></textarea>
+                        <FormField label={t.fullName} id="customerName">
+                            <input type="text" id="customerName" name="customerName" value={formData.customerName} onChange={handleChange} className={inputClasses} required />
                         </FormField>
-
-                        {!isSimilarRequest && (
-                            <FormField label={t.attachImage} id="imageUpload">
-                                <p className="text-xs text-gray-500 mb-2">{t.attachImageHint}</p>
-                                <input type="file" id="imageUpload" className={`${inputClasses} file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-500 file:text-gray-900 hover:file:bg-amber-600 cursor-pointer`} />
-                            </FormField>
-                        )}
-
+                        <FormField label={t.phone} id="customerPhone">
+                            <input type="tel" id="customerPhone" name="customerPhone" value={formData.customerPhone} onChange={handleChange} className={inputClasses} required dir="ltr" />
+                        </FormField>
+                        <FormField label={translations[language].serviceRequestModal.preferredContactTime} id="contactTime">
+                            <select id="contactTime" name="contactTime" value={formData.contactTime} onChange={handleChange} className={`${inputClasses} appearance-none text-gray-500 dark:text-gray-400`} required>
+                                <option value="" disabled>{translations[language].serviceRequestModal.preferredContactTimeDefault}</option>
+                                <option value={translations[language].serviceRequestModal.preferredContactTimeMorning} className="text-gray-900 dark:text-white">{translations[language].serviceRequestModal.preferredContactTimeMorning}</option>
+                                <option value={translations[language].serviceRequestModal.preferredContactTimeAfternoon} className="text-gray-900 dark:text-white">{translations[language].serviceRequestModal.preferredContactTimeAfternoon}</option>
+                                <option value={translations[language].serviceRequestModal.preferredContactTimeEvening} className="text-gray-900 dark:text-white">{translations[language].serviceRequestModal.preferredContactTimeEvening}</option>
+                            </select>
+                        </FormField>
+                        <FormField label={t.notes} id="customerNotes">
+                            <textarea id="customerNotes" name="customerNotes" rows={3} value={formData.customerNotes} onChange={handleChange} placeholder={t.notesPlaceholder} className={inputClasses}></textarea>
+                        </FormField>
 
                         <div className="pt-2 flex justify-end">
                             <button type="submit" className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200">
@@ -135,6 +124,7 @@ const DecorationRequestModal: React.FC<DecorationRequestModalProps> = ({ onClose
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

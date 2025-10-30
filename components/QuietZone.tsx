@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Language } from '../App';
+import type { Language } from '../types';
 import { quotes } from '../data/quotes';
 import { CloseIcon } from './icons/Icons';
 
@@ -73,23 +73,23 @@ const QuietZone: React.FC<QuietZoneProps> = ({ onClose, language }) => {
     >
       <div
         ref={modalRef}
-        className="relative w-full max-w-3xl p-12 rounded-2xl shadow-2xl animate-calm-background flex flex-col items-center text-center overflow-hidden"
+        className="relative w-full max-w-3xl p-12 rounded-2xl shadow-2xl bg-white dark:bg-gray-800 flex flex-col items-center text-center overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors z-10"
+          className="absolute top-6 right-6 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors z-10"
           aria-label="Close Quiet Zone"
         >
           <CloseIcon className="h-7 w-7" />
         </button>
 
         <blockquote className="relative">
-          <p id="quiet-zone-title" className="text-2xl md:text-3xl font-semibold leading-normal text-white">
+          <p id="quiet-zone-title" className="text-2xl md:text-3xl font-semibold leading-normal text-gray-800 dark:text-white">
             "{currentQuote.quote}"
           </p>
         </blockquote>
-        <cite className="mt-6 text-lg text-amber-400 font-medium tracking-wide">
+        <cite className="mt-6 text-lg text-amber-500 dark:text-amber-400 font-medium tracking-wide">
           - {currentQuote.author}
         </cite>
       </div>

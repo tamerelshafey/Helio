@@ -1,0 +1,49 @@
+import { portfolioData } from '../data/portfolio';
+import type { PortfolioItem } from '../types';
+
+const SIMULATED_DELAY = 300;
+
+export const getAllPortfolioItems = (): Promise<PortfolioItem[]> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([...portfolioData]);
+        }, SIMULATED_DELAY);
+    });
+};
+
+export const getPortfolioByPartnerId = (partnerId: string): Promise<PortfolioItem[]> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(portfolioData.filter(item => item.partnerId === partnerId));
+        }, SIMULATED_DELAY);
+    });
+};
+
+export const addPortfolioItem = (item: Omit<PortfolioItem, 'id'>): Promise<PortfolioItem> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const newItem: PortfolioItem = {
+                ...item,
+                id: `port-${Date.now()}`,
+            };
+            portfolioData.unshift(newItem);
+            resolve(newItem);
+        }, SIMULATED_DELAY);
+    });
+};
+
+export const deletePortfolioItem = (itemId: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const initialLength = portfolioData.length;
+            const newData = portfolioData.filter(p => p.id !== itemId);
+            if (newData.length < initialLength) {
+                portfolioData.length = 0;
+                Array.prototype.push.apply(portfolioData, newData);
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        }, SIMULATED_DELAY);
+    });
+};

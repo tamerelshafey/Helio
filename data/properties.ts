@@ -1,48 +1,10 @@
-export interface Property {
-  id: string;
-  imageUrl: string;
-  gallery: string[];
-  status: {
-    ar: 'للبيع' | 'إيجار';
-    en: 'For Sale' | 'For Rent';
-  };
-  price: {
-    ar: string;
-    en: string;
-  };
-  priceNumeric: number;
-  type: {
-    ar: 'فيلا' | 'شقة' | 'تجاري' | 'أرض';
-    en: 'Villa' | 'Apartment' | 'Commercial' | 'Land';
-  };
-  title: {
-    ar: string;
-    en: string;
-  };
-  address: {
-    ar: string;
-    en: string;
-  };
-  description: {
-    ar: string;
-    en: string;
-  };
-  beds: number;
-  baths: number;
-  area: number;
-  amenities: {
-    ar: string[];
-    en: string[];
-  };
-  location: {
-    lat: number;
-    lng: number;
-  };
-}
+import type { Property } from '../types';
 
-export const propertiesData: Property[] = [
+// Data is now mutable to simulate a database
+export let propertiesData: Property[] = [
     {
       id: 'villa-heliopolis-1',
+      partnerId: 'united-development',
       imageUrl: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop",
       gallery: [
         "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop",
@@ -65,13 +27,21 @@ export const propertiesData: Property[] = [
       baths: 5,
       area: 450,
       amenities: {
-          ar: ["حديقة خاصة", "حمام سباحة", "موقف سيارات مغطى", "أمن 24 ساعة", "شرفة", "غرفة خادمة"],
-          en: ["Private Garden", "Swimming Pool", "Covered Parking", "24/7 Security", "Balcony", "Maid's Room"]
+          ar: ["حديقة خاصة", "حمام سباحة", "موقف سيارات مغطى", "أمن 24 ساعة", "شرفة", "غرفة خادمة", "عداد كهرباء", "عداد مياه", "غاز طبيعي"],
+          en: ["Private Garden", "Swimming Pool", "Covered Parking", "24/7 Security", "Balcony", "Maid's Room", "Electricity Meter", "Water Meter", "Natural Gas"]
       },
-      location: { lat: 30.125, lng: 31.608 }
+      finishingStatus: { ar: "تشطيب كامل", en: "Fully Finished" },
+      installmentsAvailable: true,
+      isInCompound: true,
+      delivery: { isImmediate: false, date: '2025-06' },
+      installments: { downPayment: 770000, monthlyInstallment: 36666, years: 7 },
+      location: { lat: 30.125, lng: 31.608 },
+      listingStartDate: '2023-01-01',
+      listingEndDate: '2025-12-31',
     },
     {
       id: 'apartment-rent-2',
+      partnerId: 'design-hub',
       imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop",
       gallery: [
           "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop",
@@ -97,10 +67,17 @@ export const propertiesData: Property[] = [
           ar: ["إطلالة بانورامية", "مكيفة بالكامل", "أمن وحراسة", "نادي صحي مشترك", "مصعد"],
           en: ["Panoramic View", "Fully Air-Conditioned", "Security", "Shared Health Club", "Elevator"]
       },
-      location: { lat: 30.118, lng: 31.615 }
+      finishingStatus: { ar: "سوبر لوكس", en: "Super Lux" },
+      installmentsAvailable: false,
+      isInCompound: true,
+      delivery: { isImmediate: true },
+      location: { lat: 30.118, lng: 31.615 },
+      listingStartDate: '2024-01-01',
+      listingEndDate: '2024-12-31',
     },
     {
       id: 'apartment-sale-3',
+      partnerId: 'future-real-estate',
       imageUrl: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=2070&auto=format&fit=crop",
       gallery: [
           "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=2070&auto=format&fit=crop",
@@ -123,13 +100,20 @@ export const propertiesData: Property[] = [
       baths: 2,
       area: 210,
       amenities: {
-          ar: ["موقع حيوي", "قريبة من الخدمات", "تشطيب جيد", "عدادات مستقلة"],
-          en: ["Prime Location", "Close to Services", "Good Finishing", "Separate Meters"]
+          ar: ["موقع حيوي", "قريبة من الخدمات", "عدادات مستقلة", "غاز طبيعي"],
+          en: ["Prime Location", "Close to Services", "Separate Meters", "Natural Gas"]
       },
-      location: { lat: 30.128, lng: 31.620 }
+      finishingStatus: { ar: "نصف تشطيب", en: "Semi-finished" },
+      installmentsAvailable: true,
+      isInCompound: false,
+      delivery: { isImmediate: true },
+      installments: { downPayment: 420000, monthlyInstallment: 20000, years: 7 },
+      location: { lat: 30.128, lng: 31.620 },
+      listingStartDate: '2023-05-01',
     },
      {
       id: 'penthouse-sale-4',
+      partnerId: 'alrowad-engineering',
       imageUrl: "https://images.unsplash.com/photo-1628744449833-4f938a3a3bde?q=80&w=1974&auto=format&fit=crop",
       gallery: [
           "https://images.unsplash.com/photo-1628744449833-4f938a3a3bde?q=80&w=1974&auto=format&fit=crop",
@@ -155,10 +139,17 @@ export const propertiesData: Property[] = [
           ar: ["رووف خاص", "إطلالة مفتوحة", "جاكوزي", "غرفة ملابس", "أمن 24 ساعة"],
           en: ["Private Roof", "Open View", "Jacuzzi", "Dressing Room", "24/7 Security"]
       },
-      location: { lat: 30.122, lng: 31.625 }
+      finishingStatus: { ar: "تشطيب فاخر", en: "Luxury Finishing" },
+      installmentsAvailable: true,
+      isInCompound: false,
+      delivery: { isImmediate: true },
+      installments: { downPayment: 800000, monthlyInstallment: 50000, years: 5 },
+      location: { lat: 30.122, lng: 31.625 },
+      listingEndDate: '2024-10-31',
     },
     {
       id: 'villa-sale-5',
+      partnerId: 'united-development',
       imageUrl: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1974&auto=format&fit=crop",
       gallery: [
           "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1974&auto=format&fit=crop",
@@ -184,10 +175,18 @@ export const propertiesData: Property[] = [
           ar: ["تصميم حديث", "حديقة كبيرة", "خصوصية تامة", "نوافذ بانورامية", "جراج خاص"],
           en: ["Modern Design", "Large Garden", "Complete Privacy", "Panoramic Windows", "Private Garage"]
       },
-      location: { lat: 30.115, lng: 31.605 }
+      finishingStatus: { ar: "تشطيب كامل", en: "Fully Finished" },
+      installmentsAvailable: true,
+      isInCompound: true,
+      delivery: { isImmediate: true },
+      installments: { downPayment: 1040000, monthlyInstallment: 40000, years: 8 },
+      location: { lat: 30.115, lng: 31.605 },
+      listingStartDate: '2022-01-01',
+      listingEndDate: '2023-12-31', // Expired
     },
     {
       id: 'apartment-rent-6',
+      partnerId: 'el-mottaheda-group',
       imageUrl: "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=2074&auto=format&fit=crop",
       gallery: [
           "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=2074&auto=format&fit=crop",
@@ -213,6 +212,81 @@ export const propertiesData: Property[] = [
           ar: ["مفروشة بالكامل", "أجهزة كهربائية حديثة", "جاهزة للسكن", "إنترنت فائق السرعة"],
           en: ["Fully Furnished", "Modern Appliances", "Ready to Move In", "High-Speed Internet"]
       },
-      location: { lat: 30.120, lng: 31.600 }
+      finishingStatus: { ar: "مفروشة بالكامل", en: "Fully Furnished" },
+      installmentsAvailable: false,
+      isInCompound: false,
+      delivery: { isImmediate: true },
+      location: { lat: 30.120, lng: 31.600 },
+      listingStartDate: '2024-06-01',
     },
+    {
+      id: 'commercial-sale-7',
+      partnerId: 'modern-construction-group',
+      imageUrl: "https://images.unsplash.com/photo-1593593381734-3d4a2dc23732?q=80&w=2070&auto=format&fit=crop",
+      gallery: [
+          "https://images.unsplash.com/photo-1593593381734-3d4a2dc23732?q=80&w=2070&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=2070&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1980&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=2070&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1481253457524-1ae2a529b523?q=80&w=2148&auto=format&fit=crop"
+      ],
+      status: { ar: "للبيع", en: "For Sale" },
+      price: { ar: "2,500,000 ج.م", en: "EGP 2,500,000" },
+      priceNumeric: 2500000,
+      type: { ar: "تجاري", en: "Commercial" },
+      title: { ar: "محل تجاري للبيع بموقع مميز", en: "Commercial Space for Sale in a Prime Location" },
+      address: { ar: "المنطقة التجارية، هليوبوليس الجديدة", en: "Commercial Zone, New Heliopolis" },
+      description: {
+          ar: "مساحة تجارية تصلح لمختلف الأنشطة. موقع استراتيجي على طريق رئيسي.",
+          en: "Commercial space suitable for various activities. Strategic location on a main road."
+      },
+      beds: 0,
+      baths: 0,
+      area: 200,
+      floor: 1,
+      amenities: {
+          ar: ["موقع استراتيجي", "واجهة على شارع رئيسي", "كاملة المرافق"],
+          en: ["Strategic Location", "Frontage on a Main Street", "Fully Serviced"]
+      },
+      installmentsAvailable: true,
+      delivery: { isImmediate: true },
+      isInCompound: false,
+      location: { lat: 30.130, lng: 31.630 },
+      listingStartDate: '2024-03-01',
+      listingEndDate: '2025-03-01',
+    },
+    {
+      id: 'apartment-sale-8',
+      partnerId: 'ebdaa-integrated-finishes',
+      imageUrl: "https://images.unsplash.com/photo-1528740561666-dc2479703592?q=80&w=1974&auto=format&fit=crop",
+      gallery: [
+          "https://images.unsplash.com/photo-1528740561666-dc2479703592?q=80&w=1974&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1560185007-c5ca9de270c4?q=80&w=1974&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1560185127-6ed189bf02a4?q=80&w=2070&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1980&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1560448205-4d9b3e6bb6db?q=80&w=2070&auto=format&fit=crop"
+      ],
+      status: { ar: "للبيع", en: "For Sale" },
+      price: { ar: "1,500,000 ج.м", en: "EGP 1,500,000" },
+      priceNumeric: 1500000,
+      type: { ar: "شقة", en: "Apartment" },
+      title: { ar: "شقة بدون تشطيب للبيع", en: "Apartment without Finishing for Sale" },
+      address: { ar: "الحي الرابع، هليوبوليس الجديدة", en: "Fourth District, New Heliopolis" },
+      description: {
+          ar: "شقة على الطوب الأحمر تمنحك فرصة تشطيبها بالكامل حسب ذوقك الخاص. تقع في منطقة هادئة ومستقبلية.",
+          en: "A bare-brick apartment that gives you the opportunity to finish it completely according to your own taste. Located in a quiet and promising area."
+      },
+      beds: 3,
+      baths: 2,
+      area: 190,
+      amenities: {
+          ar: ["إمكانية التخصيص الكامل", "منطقة هادئة", "موقف سيارات"],
+          en: ["Full Customization Potential", "Quiet Area", "Parking"]
+      },
+      finishingStatus: { ar: "بدون تشطيب", en: "Without Finishing" },
+      installmentsAvailable: true,
+      isInCompound: false,
+      delivery: { isImmediate: false, date: '2026-01' },
+      location: { lat: 30.132, lng: 31.618 }
+    }
 ];
