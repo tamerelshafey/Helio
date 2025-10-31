@@ -33,6 +33,10 @@ import AdminPartnerRequestsPage from './components/admin/AdminPartnerRequestsPag
 import AdminPropertyRequestsPage from './components/admin/AdminPropertyRequestsPage';
 import AdminContactRequestsPage from './components/admin/AdminContactRequestsPage';
 import AdminHomePage from './components/admin/AdminHomePage';
+import AdminPartnerRequestDetailsPage from './components/admin/AdminPartnerRequestDetailsPage';
+import AdminPropertyRequestDetailsPage from './components/admin/AdminPropertyRequestDetailsPage';
+import AdminDecorationsPage from './components/admin/AdminDecorationsPage';
+import DecorationsDashboardLayout from './components/decorations-admin/DecorationsDashboardLayout';
 
 
 const App: React.FC = () => {
@@ -122,13 +126,32 @@ const App: React.FC = () => {
             }>
               <Route index element={<AdminHomePage language={language} />} />
               <Route path="partner-requests" element={<AdminPartnerRequestsPage language={language} />} />
+              <Route path="partner-requests/:requestId" element={<AdminPartnerRequestDetailsPage language={language} />} />
               <Route path="property-requests" element={<AdminPropertyRequestsPage language={language} />} />
+              <Route path="property-requests/:requestId" element={<AdminPropertyRequestDetailsPage language={language} />} />
               <Route path="contact-requests" element={<AdminContactRequestsPage language={language} />} />
               <Route path="partners" element={<AdminPartnersPage language={language} />} />
               <Route path="properties" element={<AdminPropertiesPage language={language} />} />
               <Route path="properties/new" element={<PropertyFormPage language={language} />} />
+              <Route path="properties/edit/:propertyId" element={<PropertyFormPage language={language} />} />
               <Route path="leads" element={<AdminLeadsPage language={language} />} />
+              <Route path="decorations/portfolio" element={<AdminDecorationsPage language={language} defaultTab="portfolio" />} />
+              <Route path="decorations/requests" element={<AdminDecorationsPage language={language} defaultTab="requests" />} />
+              <Route path="decorations/categories" element={<AdminDecorationsPage language={language} defaultTab="categories" />} />
             </Route>
+            
+            {/* Protected Decorations Manager Dashboard Routes */}
+            <Route path="/decorations-admin" element={
+              <ProtectedRoute role="decorations">
+                <DecorationsDashboardLayout language={language} />
+              </ProtectedRoute>
+            }>
+              <Route index element={<AdminDecorationsPage language={language} defaultTab="portfolio" />} />
+              <Route path="portfolio" element={<AdminDecorationsPage language={language} defaultTab="portfolio" />} />
+              <Route path="requests" element={<AdminDecorationsPage language={language} defaultTab="requests" />} />
+              <Route path="categories" element={<AdminDecorationsPage language={language} defaultTab="categories" />} />
+            </Route>
+
 
           </Routes>
         </main>

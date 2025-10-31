@@ -32,6 +32,20 @@ export const addPortfolioItem = (item: Omit<PortfolioItem, 'id'>): Promise<Portf
     });
 };
 
+export const updatePortfolioItem = (itemId: string, updates: Partial<PortfolioItem>): Promise<PortfolioItem | undefined> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const itemIndex = portfolioData.findIndex(p => p.id === itemId);
+            if (itemIndex > -1) {
+                portfolioData[itemIndex] = { ...portfolioData[itemIndex], ...updates };
+                resolve(portfolioData[itemIndex]);
+            } else {
+                resolve(undefined);
+            }
+        }, SIMULATED_DELAY);
+    });
+};
+
 export const deletePortfolioItem = (itemId: string): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(() => {

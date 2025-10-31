@@ -12,17 +12,19 @@ import type {
     PartnerRequest, 
     PartnerStatus,
     LeadStatus,
-    RequestStatus
+    RequestStatus,
+    DecorationCategory
 } from '../../types';
 
 // Import all API functions
 import { getAllProperties, addProperty as apiAddProperty, updateProperty as apiUpdateProperty, deleteProperty as apiDeleteProperty } from '../../api/properties';
 import { getAllPartnersForAdmin, updatePartner as apiUpdatePartner, updatePartnerStatus as apiUpdatePartnerStatus, addPartner as apiAddPartner } from '../../api/partners';
-import { getAllPortfolioItems, addPortfolioItem as apiAddPortfolioItem, deletePortfolioItem as apiDeletePortfolioItem } from '../../api/portfolio';
-import { getAllLeads, updateLeadStatus as apiUpdateLeadStatus, deleteLead as apiDeleteLead } from '../../api/leads';
+import { getAllPortfolioItems, addPortfolioItem as apiAddPortfolioItem, deletePortfolioItem as apiDeletePortfolioItem, updatePortfolioItem as apiUpdatePortfolioItem } from '../../api/portfolio';
+import { getAllLeads, updateLeadStatus as apiUpdateLeadStatus, deleteLead as apiDeleteLead, updateLeadNotes as apiUpdateLeadNotes } from '../../api/leads';
 import { getAllContactRequests, addContactRequest as apiAddContactRequest, updateContactRequestStatus as apiUpdateContactRequestStatus, deleteContactRequest as apiDeleteContactRequest } from '../../api/contactRequests';
 import { getAllPropertyRequests, updatePropertyRequestStatus as apiUpdatePropertyRequestStatus, deletePropertyRequest as apiDeletePropertyRequest } from '../../api/propertyRequests';
 import { getAllPartnerRequests, updatePartnerRequestStatus as apiUpdatePartnerRequestStatus } from '../../api/partnerRequests';
+import { getDecorationCategories, addDecorationCategory as apiAddDecorationCategory, updateDecorationCategory as apiUpdateDecorationCategory, deleteDecorationCategory as apiDeleteDecorationCategory } from '../../api/decorations';
 
 // Define context shape
 interface DataContextType {
@@ -33,6 +35,7 @@ interface DataContextType {
     contactRequests: ContactRequest[];
     propertyRequests: AddPropertyRequest[];
     partnerRequests: PartnerRequest[];
+    decorationCategories: DecorationCategory[];
     loading: boolean;
     refetchData: () => void;
     
@@ -49,10 +52,12 @@ interface DataContextType {
 
     // Portfolio mutations
     addPortfolioItem: (item: Omit<PortfolioItem, 'id'>) => Promise<PortfolioItem | undefined>;
+    updatePortfolioItem: (itemId: string, updates: Partial<PortfolioItem>) => Promise<PortfolioItem | undefined>;
     deletePortfolioItem: (itemId: string) => Promise<boolean>;
 
     // Lead mutations
     updateLeadStatus: (leadId: string, status: LeadStatus) => Promise<Lead | undefined>;
+    updateLeadNotes: (leadId: string, notes: string) => Promise<Lead | undefined>;
     deleteLead: (leadId: string) => Promise<boolean>;
     
     // Property Request mutations
@@ -62,6 +67,11 @@ interface DataContextType {
     // Contact Request mutations
     updateContactRequestStatus: (id: string, status: RequestStatus) => Promise<boolean>;
     deleteContactRequest: (id: string) => Promise<boolean>;
+    
+    // Decoration Category mutations
+    addDecorationCategory: (category: Omit<DecorationCategory, 'id'>) => Promise<DecorationCategory | undefined>;
+    updateDecorationCategory: (categoryId: string, updates: Partial<DecorationCategory>) => Promise<DecorationCategory | undefined>;
+    deleteDecorationCategory: (categoryId: string) => Promise<boolean>;
 }
 
 // Create context with a default undefined value
@@ -77,6 +87,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [contactRequests, setContactRequests] = useState<ContactRequest[]>([]);
     const [propertyRequests, setPropertyRequests] = useState<AddPropertyRequest[]>([]);
     const [partnerRequests, setPartnerRequests] = useState<PartnerRequest[]>([]);
+    const [decorationCategories, setDecorationCategories] = useState<DecorationCategory[]>([]);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -89,6 +100,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 contactRequestsData,
                 propertyRequestsData,
                 partnerRequestsData,
+                decorationCategoriesData,
             ] = await Promise.all([
                 getAllProperties(),
                 getAllPartnersForAdmin(),
@@ -97,6 +109,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 getAllContactRequests(),
                 getAllPropertyRequests(),
                 getAllPartnerRequests(),
+                getDecorationCategories(),
             ]);
             setProperties(propertiesData);
             setPartners(partnersData);
@@ -105,6 +118,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setContactRequests(contactRequestsData);
             setPropertyRequests(propertyRequestsData);
             setPartnerRequests(partnerRequestsData);
+            setDecorationCategories(decorationCategoriesData);
         } catch (error) {
             console.error("Failed to fetch data", error);
         } finally {
@@ -191,6 +205,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return newItem;
     }, []);
 
+    const updatePortfolioItem = useCallback(async (itemId: string, updates: Partial<PortfolioItem>) => {
+        const updatedItem = await apiUpdatePortfolioItem(itemId, updates);
+        if (updatedItem) {
+            setPortfolio(prev => prev.map(item => item.id === itemId ? updatedItem : item));
+        }
+        return updatedItem;
+    }, []);
+
+
     const deletePortfolioItem = useCallback(async (itemId: string) => {
         const originalPortfolio = [...portfolio];
         setPortfolio(prev => prev.filter(item => item.id !== itemId));
@@ -210,7 +233,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const updateLeadStatus = useCallback(async (leadId: string, status: LeadStatus) => {
         const updatedLead = await apiUpdateLeadStatus(leadId, status);
         if (updatedLead) {
-            setLeads(prev => prev.map(l => l.id === leadId ? {...l, status} : l));
+            setLeads(prev => prev.map(l => l.id === leadId ? {...l, status, updatedAt: updatedLead.updatedAt } : l));
+        }
+        return updatedLead;
+    }, []);
+
+    const updateLeadNotes = useCallback(async (leadId: string, notes: string) => {
+        const updatedLead = await apiUpdateLeadNotes(leadId, notes);
+        if (updatedLead) {
+            setLeads(prev => prev.map(l => l.id === leadId ? { ...l, internalNotes: notes, updatedAt: updatedLead.updatedAt } : l));
         }
         return updatedLead;
     }, []);
@@ -311,6 +342,30 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, [contactRequests]);
     
+    // Decoration Category Mutations
+    const addDecorationCategory = useCallback(async (category: Omit<DecorationCategory, 'id'>) => {
+        const newCategory = await apiAddDecorationCategory(category);
+        if (newCategory) {
+            setDecorationCategories(prev => [...prev, newCategory]);
+        }
+        return newCategory;
+    }, []);
+
+    const updateDecorationCategory = useCallback(async (categoryId: string, updates: Partial<DecorationCategory>) => {
+        const updatedCategory = await apiUpdateDecorationCategory(categoryId, updates);
+        if (updatedCategory) {
+            setDecorationCategories(prev => prev.map(c => c.id === categoryId ? updatedCategory : c));
+        }
+        return updatedCategory;
+    }, []);
+    
+    const deleteDecorationCategory = useCallback(async (categoryId: string) => {
+        const success = await apiDeleteDecorationCategory(categoryId);
+        if (success) {
+            setDecorationCategories(prev => prev.filter(c => c.id !== categoryId));
+        }
+        return success;
+    }, []);
 
     const contextValue: DataContextType = {
         properties,
@@ -320,6 +375,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         contactRequests,
         propertyRequests,
         partnerRequests,
+        decorationCategories,
         loading,
         refetchData: fetchData,
         addProperty,
@@ -328,8 +384,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updatePartner,
         updatePartnerStatus,
         addPortfolioItem,
+        updatePortfolioItem,
         deletePortfolioItem,
         updateLeadStatus,
+        updateLeadNotes,
         deleteLead,
         approvePropertyRequest,
         rejectPropertyRequest,
@@ -337,6 +395,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         deleteContactRequest,
         approvePartnerRequest,
         rejectPartnerRequest,
+        addDecorationCategory,
+        updateDecorationCategory,
+        deleteDecorationCategory,
     };
 
     return (

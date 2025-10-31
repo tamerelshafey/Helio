@@ -26,7 +26,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
         const roles: { [key: string]: any } = {};
     
         // Define role order
-        const roleOrder = ['admin', 'developer', 'finishing', 'agency'];
+        const roleOrder = ['admin', 'developer', 'finishing', 'agency', 'decorations'];
     
         partners.forEach(p => {
             if (p.type && !roles[p.type]) {
@@ -36,6 +36,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
                     case 'finishing': roleName = t.loginAsFinishing; break;
                     case 'agency': roleName = t.loginAsAgency; break;
                     case 'admin': roleName = t.loginAsAdmin; break;
+                    case 'decorations': roleName = t.loginAsDecorations; break;
                     default: roleName = p.type;
                 }
                 roles[p.type] = { ...p, roleName };
@@ -62,7 +63,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
                 navigate('/admin', { replace: true });
             } else if (partner?.type === 'finishing') {
                 navigate('/dashboard/portfolio', { replace: true });
-            } else {
+            } else if (partner?.type === 'decorations') {
+                navigate('/decorations-admin', { replace: true });
+            }
+             else {
                 navigate('/dashboard', { replace: true });
             }
         } else {
@@ -138,7 +142,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
                             </span>
                         </div>
                     </div>
-                    <div className="mt-4 grid grid-cols-2 gap-2">
+                    <div className="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-2">
                         {testRoles.map(role => (
                             <button
                                 key={role.type}

@@ -4,7 +4,6 @@ import type { Language, Property } from '../../types';
 import { translations } from '../../data/translations';
 import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
-import AdminPropertyEditModal from './AdminPropertyEditModal';
 import { isListingActive } from '../../utils/propertyUtils';
 import { useData } from '../shared/DataContext';
 
@@ -20,22 +19,6 @@ const AdminPropertiesPage: React.FC<{ language: Language }> = ({ language }) => 
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-
-    const handleOpenEditModal = (property: Property) => {
-        setSelectedProperty(property);
-        setIsEditModalOpen(true);
-    };
-
-    const handleCloseEditModal = () => {
-        setSelectedProperty(null);
-        setIsEditModalOpen(false);
-    };
-
-    const handleSave = () => {
-        handleCloseEditModal();
-    };
 
     const sortedAndFilteredProperties = useMemo(() => {
         let filteredProps = [...properties];
@@ -101,14 +84,6 @@ const AdminPropertiesPage: React.FC<{ language: Language }> = ({ language }) => 
 
     return (
         <div>
-            {isEditModalOpen && selectedProperty && (
-                <AdminPropertyEditModal
-                    property={selectedProperty}
-                    onClose={handleCloseEditModal}
-                    onSave={handleSave}
-                    language={language}
-                />
-            )}
             <div className="flex justify-between items-center mb-2">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t.propertiesTitle}</h1>
@@ -179,7 +154,7 @@ const AdminPropertiesPage: React.FC<{ language: Language }> = ({ language }) => 
                                     </td>
                                     <td className="px-6 py-4">{prop.price[language]}</td>
                                     <td className="px-6 py-4 space-x-2 whitespace-nowrap">
-                                        <button onClick={() => handleOpenEditModal(prop)} className="font-medium text-amber-600 dark:text-amber-500 hover:underline">{t.propertyTable.edit}</button>
+                                        <Link to={`/admin/properties/edit/${prop.id}`} className="font-medium text-amber-600 dark:text-amber-500 hover:underline">{t.propertyTable.edit}</Link>
                                         <button onClick={() => handleDelete(prop.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">
                                             {t_dash.propertyTable.delete}
                                         </button>

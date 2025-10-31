@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import type { Language, PartnerRequest } from '../../types';
 import { translations } from '../../data/translations';
-import AdminPartnerRequestModal from './AdminPartnerRequestModal';
 import { inputClasses } from '../shared/FormField';
 import { useData } from '../shared/DataContext';
 
@@ -12,7 +12,6 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
 
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('pending');
-    const [selectedRequest, setSelectedRequest] = useState<PartnerRequest | null>(null);
 
     const filteredRequests = useMemo(() => {
         return partnerRequests.filter(req =>
@@ -33,13 +32,6 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
 
     return (
         <div>
-            {selectedRequest && (
-                <AdminPartnerRequestModal 
-                    request={selectedRequest}
-                    onClose={() => setSelectedRequest(null)}
-                    language={language}
-                />
-            )}
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_req.partnerRequestsTitle}</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-8">{t_req.partnerRequestsSubtitle}</p>
             
@@ -89,7 +81,7 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
                                 <td className="px-6 py-4">{new Date(req.createdAt).toLocaleDateString(language)}</td>
                                 <td className="px-6 py-4">{getStatusName(req.status)}</td>
                                 <td className="px-6 py-4 space-x-2 whitespace-nowrap">
-                                    <button onClick={() => setSelectedRequest(req)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">{t_req.table.details}</button>
+                                    <Link to={`/admin/partner-requests/${req.id}`} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">{t_req.table.details}</Link>
                                 </td>
                             </tr>
                         ))

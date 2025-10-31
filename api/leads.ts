@@ -29,14 +29,16 @@ export const getAllLeads = (): Promise<(Lead & { partnerName?: string })[]> => {
     });
 };
 
-export const addLead = (leadData: Omit<Lead, 'id' | 'status' | 'createdAt'>): Promise<Lead> => {
+export const addLead = (leadData: Omit<Lead, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'internalNotes'>): Promise<Lead> => {
     return new Promise((resolve) => {
         setTimeout(() => {
+            const now = new Date().toISOString();
             const newLead: Lead = {
                 ...leadData,
                 id: `lead-${Date.now()}`,
                 status: 'new',
-                createdAt: new Date().toISOString(),
+                createdAt: now,
+                updatedAt: now,
             };
             leadsData.unshift(newLead);
             resolve(newLead);
@@ -50,6 +52,7 @@ export const updateLeadStatus = (leadId: string, status: LeadStatus): Promise<Le
             const leadIndex = leadsData.findIndex(l => l.id === leadId);
             if (leadIndex > -1) {
                 leadsData[leadIndex].status = status;
+                leadsData[leadIndex].updatedAt = new Date().toISOString();
                 resolve(leadsData[leadIndex]);
             } else {
                 resolve(undefined);
@@ -57,6 +60,22 @@ export const updateLeadStatus = (leadId: string, status: LeadStatus): Promise<Le
         }, SIMULATED_DELAY);
     });
 };
+
+export const updateLeadNotes = (leadId: string, notes: string): Promise<Lead | undefined> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const leadIndex = leadsData.findIndex(l => l.id === leadId);
+            if (leadIndex > -1) {
+                leadsData[leadIndex].internalNotes = notes;
+                leadsData[leadIndex].updatedAt = new Date().toISOString();
+                resolve(leadsData[leadIndex]);
+            } else {
+                resolve(undefined);
+            }
+        }, SIMULATED_DELAY);
+    });
+};
+
 
 export const deleteLead = (leadId: string): Promise<boolean> => {
     return new Promise((resolve) => {

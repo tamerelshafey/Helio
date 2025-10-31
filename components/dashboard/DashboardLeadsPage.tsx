@@ -9,7 +9,9 @@ import { useData } from '../shared/DataContext';
 const statusColors: { [key in LeadStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
     contacted: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-    closed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    'in-progress': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+    completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
 
 type SortConfig = {
@@ -111,9 +113,9 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                     className={selectClasses + " max-w-xs"}
                 >
                     <option value="all">{t.filter.filterByStatus} ({t.filter.all})</option>
-                    <option value="new">{t.leadStatus.new}</option>
-                    <option value="contacted">{t.leadStatus.contacted}</option>
-                    <option value="closed">{t.leadStatus.closed}</option>
+                    {Object.entries(t.leadStatus).map(([key, value]) => (
+                        <option key={key} value={key}>{value}</option>
+                    ))}
                 </select>
             </div>
             
@@ -156,9 +158,9 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                                             onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
                                             className={`text-xs font-medium px-2.5 py-0.5 rounded-full border-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800 ${statusColors[lead.status]}`}
                                         >
-                                            <option value="new">{t.leadStatus.new}</option>
-                                            <option value="contacted">{t.leadStatus.contacted}</option>
-                                            <option value="closed">{t.leadStatus.closed}</option>
+                                           {Object.entries(t.leadStatus).map(([key, value]) => (
+                                                <option key={key} value={key}>{value}</option>
+                                            ))}
                                         </select>
                                     </td>
                                     <td className="px-6 py-4">

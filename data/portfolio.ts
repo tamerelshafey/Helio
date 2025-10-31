@@ -29,12 +29,18 @@ export let portfolioData: PortfolioItem[] = [
     { id: 'p3-5', partnerId: 'artistic-touch-decor', src: "https://i.imgur.com/gJ9n273.jpeg", alt: "3D wall sculpture of flowers", title: {ar: "منحوتة زهور ثلاثية الأبعاد", en: "3D Flower Sculpture"}, category: {ar: 'منحوتات جدارية', en: 'Wall Sculptures'} },
     { id: 'p3-6', partnerId: 'artistic-touch-decor', src: "https://i.imgur.com/g05Y36x.jpeg", alt: "Wall sculpture of a blossoming tree", title: {ar: "منحوتة شجرة مزهرة", en: "Blossoming Tree Sculpture"}, category: {ar: 'منحوتات جدارية', en: 'Wall Sculptures'} },
     { id: 'p3-7', partnerId: 'artistic-touch-decor', src: "https://i.imgur.com/6pgpJA8.jpeg", alt: "Abstract tree branch wall sculpture", title: {ar: "منحوتة غصن شجرة تجريدي", en: "Abstract Tree Branch Sculpture"}, category: {ar: 'منحوتات جدارية', en: 'Wall Sculptures'} },
+    { id: 'p3-8', partnerId: 'artistic-touch-decor', src: "https://i.imgur.com/mR3e5OF.jpeg", alt: "Geometric wall sculpture", title: {ar: "منحوتة جدارية هندسية", en: "Geometric Wall Sculpture"}, category: {ar: 'منحوتات جدارية', en: 'Wall Sculptures'} },
+    { id: 'p3-9', partnerId: 'artistic-touch-decor', src: "https://i.imgur.com/rN9yUaM.jpeg", alt: "Nature inspired wall sculpture", title: {ar: "منحوتة مستوحاة من الطبيعة", en: "Nature Inspired Sculpture"}, category: {ar: 'منحوتات جدارية', en: 'Wall Sculptures'} },
 
     // Design Hub - Canvas Paintings
     { id: 'p2-5', partnerId: 'design-hub', src: "https://images.unsplash.com/photo-1579965342575-5fab2a4d6893?q=80&w=1964&auto=format&fit=crop", alt: "Abstract canvas painting", title: {ar: "لوحة كانفس تجريدية", en: "Abstract Canvas Painting"}, category: {ar: 'لوحات كانفس', en: 'Canvas Paintings'} },
     { id: 'p2-6', partnerId: 'design-hub', src: "https://images.unsplash.com/photo-1549492423-400259a5e5a9?q=80&w=2070&auto=format&fit=crop", alt: "Modern art canvas", title: {ar: "لوحة فنية عصرية", en: "Modern Art Canvas"}, category: {ar: 'لوحات كانفس', en: 'Canvas Paintings'} },
-    
+    { id: 'p2-7', partnerId: 'design-hub', src: "https://images.unsplash.com/photo-1531816434952-fb843331c1a3?q=80&w=1974&auto=format&fit=crop", alt: "Minimalist canvas painting", title: {ar: "لوحة كانفس بسيطة", en: "Minimalist Canvas Painting"}, category: {ar: 'لوحات كانفس', en: 'Canvas Paintings'} },
+    { id: 'p2-8', partnerId: 'design-hub', src: "https://images.unsplash.com/photo-1552573102-2b4f3a61b3c4?q=80&w=1974&auto=format&fit=crop", alt: "Colorful abstract art", title: {ar: "فن تجريدي ملون", en: "Colorful Abstract Art"}, category: {ar: 'لوحات كانفس', en: 'Canvas Paintings'} },
+
     // Ebdaa - Antiques & Decor
     { id: 'p4-5', partnerId: 'ebdaa-integrated-finishes', src: "https://images.unsplash.com/photo-1542641197-cdc1de658234?q=80&w=1974&auto=format&fit=crop", alt: "Vintage decorative items", title: {ar: "قطع ديكور كلاسيكية", en: "Vintage Decorative Items"}, category: {ar: 'تحف وديكورات', en: 'Antiques & Decor'} },
-    { id: 'p4-6', partnerId: 'ebdaa-integrated-finishes', src: "https://images.unsplash.com/photo-1555864324-343d3d548f22?q=80&w=1974&auto=format&fit=crop", alt: "Elegant vase", title: {ar: "مزهرية أنيقة", en: "Elegant Vase"}, category: {ar: 'تحف وديكورات', en: 'Antiques & Decor'} }
+    { id: 'p4-6', partnerId: 'ebdaa-integrated-finishes', src: "https://images.unsplash.com/photo-1555864324-343d3d548f22?q=80&w=1974&auto=format&fit=crop", alt: "Elegant vase", title: {ar: "مزهرية أنيقة", en: "Elegant Vase"}, category: {ar: 'تحف وديكورات', en: 'Antiques & Decor'} },
+    { id: 'p4-7', partnerId: 'ebdaa-integrated-finishes', src: "https://images.unsplash.com/photo-1594951351419-61a7a4297858?q=80&w=1974&auto=format&fit=crop", alt: "Modern sculpture decor piece", title: {ar: "قطعة ديكور منحوتة عصرية", en: "Modern Sculpture Decor Piece"}, category: {ar: 'تحف وديكورات', en: 'Antiques & Decor'} },
+    { id: 'p4-8', partnerId: 'ebdaa-integrated-finishes', src: "https://images.unsplash.com/photo-1617099222329-847d3c0b021a?q=80&w=1964&auto=format&fit=crop", alt: "Set of decorative vases", title: {ar: "مجموعة مزهريات ديكورية", en: "Set of Decorative Vases"}, category: {ar: 'تحف وديكورات', en: 'Antiques & Decor'} }
 ];

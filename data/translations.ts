@@ -167,6 +167,18 @@ export const translations = {
                     status: 'active',
                 }
             ],
+            decorations_staff: [
+                {
+                    id: 'decor-manager-1',
+                    name: 'مدير الديكورات',
+                    description: 'إدارة جميع أعمال الديكور والطلبات والأقسام.',
+                    imageUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2070&auto=format&fit=crop',
+                    email: 'decor@onlyhelio.com',
+                    password: 'password123',
+                    type: 'decorations',
+                    status: 'active',
+                }
+            ],
             individualListings: [
                 {
                     id: 'individual-listings',
@@ -518,6 +530,7 @@ export const translations = {
             loginAsFinishing: 'دخول كشركة تشطيب',
             loginAsAgency: 'دخول كمكتب عقاري',
             loginAsAdmin: 'دخول كمسؤول',
+            loginAsDecorations: 'دخول كمدير ديكورات',
         },
         partnerRequestForm: {
             companyInfo: "معلومات الشركة",
@@ -589,7 +602,9 @@ export const translations = {
             leadStatus: {
                 new: 'جديد',
                 contacted: 'تم التواصل',
-                closed: 'مغلق',
+                'in-progress': 'قيد التنفيذ',
+                completed: 'مكتمل',
+                cancelled: 'ملغى',
             },
             propertyTable: {
                 image: 'صورة',
@@ -655,6 +670,10 @@ export const translations = {
                 managePartners: 'إدارة كل الشركاء',
                 manageProperties: 'إدارة كل العقارات',
                 manageLeads: 'إدارة كل الطلبات',
+                manageDecorations: 'إدارة الديكورات',
+                decorationsPortfolio: 'أعمال الديكور',
+                decorationsRequests: 'طلبات الديكور',
+                decorationsCategories: 'أقسام الديكور',
             },
             home: {
                 title: 'نظرة عامة',
@@ -705,6 +724,29 @@ export const translations = {
             leadsSubtitle: 'الإشراف على جميع طلبات العملاء المقدمة عبر المنصة.',
             leadTable: {
                 partner: 'الشريك',
+            },
+            decorationsManagement: {
+                title: "إدارة الديكورات",
+                subtitle: "إدارة محتوى صفحة الديكورات والطلبات الواردة.",
+                portfolioTab: "أعمال الديكور",
+                requestsTab: "طلبات الديكور",
+                categoriesTab: "أقسام الديكور",
+                addNewItem: "إضافة عمل جديد",
+                editItem: "تعديل العمل",
+                itemPartner: "الشريك",
+                itemImage: "الصورة",
+                itemTitle: "العنوان",
+                itemCategory: "التصنيف",
+                itemActions: "إجراءات",
+                noItems: "لا توجد أعمال ديكور حاليًا.",
+                noRequests: "لا توجد طلبات ديكور حاليًا.",
+                confirmDelete: "هل أنت متأكد أنك تريد حذف هذا العنصر؟",
+                lastUpdated: "آخر تحديث",
+                internalNotes: "ملاحظات داخلية",
+                filterByDate: "فلترة بالتاريخ",
+                filterByPartner: "فلترة بالشريك",
+                startDate: "تاريخ البدء",
+                endDate: "تاريخ الانتهاء",
             },
             adminRequests: {
                 partnerRequestsTitle: 'طلبات انضمام الشركاء',
@@ -921,6 +963,18 @@ export const translations = {
                     email: 'admin@onlyhelio.com',
                     password: 'password123',
                     type: 'admin',
+                    status: 'active',
+                }
+            ],
+            decorations_staff: [
+                {
+                    id: 'decor-manager-1',
+                    name: 'Decorations Manager',
+                    description: 'Manages all decoration portfolio items, requests, and categories.',
+                    imageUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2070&auto=format&fit=crop',
+                    email: 'decor@onlyhelio.com',
+                    password: 'password123',
+                    type: 'decorations',
                     status: 'active',
                 }
             ],
@@ -1275,6 +1329,7 @@ export const translations = {
             loginAsFinishing: 'Login as Finishing Co.',
             loginAsAgency: 'Login as Agency',
             loginAsAdmin: 'Login as Admin',
+            loginAsDecorations: 'Login as Decorations Manager',
         },
         partnerRequestForm: {
             companyInfo: "Company Information",
@@ -1346,7 +1401,9 @@ export const translations = {
             leadStatus: {
                 new: 'New',
                 contacted: 'Contacted',
-                closed: 'Closed',
+                'in-progress': 'In Progress',
+                completed: 'Completed',
+                cancelled: 'Cancelled',
             },
             propertyTable: {
                 image: 'Image',
@@ -1412,6 +1469,10 @@ export const translations = {
                 managePartners: 'Manage All Partners',
                 manageProperties: 'Manage All Properties',
                 manageLeads: 'Manage All Leads',
+                manageDecorations: 'Decorations',
+                decorationsPortfolio: 'Portfolio',
+                decorationsRequests: 'Requests',
+                decorationsCategories: 'Categories',
             },
             home: {
                 title: 'Overview',
@@ -1462,6 +1523,29 @@ export const translations = {
             leadsSubtitle: 'Oversee all customer leads submitted across the platform.',
             leadTable: {
                 partner: 'Partner',
+            },
+            decorationsManagement: {
+                title: "Manage Decorations",
+                subtitle: "Manage the content of the decorations page and incoming requests.",
+                portfolioTab: "Portfolio Items",
+                requestsTab: "Decoration Requests",
+                categoriesTab: "Decoration Categories",
+                addNewItem: "Add New Item",
+                editItem: "Edit Item",
+                itemPartner: "Partner",
+                itemImage: "Image",
+                itemTitle: "Title",
+                itemCategory: "Category",
+                itemActions: "Actions",
+                noItems: "There are no decoration items currently.",
+                noRequests: "There are no decoration requests currently.",
+                confirmDelete: "Are you sure you want to delete this item?",
+                lastUpdated: "Last Updated",
+                internalNotes: "Internal Notes",
+                filterByDate: "Filter by Date",
+                filterByPartner: "Filter by Partner",
+                startDate: "Start Date",
+                endDate: "End Date",
             },
             adminRequests: {
                 partnerRequestsTitle: 'Partner Join Requests',

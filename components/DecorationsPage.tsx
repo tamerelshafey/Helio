@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { Language, PortfolioItem } from '../types';
 import { translations } from '../data/translations';
 import DecorationRequestModal from './DecorationRequestModal';
@@ -11,21 +11,29 @@ interface DecorationsPageProps {
 
 const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
     const t = translations[language].decorationsPage;
-    const { portfolio: allWorks, loading } = useData();
+    const { portfolio: allWorks, decorationCategories, loading } = useData();
     
-    const tabs = [
-        { key: 'sculptures', name: t.tabs.sculptures, desc: t.sculptures_desc },
-        { key: 'paintings', name: t.tabs.paintings, desc: t.paintings_desc },
-        { key: 'antiques', name: t.tabs.antiques, desc: t.antiques_desc },
-    ];
+    const tabs = useMemo(() => decorationCategories.map(cat => ({
+        key: cat.id,
+        name: cat.name[language],
+        desc: cat.description[language]
+    })), [decorationCategories, language]);
     
-    const [activeTab, setActiveTab] = useState(tabs[0].name);
+    const [activeTab, setActiveTab] = useState('');
+
+    // Set initial active tab once data is loaded
+    useEffect(() => {
+        if (tabs.length > 0 && !activeTab) {
+            setActiveTab(tabs[0].name);
+        }
+    }, [tabs, activeTab]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedWork, setSelectedWork] = useState<PortfolioItem | null>(null);
     const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
 
     const filteredWorks = useMemo(() => {
+        if (!activeTab) return [];
         return allWorks.filter(work => work.category[language] === activeTab);
     }, [allWorks, activeTab, language]);
 
@@ -92,7 +100,7 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
                     </div>
                    
                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 animate-fadeIn">
-                       {loading ? (
+                       {loading && !activeTab ? (
                            Array.from({ length: 3 }).map((_, i) => (
                                 <div key={i} className="bg-gray-200 dark:bg-gray-800 rounded-lg aspect-[4/5] animate-pulse"></div>
                            ))

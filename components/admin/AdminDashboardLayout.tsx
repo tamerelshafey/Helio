@@ -3,7 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import type { Language } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
-import { BuildingIcon, WrenchScrewdriverIcon, QuoteIcon, UserPlusIcon, ClipboardDocumentListIcon, InboxIcon, HomeIcon } from '../icons/Icons';
+import { BuildingIcon, WrenchScrewdriverIcon, QuoteIcon, UserPlusIcon, ClipboardDocumentListIcon, InboxIcon, HomeIcon, CubeIcon } from '../icons/Icons';
 
 interface AdminDashboardLayoutProps {
     language: Language;
@@ -27,6 +27,12 @@ const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({ language })
         { name: t.nav.managePartners, href: "/admin/partners", icon: <WrenchScrewdriverIcon className="w-5 h-5" /> },
         { name: t.nav.manageProperties, href: "/admin/properties", icon: <BuildingIcon className="w-5 h-5" /> },
         { name: t.nav.manageLeads, href: "/admin/leads", icon: <QuoteIcon className="w-5 h-5" /> },
+    ];
+    
+    const decorationLinks = [
+        { name: t.nav.decorationsPortfolio, href: "/admin/decorations/portfolio", icon: <CubeIcon className="w-5 h-5" /> },
+        { name: t.nav.decorationsRequests, href: "/admin/decorations/requests", icon: <InboxIcon className="w-5 h-5" /> },
+        { name: t.nav.decorationsCategories, href: "/admin/decorations/categories", icon: <WrenchScrewdriverIcon className="w-5 h-5" /> },
     ];
 
 
@@ -62,6 +68,17 @@ const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({ language })
                     <p className="px-4 mt-6 text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Management</p>
                     <ul className="space-y-2">
                         {managementLinks.map(link => (
+                            <li key={link.href}>
+                                <NavLink to={link.href} className={({isActive}) => `${baseLinkClasses} ${isActive ? activeLinkClasses : inactiveLinkClasses}`}>
+                                    <span className={language === 'ar' ? 'ml-3' : 'mr-3'}>{link.icon}</span>
+                                    {link.name}
+                                </NavLink>
+                            </li>
+                        ))}
+                    </ul>
+                     <p className="px-4 mt-6 text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">{t.nav.manageDecorations}</p>
+                    <ul className="space-y-2">
+                        {decorationLinks.map(link => (
                             <li key={link.href}>
                                 <NavLink to={link.href} className={({isActive}) => `${baseLinkClasses} ${isActive ? activeLinkClasses : inactiveLinkClasses}`}>
                                     <span className={language === 'ar' ? 'ml-3' : 'mr-3'}>{link.icon}</span>

@@ -83,7 +83,13 @@ export interface PortfolioItem {
     };
 }
 
-export type LeadStatus = 'new' | 'contacted' | 'closed';
+export interface DecorationCategory {
+  id: string;
+  name: { ar: string; en: string };
+  description: { ar: string; en: string };
+}
+
+export type LeadStatus = 'new' | 'contacted' | 'in-progress' | 'completed' | 'cancelled';
 
 export interface Lead {
     id: string;
@@ -95,6 +101,8 @@ export interface Lead {
     serviceTitle: string;
     status: LeadStatus;
     createdAt: string; // ISO 8601 date string
+    updatedAt: string; // ISO 8601 date string
+    internalNotes?: string;
 }
 
 export type PartnerStatus = 'active' | 'pending' | 'disabled';
@@ -106,7 +114,7 @@ export interface Partner {
     imageUrl: string;
     email: string;
     password?: string;
-    type: 'developer' | 'finishing' | 'agency' | 'admin';
+    type: 'developer' | 'finishing' | 'agency' | 'admin' | 'decorations';
     status: PartnerStatus;
 }
 

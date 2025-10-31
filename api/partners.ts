@@ -5,27 +5,28 @@ const SIMULATED_DELAY = 300;
 
 // This is a simulation. In a real app, this data would be in a database.
 export const getAllPartners = (): Partner[] => {
-    const { developers, finishing_companies, agencies, admins, individualListings } = translations.en.partners;
+    const { developers, finishing_companies, agencies, admins, individualListings, decorations_staff } = translations.en.partners as any;
     return [
         ...developers,
         ...finishing_companies,
         ...agencies,
         ...admins || [],
         ...individualListings || [],
+        ...decorations_staff || [],
     ] as unknown as Partner[];
 };
 
 export const getAllPartnersForAdmin = (): Partner[] => {
     // In the EN data, combine all non-admin partners to get their types and emails
-    const { developers, finishing_companies, agencies, individualListings } = translations.en.partners;
-    const allEnPartners = [...developers, ...finishing_companies, ...agencies, ...(individualListings || [])];
+    const { developers, finishing_companies, agencies, individualListings, decorations_staff } = translations.en.partners as any;
+    const allEnPartners = [...developers, ...finishing_companies, ...agencies, ...(individualListings || []), ...(decorations_staff || [])];
 
     // Get the localized names and descriptions
-    const { developers: arDevs, finishing_companies: arFins, agencies: arAgencies, individualListings: arIndivs } = translations.ar.partners;
-    const allArPartners = [...arDevs, ...arFins, ...arAgencies, ...(arIndivs || [])];
+    const { developers: arDevs, finishing_companies: arFins, agencies: arAgencies, individualListings: arIndivs, decorations_staff: arDecor } = translations.ar.partners as any;
+    const allArPartners = [...arDevs, ...arFins, ...arAgencies, ...(arIndivs || []), ...(arDecor || [])];
     
-    return allEnPartners.map(enPartner => {
-        const arPartner = allArPartners.find(p => p.id === enPartner.id);
+    return allEnPartners.map((enPartner: any) => {
+        const arPartner = allArPartners.find((p: any) => p.id === enPartner.id);
         return {
             ...enPartner,
             nameAr: arPartner?.name,
@@ -55,10 +56,10 @@ export const getPartnerByEmail = (email: string) => {
 export const getTestPartners = (language: 'ar' | 'en') => {
     const enPartners = getAllPartners();
 
-    const { developers, finishing_companies, agencies, admins } = translations[language].partners;
-    const localizedPartners = [...developers, ...finishing_companies, ...agencies, ...(admins || [])];
+    const { developers, finishing_companies, agencies, admins, decorations_staff } = translations[language].partners as any;
+    const localizedPartners = [...developers, ...finishing_companies, ...agencies, ...(admins || []), ...(decorations_staff || [])];
     
-    return localizedPartners.map(localPartner => {
+    return localizedPartners.map((localPartner: any) => {
         const enData = enPartners.find(p => p.id === localPartner.id);
         return {
             id: localPartner.id,
@@ -77,23 +78,24 @@ export const updatePartner = (id: string, updates: { name?: string, description?
             let found = false;
             const updatePartnerInLang = (lang: 'en' | 'ar') => {
                  const partnerArrays = [
-                    translations[lang].partners.developers,
-                    translations[lang].partners.finishing_companies,
-                    translations[lang].partners.agencies
+                    (translations[lang].partners as any).developers,
+                    (translations[lang].partners as any).finishing_companies,
+                    (translations[lang].partners as any).agencies,
+                    (translations[lang].partners as any).decorations_staff,
                 ];
                 for (const arr of partnerArrays) {
+                    if (!arr) continue;
                     const partner = arr.find((p: any) => p.id === id);
                     if (partner) {
-                        if (updates.name && lang === 'en') partner.name = updates.name;
-                        if (updates.description && lang === 'en') partner.description = updates.description;
-                        // For simplicity, we assume name and desc are primarily updated in English for now.
-                        // A real app would handle multilingual updates more robustly.
+                        if (updates.name) partner.name = updates.name;
+                        if (updates.description) partner.description = updates.description;
                         if (updates.imageUrl) partner.imageUrl = updates.imageUrl;
                         found = true;
                     }
                 }
             }
             updatePartnerInLang('en');
+            // Update AR with the same values for simplicity in this mock setup.
             updatePartnerInLang('ar');
             resolve(found);
         }, 300);
@@ -107,11 +109,13 @@ export const updatePartnerStatus = (id: string, status: PartnerStatus): Promise<
             let found = false;
             const updateStatusInLang = (lang: 'en' | 'ar') => {
                 const partnerArrays = [
-                    translations[lang].partners.developers,
-                    translations[lang].partners.finishing_companies,
-                    translations[lang].partners.agencies
+                    (translations[lang].partners as any).developers,
+                    (translations[lang].partners as any).finishing_companies,
+                    (translations[lang].partners as any).agencies,
+                    (translations[lang].partners as any).decorations_staff,
                 ];
                 for (const arr of partnerArrays) {
+                     if (!arr) continue;
                     const partner = arr.find((p: any) => p.id === id);
                     if (partner) {
                         partner.status = status;
