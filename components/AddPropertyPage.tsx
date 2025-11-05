@@ -7,7 +7,7 @@ import { addPropertyRequest } from '../api/propertyRequests';
 import FormField, { inputClasses, selectClasses } from './shared/FormField';
 import { CheckCircleIcon, CloseIcon } from './icons/Icons';
 import { getAllPropertyTypes, getAllFinishingStatuses } from '../api/filters';
-import { getPlans } from '../../api/plans';
+import { getPlans } from '../api/plans';
 import { useApiQuery } from './shared/useApiQuery';
 import CooperationCard from './shared/CooperationCard';
 import LocationPickerModal from './shared/LocationPickerModal';

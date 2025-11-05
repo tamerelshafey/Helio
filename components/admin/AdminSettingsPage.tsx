@@ -234,8 +234,11 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ language }) => {
                 </div>
 
                 <div className="mt-8 flex justify-end items-center gap-4">
-                    {isDirty && <span className="text-sm text-yellow-600 dark:text-yellow-400">You have unsaved changes.</span>}
-                    <button type="submit" disabled={isSubmitting || !isDirty} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
+                    <button 
+                        type="submit" 
+                        disabled={isSubmitting || !isDirty} 
+                        className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
                         {isSubmitting ? 'Saving...' : 'Save All Settings'}
                     </button>
                 </div>
