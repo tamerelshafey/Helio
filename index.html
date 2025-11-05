@@ -47,6 +47,23 @@
         background-size: 400% 400%;
         animation: calm-background 15s ease infinite;
       }
+      .slider-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.7s ease-in-out;
+        z-index: 1;
+      }
+      .slider-image.active {
+        opacity: 1;
+        z-index: 2;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+      }
     </style>
   <script type="importmap">
 {
@@ -56,7 +73,13 @@
     "react-dom/": "https://esm.sh/react-dom@18.2.0/",
     "react/": "https://esm.sh/react@18.2.0/",
     "react-router-dom": "https://esm.sh/react-router-dom@6.23.1?deps=react@18.2.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.28.0"
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.28.0",
+    "marked": "https://esm.sh/marked@12.0.2",
+    "jspdf": "https://esm.sh/jspdf@2.5.1",
+    "jspdf-autotable": "https://esm.sh/jspdf-autotable@3.8.2",
+    "react-hook-form": "https://esm.sh/react-hook-form@7.52.0?deps=react@18.2.0",
+    "chart.js": "https://esm.sh/chart.js@4.4.3",
+    "react-chartjs-2": "https://esm.sh/react-chartjs-2@5.2.0?deps=react@18.2.0,chart.js@4.4.3"
   }
 }
 </script>

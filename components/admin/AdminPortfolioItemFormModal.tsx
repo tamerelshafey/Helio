@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Language, PortfolioItem } from '../../types';
 import { translations } from '../../data/translations';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
-import { useData } from '../shared/DataContext';
+import { getDecorationCategories } from '../../api/decorations';
+import { addPortfolioItem, updatePortfolioItem } from '../../api/portfolio';
+import { useApiQuery } from '../shared/useApiQuery';
 
 interface AdminPortfolioItemFormModalProps {
     itemToEdit?: PortfolioItem;
@@ -24,31 +26,29 @@ const fileToBase64 = (file: File): Promise<string> => {
 const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = ({ itemToEdit, onClose, onSave, language }) => {
     const t = translations[language].dashboard;
     const t_admin = translations[language].adminDashboard.decorationsManagement;
-    const { partners, decorationCategories, addPortfolioItem, updatePortfolioItem } = useData();
+    const t_shared = translations[language].adminShared;
+    const { data: decorationCategories, isLoading: categoriesLoading } = useApiQuery('decorationCategories', getDecorationCategories);
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
-        title: { ar: itemToEdit?.title.ar || '', en: itemToEdit?.title.en || '' },
-        partnerId: itemToEdit?.partnerId || '',
-        categoryId: decorationCategories.find(c => c.name.en === itemToEdit?.category.en)?.id || '',
+        title: { ar: itemToEdit?.title?.ar || '', en: itemToEdit?.title?.en || '' },
+        categoryId: decorationCategories?.find(c => c.name.en === itemToEdit?.category.en)?.id || '',
+        price: itemToEdit?.price || '',
+        dimensions: itemToEdit?.dimensions || '',
+        availability: itemToEdit?.availability || 'In Stock',
     });
 
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(itemToEdit?.src || null);
 
-    const finishingPartners = useMemo(() => partners.filter(p => p.type === 'finishing' || p.type === 'decorations'), [partners]);
-    
     useEffect(() => {
-        if (finishingPartners.length > 0 && !itemToEdit) {
-            setFormData(prev => ({ ...prev, partnerId: finishingPartners[0].id }));
-        }
-        if (decorationCategories.length > 0 && !itemToEdit) {
+        if (decorationCategories && decorationCategories.length > 0 && !formData.categoryId) {
             setFormData(prev => ({...prev, categoryId: decorationCategories[0].id}));
         }
-    }, [finishingPartners, decorationCategories, itemToEdit]);
+    }, [decorationCategories, formData.categoryId]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         if (name.includes('.')) {
             const [field, lang] = name.split('.');
@@ -75,25 +75,28 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
             imageSrc = await fileToBase64(imageFile);
         }
         
-        const selectedCategory = decorationCategories.find(c => c.id === formData.categoryId);
+        const selectedCategory = decorationCategories?.find(c => c.id === formData.categoryId);
         if (!selectedCategory) {
             setLoading(false);
             alert("Please select a valid category.");
             return;
         }
 
-        const dataToSave = {
+        const dataToSave: Omit<PortfolioItem, 'id'> = {
             title: formData.title,
-            partnerId: formData.partnerId,
+            partnerId: 'decor-manager-1', // All decoration items are managed internally
             category: selectedCategory.name,
             src: imageSrc,
             alt: formData.title.en || 'Decoration work',
+            price: formData.price ? parseInt(String(formData.price), 10) : undefined,
+            dimensions: formData.dimensions || undefined,
+            availability: formData.availability as 'In Stock' | 'Made to Order',
         };
 
         if (itemToEdit) {
             await updatePortfolioItem(itemToEdit.id, dataToSave);
         } else {
-            await addPortfolioItem(dataToSave as Omit<PortfolioItem, 'id'>);
+            await addPortfolioItem(dataToSave);
         }
         setLoading(false);
         onSave();
@@ -101,41 +104,52 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
 
     return (
         <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={onClose}>
-            <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-amber-500">{itemToEdit ? t_admin.editItem : t_admin.addNewItem}</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
-                </div>
-                <form onSubmit={handleSubmit} className="flex-grow overflow-y-auto p-6 space-y-4">
-                    <FormField label={t.workImageURL} id="src">
-                        <div className="flex items-center gap-4">
-                            {imagePreview && <img src={imagePreview} alt="Preview" className="w-20 h-20 rounded-md object-cover border-2" />}
-                            <input type="file" id="src" accept="image/*" onChange={handleFileChange} className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`} required={!itemToEdit} />
-                        </div>
-                    </FormField>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField label={t.workTitleAr} id="title.ar"><input type="text" name="title.ar" value={formData.title.ar} onChange={handleChange} className={inputClasses} required /></FormField>
-                        <FormField label={t.workTitleEn} id="title.en"><input type="text" name="title.en" value={formData.title.en} onChange={handleChange} className={inputClasses} required /></FormField>
+            <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+                <form onSubmit={handleSubmit} className="flex-grow contents">
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <h3 className="text-xl font-bold text-amber-500">{itemToEdit ? t_admin.editItem : t_admin.addNewItem}</h3>
+                        <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
                     </div>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField label={t_admin.itemCategory} id="categoryId">
-                           <select name="categoryId" value={formData.categoryId} onChange={handleChange} className={selectClasses} required>
-                                {decorationCategories.map(c => <option key={c.id} value={c.id}>{c.name[language]}</option>)}
-                            </select>
+                    <div className="flex-grow overflow-y-auto p-6 space-y-6">
+                        <FormField label={t.workImageURL} id="src">
+                            <div className="flex items-center gap-4">
+                                {imagePreview && <img src={imagePreview} alt="Preview" className="w-20 h-20 rounded-md object-cover border-2" />}
+                                <input type="file" id="src" accept="image/*" onChange={handleFileChange} className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`} required={!itemToEdit} />
+                            </div>
                         </FormField>
-                        <FormField label={t_admin.itemPartner} id="partnerId">
-                            <select name="partnerId" value={formData.partnerId} onChange={handleChange} className={selectClasses} required>
-                                {finishingPartners.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                            </select>
-                        </FormField>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField label={t.workTitleAr} id="title.ar"><input type="text" name="title.ar" value={formData.title.ar} onChange={handleChange} className={inputClasses} required /></FormField>
+                            <FormField label={t.workTitleEn} id="title.en"><input type="text" name="title.en" value={formData.title.en} onChange={handleChange} className={inputClasses} required /></FormField>
+                        </div>
+                         <div>
+                            <FormField label={t_admin.itemCategory} id="categoryId">
+                               <select name="categoryId" value={formData.categoryId} onChange={handleChange} className={selectClasses} required disabled={categoriesLoading}>
+                                    {(decorationCategories || []).map(c => <option key={c.id} value={c.id}>{c.name[language]}</option>)}
+                                </select>
+                            </FormField>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-gray-200 dark:border-gray-700 pt-6">
+                            <FormField label="Price (EGP)" id="price">
+                                <input type="number" name="price" value={formData.price} onChange={handleChange} className={inputClasses} placeholder="e.g. 5000" />
+                            </FormField>
+                            <FormField label="Dimensions" id="dimensions">
+                                <input type="text" name="dimensions" value={formData.dimensions} onChange={handleChange} className={inputClasses} placeholder="e.g. 120cm x 80cm" />
+                            </FormField>
+                            <FormField label="Availability" id="availability">
+                                <select name="availability" value={formData.availability} onChange={handleChange} className={selectClasses}>
+                                    <option value="In Stock">{translations[language].decorationsPage.inStock}</option>
+                                    <option value="Made to Order">{translations[language].decorationsPage.madeToOrder}</option>
+                                </select>
+                            </FormField>
+                        </div>
+                    </div>
+                    <div className="p-4 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+                        <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">{t_shared.cancel}</button>
+                        <button type="submit" disabled={loading} className="px-6 py-2 rounded-lg bg-amber-500 text-gray-900 font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50">
+                            {loading ? '...' : t_shared.save}
+                        </button>
                     </div>
                 </form>
-                <div className="p-4 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                    <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">{language === 'ar' ? 'إلغاء' : 'Cancel'}</button>
-                    <button type="button" onClick={handleSubmit} disabled={loading} className="bg-amber-500 text-gray-900 font-semibold px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
-                        {loading ? '...' : t.saveChanges}
-                    </button>
-                </div>
             </div>
         </div>
     );

@@ -1,27 +1,70 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, PartnerRequest } from '../../types';
 import { translations } from '../../data/translations';
 import { inputClasses } from '../shared/FormField';
-import { useData } from '../shared/DataContext';
+import { ArrowDownIcon, ArrowUpIcon } from '../icons/Icons';
+import { getAllPartnerRequests } from '../../api/partnerRequests';
+import { useApiQuery } from '../shared/useApiQuery';
+import { useAuth } from '../auth/AuthContext';
+
+type SortConfig = {
+    key: 'companyName' | 'companyType' | 'createdAt' | 'status';
+    direction: 'ascending' | 'descending';
+} | null;
 
 const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard;
     const t_req = t.adminRequests;
-    const { partnerRequests, loading } = useData();
+    const { currentUser } = useAuth();
+    const { data: partnerRequests, isLoading: loading } = useApiQuery('partnerRequests', getAllPartnerRequests);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('pending');
+    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
 
-    const filteredRequests = useMemo(() => {
-        return partnerRequests.filter(req =>
+
+    const sortedAndFilteredRequests = useMemo(() => {
+        let initialReqs = partnerRequests || [];
+        if (currentUser && currentUser.type !== 'admin') {
+            initialReqs = initialReqs.filter(req => req.managerId === currentUser.id);
+        }
+
+        let filteredReqs = initialReqs.filter(req =>
             (statusFilter === 'all' || req.status === statusFilter) &&
             (req.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
              req.contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
              req.contactEmail.toLowerCase().includes(searchTerm.toLowerCase()))
         );
-    }, [partnerRequests, statusFilter, searchTerm]);
+
+        if (sortConfig) {
+            filteredReqs.sort((a, b) => {
+                const aValue = a[sortConfig.key];
+                const bValue = b[sortConfig.key];
+                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
+                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        return filteredReqs;
+    }, [partnerRequests, statusFilter, searchTerm, sortConfig, currentUser]);
     
+    const requestSort = (key: 'companyName' | 'companyType' | 'createdAt' | 'status') => {
+        let direction: 'ascending' | 'descending' = 'ascending';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const getSortIcon = (key: 'companyName' | 'companyType' | 'createdAt' | 'status') => {
+        if (!sortConfig || sortConfig.key !== key) {
+            return <span className="w-4 h-4 ml-1 inline-block"></span>;
+        }
+        return sortConfig.direction === 'ascending' ? <ArrowUpIcon className="w-4 h-4 ml-1" /> : <ArrowDownIcon className="w-4 h-4 ml-1" />;
+    };
+
     const getPartnerTypeName = (type: PartnerRequest['companyType']) => {
         return t.partnerTypes[type as keyof typeof t.partnerTypes] || type;
     }
@@ -55,18 +98,26 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
                 <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope="col" className="px-6 py-3">{t.partnerTable.partner}</th>
-                            <th scope="col" className="px-6 py-3">{t.partnerTable.type}</th>
-                            <th scope="col" className="px-6 py-3">{t_req.table.date}</th>
-                            <th scope="col" className="px-6 py-3">{t.partnerTable.status}</th>
+                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('companyName')}>
+                                <div className="flex items-center">{t.partnerTable.partner}{getSortIcon('companyName')}</div>
+                            </th>
+                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('companyType')}>
+                                <div className="flex items-center">{t.partnerTable.type}{getSortIcon('companyType')}</div>
+                            </th>
+                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
+                                <div className="flex items-center">{t_req.table.date}{getSortIcon('createdAt')}</div>
+                            </th>
+                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
+                                <div className="flex items-center">{t.partnerTable.status}{getSortIcon('status')}</div>
+                            </th>
                             <th scope="col" className="px-6 py-3">{t.partnerTable.actions}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {loading ? (
                             <tr><td colSpan={5} className="text-center p-8">Loading requests...</td></tr>
-                        ) : filteredRequests.length > 0 ? (
-                            filteredRequests.map(req => (
+                        ) : sortedAndFilteredRequests.length > 0 ? (
+                            sortedAndFilteredRequests.map(req => (
                             <tr key={req.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">

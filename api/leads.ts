@@ -1,6 +1,10 @@
+// Note: This is a mock API. In a real application, these functions would make network requests
+// to a backend service. The data is modified in-memory for simulation purposes.
+
 import { leadsData } from '../data/leads';
-import type { Lead, LeadStatus } from '../types';
-import { getPartnerById } from './partners';
+import type { Lead, LeadStatus, PartnerType } from '../types';
+import { getPartnerById, getAllPartners } from './partners';
+import { addNotification } from './notifications';
 
 const SIMULATED_DELAY = 300;
 
@@ -33,26 +37,38 @@ export const addLead = (leadData: Omit<Lead, 'id' | 'status' | 'createdAt' | 'up
     return new Promise((resolve) => {
         setTimeout(() => {
             const now = new Date().toISOString();
+            
             const newLead: Lead = {
                 ...leadData,
                 id: `lead-${Date.now()}`,
                 status: 'new',
                 createdAt: now,
                 updatedAt: now,
+                internalNotes: '',
             };
             leadsData.unshift(newLead);
+
+            const targetUserId = newLead.managerId || newLead.partnerId;
+            addNotification({
+                userId: targetUserId,
+                message: {
+                  ar: `لديك طلب عميل جديد من "${newLead.customerName}".`,
+                  en: `New lead from "${newLead.customerName}".`,
+                },
+                link: newLead.managerId ? '/admin/leads' : '/dashboard/leads',
+            });
+
             resolve(newLead);
         }, SIMULATED_DELAY);
     });
 };
 
-export const updateLeadStatus = (leadId: string, status: LeadStatus): Promise<Lead | undefined> => {
+export const updateLead = (leadId: string, updates: Partial<Omit<Lead, 'id' | 'createdAt'>>): Promise<Lead | undefined> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             const leadIndex = leadsData.findIndex(l => l.id === leadId);
             if (leadIndex > -1) {
-                leadsData[leadIndex].status = status;
-                leadsData[leadIndex].updatedAt = new Date().toISOString();
+                leadsData[leadIndex] = { ...leadsData[leadIndex], ...updates, updatedAt: new Date().toISOString() };
                 resolve(leadsData[leadIndex]);
             } else {
                 resolve(undefined);
@@ -60,22 +76,6 @@ export const updateLeadStatus = (leadId: string, status: LeadStatus): Promise<Le
         }, SIMULATED_DELAY);
     });
 };
-
-export const updateLeadNotes = (leadId: string, notes: string): Promise<Lead | undefined> => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const leadIndex = leadsData.findIndex(l => l.id === leadId);
-            if (leadIndex > -1) {
-                leadsData[leadIndex].internalNotes = notes;
-                leadsData[leadIndex].updatedAt = new Date().toISOString();
-                resolve(leadsData[leadIndex]);
-            } else {
-                resolve(undefined);
-            }
-        }, SIMULATED_DELAY);
-    });
-};
-
 
 export const deleteLead = (leadId: string): Promise<boolean> => {
     return new Promise((resolve) => {

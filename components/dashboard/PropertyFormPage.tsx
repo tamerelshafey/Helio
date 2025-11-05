@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import type { Language, Property } from '../../types';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
+import type { Language, Property, FilterOption } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
-import { CloseIcon } from '../icons/Icons';
-import { useData } from '../shared/DataContext';
+import { CloseIcon, SparklesIcon } from '../icons/Icons';
+import { GoogleGenAI } from '@google/genai';
+import { getAllProperties, addProperty as apiAddProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
+import { getAllProjects } from '../../api/projects';
+import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../api/filters';
+import { useApiQuery } from '../shared/useApiQuery';
+import LocationPickerModal from '../shared/LocationPickerModal';
+
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -16,57 +23,82 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
+type TranslatableField = 'title' | 'address' | 'description';
 
 const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
     const { propertyId } = useParams();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { currentUser } = useAuth();
-    const { properties, addProperty, updateProperty } = useData();
+
+    const { data: properties, isLoading: isLoadingProps } = useApiQuery('allProperties', getAllProperties, { enabled: !!propertyId });
+    const { data: projects, isLoading: isLoadingProjs } = useApiQuery('allProjects', getAllProjects);
+    const { data: propertyTypes, isLoading: isLoadingPropTypes } = useApiQuery('propertyTypes', getAllPropertyTypes);
+    const { data: finishingStatuses, isLoading: isLoadingFinishing } = useApiQuery('finishingStatuses', getAllFinishingStatuses);
+    const { data: amenities, isLoading: isLoadingAmenities } = useApiQuery('amenities', getAllAmenities);
+
     const t = translations[language];
     const td = t.dashboard.propertyForm;
     const tp = t.propertiesPage;
-
-    const [formData, setFormData] = useState<Partial<Property>>({
-        title: { ar: '', en: '' },
-        address: { ar: '', en: '' },
-        description: { ar: '', en: '' },
-        status: { en: 'For Sale', ar: 'للبيع' },
-        type: { en: 'Apartment', ar: 'شقة' },
-        priceNumeric: 0,
-        price: { ar: '', en: '' },
-        beds: 3,
-        baths: 2,
-        area: 150,
-        floor: 1,
-        amenities: { ar: [], en: [] },
-        installmentsAvailable: false,
-        isInCompound: false,
-        delivery: { isImmediate: true, date: '' },
-        installments: { downPayment: 0, monthlyInstallment: 0, years: 0 },
-    });
+    
+    const { register, handleSubmit, control, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<Partial<Property>>();
     
     const [mainImage, setMainImage] = useState<string>(''); // Can be URL or dataURL
     const [galleryImages, setGalleryImages] = useState<string[]>([]); // Can be URLs or dataURLs
-    const [loading, setLoading] = useState(false);
+    const [translationLoading, setTranslationLoading] = useState<Partial<Record<TranslatableField, boolean>>>({});
+    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+    const [isGeneratingDesc, setIsGeneratingDesc] = useState<'ar' | 'en' | null>(null);
+
+    const watchType = watch('type');
+    const watchStatus = watch('status');
+    const watchDelivery = watch('delivery');
+    const watchInstallments = watch('installmentsAvailable');
+    const watchPrice = watch('priceNumeric');
+    const watchArea = watch('area');
+    const watchAmenities = watch('amenities');
+    const watchLocation = watch('location');
+
+    const partnerProjects = useMemo(() => (projects || []).filter(p => p.partnerId === currentUser?.id), [projects, currentUser]);
+
+    const pricePerMeter = useMemo(() => {
+        if (!watchPrice || !watchArea || watchArea === 0) return 0;
+        return Math.round(watchPrice / watchArea);
+    }, [watchPrice, watchArea]);
 
     useEffect(() => {
-        if (propertyId) {
-            setLoading(true);
+        if (propertyId && properties) {
             const prop = properties.find(p => p.id === propertyId);
-            if (prop && (prop.partnerId === currentUser?.id || currentUser?.type === 'admin')) {
-                setFormData({
+            // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
+            if (prop && currentUser && 'type' in currentUser && (prop.partnerId === currentUser.id || currentUser.type === 'admin')) {
+                reset({
                     ...prop,
                     delivery: prop.delivery || { isImmediate: true, date: '' },
                     installments: prop.installments || { downPayment: 0, monthlyInstallment: 0, years: 0 },
                 });
                 setMainImage(prop.imageUrl);
                 setGalleryImages(prop.gallery);
-            } else if (properties.length > 0) { // check if properties are loaded
-                navigate('/dashboard'); // Not found or not authorized
+            } else if (properties.length > 0) {
+                navigate('/dashboard'); 
             }
-            setLoading(false);
+        } else if (!propertyId) {
+            // Set default for new property
+             reset({
+                projectId: searchParams.get('projectId') || undefined,
+                status: { en: 'For Sale', ar: 'للبيع' },
+                type: { en: 'Apartment', ar: 'شقة' },
+                beds: 3,
+                baths: 2,
+                area: 150,
+                floor: 1,
+                location: { lat: 30.129, lng: 31.621 },
+                amenities: { ar: [], en: [] },
+                installmentsAvailable: false,
+                isInCompound: false,
+                delivery: { isImmediate: true, date: '' },
+                installments: { downPayment: 0, monthlyInstallment: 0, years: 0 },
+            });
         }
-    }, [propertyId, currentUser, navigate, properties]);
+    }, [propertyId, currentUser, navigate, properties, reset, searchParams]);
 
     const handleMainImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -88,227 +120,355 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
         setGalleryImages(prev => prev.filter((_, i) => i !== index));
     };
 
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value, type } = e.target;
-        const checked = (e.target as HTMLInputElement).checked;
-
-        if (name.includes('.')) {
-            const [field, subfield] = name.split('.');
-            setFormData(prev => ({
-                ...prev,
-                [field]: { ...(prev as any)[field], [subfield]: value }
-            }));
-        } else if (type === 'number') {
-             setFormData(prev => ({ ...prev, [name]: parseInt(value) || 0 }));
-        } else if (type === 'checkbox') {
-             setFormData(prev => ({ ...prev, [name]: checked }));
-        } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
+    const translateText = async (text: string, targetLang: 'en' | 'ar'): Promise<string> => {
+        if (!text.trim()) return '';
+        try {
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: `Translate the following text to ${targetLang === 'en' ? 'English' : 'Arabic'}:\n\n${text}`,
+            });
+            return response.text;
+        } catch (error) {
+            console.error('Translation failed:', error);
+            return `Translation failed. Original: ${text}`;
         }
     };
     
-    const handleNestedChange = (parent: 'delivery' | 'installments', child: string, value: any) => {
-        setFormData(prev => ({
-            ...prev,
-            [parent]: {
-                ...(prev as any)[parent],
-                [child]: value
-            }
-        }));
-    };
+    const handleAutoTranslate = async (field: TranslatableField, sourceLang: 'ar' | 'en') => {
+        const targetLang = sourceLang === 'ar' ? 'en' : 'ar';
+        const sourceText = watch(field)?.[sourceLang];
+        
+        if (typeof sourceText !== 'string' || !sourceText.trim()) return;
 
+        setTranslationLoading(prev => ({ ...prev, [field]: true }));
+        const translatedText = await translateText(sourceText, targetLang);
+        setValue(`${field}.${targetLang}`, translatedText);
+        setTranslationLoading(prev => ({ ...prev, [field]: false }));
+    };
+    
     const handleComplexChange = (field: 'status' | 'type' | 'finishingStatus', valueEn: string) => {
         let valueAr = '';
+        let option: FilterOption | undefined;
+
         if (field === 'status') {
             if (valueEn === 'For Sale') valueAr = 'للبيع';
             if (valueEn === 'For Rent') valueAr = 'إيجار';
+        } else if (field === 'type' && propertyTypes) {
+            option = propertyTypes.find(opt => opt.en === valueEn);
+            valueAr = option ? option.ar : '';
+        } else if (field === 'finishingStatus' && finishingStatuses) {
+            option = finishingStatuses.find(opt => opt.en === valueEn);
+            valueAr = option ? option.ar : '';
         }
-        if (field === 'type') {
-            if (valueEn === 'Apartment') valueAr = 'شقة';
-            if (valueEn === 'Villa') valueAr = 'فيلا';
-            if (valueEn === 'Commercial') valueAr = 'تجاري';
-            if (valueEn === 'Land') valueAr = 'أرض';
+        setValue(field, { en: valueEn, ar: valueAr });
+    };
+
+    const handleAmenityChange = (amenityEn: string) => {
+        const currentAmenities = watchAmenities?.en || [];
+        const newAmenities = currentAmenities.includes(amenityEn)
+            ? currentAmenities.filter(a => a !== amenityEn)
+            : [...currentAmenities, amenityEn];
+        
+        const amenitiesAr = newAmenities.map(en => {
+            const amenity = amenities?.find(a => a.en === en);
+            return amenity ? amenity.ar : en;
+        });
+
+        setValue('amenities', { en: newAmenities, ar: amenitiesAr });
+    };
+
+    const handleAutoGenerateDescription = async (targetLang: 'ar' | 'en') => {
+        setIsGeneratingDesc(targetLang);
+        const allData = watch();
+        const dataForPrompt = {
+            Type: allData.type?.en,
+            Status: allData.status?.en,
+            Area: `${allData.area} m²`,
+            Price: allData.priceNumeric,
+            Bedrooms: allData.beds,
+            Bathrooms: allData.baths,
+            Floor: allData.floor,
+            Finishing: allData.finishingStatus?.en,
+            Amenities: allData.amenities?.en,
+            Location: allData.address?.en,
+            'In Compound': allData.isInCompound ? 'Yes' : 'No',
+        };
+
+        const prompt = `You are a professional real estate copywriter. Based on the following property data, write a compelling and attractive property description in ${targetLang === 'en' ? 'English' : 'Arabic'}. Make it sound luxurious and highlight the key features. The description should be around 2-3 paragraphs.\n\nProperty Data:\n${JSON.stringify(dataForPrompt, null, 2)}\n\nWrite the description now.`;
+
+        try {
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+            const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
+            setValue(`description.${targetLang}`, response.text);
+        } catch (error) {
+            console.error('Description generation failed:', error);
+            setValue(`description.${targetLang}`, "Error generating description.");
+        } finally {
+            setIsGeneratingDesc(null);
         }
-         if (field === 'finishingStatus') {
-            if (valueEn === 'Fully Finished') valueAr = 'تشطيب كامل';
-            if (valueEn === 'Semi-finished') valueAr = 'نصف تشطيب';
-            if (valueEn === 'Super Lux') valueAr = 'سوبر لوكس';
-            if (valueEn === 'Luxury Finishing') valueAr = 'تشطيب فاخر';
-            if (valueEn === 'Fully Furnished') valueAr = 'مفروشة بالكامل';
-            if (valueEn === 'Without Finishing') valueAr = 'بدون تشطيب';
-        }
-        setFormData(prev => ({ ...prev, [field]: { en: valueEn, ar: valueAr }}));
+    };
+    
+    const availableAmenities = useMemo(() => {
+        if (!amenities) return [];
+        const selectedType = watchType?.en;
+        if (!selectedType) return amenities;
+        return amenities.filter(amenity => 
+            !amenity.applicableTo || amenity.applicableTo.length === 0 || amenity.applicableTo.includes(selectedType)
+        );
+    }, [amenities, watchType]);
+
+    const availableFinishingStatuses = useMemo(() => {
+        if (!finishingStatuses) return [];
+        const selectedType = watchType?.en;
+        if (!selectedType || selectedType === 'Land') return [];
+        return finishingStatuses.filter(status => 
+            !status.applicableTo || status.applicableTo.length === 0 || status.applicableTo.includes(selectedType)
+        );
+    }, [finishingStatuses, watchType]);
+
+    const handleLocationSelect = (location: { lat: number, lng: number }) => {
+        setValue('location', location);
+        setIsLocationModalOpen(false);
     };
 
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!currentUser) return;
-        setLoading(true);
+    const onSubmit = async (formData: Partial<Property>) => {
+        // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
+        if (!currentUser || !('type' in currentUser) || !amenities) return;
 
-        const formattedPriceAr = `${formData.priceNumeric?.toLocaleString('ar-EG')} ج.م`;
-        const formattedPriceEn = `EGP ${formData.priceNumeric?.toLocaleString('en-US')}`;
+        const priceNumeric = Number(formData.priceNumeric) || 0;
+        const formattedPriceAr = `${priceNumeric.toLocaleString('ar-EG')} ج.م`;
+        const formattedPriceEn = `EGP ${priceNumeric.toLocaleString('en-US')}`;
+
+        const pricePerMeterNumeric = Math.round(priceNumeric / (Number(formData.area) || 1));
+        const pricePerMeter = formData.status?.en === 'For Sale' && pricePerMeterNumeric > 0 ? {
+            ar: `${pricePerMeterNumeric.toLocaleString('ar-EG')} ج.م/م²`,
+            en: `EGP ${pricePerMeterNumeric.toLocaleString('en-US')}/m²`,
+        } : undefined;
 
         const propertyData: any = {
             ...formData,
             partnerId: currentUser.id,
             price: { ar: formattedPriceAr, en: formattedPriceEn },
+            pricePerMeter,
             imageUrl: mainImage,
             gallery: galleryImages,
-            amenities: {
-                ar: typeof formData.amenities?.ar === 'string' ? (formData.amenities.ar as string).split(',').map(s => s.trim()) : formData.amenities?.ar,
-                en: typeof formData.amenities?.en === 'string' ? (formData.amenities.en as string).split(',').map(s => s.trim()) : formData.amenities?.en,
-            }
         };
 
         if (propertyId) {
-            await updateProperty(propertyId, propertyData);
+            await apiUpdateProperty(propertyId, propertyData);
             alert(td.updateSuccess);
         } else {
-            await addProperty(propertyData);
+            await apiAddProperty(propertyData);
             alert(td.addSuccess);
         }
-        setLoading(false);
+        const projectId = propertyData.projectId;
         if (currentUser.type === 'admin') {
             navigate('/admin/properties');
+        } else if (currentUser.type === 'developer' && projectId) {
+            navigate(`/dashboard/projects/${projectId}`);
+        } else if (currentUser.type === 'developer') {
+            navigate('/dashboard/projects');
         } else {
-            navigate('/dashboard');
+            navigate('/dashboard/properties');
         }
     };
 
-    if (loading && propertyId) return <div>Loading...</div>
+    const loading = isLoadingProps || isLoadingProjs || isLoadingPropTypes || isLoadingFinishing || isLoadingAmenities;
+    if (loading && !projects) return <div>Loading options...</div>;
 
     return (
         <div>
+            {isLocationModalOpen && (
+                <LocationPickerModal
+                    onClose={() => setIsLocationModalOpen(false)}
+                    onLocationSelect={handleLocationSelect}
+                    language={language}
+                    initialLocation={watchLocation}
+                />
+            )}
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
                 {propertyId ? td.editTitle : td.addTitle}
             </h1>
-            <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                {currentUser && 'type' in currentUser && currentUser.type === 'developer' && (
+                    <FormField label="Project" id="projectId">
+                        <select {...register("projectId", { required: true })} className={selectClasses} >
+                            <option value="" disabled>Select a project</option>
+                            {partnerProjects.map(proj => (
+                                <option key={proj.id} value={proj.id}>{proj.name[language]}</option>
+                            ))}
+                        </select>
+                    </FormField>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField label={td.propertyTitleAr} id="title.ar">
-                        <input type="text" name="title.ar" value={formData.title?.ar} onChange={handleChange} className={inputClasses} required />
+                        <input type="text" {...register("title.ar", { required: true })} onBlur={() => handleAutoTranslate('title', 'ar')} className={inputClasses}/>
                     </FormField>
                     <FormField label={td.propertyTitleEn} id="title.en">
-                        <input type="text" name="title.en" value={formData.title?.en} onChange={handleChange} className={inputClasses} required />
+                         <div className="relative">
+                            <input type="text" {...register("title.en", { required: true })} className={inputClasses} />
+                             {translationLoading.title && <div className="absolute top-1/2 right-3 -translate-y-1/2 w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>}
+                        </div>
                     </FormField>
                     <FormField label={td.addressAr} id="address.ar">
-                        <input type="text" name="address.ar" value={formData.address?.ar} onChange={handleChange} className={inputClasses} required />
+                        <input type="text" {...register("address.ar", { required: true })} onBlur={() => handleAutoTranslate('address', 'ar')} className={inputClasses} />
                     </FormField>
                     <FormField label={td.addressEn} id="address.en">
-                        <input type="text" name="address.en" value={formData.address?.en} onChange={handleChange} className={inputClasses} required />
+                         <div className="relative">
+                            <input type="text" {...register("address.en", { required: true })} className={inputClasses} />
+                             {translationLoading.address && <div className="absolute top-1/2 right-3 -translate-y-1/2 w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>}
+                        </div>
                     </FormField>
                      <div className="md:col-span-2">
                          <FormField label={td.descriptionAr} id="description.ar">
-                            <textarea name="description.ar" value={formData.description?.ar} onChange={handleChange} className={inputClasses} rows={4} />
+                            <div className="relative">
+                                <textarea {...register("description.ar")} onBlur={() => handleAutoTranslate('description', 'ar')} className={inputClasses} rows={4} />
+                                <button type="button" onClick={() => handleAutoGenerateDescription('ar')} disabled={isGeneratingDesc === 'ar'} className="absolute top-2 right-2 p-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full hover:bg-amber-200 disabled:opacity-50">
+                                    {isGeneratingDesc === 'ar' ? <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div> : <SparklesIcon className="w-4 h-4" />}
+                                </button>
+                            </div>
                         </FormField>
                     </div>
                      <div className="md:col-span-2">
                         <FormField label={td.descriptionEn} id="description.en">
-                            <textarea name="description.en" value={formData.description?.en} onChange={handleChange} className={inputClasses} rows={4} />
-                        </FormField>
-                    </div>
-                     <div className="md:col-span-2">
-                        <FormField label={td.amenitiesAr} id="amenities.ar">
-                           <input type="text" name="amenities.ar" value={Array.isArray(formData.amenities?.ar) ? formData.amenities.ar.join(', ') : ''} onChange={handleChange} className={inputClasses} />
-                        </FormField>
-                    </div>
-                     <div className="md:col-span-2">
-                        <FormField label={td.amenitiesEn} id="amenities.en">
-                           <input type="text" name="amenities.en" value={Array.isArray(formData.amenities?.en) ? formData.amenities.en.join(', ') : ''} onChange={handleChange} className={inputClasses} />
+                             <div className="relative">
+                                <textarea {...register("description.en")} className={inputClasses} rows={4} />
+                                 {translationLoading.description && <div className="absolute top-4 right-3 w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>}
+                                 <button type="button" onClick={() => handleAutoGenerateDescription('en')} disabled={isGeneratingDesc === 'en'} className="absolute top-2 right-2 p-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full hover:bg-amber-200 disabled:opacity-50">
+                                    {isGeneratingDesc === 'en' ? <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div> : <SparklesIcon className="w-4 h-4" />}
+                                 </button>
+                            </div>
                         </FormField>
                     </div>
                 </div>
 
+                <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <legend className="text-lg font-semibold text-amber-500 mb-2">Location</legend>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField label="Latitude" id="latitude">
+                            <input type="number" step="any" {...register("location.lat", { valueAsNumber: true })} className={inputClasses} />
+                        </FormField>
+                        <FormField label="Longitude" id="longitude">
+                            <input type="number" step="any" {...register("location.lng", { valueAsNumber: true })} className={inputClasses} />
+                        </FormField>
+                    </div>
+                    <button type="button" onClick={() => setIsLocationModalOpen(true)} className="w-full text-center font-medium text-sm text-amber-600 dark:text-amber-500 hover:underline p-2 rounded-md border border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/50">
+                        Select on Map
+                    </button>
+                </fieldset>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 border-t border-gray-200 dark:border-gray-700 pt-6">
                      <FormField label={tp.allStatuses} id="status">
-                        <select name="status" value={formData.status?.en} onChange={e => handleComplexChange('status', e.target.value)} className={selectClasses} required>
+                        <select value={watchStatus?.en} onChange={e => handleComplexChange('status', e.target.value)} className={selectClasses} required>
                             <option value="For Sale">{tp.forSale}</option>
                             <option value="For Rent">{tp.forRent}</option>
                         </select>
                     </FormField>
                     <FormField label={tp.allTypes} id="type">
-                         <select name="type" value={formData.type?.en} onChange={e => handleComplexChange('type', e.target.value)} className={selectClasses} required>
-                            <option value="Apartment">{tp.apartment}</option>
-                            <option value="Villa">{tp.villa}</option>
-                            <option value="Commercial">{tp.commercial}</option>
-                            <option value="Land">{tp.land}</option>
+                         <select value={watchType?.en} onChange={e => handleComplexChange('type', e.target.value)} className={selectClasses} required>
+                            {(propertyTypes || []).map(opt => (
+                                <option key={opt.id} value={opt.en}>{opt[language]}</option>
+                            ))}
                         </select>
                     </FormField>
                     <FormField label={t.addPropertyPage.price} id="priceNumeric">
-                        <input type="number" name="priceNumeric" value={formData.priceNumeric} onChange={handleChange} className={inputClasses} required />
+                        <input type="number" {...register("priceNumeric", { required: true, valueAsNumber: true })} className={inputClasses} />
                     </FormField>
                      <FormField label={tp.finishing} id="finishingStatus">
-                        <select name="finishingStatus" value={formData.finishingStatus?.en} onChange={e => handleComplexChange('finishingStatus', e.target.value)} className={selectClasses}>
+                        <select 
+                           value={watch('finishingStatus')?.en || ''}
+                           onChange={e => handleComplexChange('finishingStatus', e.target.value)}
+                           className={selectClasses}
+                           disabled={!watchType?.en || watchType.en === 'Land' || availableFinishingStatuses.length === 0}
+                        >
                             <option value="">None</option>
-                            <option value="Fully Finished">{tp.fullyFinished}</option>
-                            <option value="Semi-finished">{tp.semiFinished}</option>
-                            <option value="Without Finishing">{tp.withoutFinishing}</option>
-                            <option value="Super Lux">{tp.superLux}</option>
-                            <option value="Luxury Finishing">{tp.luxuryFinishing}</option>
-                            <option value="Fully Furnished">{tp.fullyFurnished}</option>
+                             {availableFinishingStatuses.map(opt => (
+                                <option key={opt.id} value={opt.en}>{opt[language]}</option>
+                            ))}
                         </select>
                     </FormField>
                      <FormField label={t.addPropertyPage.area} id="area">
-                        <input type="number" name="area" value={formData.area} onChange={handleChange} className={inputClasses} required />
+                        <input type="number" {...register("area", { required: true, valueAsNumber: true })} className={inputClasses} />
                     </FormField>
-                     <div className="flex items-center pt-5">
-                        <input type="checkbox" id="isInCompound" name="isInCompound" checked={!!formData.isInCompound} onChange={handleChange} className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"/>
-                        <label htmlFor="isInCompound" className="ml-2 block text-sm font-medium text-gray-900 dark:text-gray-300">
+                    <FormField label={td.pricePerMeter} id="pricePerMeter">
+                        <input type="text" value={pricePerMeter > 0 ? pricePerMeter.toLocaleString(language) : ''} className={`${inputClasses} bg-gray-100 dark:bg-gray-800`} disabled />
+                    </FormField>
+                     <div className="flex items-center gap-2 pt-5">
+                        <input type="checkbox" id="isInCompound" {...register("isInCompound")} className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"/>
+                        <label htmlFor="isInCompound" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
                            {td.isInCompound}
                         </label>
                     </div>
 
-                    { formData.type?.en !== 'Commercial' && formData.type?.en !== 'Land' && <>
+                    { watchType?.en !== 'Commercial' && watchType?.en !== 'Land' && <>
                         <FormField label={t.addPropertyPage.bedrooms} id="beds">
-                            <input type="number" name="beds" value={formData.beds} onChange={handleChange} className={inputClasses} />
+                            <input type="number" {...register("beds", { valueAsNumber: true })} className={inputClasses} />
                         </FormField>
                         <FormField label={t.addPropertyPage.bathrooms} id="baths">
-                            <input type="number" name="baths" value={formData.baths} onChange={handleChange} className={inputClasses} />
+                            <input type="number" {...register("baths", { valueAsNumber: true })} className={inputClasses} />
                         </FormField>
                     </>}
                     <FormField label={t.addPropertyPage.floor} id="floor">
-                        <input type="number" name="floor" value={formData.floor} onChange={handleChange} className={inputClasses} />
+                        <input type="number" {...register("floor", { valueAsNumber: true })} className={inputClasses} />
                     </FormField>
+                </div>
+
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <h3 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{td.amenities}</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 border border-gray-200 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800/50">
+                        {availableAmenities.map(amenity => (
+                            <label key={amenity.id} className="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
+                                <input
+                                    type="checkbox"
+                                    checked={watchAmenities?.en?.includes(amenity.en) || false}
+                                    onChange={() => handleAmenityChange(amenity.en)}
+                                    className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                                />
+                                {amenity[language]}
+                            </label>
+                        ))}
+                    </div>
                 </div>
                 
                  <div className="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
                     <h3 className="text-lg font-semibold text-amber-500">{td.deliveryInfo}</h3>
                     <div className="flex gap-6">
-                        <div className="flex items-center">
-                            <input type="radio" id="immediateDelivery" name="isImmediate" checked={formData.delivery?.isImmediate} onChange={() => handleNestedChange('delivery', 'isImmediate', true)} className="h-4 w-4 text-amber-600 border-gray-300 focus:ring-amber-500" />
-                            <label htmlFor="immediateDelivery" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">{td.immediateDelivery}</label>
+                        <div className="flex items-center gap-2">
+                            <input type="radio" id="immediateDelivery" {...register("delivery.isImmediate")} value="true" checked={watchDelivery?.isImmediate === true} onChange={() => setValue('delivery.isImmediate', true)} className="h-4 w-4 text-amber-600 border-gray-300 focus:ring-amber-500" />
+                            <label htmlFor="immediateDelivery" className="block text-sm text-gray-900 dark:text-gray-300">{td.immediateDelivery}</label>
                         </div>
-                         <div className="flex items-center">
-                            <input type="radio" id="futureDelivery" name="isImmediate" checked={!formData.delivery?.isImmediate} onChange={() => handleNestedChange('delivery', 'isImmediate', false)} className="h-4 w-4 text-amber-600 border-gray-300 focus:ring-amber-500" />
-                            <label htmlFor="futureDelivery" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">{td.futureDelivery}</label>
+                         <div className="flex items-center gap-2">
+                            <input type="radio" id="futureDelivery" {...register("delivery.isImmediate")} value="false" checked={watchDelivery?.isImmediate === false} onChange={() => setValue('delivery.isImmediate', false)} className="h-4 w-4 text-amber-600 border-gray-300 focus:ring-amber-500" />
+                            <label htmlFor="futureDelivery" className="block text-sm text-gray-900 dark:text-gray-300">{td.futureDelivery}</label>
                         </div>
                     </div>
-                    {!formData.delivery?.isImmediate && (
+                    {watchDelivery?.isImmediate === false && (
                         <FormField label={td.deliveryDate} id="deliveryDate">
-                            <input type="text" placeholder="YYYY-MM" value={formData.delivery?.date} onChange={(e) => handleNestedChange('delivery', 'date', e.target.value)} className={inputClasses} />
+                            <input type="text" placeholder="YYYY-MM" {...register("delivery.date")} className={inputClasses} />
                         </FormField>
                     )}
                 </div>
 
                  <div className="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
                      <h3 className="text-lg font-semibold text-amber-500">{td.installmentsInfo}</h3>
-                     <div className="flex items-center">
-                        <input type="checkbox" id="installmentsAvailable" name="installmentsAvailable" checked={!!formData.installmentsAvailable} onChange={handleChange} className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"/>
-                        <label htmlFor="installmentsAvailable" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+                     <div className="flex items-center gap-2">
+                        <input type="checkbox" id="installmentsAvailable" {...register("installmentsAvailable")} className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"/>
+                        <label htmlFor="installmentsAvailable" className="block text-sm text-gray-900 dark:text-gray-300">
                            {td.installmentsAvailable}
                         </label>
                     </div>
-                    {formData.installmentsAvailable && (
+                    {watchInstallments && (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                              <FormField label={td.downPayment} id="downPayment">
-                                <input type="number" value={formData.installments?.downPayment} onChange={(e) => handleNestedChange('installments', 'downPayment', parseInt(e.target.value))} className={inputClasses} />
+                                <input type="number" {...register("installments.downPayment", { valueAsNumber: true })} className={inputClasses} />
                             </FormField>
                              <FormField label={td.monthlyInstallment} id="monthlyInstallment">
-                                <input type="number" value={formData.installments?.monthlyInstallment} onChange={(e) => handleNestedChange('installments', 'monthlyInstallment', parseInt(e.target.value))} className={inputClasses} />
+                                <input type="number" {...register("installments.monthlyInstallment", { valueAsNumber: true })} className={inputClasses} />
                             </FormField>
                              <FormField label={td.years} id="years">
-                                <input type="number" value={formData.installments?.years} onChange={(e) => handleNestedChange('installments', 'years', parseInt(e.target.value))} className={inputClasses} />
+                                <input type="number" {...register("installments.years", { valueAsNumber: true })} className={inputClasses} />
                             </FormField>
                         </div>
                     )}
@@ -324,7 +484,6 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                                 accept="image/*"
                                 onChange={handleMainImageChange} 
                                 className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`}
-                                required={!propertyId}
                             />
                         </div>
                     </FormField>
@@ -358,8 +517,8 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                 </div>
 
                 <div className="flex justify-end pt-6">
-                    <button type="submit" disabled={loading} className="bg-amber-500 text-gray-900 font-semibold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
-                        {loading ? '...' : td.saveProperty}
+                    <button type="submit" disabled={isSubmitting} className="bg-amber-500 text-gray-900 font-semibold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
+                        {isSubmitting ? '...' : td.saveProperty}
                     </button>
                 </div>
             </form>

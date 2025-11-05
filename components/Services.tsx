@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { BuildingIcon, DecorationIcon, FinishingIcon } from './icons/Icons';
-import type { Language } from '../types';
-import { translations } from '../data/translations';
+import { BuildingIcon, DecorationIcon, FinishingIcon, SparklesIcon } from './icons/Icons';
+import type { Language, SiteContent } from '../types';
+import { getContent } from '../api/content';
+import { useApiQuery } from './shared/useApiQuery';
 
 interface ServicesProps {
     language: Language;
 }
+
+const iconMap: { [key: string]: React.FC<{className?: string}> } = {
+    BuildingIcon,
+    FinishingIcon,
+    DecorationIcon,
+    SparklesIcon,
+};
 
 const ServiceCard: React.FC<{ icon: React.ReactNode; title: string; description: string; link: string; }> = ({ icon, title, description, link }) => (
     <Link to={link} className="block group h-full">
@@ -22,28 +30,14 @@ const ServiceCard: React.FC<{ icon: React.ReactNode; title: string; description:
 
 
 const Services: React.FC<ServicesProps> = ({ language }) => {
-    const t = translations[language].services;
-    const features = [
-        {
-            icon: <BuildingIcon className="w-8 h-8" />,
-            title: t.feature1Title,
-            description: t.feature1Desc,
-            link: "/properties"
-        },
-        {
-            icon: <FinishingIcon className="w-8 h-8" />,
-            title: t.feature2Title,
-            description: t.feature2Desc,
-            link: "/finishing"
-        },
-        {
-            icon: <DecorationIcon className="w-8 h-8" />,
-            title: t.feature3Title,
-            description: t.feature3Desc,
-            link: "/decorations"
-        }
-    ];
+    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
 
+    if (isLoading || !siteContent) {
+        return <section className="py-20 bg-gray-50 dark:bg-gray-800 animate-pulse h-96"></section>;
+    }
+
+    const t = siteContent.services[language];
+    
     return (
         <section className="py-20 bg-gray-50 dark:bg-gray-800">
             <div className="container mx-auto px-6">
@@ -56,9 +50,10 @@ const Services: React.FC<ServicesProps> = ({ language }) => {
                     </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {features.map((feature) => (
-                        <ServiceCard key={feature.title} {...feature} />
-                    ))}
+                    {t.features.map((feature) => {
+                        const IconComponent = iconMap[feature.icon] || BuildingIcon;
+                        return <ServiceCard key={feature.title} {...feature} icon={<IconComponent className="w-8 h-8" />} />
+                    })}
                 </div>
             </div>
         </section>

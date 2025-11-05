@@ -7,19 +7,35 @@ interface LogoProps {
 
 export const HelioLogo: React.FC<LogoProps> = ({ className }) => {
   return (
-    <svg 
-      className={className} 
-      viewBox="0 0 24 24" 
-      fill="currentColor"
+    <svg
+      className={className}
+      viewBox="0 0 100 100"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Only Helio Logo"
     >
-      {/* The Sun */}
-      <circle cx="12" cy="8" r="4" opacity="0.5"/> 
+      <defs>
+        <linearGradient id="helio-gradient" x1="50%" y1="0%" x2="50%" y2="100%">
+          <stop offset="0%" stopColor="#FBBF24" />
+          <stop offset="100%" stopColor="#F97316" />
+        </linearGradient>
+      </defs>
       
-      {/* The Building / Gate / 'H' Monogram */}
+      {/* Sun element */}
+      <circle cx="50" cy="50" r="28" fill="url(#helio-gradient)" />
+      
+      {/* Arch/Building element */}
       <path 
-        d="M4 21V7H8V11C8 11.5523 8.44772 12 9 12H15C15.5523 12 16 11.5523 16 11V7H20V21H16V16C16 15.4477 15.5523 15 15 15H9C8.44772 15 8 15.4477 8 16V21H4Z"
+        d="M20 90 V 50 C 20 33.43 33.43 20 50 20 C 66.57 20 80 33.43 80 50 V 90" 
+        stroke="currentColor" 
+        strokeWidth="10"
+        fill="none"
+        strokeLinecap="round"
       />
+      
+      {/* Base line */}
+      <line x1="10" y1="90" x2="90" y2="90" stroke="currentColor" strokeWidth="10" strokeLinecap="round" />
     </svg>
   );
 };

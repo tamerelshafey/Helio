@@ -1,9 +1,15 @@
+
+
 import React, { useState, useEffect } from 'react';
-import type { Language } from '../../types';
+import { Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import type { Language, SubscriptionPlan } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import { inputClasses } from '../shared/FormField';
-import { useData } from '../shared/DataContext';
+import { updatePartner } from '../../api/partners';
+// FIX: Import useToast for notifications
+import { useToast } from '../shared/ToastContext';
 
 const textareaClasses = `${inputClasses} min-h-[120px]`;
 
@@ -18,28 +24,33 @@ const fileToBase64 = (file: File): Promise<string> => {
 
 const DashboardProfilePage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].dashboard;
-    const { currentUser } = useAuth();
-    const { updatePartner } = useData();
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [logoPreview, setLogoPreview] = useState('');
+    const t_plans_base = translations[language].subscriptionPlans;
+    // FIX: Get auth loading state
+    const { currentUser, loading: authLoading } = useAuth();
+    // FIX: Initialize useToast
+    const { showToast } = useToast();
+    // FIX: Initialize react-hook-form
+    const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm();
+    
+    // FIX: Remove individual state for form fields, managed by react-hook-form now
+    const [logoPreview, setLogoPreview] = useState<string | null>('');
     const [logoFile, setLogoFile] = useState<File | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState('');
-
+    
+    // FIX: Refactor useEffect to populate form with bilingual data using reset
     useEffect(() => {
-        if (currentUser) {
-            const localizedPartner = [
-                ...translations[language].partners.developers, 
-                ...translations[language].partners.finishing_companies, 
-                ...translations[language].partners.agencies
-            ].find(p => p.id === currentUser.id);
+        if (currentUser && 'type' in currentUser) {
+            const arPartnerInfo = translations.ar.partnerInfo[currentUser.id as keyof typeof translations.ar.partnerInfo];
+            const enPartnerInfo = translations.en.partnerInfo[currentUser.id as keyof typeof translations.en.partnerInfo];
 
-            setName(localizedPartner?.name || currentUser.name);
-            setDescription(localizedPartner?.description || currentUser.description);
+            reset({
+                nameAr: arPartnerInfo?.name || '',
+                descriptionAr: arPartnerInfo?.description || '',
+                nameEn: enPartnerInfo?.name || '',
+                descriptionEn: enPartnerInfo?.description || '',
+            });
             setLogoPreview(currentUser.imageUrl);
         }
-    }, [currentUser, language]);
+    }, [currentUser, reset]);
 
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -50,63 +61,107 @@ const DashboardProfilePage: React.FC<{ language: Language }> = ({ language }) =>
         }
     };
 
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!currentUser) return;
-        setLoading(true);
-        setSuccess('');
+    // FIX: Refactor submission handler for react-hook-form and correct API call
+    const onSubmit = async (data: any) => {
+        if (!currentUser || !('type' in currentUser)) return;
 
         let imageUrl = currentUser.imageUrl;
         if (logoFile) {
             imageUrl = await fileToBase64(logoFile);
         }
         
-        const result = await updatePartner(currentUser.id, { name, description, imageUrl }, language);
+        const updates = {
+            nameAr: data.nameAr,
+            nameEn: data.nameEn,
+            descriptionAr: data.descriptionAr,
+            descriptionEn: data.descriptionEn,
+            imageUrl: imageUrl,
+        };
 
-        setLoading(false);
+        // FIX: Call updatePartner with the correct 2 arguments.
+        const result = await updatePartner(currentUser.id, updates);
+
         if (result) {
-            setSuccess(t.profileUpdateSuccess);
+            // FIX: Use toast for success message
+            showToast(t.profileUpdateSuccess, 'success');
+            // Reload to reflect changes globally (e.g., in Header)
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            showToast('Failed to update profile.', 'error');
         }
     };
     
-    if (!currentUser) return null;
+    // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
+    if (authLoading || !currentUser || !('type' in currentUser)) return null;
+    
+    const partnerTypeKey = currentUser.type as 'developer' | 'agency' | 'finishing';
+    const plansForType = (t_plans_base as any)[partnerTypeKey];
+    const planDetails = plansForType ? plansForType[currentUser.subscriptionPlan as keyof typeof plansForType] : null;
 
     return (
         <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.profileTitle}</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-8">{t.profileSubtitle}</p>
 
-            <div className="max-w-2xl bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label htmlFor="partnerName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.partnerName}</label>
-                        <input type="text" id="partnerName" value={name} onChange={e => setName(e.target.value)} className={inputClasses} required />
-                    </div>
-                     <div>
-                        <label htmlFor="partnerDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.partnerDescription}</label>
-                        <textarea id="partnerDescription" value={description} onChange={e => setDescription(e.target.value)} className={textareaClasses} required />
-                    </div>
-                     <div>
-                        <label htmlFor="partnerImageUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.partnerImageUrl}</label>
-                        <div className="flex items-center gap-4">
-                            {logoPreview && <img src={logoPreview} alt="Logo preview" className="w-20 h-20 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600" />}
-                             <input 
-                                type="file" 
-                                id="partnerImageUrl" 
-                                accept="image/*"
-                                onChange={handleLogoChange} 
-                                className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`}
-                            />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 max-w-2xl bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                    {/* FIX: Use react-hook-form's handleSubmit */}
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                        {/* FIX: Add bilingual fields and register them with react-hook-form */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label htmlFor="nameAr" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.partnerName} (AR)</label>
+                                <input type="text" id="nameAr" {...register("nameAr", { required: true })} className={inputClasses} />
+                            </div>
+                            <div>
+                                <label htmlFor="nameEn" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.partnerName} (EN)</label>
+                                <input type="text" id="nameEn" {...register("nameEn", { required: true })} className={inputClasses} />
+                            </div>
                         </div>
-                    </div>
-                    {success && <p className="text-green-500 text-sm">{success}</p>}
-                    <div className="flex justify-end">
-                        <button type="submit" disabled={loading} className="bg-amber-500 text-gray-900 font-semibold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
-                            {loading ? '...' : t.saveChanges}
-                        </button>
-                    </div>
-                </form>
+                        <div>
+                            <label htmlFor="descriptionAr" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.partnerDescription} (AR)</label>
+                            <textarea id="descriptionAr" {...register("descriptionAr", { required: true })} className={textareaClasses} />
+                        </div>
+                        <div>
+                            <label htmlFor="descriptionEn" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.partnerDescription} (EN)</label>
+                            <textarea id="descriptionEn" {...register("descriptionEn", { required: true })} className={textareaClasses} />
+                        </div>
+                        <div>
+                            <label htmlFor="partnerImageUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.partnerImageUrl}</label>
+                            <div className="flex items-center gap-4">
+                                {logoPreview && <img src={logoPreview} alt="Logo preview" className="w-20 h-20 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600" />}
+                                <input 
+                                    type="file" 
+                                    id="partnerImageUrl" 
+                                    accept="image/*"
+                                    onChange={handleLogoChange} 
+                                    className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <button type="submit" disabled={isSubmitting} className="bg-amber-500 text-gray-900 font-semibold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
+                                {isSubmitting ? '...' : t.saveChanges}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700 h-fit">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t.subscription}</h2>
+                    {planDetails ? (
+                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-6 rounded-lg text-center">
+                            <p className="text-sm font-medium text-amber-800 dark:text-amber-300">{t.currentPlan}</p>
+                            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{planDetails.name}</p>
+                            <Link 
+                                to="/dashboard/subscription"
+                                className="mt-4 inline-block w-full text-center text-amber-600 dark:text-amber-400 font-semibold px-4 py-2 rounded-lg hover:bg-amber-500/20 transition-colors"
+                            >
+                                {t.manageSubscription}
+                            </Link>
+                        </div>
+                    ) : <p className="text-sm text-gray-500">No active subscription.</p>}
+                </div>
             </div>
         </div>
     );

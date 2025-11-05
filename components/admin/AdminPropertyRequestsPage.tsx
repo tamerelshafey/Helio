@@ -1,12 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, AddPropertyRequest, RequestStatus } from '../../types';
 import { translations } from '../../data/translations';
 import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
-import { useData } from '../shared/DataContext';
+import { getAllPropertyRequests, updatePropertyRequestStatus } from '../../api/propertyRequests';
+import { addProperty } from '../../api/properties';
+import { useApiQuery } from '../shared/useApiQuery';
+import { useAuth } from '../auth/AuthContext';
 
 const statusColors: { [key in RequestStatus]: string } = {
+    new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     reviewed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
     closed: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
@@ -15,21 +19,27 @@ const statusColors: { [key in RequestStatus]: string } = {
 };
 
 type SortConfig = {
-    key: 'customerName' | 'propertyInfo' | 'createdAt';
+    key: 'customerName' | 'propertyInfo' | 'createdAt' | 'status';
     direction: 'ascending' | 'descending';
 } | null;
 
 
 const AdminPropertyRequestsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t_req = translations[language].adminDashboard.adminRequests;
-    const { propertyRequests, loading, approvePropertyRequest, rejectPropertyRequest } = useData();
-
+    const { currentUser } = useAuth();
+    const { data: propertyRequests, isLoading: loading, refetch } = useApiQuery('propertyRequests', getAllPropertyRequests);
+    
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
 
 
     const sortedAndFilteredRequests = useMemo(() => {
-        let filteredReqs = [...propertyRequests];
+        let initialReqs = propertyRequests || [];
+        if (currentUser && currentUser.type !== 'admin') {
+            initialReqs = initialReqs.filter(req => req.managerId === currentUser.id);
+        }
+
+        let filteredReqs = [...initialReqs];
         if (searchTerm) {
             const lowercasedFilter = searchTerm.toLowerCase();
             filteredReqs = filteredReqs.filter(req =>
@@ -61,9 +71,9 @@ const AdminPropertyRequestsPage: React.FC<{ language: Language }> = ({ language 
             });
         }
         return filteredReqs;
-    }, [propertyRequests, searchTerm, sortConfig]);
+    }, [propertyRequests, searchTerm, sortConfig, currentUser]);
 
-     const requestSort = (key: 'customerName' | 'propertyInfo' | 'createdAt') => {
+     const requestSort = (key: 'customerName' | 'propertyInfo' | 'createdAt' | 'status') => {
         let direction: 'ascending' | 'descending' = 'ascending';
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
             direction = 'descending';
@@ -71,7 +81,7 @@ const AdminPropertyRequestsPage: React.FC<{ language: Language }> = ({ language 
         setSortConfig({ key, direction });
     };
 
-    const getSortIcon = (key: 'customerName' | 'propertyInfo' | 'createdAt') => {
+    const getSortIcon = (key: 'customerName' | 'propertyInfo' | 'createdAt' | 'status') => {
         if (!sortConfig || sortConfig.key !== key) {
             return <span className="w-4 h-4 ml-1 inline-block"></span>;
         }
@@ -81,11 +91,23 @@ const AdminPropertyRequestsPage: React.FC<{ language: Language }> = ({ language 
     };
 
     const handleApprove = async (request: AddPropertyRequest) => {
-        await approvePropertyRequest(request);
+        const newPropertyData = {
+            partnerId: 'individual-listings', // Assign to the "Individual" partner
+            ...request.propertyDetails,
+            imageUrl: request.images[0] || '',
+            gallery: request.images.slice(1),
+            priceNumeric: request.propertyDetails.price,
+            installmentsAvailable: request.propertyDetails.hasInstallments,
+        };
+        // @ts-ignore
+        await addProperty(newPropertyData);
+        await updatePropertyRequestStatus(request.id, 'approved');
+        refetch();
     };
     
     const handleReject = async (id: string) => {
-        await rejectPropertyRequest(id);
+        await updatePropertyRequestStatus(id, 'rejected');
+        refetch();
     }
 
     return (
@@ -116,7 +138,9 @@ const AdminPropertyRequestsPage: React.FC<{ language: Language }> = ({ language 
                             <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
                                 <div className="flex items-center">{t_req.table.date}{getSortIcon('createdAt')}</div>
                             </th>
-                            <th scope="col" className="px-6 py-3">{t_req.table.status}</th>
+                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
+                                <div className="flex items-center">{t_req.table.status}{getSortIcon('status')}</div>
+                            </th>
                             <th scope="col" className="px-6 py-3">{t_req.table.actions}</th>
                         </tr>
                     </thead>

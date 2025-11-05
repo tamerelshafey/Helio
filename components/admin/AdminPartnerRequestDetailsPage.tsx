@@ -1,9 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Language, PartnerRequest } from '../../types';
 import { translations } from '../../data/translations';
-import { useData } from '../shared/DataContext';
 import { ChevronLeftIcon } from '../icons/Icons';
+import { getAllPartnerRequests, updatePartnerRequestStatus } from '../../api/partnerRequests';
+import { addPartner } from '../../api/partners';
+import { useApiQuery } from '../shared/useApiQuery';
+import DetailItem from '../shared/DetailItem';
 
 const DetailSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <div className="mb-6">
@@ -12,31 +15,38 @@ const DetailSection: React.FC<{ title: string; children: React.ReactNode }> = ({
     </div>
 );
 
-const DetailItem: React.FC<{ label: string; value?: string | React.ReactNode }> = ({ label, value }) => (
-    value ? (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-2">
-            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</dt>
-            <dd className="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 col-span-2">{value}</dd>
-        </div>
-    ) : null
-);
-
 const AdminPartnerRequestDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
     const { requestId } = useParams<{ requestId: string }>();
     const navigate = useNavigate();
-    const { partnerRequests, approvePartnerRequest, rejectPartnerRequest, loading: dataLoading } = useData();
+    const { data: partnerRequests, isLoading: dataLoading, refetch } = useApiQuery('partnerRequests', getAllPartnerRequests);
     const [actionLoading, setActionLoading] = useState(false);
     
     const t = translations[language].adminDashboard.adminRequests;
+    const t_shared = translations[language].adminShared;
+    const t_plans = translations[language].subscriptionPlans;
 
     const request = useMemo(() => {
-        return partnerRequests.find(r => r.id === requestId);
+        return (partnerRequests || []).find(r => r.id === requestId);
     }, [partnerRequests, requestId]);
+
+    const planName = useMemo(() => {
+        if (!request) return '';
+        
+        const plansForType = t_plans[request.companyType];
+        
+        if (plansForType && (plansForType as any)[request.subscriptionPlan]) {
+            return ((plansForType as any)[request.subscriptionPlan] as { name: string }).name;
+        }
+        
+        return request.subscriptionPlan;
+    }, [t_plans, request]);
 
     const handleApprove = async () => {
         if (!request) return;
         setActionLoading(true);
-        await approvePartnerRequest(request);
+        await addPartner(request);
+        await updatePartnerRequestStatus(request.id, 'approved');
+        refetch();
         setActionLoading(false);
         navigate('/admin/partner-requests');
     };
@@ -44,7 +54,8 @@ const AdminPartnerRequestDetailsPage: React.FC<{ language: Language }> = ({ lang
     const handleReject = async () => {
         if (!request) return;
         setActionLoading(true);
-        await rejectPartnerRequest(request.id);
+        await updatePartnerRequestStatus(request.id, 'rejected');
+        refetch();
         setActionLoading(false);
         navigate('/admin/partner-requests');
     };
@@ -63,7 +74,7 @@ const AdminPartnerRequestDetailsPage: React.FC<{ language: Language }> = ({ lang
                 <div>
                      <Link to="/admin/partner-requests" className="flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-amber-500 mb-2">
                         <ChevronLeftIcon className="w-5 h-5" />
-                        Back to requests
+                        {t_shared.backToRequests}
                     </Link>
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                         {t.table.details}: {request.companyName}
@@ -83,19 +94,20 @@ const AdminPartnerRequestDetailsPage: React.FC<{ language: Language }> = ({ lang
                         <div className="flex items-start gap-4">
                             <img src={request.logo} alt={`${request.companyName} logo`} className="w-20 h-20 rounded-full object-cover border"/>
                             <div className="flex-grow space-y-1">
-                                <DetailItem label={translations[language].partnerRequestForm.companyName} value={request.companyName} />
-                                <DetailItem label={translations[language].partnerRequestForm.companyType} value={request.companyType} />
-                                <DetailItem label={translations[language].partnerRequestForm.companyAddress} value={request.companyAddress} />
-                                <DetailItem label={translations[language].partnerRequestForm.website} value={request.website ? <a href={request.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{request.website}</a> : '-'} />
-                                <DetailItem label={translations[language].partnerRequestForm.companyDescription} value={request.description} />
+                                <DetailItem layout="grid" label={translations[language].partnerRequestForm.companyName} value={request.companyName} />
+                                <DetailItem layout="grid" label={translations[language].partnerRequestForm.companyType} value={request.companyType} />
+                                <DetailItem layout="grid" label={t.subscriptionPlan} value={planName} />
+                                <DetailItem layout="grid" label={translations[language].partnerRequestForm.companyAddress} value={request.companyAddress} />
+                                <DetailItem layout="grid" label={translations[language].partnerRequestForm.website} value={request.website ? <a href={request.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{request.website}</a> : '-'} />
+                                <DetailItem layout="grid" label={translations[language].partnerRequestForm.companyDescription} value={request.description} />
                             </div>
                         </div>
                     </DetailSection>
 
                     <DetailSection title={t.table.primaryContact}>
-                        <DetailItem label={translations[language].partnerRequestForm.contactName} value={request.contactName} />
-                        <DetailItem label={translations[language].partnerRequestForm.contactEmail} value={request.contactEmail} />
-                        <DetailItem label={translations[language].partnerRequestForm.contactPhone} value={request.contactPhone} />
+                        <DetailItem layout="grid" label={translations[language].partnerRequestForm.contactName} value={request.contactName} />
+                        <DetailItem layout="grid" label={translations[language].partnerRequestForm.contactEmail} value={request.contactEmail} />
+                        <DetailItem layout="grid" label={translations[language].partnerRequestForm.contactPhone} value={request.contactPhone} />
                     </DetailSection>
                 </div>
                 <div>

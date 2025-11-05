@@ -1,40 +1,102 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import type { Language, AddPropertyRequest } from '../../types';
+import type { Language, AddPropertyRequest, Property } from '../../types';
 import { translations } from '../../data/translations';
-import { useData } from '../shared/DataContext';
 import { ChevronLeftIcon } from '../icons/Icons';
-
-const DetailItem: React.FC<{ label: string; value?: string | number | null | boolean }> = ({ label, value }) => (
-    value !== undefined && value !== null && value !== '' ? (
-        <div>
-            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</dt>
-            <dd className="mt-1 text-md text-gray-900 dark:text-white">{typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value}</dd>
-        </div>
-    ) : null
-);
+import { getAllPropertyRequests, updatePropertyRequestStatus } from '../../api/propertyRequests';
+import { addProperty } from '../../api/properties';
+import { useApiQuery } from '../shared/useApiQuery';
+import DetailItem from '../shared/DetailItem';
 
 const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
     const { requestId } = useParams<{ requestId: string }>();
     const navigate = useNavigate();
-    const { propertyRequests, approvePropertyRequest, rejectPropertyRequest, loading } = useData();
+    const { data: propertyRequests, isLoading: loading, refetch } = useApiQuery('propertyRequests', getAllPropertyRequests);
+    const [actionLoading, setActionLoading] = useState(false);
 
     const request = useMemo(() => {
-        return propertyRequests.find(r => r.id === requestId);
+        return (propertyRequests || []).find(r => r.id === requestId);
     }, [propertyRequests, requestId]);
     
     const t = translations[language].addPropertyPage;
     const t_admin = translations[language].adminDashboard;
+    const t_shared = translations[language].adminShared;
 
     const handleApprove = async () => {
         if (!request) return;
-        await approvePropertyRequest(request);
+        setActionLoading(true);
+        
+        const { propertyDetails: details } = request;
+
+        const priceNumeric = details.price || 0;
+        const formattedPriceAr = `${priceNumeric.toLocaleString('ar-EG')} ج.م`;
+        const formattedPriceEn = `EGP ${priceNumeric.toLocaleString('en-US')}`;
+
+        const pricePerMeterNumeric = Math.round(priceNumeric / (details.area || 1));
+        const pricePerMeter = details.purpose.en === 'For Sale' && pricePerMeterNumeric > 0 ? {
+            ar: `${pricePerMeterNumeric.toLocaleString('ar-EG')} ج.м/м²`,
+            en: `EGP ${pricePerMeterNumeric.toLocaleString('en-US')}/m²`,
+        } : undefined;
+
+        const title = {
+            ar: `${details.propertyType.ar} ${details.purpose.ar} في ${details.address.split(',')[0]}`,
+            en: `${details.propertyType.en} ${details.purpose.en} in ${details.address.split(',')[0]}`,
+        };
+
+        const address = { ar: details.address, en: details.address };
+        const description = { ar: details.description, en: details.description };
+
+        const delivery = {
+            isImmediate: details.deliveryType === 'immediate',
+            date: details.deliveryType === 'future' ? `${details.deliveryYear}-${details.deliveryMonth?.padStart(2, '0')}` : undefined,
+        };
+
+        const installments = details.hasInstallments ? {
+            downPayment: details.downPayment || 0,
+            monthlyInstallment: details.monthlyInstallment || 0,
+            years: details.years || 0,
+        } : undefined;
+        
+        const newPropertyData: Omit<Property, 'id' | 'partnerName' | 'partnerImageUrl'> = {
+            partnerId: 'individual-listings',
+            status: details.purpose,
+            type: details.propertyType,
+            finishingStatus: details.finishingStatus,
+            area: details.area,
+            price: { ar: formattedPriceAr, en: formattedPriceEn },
+            priceNumeric: priceNumeric,
+            pricePerMeter: pricePerMeter,
+            beds: details.bedrooms || 0,
+            baths: details.bathrooms || 0,
+            floor: details.floor,
+            address: address,
+            description: description,
+            title: title,
+            imageUrl: request.images[0] || '',
+            gallery: request.images.slice(1),
+            amenities: { ar: [], en: [] }, // No amenities in request form
+            location: details.location,
+            isInCompound: details.isInCompound,
+            delivery: delivery,
+            installmentsAvailable: details.hasInstallments,
+            installments: installments,
+            listingStartDate: details.listingStartDate,
+            listingEndDate: details.listingEndDate,
+        };
+
+        await addProperty(newPropertyData);
+        await updatePropertyRequestStatus(request.id, 'approved');
+        refetch();
+        setActionLoading(false);
         navigate('/admin/property-requests');
     };
     
     const handleReject = async () => {
         if (!request) return;
-        await rejectPropertyRequest(request.id);
+        setActionLoading(true);
+        await updatePropertyRequestStatus(request.id, 'rejected');
+        refetch();
+        setActionLoading(false);
         navigate('/admin/property-requests');
     }
 
@@ -47,6 +109,7 @@ const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ lan
     }
 
     const details = request.propertyDetails;
+    const cooperationModelText = t.cooperation[request.cooperationType]?.title || request.cooperationType;
 
     return (
         <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
@@ -54,14 +117,14 @@ const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ lan
                  <div>
                      <Link to="/admin/property-requests" className="flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-amber-500 mb-2">
                         <ChevronLeftIcon className="w-5 h-5" />
-                        Back to requests
+                        {t_shared.backToRequests}
                     </Link>
                     <h3 className="text-2xl font-bold text-amber-500">{t_admin.adminRequests.propertyDetailsTitle}</h3>
                  </div>
                  {request.status === 'pending' && (
                     <div className="flex gap-3">
-                         <button onClick={handleReject} className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600">{t_admin.adminRequests.table.reject}</button>
-                         <button onClick={handleApprove} className="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600">{t_admin.adminRequests.table.approve}</button>
+                         <button onClick={handleReject} className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600" disabled={actionLoading}>{t_admin.adminRequests.table.reject}</button>
+                         <button onClick={handleApprove} className="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600" disabled={actionLoading}>{t_admin.adminRequests.table.approve}</button>
                     </div>
                 )}
              </div>
@@ -73,6 +136,7 @@ const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ lan
                         <DetailItem label={t.fullName} value={request.customerName} />
                         <DetailItem label={t.phone} value={request.customerPhone} />
                         <DetailItem label={t.contactTime} value={request.contactTime} />
+                        <DetailItem label={t_admin.adminRequests.cooperationType} value={cooperationModelText} />
                     </div>
                     <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                         <h4 className="font-semibold">{t.propertyInfo}</h4>

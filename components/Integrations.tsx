@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BuildingIcon, CheckCircleIcon, PriceIcon, LocationMarkerIcon } from './icons/Icons';
-import type { Language } from '../types';
-import { translations } from '../data/translations';
+import type { Language, SiteContent } from '../types';
+import { getContent } from '../api/content';
+import { useApiQuery } from './shared/useApiQuery';
 
 interface IntegrationsProps {
   language: Language;
@@ -21,29 +22,19 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description:
 
 
 const Integrations: React.FC<IntegrationsProps> = ({ language }) => {
-    const t = translations[language].whyUs;
+    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
     
-    const features = [
-        {
-            icon: <BuildingIcon className="w-8 h-8" />,
-            title: t.feature1Title,
-            description: t.feature1Desc
-        },
-        {
-            icon: <PriceIcon className="w-8 h-8" />,
-            title: t.feature2Title,
-            description: t.feature2Desc
-        },
-        {
-            icon: <CheckCircleIcon className="w-8 h-8" />,
-            title: t.feature3Title,
-            description: t.feature3Desc
-        },
-        {
-            icon: <LocationMarkerIcon className="w-8 h-8" />,
-            title: t.feature4Title,
-            description: t.feature4Desc
-        }
+    if (isLoading || !siteContent) {
+        return <section className="py-20 bg-white dark:bg-gray-900 animate-pulse h-96"></section>;
+    }
+
+    const t = siteContent.whyUs[language];
+    
+    const icons = [
+        <BuildingIcon className="w-8 h-8" />,
+        <PriceIcon className="w-8 h-8" />,
+        <CheckCircleIcon className="w-8 h-8" />,
+        <LocationMarkerIcon className="w-8 h-8" />
     ];
 
     return (
@@ -58,8 +49,8 @@ const Integrations: React.FC<IntegrationsProps> = ({ language }) => {
                     </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {features.map((feature) => (
-                        <FeatureCard key={feature.title} {...feature} />
+                    {t.features.map((feature, index) => (
+                        <FeatureCard key={feature.title} {...feature} icon={icons[index]} />
                     ))}
                 </div>
             </div>

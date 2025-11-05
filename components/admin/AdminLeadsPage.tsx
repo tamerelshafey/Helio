@@ -1,25 +1,89 @@
-import React, { useState, useMemo } from 'react';
-import type { Language, Lead } from '../../types';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import type { Language, Lead, LeadStatus, AdminPartner } from '../../types';
 import { translations } from '../../data/translations';
+import { useAuth } from '../auth/AuthContext';
 import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
-import { inputClasses } from '../shared/FormField';
-import { useData } from '../shared/DataContext';
+import { inputClasses, selectClasses } from '../shared/FormField';
+import ExportDropdown from '../shared/ExportDropdown';
+import { getAllLeads, deleteLead as apiDeleteLead } from '../../api/leads';
+import { getAllPartnersForAdmin } from '../../api/partners';
+import { useApiQuery } from '../shared/useApiQuery';
+
+// FIX: Added missing status keys 'site-visit' and 'quoted' to match the LeadStatus type.
+const statusColors: { [key in LeadStatus]: string } = {
+    new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+    contacted: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+    'site-visit': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
+    quoted: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
+    'in-progress': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+    completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+};
 
 type SortConfig = {
-    key: 'customerName' | 'partnerName' | 'serviceTitle' | 'createdAt';
+    key: 'customerName' | 'partnerName' | 'serviceTitle' | 'createdAt' | 'customerPhone';
     direction: 'ascending' | 'descending';
 } | null;
 
 const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard;
+    const { currentUser } = useAuth();
     const t_dash = translations[language].dashboard;
-    const { leads, loading, deleteLead } = useData();
+    const [searchParams] = useSearchParams();
+    
+    const { data: leads, isLoading: loadingLeads, refetch: refetchLeads } = useApiQuery('allLeadsAdmin', getAllLeads);
+    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const loading = loadingLeads || loadingPartners;
     
     const [searchTerm, setSearchTerm] = useState('');
+    const [partnerFilter, setPartnerFilter] = useState('all');
+    const [startDateFilter, setStartDateFilter] = useState('');
+    const [endDateFilter, setEndDateFilter] = useState('');
+    const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
+    
+    const initialTab = searchParams.get('tab') as 'all' | 'finishing' | 'decorations' | 'other' | null;
+    const [activeTab, setActiveTab] = useState<'all' | 'finishing' | 'decorations' | 'other'>(initialTab || 'all');
+
+    const partnerOptions = useMemo(() => {
+        return (partners || [])
+            .filter(p => p.type !== 'admin')
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    }, [partners]);
+    
+    const managerIds = useMemo(() => {
+        const finishing = (partners || []).filter(p => p.type === 'finishing_manager').map(p => p.id);
+        const decorations = (partners || []).filter(p => p.type === 'decorations_manager').map(p => p.id);
+        return { finishing, decorations };
+    }, [partners]);
 
     const sortedAndFilteredLeads = useMemo(() => {
-        let filteredLeads = [...leads];
+        let initialLeads = leads || [];
+        if (currentUser && currentUser.type !== 'admin') {
+            initialLeads = initialLeads.filter(lead => lead.managerId === currentUser.id);
+        }
+
+        let filteredLeads = [...initialLeads];
+        
+        // Tab filtering for admin
+        if (currentUser && currentUser.type === 'admin') {
+            switch(activeTab) {
+                case 'finishing':
+                    filteredLeads = filteredLeads.filter(l => l.managerId && managerIds.finishing.includes(l.managerId));
+                    break;
+                case 'decorations':
+                    filteredLeads = filteredLeads.filter(l => l.managerId && managerIds.decorations.includes(l.managerId));
+                    break;
+                case 'other':
+                    filteredLeads = filteredLeads.filter(l => !l.managerId || (!managerIds.finishing.includes(l.managerId) && !managerIds.decorations.includes(l.managerId)));
+                    break;
+                default: // 'all'
+                    // no change
+                    break;
+            }
+        }
+
 
         if (searchTerm) {
             const lowercasedFilter = searchTerm.toLowerCase();
@@ -28,6 +92,23 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                 (lead.partnerName && lead.partnerName.toLowerCase().includes(lowercasedFilter))
             );
         }
+        
+        if (partnerFilter !== 'all') {
+            filteredLeads = filteredLeads.filter(lead => lead.partnerId === partnerFilter);
+        }
+
+        if (startDateFilter) {
+            const start = new Date(startDateFilter);
+            start.setHours(0,0,0,0);
+            filteredLeads = filteredLeads.filter(l => new Date(l.createdAt) >= start);
+        }
+
+        if (endDateFilter) {
+            const end = new Date(endDateFilter);
+            end.setHours(23,59,59,999);
+            filteredLeads = filteredLeads.filter(l => new Date(l.createdAt) <= end);
+        }
+
 
         if (sortConfig !== null) {
             filteredLeads.sort((a, b) => {
@@ -44,9 +125,9 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
             });
         }
         return filteredLeads;
-    }, [leads, searchTerm, sortConfig]);
+    }, [leads, searchTerm, partnerFilter, startDateFilter, endDateFilter, sortConfig, currentUser, activeTab, managerIds]);
     
-    const requestSort = (key: 'customerName' | 'partnerName' | 'serviceTitle' | 'createdAt') => {
+    const requestSort = (key: 'customerName' | 'partnerName' | 'serviceTitle' | 'createdAt' | 'customerPhone') => {
         let direction: 'ascending' | 'descending' = 'ascending';
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
             direction = 'descending';
@@ -54,7 +135,7 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
         setSortConfig({ key, direction });
     };
 
-    const getSortIcon = (key: 'customerName' | 'partnerName' | 'serviceTitle' | 'createdAt') => {
+    const getSortIcon = (key: 'customerName' | 'partnerName' | 'serviceTitle' | 'createdAt' | 'customerPhone') => {
         if (!sortConfig || sortConfig.key !== key) {
             return <span className="w-4 h-4 ml-1 inline-block"></span>;
         }
@@ -63,73 +144,200 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
             : <ArrowDownIcon className="w-4 h-4 ml-1 inline-block" />;
     };
 
-    const handleDelete = async (leadId: string) => {
-        if (window.confirm(t_dash.leadTable.confirmDelete)) {
-            await deleteLead(leadId);
+    const handleSelect = (leadId: string) => {
+        setSelectedLeads(prev => 
+            prev.includes(leadId) 
+            ? prev.filter(id => id !== leadId)
+            : [...prev, leadId]
+        );
+    };
+
+    const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setSelectedLeads(sortedAndFilteredLeads.map(l => l.id));
+        } else {
+            setSelectedLeads([]);
         }
     };
 
+    const handleBulkDelete = async () => {
+        if (window.confirm(`${t.bulkActions.delete} ${selectedLeads.length} ${language === 'ar' ? 'طلب؟' : 'leads?'}`)) {
+            await Promise.all(
+                selectedLeads.map(id => apiDeleteLead(id))
+            );
+            refetchLeads();
+            setSelectedLeads([]);
+        }
+    };
+
+    const handleDelete = async (leadId: string) => {
+        if (window.confirm(t_dash.leadTable.confirmDelete)) {
+            await apiDeleteLead(leadId);
+            refetchLeads();
+        }
+    };
+    
+    const exportData = useMemo(() => sortedAndFilteredLeads.map(lead => ({
+        ...lead,
+        status: t_dash.leadStatus[lead.status] || lead.status, // Translate status
+        createdAt: new Date(lead.createdAt).toLocaleDateString(language)
+    })), [sortedAndFilteredLeads, t_dash.leadStatus, language]);
+
+    const exportColumns = {
+        customerName: t_dash.leadTable.customer,
+        partnerName: t.propertyTable.partner,
+        customerPhone: t_dash.leadTable.phone,
+        serviceTitle: t_dash.leadTable.service,
+        status: t_dash.leadTable.status,
+        createdAt: t_dash.leadTable.date,
+    };
+
+    const TabButton: React.FC<{tabKey: 'all' | 'finishing' | 'decorations' | 'other', label: string}> = ({tabKey, label}) => (
+        <button
+            type="button"
+            onClick={() => setActiveTab(tabKey)}
+            className={`px-4 py-2 font-medium rounded-md text-sm ${activeTab === tabKey ? 'bg-amber-500 text-white shadow' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+        >
+            {label}
+        </button>
+    );
+
     return (
         <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.leadsTitle}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">{t.leadsSubtitle}</p>
-
-             <div className="mb-4">
-                <input
-                    type="text"
-                    placeholder={t.filter.search}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className={inputClasses + " max-w-xs"}
+            <div className="flex justify-between items-start mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{currentUser && currentUser.type === 'admin' ? t.nav.serviceLeads : t_dash.leadsTitle}</h1>
+                    <p className="text-gray-500 dark:text-gray-400">{t.manageLeadsSubtitle}</p>
+                </div>
+                 <ExportDropdown
+                    data={exportData}
+                    columns={exportColumns}
+                    filename="all-leads"
+                    language={language}
                 />
             </div>
+
+            {currentUser && currentUser.type === 'admin' && (
+                <div className="mb-6 flex space-x-2 border-b border-gray-200 dark:border-gray-700 pb-4">
+                     <TabButton tabKey="all" label={t.filter.all} />
+                     <TabButton tabKey="finishing" label={t.nav.finishingRequests} />
+                     <TabButton tabKey="decorations" label={t.nav.decorationsRequests} />
+                     <TabButton tabKey="other" label={language === 'ar' ? 'أخرى' : 'Other'} />
+                </div>
+            )}
+
+
+             <div className="my-8 p-6 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="sm:col-span-2">
+                        <input
+                            type="text"
+                            placeholder={t.filter.search}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className={inputClasses}
+                        />
+                    </div>
+                    {currentUser && currentUser.type === 'admin' && (
+                        <div>
+                            <label htmlFor="partner-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.filterByPartner}</label>
+                            <select id="partner-filter" value={partnerFilter} onChange={e => setPartnerFilter(e.target.value)} className={selectClasses} disabled={loading}>
+                                <option value="all">{t.filter.allPartners}</option>
+                                {(partnerOptions || []).map(partner => (
+                                    <option key={partner.id} value={partner.id}>{partner.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+                    <div className="lg:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.leadDateRange}</label>
+                        <div className="flex items-center gap-2">
+                            <input type="date" value={startDateFilter} onChange={e => setStartDateFilter(e.target.value)} className={inputClasses} />
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                            <input type="date" value={endDateFilter} onChange={e => setEndDateFilter(e.target.value)} className={inputClasses} />
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerName')}>
-                               <div className="flex items-center">{t_dash.leadTable.customer}{getSortIcon('customerName')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('partnerName')}>
-                                <div className="flex items-center">{t.leadTable.partner}{getSortIcon('partnerName')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3">{t_dash.leadTable.phone}</th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('serviceTitle')}>
-                                <div className="flex items-center">{t_dash.leadTable.service}{getSortIcon('serviceTitle')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
-                                <div className="flex items-center">{t_dash.leadTable.date}{getSortIcon('createdAt')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3">{t_dash.leadTable.actions}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan={6} className="text-center p-8">Loading leads...</td></tr>
-                        ) : sortedAndFilteredLeads.length > 0 ? (
-                            sortedAndFilteredLeads.map(lead => (
-                                <tr key={lead.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {lead.customerName}
-                                        {lead.customerNotes && <p className="font-normal text-gray-500 dark:text-gray-400 text-xs mt-1 max-w-xs truncate" title={lead.customerNotes}>{lead.customerNotes}</p>}
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                {selectedLeads.length > 0 && (
+                    <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 flex items-center gap-4 border-b border-gray-200 dark:border-gray-700">
+                        <span className="font-semibold text-sm">{selectedLeads.length} {t.bulkActions.selected}</span>
+                        <button onClick={handleBulkDelete} className="text-sm font-medium text-red-600 hover:text-red-800">{t.bulkActions.delete}</button>
+                        <button onClick={() => setSelectedLeads([])} className={`text-sm font-medium text-gray-500 hover:text-gray-700 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}>{t.bulkActions.clear}</button>
+                    </div>
+                )}
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" className="p-4">
+                                     <input
+                                        type="checkbox"
+                                        className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500"
+                                        onChange={handleSelectAll}
+                                        checked={sortedAndFilteredLeads.length > 0 && selectedLeads.length === sortedAndFilteredLeads.length}
+                                        ref={input => { if (input) input.indeterminate = selectedLeads.length > 0 && selectedLeads.length < sortedAndFilteredLeads.length }}
+                                    />
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerName')}>
+                                <div className="flex items-center">{t_dash.leadTable.customer}{getSortIcon('customerName')}</div>
+                                </th>
+                                {currentUser && currentUser.type === 'admin' && (
+                                    <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('partnerName')}>
+                                        <div className="flex items-center">{t.propertyTable.partner}{getSortIcon('partnerName')}</div>
                                     </th>
-                                    <td className="px-6 py-4">{lead.partnerName || lead.partnerId}</td>
-                                    <td className="px-6 py-4" dir="ltr">{lead.customerPhone}</td>
-                                    <td className="px-6 py-4 max-w-xs truncate" title={lead.serviceTitle}>{lead.serviceTitle}</td>
-                                    <td className="px-6 py-4">{new Date(lead.createdAt).toLocaleDateString(language)}</td>
-                                    <td className="px-6 py-4">
-                                        <button onClick={() => handleDelete(lead.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">
-                                            {t_dash.leadTable.delete}
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                             <tr><td colSpan={6} className="text-center p-8">{t_dash.leadTable.noLeads}</td></tr>
-                        )}
-                    </tbody>
-                </table>
+                                )}
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerPhone')}>
+                                    <div className="flex items-center">{t_dash.leadTable.phone}{getSortIcon('customerPhone')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('serviceTitle')}>
+                                    <div className="flex items-center">{t_dash.leadTable.service}{getSortIcon('serviceTitle')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
+                                    <div className="flex items-center">{t_dash.leadTable.date}{getSortIcon('createdAt')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3">{t_dash.leadTable.actions}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan={7} className="text-center p-8">Loading leads...</td></tr>
+                            ) : sortedAndFilteredLeads.length > 0 ? (
+                                sortedAndFilteredLeads.map(lead => (
+                                    <tr key={lead.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                        <td className="w-4 p-4">
+                                             <input
+                                                type="checkbox"
+                                                className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500"
+                                                checked={selectedLeads.includes(lead.id)}
+                                                onChange={() => handleSelect(lead.id)}
+                                            />
+                                        </td>
+                                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                            {lead.customerName}
+                                            {lead.customerNotes && <p className="font-normal text-gray-500 dark:text-gray-400 text-xs mt-1 max-w-xs truncate" title={lead.customerNotes}>{lead.customerNotes}</p>}
+                                        </th>
+                                        {currentUser && currentUser.type === 'admin' && (
+                                            <td className="px-6 py-4">{lead.partnerName || lead.partnerId}</td>
+                                        )}
+                                        <td className="px-6 py-4" dir="ltr">{lead.customerPhone}</td>
+                                        <td className="px-6 py-4 max-w-xs truncate" title={lead.serviceTitle}>{lead.serviceTitle}</td>
+                                        <td className="px-6 py-4">{new Date(lead.createdAt).toLocaleDateString(language)}</td>
+                                        <td className="px-6 py-4">
+                                            <button onClick={() => handleDelete(lead.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">
+                                                {t_dash.leadTable.delete}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr><td colSpan={currentUser && currentUser.type === 'admin' ? 7 : 6} className="text-center p-8">{t_dash.leadTable.noLeads}</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

@@ -1,3 +1,6 @@
+// Note: This is a mock API. In a real application, these functions would make network requests
+// to a backend service. The data is modified in-memory for simulation purposes.
+
 import { propertiesData } from '../data/properties';
 import { getPartnerById } from './partners';
 import type { Property } from '../types';

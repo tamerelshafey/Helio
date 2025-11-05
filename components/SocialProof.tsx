@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import FeatureSection from './FeatureSection';
+import PropertyCard from './shared/PropertyCard';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
-import type { Language } from '../types';
+import type { Language, Project } from '../types';
 import { translations } from '../data/translations';
-import { useData } from './shared/DataContext';
 import { isListingActive } from '../utils/propertyUtils';
+import { getProperties } from '../api/properties';
+import { getAllProjects } from '../api/projects';
+import { useApiQuery } from './shared/useApiQuery';
+
 
 interface SocialProofProps {
   language: Language;
@@ -13,12 +16,20 @@ interface SocialProofProps {
 
 const SocialProof: React.FC<SocialProofProps> = ({ language }) => {
   const t = translations[language];
-  const { properties, loading } = useData();
+  const { data: properties, isLoading: isLoadingProperties } = useApiQuery('properties', getProperties);
+  const { data: projects, isLoading: isLoadingProjects } = useApiQuery('allProjects', getAllProjects);
 
-  const featuredProperties = properties
+  const loading = isLoadingProperties || isLoadingProjects;
+
+  const featuredProperties = (properties || [])
     .filter(isListingActive)
     .sort((a, b) => new Date(b.listingStartDate || 0).getTime() - new Date(a.listingStartDate || 0).getTime())
     .slice(0, 4);
+
+  const projectsMap = useMemo(() => {
+    if (!projects) return new Map<string, Project>();
+    return new Map(projects.map(p => [p.id, p]));
+  }, [projects]);
 
   return (
     <div className="py-20 bg-gray-50 dark:bg-gray-800">
@@ -35,9 +46,10 @@ const SocialProof: React.FC<SocialProofProps> = ({ language }) => {
           {loading ? (
             Array.from({ length: 4 }).map((_, index) => <PropertyCardSkeleton key={index} />)
           ) : (
-            featuredProperties.map((prop) => (
-              <FeatureSection key={prop.id} {...prop} language={language} />
-            ))
+            featuredProperties.map((prop) => {
+              const project = prop.projectId ? projectsMap.get(prop.projectId) : undefined;
+              return <PropertyCard key={prop.id} {...prop} language={language} project={project} />;
+            })
           )}
         </div>
       </div>

@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import type { Language } from '../../types';
+import { Role } from '../../types';
+import type { Language, Partner } from '../../types';
 import { translations } from '../../data/translations';
-import { getTestPartners, getPartnerByEmail } from '../../api/partners';
+import { getPartnerByEmail } from '../../api/partners';
 import { inputClasses } from '../shared/FormField';
+import { HelioLogo } from '../HelioLogo';
+import { partnersData } from '../../data/partners';
 
 interface LoginPageProps {
-    language: Language;
+  language: Language;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
@@ -16,59 +19,36 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, currentUser } = useAuth();
     const navigate = useNavigate();
 
-    const [testRoles, setTestRoles] = useState<{id: string; email?: string; password?: string, type?: string, roleName: string}[]>([]);
-
-    useEffect(() => {
-        const partners = getTestPartners(language);
-        const roles: { [key: string]: any } = {};
-    
-        // Define role order
-        const roleOrder = ['admin', 'developer', 'finishing', 'agency', 'decorations'];
-    
-        partners.forEach(p => {
-            if (p.type && !roles[p.type]) {
-                let roleName = '';
-                switch(p.type) {
-                    case 'developer': roleName = t.loginAsDeveloper; break;
-                    case 'finishing': roleName = t.loginAsFinishing; break;
-                    case 'agency': roleName = t.loginAsAgency; break;
-                    case 'admin': roleName = t.loginAsAdmin; break;
-                    case 'decorations': roleName = t.loginAsDecorations; break;
-                    default: roleName = p.type;
-                }
-                roles[p.type] = { ...p, roleName };
-            }
-        });
-    
-        const sortedRoles = roleOrder
-            .map(roleKey => roles[roleKey])
-            .filter(Boolean); // Filter out any roles not present in the data
-    
-        setTestRoles(sortedRoles);
-    }, [language, t]);
-
-    const handleLogin = async (loginEmail: string, loginPass: string) => {
+    const handleLoginAndRedirect = async (emailToLogin: string) => {
         setError('');
         setLoading(true);
 
-        const success = await login(loginEmail, loginPass);
-        
+        const success = await login(emailToLogin, 'password');
         setLoading(false);
+        
         if (success) {
-            const partner = getPartnerByEmail(loginEmail);
-            if (partner?.type === 'admin') {
-                navigate('/admin', { replace: true });
-            } else if (partner?.type === 'finishing') {
-                navigate('/dashboard/portfolio', { replace: true });
-            } else if (partner?.type === 'decorations') {
-                navigate('/decorations-admin', { replace: true });
+            const partner = getPartnerByEmail(emailToLogin);
+            if (partner) {
+                switch (partner.role) {
+                    case Role.SUPER_ADMIN:
+                    case Role.FINISHING_MANAGER:
+                    case Role.DECORATIONS_MANAGER:
+                    case Role.LISTINGS_MANAGER:
+                    case Role.PARTNER_RELATIONS_MANAGER:
+                    case Role.CONTENT_MANAGER:
+                        navigate('/admin', { replace: true });
+                        break;
+                    default:
+                        navigate('/dashboard', { replace: true });
+                }
+                return;
             }
-             else {
-                navigate('/dashboard', { replace: true });
-            }
+            
+            navigate('/', { replace: true });
+
         } else {
             setError(t.loginError);
         }
@@ -76,14 +56,45 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        handleLogin(email, password);
+        await handleLoginAndRedirect(email);
     };
+
+    const quickLoginUsers = useMemo(() => {
+        const quickLoginEmails = [
+            'admin@onlyhelio.com',
+            'dev1@onlyhelio.com',
+            'fin1@onlyhelio.com',
+            'agency1@onlyhelio.com',
+            'finishing-manager@onlyhelio.com',
+            'decorations-manager@onlyhelio.com',
+            'listings-manager@onlyhelio.com',
+            'partner-relations-manager@onlyhelio.com',
+            'content-manager@onlyhelio.com',
+        ];
+
+        return quickLoginEmails
+            .map(email => {
+                const partner = partnersData.find(p => p.email === email);
+                if (!partner) return null;
+                const localizedInfo = (translations[language].partnerInfo as any)[partner.id];
+                return {
+                    name: localizedInfo?.name || partner.id,
+                    email: partner.email,
+                };
+            })
+            .filter(Boolean) as { name: string; email: string }[];
+    }, [language]);
+
 
     return (
         <div className="py-20 bg-white dark:bg-gray-900 flex items-center justify-center">
             <div className="w-full max-w-lg p-8 space-y-8 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="text-center">
-                    <h1 className="text-3xl font-bold text-amber-500">{t.loginTitle}</h1>
+                    <Link to="/" className="inline-flex items-center justify-center gap-3 text-3xl font-bold text-amber-500 mb-4">
+                        <HelioLogo className="h-10 w-10" />
+                        <span className="text-2xl">ONLY HELIO</span>
+                    </Link>
+                    <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{t.loginTitle}</h1>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">{t.loginSubtitle}</p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -100,10 +111,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
                                 placeholder={t.email}
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                disabled={loading}
                             />
                         </div>
                         <div className="pt-4">
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.password}</label>
+                            <label htmlFor="password" className="sr-only">{t.password}</label>
                             <input
                                 id="password"
                                 name="password"
@@ -114,6 +126,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
                                 placeholder={t.password}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                disabled={loading}
                             />
                         </div>
                     </div>
@@ -130,33 +143,30 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
                         </button>
                     </div>
                 </form>
+                 <div className="text-center">
+                    <Link to="/register" className="font-medium text-amber-600 hover:text-amber-500 dark:text-amber-500 dark:hover:text-amber-400">
+                        {translations[language].joinAsPartner}
+                    </Link>
+                </div>
 
-                <div className="mt-8 text-center">
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                                {t.quickLogin}
-                            </span>
-                        </div>
-                    </div>
-                    <div className="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-2">
-                        {testRoles.map(role => (
+                {/* Quick Login Section */}
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <p className="text-center text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">
+                        {language === 'ar' ? 'للتجربة: تسجيل دخول سريع' : 'For Demo: Quick Logins'}
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {quickLoginUsers.map(user => (
                             <button
-                                key={role.type}
-                                type="button"
-                                onClick={() => role.email && role.password && handleLogin(role.email, role.password)}
+                                key={user.email}
+                                onClick={() => handleLoginAndRedirect(user.email)}
                                 disabled={loading}
-                                className={`w-full inline-flex justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 ${role.type === 'admin' ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'}`}
+                                className="w-full text-center text-xs p-2 rounded-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                             >
-                                {role.roleName}
+                                {user.name}
                             </button>
                         ))}
                     </div>
                 </div>
-
             </div>
         </div>
     );

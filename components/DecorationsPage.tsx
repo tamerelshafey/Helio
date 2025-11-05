@@ -1,9 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import type { Language, PortfolioItem } from '../types';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import type { Language, PortfolioItem, DecorationCategory } from '../types';
 import { translations } from '../data/translations';
-import DecorationRequestModal from './DecorationRequestModal';
-import CustomDecorationRequestModal from './CustomDecorationRequestModal';
-import { useData } from './shared/DataContext';
+import BannerDisplay from './shared/BannerDisplay';
+import { getAllPortfolioItems } from '../api/portfolio';
+import { getDecorationCategories } from '../api/decorations';
+import { useApiQuery } from './shared/useApiQuery';
 
 interface DecorationsPageProps {
   language: Language;
@@ -11,9 +13,16 @@ interface DecorationsPageProps {
 
 const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
     const t = translations[language].decorationsPage;
-    const { portfolio: allWorks, decorationCategories, loading } = useData();
+    const t_decor_modal = translations[language].decorationRequestModal;
+    const t_custom_decor_modal = translations[language].customDecorationRequestModal;
+    const navigate = useNavigate();
+
+    const { data: allWorks, isLoading: isLoadingWorks } = useApiQuery('portfolio', getAllPortfolioItems);
+    const { data: decorationCategories, isLoading: isLoadingCategories } = useApiQuery('decorationCategories', getDecorationCategories);
+
+    const loading = isLoadingWorks || isLoadingCategories;
     
-    const tabs = useMemo(() => decorationCategories.map(cat => ({
+    const tabs = useMemo(() => (decorationCategories || []).map(cat => ({
         key: cat.id,
         name: cat.name[language],
         desc: cat.description[language]
@@ -28,45 +37,38 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
         }
     }, [tabs, activeTab]);
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedWork, setSelectedWork] = useState<PortfolioItem | null>(null);
-    const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
-
     const filteredWorks = useMemo(() => {
-        if (!activeTab) return [];
+        if (!activeTab || !allWorks) return [];
         return allWorks.filter(work => work.category[language] === activeTab);
     }, [allWorks, activeTab, language]);
 
-    const openModal = (work: PortfolioItem) => {
-        setSelectedWork(work);
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setSelectedWork(null);
+    const openRequestPage = (work: PortfolioItem) => {
+        const serviceTitle = `${t_decor_modal.reference} ${work.title[language]}`;
+        navigate('/request-service', {
+            state: {
+                serviceTitle,
+                partnerId: 'admin-user',
+                workItem: work,
+                serviceType: 'decorations'
+            }
+        });
     };
     
-    const openCustomModal = () => setIsCustomModalOpen(true);
-    const closeCustomModal = () => setIsCustomModalOpen(false);
+    const openCustomRequestPage = () => {
+        const serviceTitle = `${t_custom_decor_modal.serviceTitle}: ${activeTab}`;
+        navigate('/request-service', {
+            state: {
+                serviceTitle,
+                partnerId: 'admin-user',
+                categoryName: activeTab,
+                isCustom: true,
+                serviceType: 'decorations'
+            }
+        });
+    };
     
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
-             {isModalOpen && selectedWork && (
-                <DecorationRequestModal 
-                    onClose={closeModal}
-                    workItem={selectedWork}
-                    language={language}
-                />
-            )}
-            {isCustomModalOpen && (
-                <CustomDecorationRequestModal
-                    onClose={closeCustomModal}
-                    categoryName={activeTab}
-                    language={language}
-                />
-            )}
-            
             <div className="py-20">
                 <div className="container mx-auto px-6">
                     <div className="flex justify-center mb-8 border-b border-gray-200 dark:border-gray-700">
@@ -92,30 +94,46 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
                             {tabs.find(tab => tab.name === activeTab)?.desc}
                         </p>
                         <button
-                            onClick={openCustomModal}
+                            onClick={openCustomRequestPage}
                             className="mt-6 bg-amber-500 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-md shadow-amber-500/20"
                         >
                             {t.requestCustomDesign}
                         </button>
                     </div>
+
+                    <BannerDisplay location="decorations" language={language} />
                    
-                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 animate-fadeIn">
+                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 animate-fadeIn mt-12">
                        {loading && !activeTab ? (
                            Array.from({ length: 3 }).map((_, i) => (
                                 <div key={i} className="bg-gray-200 dark:bg-gray-800 rounded-lg aspect-[4/5] animate-pulse"></div>
                            ))
                        ) : filteredWorks.map((work, index) => (
-                           <div key={`${work.src}-${index}`} className="group relative overflow-hidden rounded-lg shadow-lg aspect-[4/5] bg-gray-100 dark:bg-gray-800">
-                               <img src={work.src} alt={work.alt} className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-105" />
-                               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
-                                   <button 
-                                        onClick={() => openModal(work)}
-                                        className="w-full bg-amber-500 text-gray-900 font-bold px-4 py-3 rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
+                           <div key={`${work.src}-${index}`} className="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden flex flex-col transform hover:-translate-y-2 transition-transform duration-300">
+                                <div className="relative">
+                                    <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-700">
+                                         <img src={work.src} alt={work.alt} className="w-full h-full object-cover" />
+                                    </div>
+                                    {work.availability && (
+                                        <span className={`absolute top-3 ${language === 'ar' ? 'left-3' : 'right-3'} text-xs font-bold px-2 py-1 rounded-full text-white ${work.availability === 'In Stock' ? 'bg-green-600' : 'bg-sky-600'}`}>
+                                            {work.availability === 'In Stock' ? t.inStock : t.madeToOrder}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="p-4 flex flex-col flex-grow">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate mb-2">{work.title[language]}</h3>
+                                    <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 mb-4 flex-wrap gap-2">
+                                        {work.price != null && <span className="font-semibold text-amber-500 text-base">{new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', { style: 'currency', currency: 'EGP', minimumFractionDigits: 0 }).format(work.price)}</span>}
+                                        {work.dimensions && <span className="text-xs">{t.dimensions}: {work.dimensions}</span>}
+                                    </div>
+                                    <button 
+                                        onClick={() => openRequestPage(work)}
+                                        className="w-full mt-auto bg-amber-500 text-gray-900 font-bold px-4 py-3 rounded-lg hover:bg-amber-600 transition-colors"
                                     >
-                                        {t.requestSimilarButton}
+                                        {t.inquireNow}
                                     </button>
-                               </div>
-                           </div>
+                                </div>
+                            </div>
                        ))}
                    </div>
 

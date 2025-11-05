@@ -1,131 +1,164 @@
+// Note: This is a mock API. In a real application, these functions would make network requests
+// to a backend service. The data is modified in-memory for simulation purposes.
+
 import { translations } from '../data/translations';
-import type { Partner, PartnerStatus, PartnerRequest } from '../types';
+import { partnersData } from '../data/partners';
+import type { Partner, PartnerStatus, PartnerRequest, AdminPartner, PartnerType, Role, SubscriptionPlan, PartnerDisplayType } from '../types';
+import { mapPartnerTypeToRole } from '../data/permissions';
+import { addNotification } from './notifications';
 
 const SIMULATED_DELAY = 300;
 
-// This is a simulation. In a real app, this data would be in a database.
-export const getAllPartners = (): Partner[] => {
-    const { developers, finishing_companies, agencies, admins, individualListings, decorations_staff } = translations.en.partners as any;
-    return [
-        ...developers,
-        ...finishing_companies,
-        ...agencies,
-        ...admins || [],
-        ...individualListings || [],
-        ...decorations_staff || [],
-    ] as unknown as Partner[];
-};
-
-export const getAllPartnersForAdmin = (): Partner[] => {
-    // In the EN data, combine all non-admin partners to get their types and emails
-    const { developers, finishing_companies, agencies, individualListings, decorations_staff } = translations.en.partners as any;
-    const allEnPartners = [...developers, ...finishing_companies, ...agencies, ...(individualListings || []), ...(decorations_staff || [])];
-
-    // Get the localized names and descriptions
-    const { developers: arDevs, finishing_companies: arFins, agencies: arAgencies, individualListings: arIndivs, decorations_staff: arDecor } = translations.ar.partners as any;
-    const allArPartners = [...arDevs, ...arFins, ...arAgencies, ...(arIndivs || []), ...(arDecor || [])];
-    
-    return allEnPartners.map((enPartner: any) => {
-        const arPartner = allArPartners.find((p: any) => p.id === enPartner.id);
+// Helper to get all partners for a specific language
+const getAllPartnersByLang = (lang: 'ar' | 'en'): Partner[] => {
+    return partnersData.map(basePartner => {
+        const trans = (translations[lang] as any).partnerInfo[basePartner.id] || { name: basePartner.id, description: '' };
         return {
-            ...enPartner,
-            nameAr: arPartner?.name,
-            descriptionAr: arPartner?.description,
-        }
-    }) as (Partner & { nameAr?: string, descriptionAr?: string})[];
+            ...basePartner,
+            ...trans,
+            role: mapPartnerTypeToRole(basePartner.type)
+        } as Partner;
+    });
 };
 
-export const getPendingPartnerRequests = (): Promise<Partner[]> => {
+export const getAllPartners = (): Partner[] => {
+    return getAllPartnersByLang('en');
+};
+
+export const getAllPartnersForAdmin = (): Promise<AdminPartner[]> => {
     return new Promise((resolve) => {
         setTimeout(() => {
-            const allPartners = getAllPartnersForAdmin();
-            resolve(allPartners.filter(p => p.status === 'pending'));
+            const result = partnersData.map(basePartner => {
+                 const enTrans = translations.en.partnerInfo[basePartner.id as keyof typeof translations.en.partnerInfo] || { name: basePartner.id, description: '' };
+                 const arTrans = translations.ar.partnerInfo[basePartner.id as keyof typeof translations.ar.partnerInfo] || { name: basePartner.id, description: '' };
+                 return {
+                     ...basePartner,
+                     name: enTrans.name,
+                     description: enTrans.description,
+                     nameAr: arTrans.name,
+                     descriptionAr: arTrans.description,
+                     role: mapPartnerTypeToRole(basePartner.type)
+                 } as AdminPartner;
+            });
+            resolve(result);
         }, SIMULATED_DELAY);
     });
 };
 
-
 export const getPartnerById = (id: string): Partner | undefined => {
-    return getAllPartners().find(p => p.id === id);
-};
-
-export const getPartnerByEmail = (email: string) => {
-    return getAllPartners().find(p => p.email.toLowerCase() === email.toLowerCase());
-};
-
-export const getTestPartners = (language: 'ar' | 'en') => {
-    const enPartners = getAllPartners();
-
-    const { developers, finishing_companies, agencies, admins, decorations_staff } = translations[language].partners as any;
-    const localizedPartners = [...developers, ...finishing_companies, ...agencies, ...(admins || []), ...(decorations_staff || [])];
+    const basePartner = partnersData.find(p => p.id === id);
+    if (!basePartner) return undefined;
     
-    return localizedPartners.map((localPartner: any) => {
-        const enData = enPartners.find(p => p.id === localPartner.id);
-        return {
-            id: localPartner.id,
-            name: localPartner.name,
-            email: enData?.email,
-            password: enData?.password,
-            type: enData?.type,
-        };
-    }).filter(p => p.email && p.password);
+    const enTrans = translations.en.partnerInfo[basePartner.id as keyof typeof translations.en.partnerInfo] || { name: basePartner.id, description: '' };
+    return {
+        ...basePartner,
+        ...enTrans,
+        role: mapPartnerTypeToRole(basePartner.type)
+    } as Partner;
 };
 
+export const getPartnerByEmail = (email: string): Partner | undefined => {
+    const basePartner = partnersData.find(p => p.email.toLowerCase() === email.toLowerCase());
+    if (!basePartner) return undefined;
 
-export const updatePartner = (id: string, updates: { name?: string, description?: string, imageUrl?: string }): Promise<boolean> => {
+    const enTrans = translations.en.partnerInfo[basePartner.id as keyof typeof translations.en.partnerInfo] || { name: basePartner.id, description: '' };
+    return {
+        ...basePartner,
+        ...enTrans,
+        role: mapPartnerTypeToRole(basePartner.type)
+    } as Partner;
+};
+
+export const updatePartner = (id: string, updates: {
+    nameAr: string;
+    nameEn: string;
+    descriptionAr: string;
+    descriptionEn: string;
+    imageUrl?: string;
+}): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             let found = false;
-            const updatePartnerInLang = (lang: 'en' | 'ar') => {
-                 const partnerArrays = [
-                    (translations[lang].partners as any).developers,
-                    (translations[lang].partners as any).finishing_companies,
-                    (translations[lang].partners as any).agencies,
-                    (translations[lang].partners as any).decorations_staff,
-                ];
-                for (const arr of partnerArrays) {
-                    if (!arr) continue;
-                    const partner = arr.find((p: any) => p.id === id);
-                    if (partner) {
-                        if (updates.name) partner.name = updates.name;
-                        if (updates.description) partner.description = updates.description;
-                        if (updates.imageUrl) partner.imageUrl = updates.imageUrl;
-                        found = true;
+
+            // Update AR translations
+            const arTranslations = (translations.ar.partnerInfo as any)[id];
+            if (arTranslations) {
+                arTranslations.name = updates.nameAr;
+                arTranslations.description = updates.descriptionAr;
+                found = true;
+            }
+
+            // Update EN translations
+            const enTranslations = (translations.en.partnerInfo as any)[id];
+            if (enTranslations) {
+                enTranslations.name = updates.nameEn;
+                enTranslations.description = updates.descriptionEn;
+                found = true;
+            }
+
+            // Update non-translatable fields in partnersData
+            if (updates.imageUrl) {
+                const partnerIndex = partnersData.findIndex(p => p.id === id);
+                if (partnerIndex > -1) {
+                    const partner = partnersData[partnerIndex] as any;
+                    if (partner.imageUrl !== updates.imageUrl) {
+                        partner.imageUrl = updates.imageUrl;
+                        if (updates.imageUrl.includes('unsplash.com')) {
+                             const url = new URL(updates.imageUrl);
+                            url.searchParams.set('w', '480'); partner.imageUrl_small = url.toString();
+                            url.searchParams.set('w', '800'); partner.imageUrl_medium = url.toString();
+                            url.searchParams.set('w', '1200'); partner.imageUrl_large = url.toString();
+                        } else {
+                            partner.imageUrl_small = updates.imageUrl;
+                            partner.imageUrl_medium = updates.imageUrl;
+                            partner.imageUrl_large = updates.imageUrl;
+                        }
                     }
+                    found = true;
                 }
             }
-            updatePartnerInLang('en');
-            // Update AR with the same values for simplicity in this mock setup.
-            updatePartnerInLang('ar');
             resolve(found);
         }, 300);
     });
 };
 
-// New function to simulate updating status
+const updatePartnerProperty = (id: string, property: keyof Partner, value: any): boolean => {
+    const partnerIndex = partnersData.findIndex(p => p.id === id);
+    if (partnerIndex > -1) {
+        (partnersData[partnerIndex] as any)[property] = value;
+        return true;
+    }
+    return false;
+};
+
 export const updatePartnerStatus = (id: string, status: PartnerStatus): Promise<boolean> => {
     return new Promise((resolve) => {
+        setTimeout(() => resolve(updatePartnerProperty(id, 'status', status)), 300);
+    });
+};
+
+export const updatePartnerDisplayType = (id: string, displayType: Partner['displayType']): Promise<boolean> => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(updatePartnerProperty(id, 'displayType', displayType)), 300);
+    });
+};
+
+export const updatePartnerAdmin = (id: string, updates: Partial<Pick<AdminPartner, 'subscriptionPlan' | 'subscriptionEndDate'>>): Promise<boolean> => {
+    return new Promise((resolve) => {
         setTimeout(() => {
-            let found = false;
-            const updateStatusInLang = (lang: 'en' | 'ar') => {
-                const partnerArrays = [
-                    (translations[lang].partners as any).developers,
-                    (translations[lang].partners as any).finishing_companies,
-                    (translations[lang].partners as any).agencies,
-                    (translations[lang].partners as any).decorations_staff,
-                ];
-                for (const arr of partnerArrays) {
-                     if (!arr) continue;
-                    const partner = arr.find((p: any) => p.id === id);
-                    if (partner) {
-                        partner.status = status;
-                        found = true;
-                    }
+            let success = false;
+            const partnerIndex = partnersData.findIndex(p => p.id === id);
+            if (partnerIndex > -1) {
+                if (updates.subscriptionPlan) {
+                    (partnersData[partnerIndex] as any).subscriptionPlan = updates.subscriptionPlan;
+                    success = true;
+                }
+                if (updates.subscriptionEndDate !== undefined) {
+                    (partnersData[partnerIndex] as any).subscriptionEndDate = updates.subscriptionEndDate;
+                    success = true;
                 }
             }
-            updateStatusInLang('en');
-            updateStatusInLang('ar');
-            resolve(found);
+            resolve(success);
         }, 300);
     });
 };
@@ -133,48 +166,100 @@ export const updatePartnerStatus = (id: string, status: PartnerStatus): Promise<
 export const addPartner = (request: PartnerRequest): Promise<Partner> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            const { companyName, companyType, description, logo, contactEmail } = request;
-            
-            const newPartnerData = {
-                id: `partner-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                name: companyName,
-                description: description,
-                imageUrl: logo, // It's a base64 string, but it will work in img src
+            const { companyName, companyType, description, logo, contactEmail, subscriptionPlan } = request;
+            const newPartnerId = `partner-${Date.now()}`;
+
+            const newPartnerBaseData: Omit<Partner, 'name' | 'description' | 'role'> = {
+                id: newPartnerId,
+                imageUrl: logo,
                 email: contactEmail,
-                password: 'password123', // Default password for new partners
+                password: 'password123', 
                 type: companyType,
                 status: 'active' as PartnerStatus,
+                subscriptionPlan: subscriptionPlan,
+                displayType: 'standard', 
             };
+            partnersData.push(newPartnerBaseData);
 
-            let targetArrayKey: 'developers' | 'finishing_companies' | 'agencies';
-            switch (companyType) {
-                case 'developer':
-                    targetArrayKey = 'developers';
-                    break;
-                case 'finishing':
-                    targetArrayKey = 'finishing_companies';
-                    break;
-                case 'agency':
-                    targetArrayKey = 'agencies';
-                    break;
-                default:
-                    const err = new Error(`Invalid company type: ${companyType}`);
-                    console.error(err);
-                    reject(err);
-                    return;
-            }
-            
-            // Add to english translations
-            (translations.en.partners as any)[targetArrayKey].push(newPartnerData);
-            
-            // Add to arabic translations (using same data for simulation)
-            (translations.ar.partners as any)[targetArrayKey].push({
-                ...newPartnerData,
+            (translations.en.partnerInfo as any)[newPartnerId] = { name: companyName, description: description };
+            (translations.ar.partnerInfo as any)[newPartnerId] = { name: companyName, description: description };
+
+            const newPartner: Partner = {
+                ...newPartnerBaseData,
                 name: companyName,
                 description: description,
+                role: mapPartnerTypeToRole(companyType)
+            };
+
+            addNotification({
+                userId: newPartner.id,
+                message: {
+                    ar: "مرحباً بك! تم الموافقة على حساب الشراكة الخاص بك.",
+                    en: "Welcome! Your partner account has been approved.",
+                },
+                link: '/dashboard',
             });
 
-            resolve(newPartnerData as Partner);
+            resolve(newPartner);
         }, SIMULATED_DELAY);
     });
-}
+};
+
+export const addInternalUser = (userData: { name: string, nameAr: string, email: string, password?: string, type: PartnerType }): Promise<AdminPartner> => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const newUserId = `user-${Date.now()}`;
+            const newPartnerBaseData = {
+                id: newUserId,
+                imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto.format&fit=crop',
+                email: userData.email,
+                password: userData.password || 'password123',
+                type: userData.type,
+                status: 'active' as PartnerStatus,
+                subscriptionPlan: 'basic' as SubscriptionPlan,
+                subscriptionEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                displayType: 'standard' as PartnerDisplayType,
+            };
+            partnersData.push(newPartnerBaseData);
+
+            (translations.en.partnerInfo as any)[newUserId] = { name: userData.name, description: `Internal user with role: ${userData.type}` };
+            (translations.ar.partnerInfo as any)[newUserId] = { name: userData.nameAr, description: `مستخدم داخلي بصلاحية: ${userData.type}` };
+            
+            resolve(getPartnerById(newUserId) as AdminPartner); // Re-fetch to assemble full object
+        }, SIMULATED_DELAY);
+    });
+};
+
+export const updateUser = (userId: string, updates: { name: string, nameAr: string, email: string, type: PartnerType, status: PartnerStatus }): Promise<boolean> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const partnerIndex = partnersData.findIndex(p => p.id === userId);
+            if (partnerIndex > -1) {
+                partnersData[partnerIndex] = { ...partnersData[partnerIndex], email: updates.email, type: updates.type, status: updates.status };
+                (translations.en.partnerInfo as any)[userId].name = updates.name;
+                (translations.ar.partnerInfo as any)[userId].name = updates.nameAr;
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        }, SIMULATED_DELAY);
+    });
+};
+
+export const deletePartner = (userId: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const initialLength = partnersData.length;
+            const newData = partnersData.filter(p => p.id !== userId);
+            if (newData.length < initialLength) {
+                partnersData.length = 0;
+                Array.prototype.push.apply(partnersData, newData);
+                delete (translations.en.partnerInfo as any)[userId];
+                delete (translations.ar.partnerInfo as any)[userId];
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        }, SIMULATED_DELAY);
+    });
+};

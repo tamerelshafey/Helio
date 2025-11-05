@@ -1,5 +1,6 @@
 import { propertyRequestsData } from '../data/propertyRequests';
 import type { AddPropertyRequest, RequestStatus } from '../types';
+import { addNotification } from './notifications';
 
 const SIMULATED_DELAY = 300;
 
@@ -21,6 +22,16 @@ export const addPropertyRequest = (data: Omit<AddPropertyRequest, 'id' | 'status
         createdAt: new Date().toISOString(),
       };
       propertyRequestsData.unshift(newRequest);
+      
+      addNotification({
+        userId: 'listings-manager-1',
+        message: {
+          ar: `طلب عرض عقار جديد من "${newRequest.customerName}".`,
+          en: `New property listing request from "${newRequest.customerName}".`,
+        },
+        link: `/admin/property-requests/${newRequest.id}`,
+      });
+
       resolve(newRequest);
     }, SIMULATED_DELAY);
   });

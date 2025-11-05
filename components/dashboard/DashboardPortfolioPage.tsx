@@ -1,54 +1,46 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Language, PortfolioItem } from '../../types';
+import { Role } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
-import FormField, { inputClasses } from '../shared/FormField';
-import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
-import { useData } from '../shared/DataContext';
+import { ArrowUpIcon, ArrowDownIcon, CubeIcon } from '../icons/Icons';
+import { inputClasses } from '../shared/FormField';
+import PortfolioItemFormModal from './PortfolioItemFormModal';
+import UpgradePlanModal from '../UpgradePlanModal';
+import { deletePortfolioItem as apiDeletePortfolioItem } from '../../api/portfolio';
+import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 
 type SortConfig = {
     key: 'title' | 'category';
     direction: 'ascending' | 'descending';
 } | null;
 
-const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = error => reject(error);
-    });
-};
-
 const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].dashboard;
     const { currentUser } = useAuth();
-    const { portfolio, loading, addPortfolioItem, deletePortfolioItem } = useData();
-    const navigate = useNavigate();
+    const t_shared = translations[language].adminShared;
+    
+    const { 
+        data: partnerPortfolio, 
+        isLoading: loading, 
+        isLimitReached,
+        refetch 
+    } = useSubscriptionUsage('portfolio');
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+    const [modalState, setModalState] = useState<{ isOpen: boolean; itemToEdit?: PortfolioItem }>({ isOpen: false });
+    const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     
-    const [newWorkFile, setNewWorkFile] = useState<File | null>(null);
-    const [newWorkPreview, setNewWorkPreview] = useState<string>('');
-    const [newItem, setNewItem] = useState({
-        title: { ar: '', en: '' },
-        category: { ar: '', en: '' }
-    });
-    
-    const partnerPortfolio = useMemo(() => {
-        if (!currentUser) return [];
-        return portfolio.filter(item => item.partnerId === currentUser.id);
-    }, [portfolio, currentUser]);
-
     const sortedAndFilteredPortfolio = useMemo(() => {
-        let filteredItems = [...partnerPortfolio];
+        if (!partnerPortfolio) return [];
+        let filteredItems = [...(partnerPortfolio as PortfolioItem[])];
 
         if (searchTerm) {
             const lowercasedFilter = searchTerm.toLowerCase();
             filteredItems = filteredItems.filter(item =>
-                item.title[language].toLowerCase().includes(lowercasedFilter)
+                item.title[language].toLowerCase().includes(lowercasedFilter) ||
+                item.category[language].toLowerCase().includes(lowercasedFilter)
             );
         }
         
@@ -56,17 +48,17 @@ const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) 
             filteredItems.sort((a, b) => {
                 const aValue = a[sortConfig.key][language];
                 const bValue = b[sortConfig.key][language];
-                if (aValue < bValue) {
-                    return sortConfig.direction === 'ascending' ? -1 : 1;
-                }
-                if (aValue > bValue) {
-                    return sortConfig.direction === 'ascending' ? 1 : -1;
-                }
+                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
+                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
                 return 0;
             });
         }
         return filteredItems;
     }, [partnerPortfolio, searchTerm, sortConfig, language]);
+    
+    if (currentUser?.role !== Role.FINISHING_PARTNER) {
+        return null;
+    }
 
     const requestSort = (key: 'title' | 'category') => {
         let direction: 'ascending' | 'descending' = 'ascending';
@@ -87,96 +79,47 @@ const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) 
     
     const handleDelete = async (itemId: string) => {
         if (window.confirm(t.confirmDeleteWork)) {
-            await deletePortfolioItem(itemId);
-        }
-    };
-    
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        if (name.includes('.')) {
-            const [field, lang] = name.split('.');
-            setNewItem(prev => ({ ...prev, [field]: { ...(prev as any)[field], [lang]: value } }));
+            await apiDeletePortfolioItem(itemId);
+            refetch();
         }
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setNewWorkFile(file);
-            setNewWorkPreview(URL.createObjectURL(file));
+    const handleAddWorkClick = () => {
+        if (isLimitReached) {
+            setIsUpgradeModalOpen(true);
+        } else {
+            setModalState({ isOpen: true });
         }
     };
 
-    const handleAdd = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!currentUser || !newWorkFile) return;
-        
-        const imageSrc = await fileToBase64(newWorkFile);
-
-        await addPortfolioItem({
-            ...newItem,
-            src: imageSrc,
-            alt: newItem.title.en, // Use English title as alt text
-            partnerId: currentUser.id
-        });
-        
-        // Reset form
-        setNewItem({ title: { ar: '', en: '' }, category: { ar: '', en: '' } });
-        setNewWorkFile(null);
-        setNewWorkPreview('');
-        (e.target as HTMLFormElement).reset();
-    };
-    
-    if (currentUser?.type !== 'finishing') {
-        return null; // Render nothing while redirecting
+    const handleSave = () => {
+        setModalState({ isOpen: false });
+        refetch();
     }
+    
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">{t.portfolioTitle}</h1>
-            
-            {/* Add New Work Form */}
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700 mb-8">
-                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t.addWork}</h2>
-                 <form onSubmit={handleAdd} className="space-y-4">
-                    <FormField label={t.workImageURL} id="src">
-                        <div className="flex items-center gap-4">
-                            {newWorkPreview && <img src={newWorkPreview} alt="New work preview" className="w-20 h-20 rounded-md object-cover border-2 border-gray-300 dark:border-gray-600" />}
-                             <input 
-                                type="file" 
-                                id="src" 
-                                accept="image/*"
-                                onChange={handleFileChange} 
-                                className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`}
-                                required
-                            />
-                        </div>
-                    </FormField>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField label={t.workTitleAr} id="title.ar">
-                            <input type="text" name="title.ar" value={newItem.title.ar} onChange={handleInputChange} className={inputClasses} required />
-                        </FormField>
-                        <FormField label={t.workTitleEn} id="title.en">
-                            <input type="text" name="title.en" value={newItem.title.en} onChange={handleInputChange} className={inputClasses} required />
-                        </FormField>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                         <FormField label={t.workCategoryAr} id="category.ar">
-                            <input type="text" name="category.ar" value={newItem.category.ar} onChange={handleInputChange} className={inputClasses} required />
-                        </FormField>
-                         <FormField label={t.workCategoryEn} id="category.en">
-                            <input type="text" name="category.en" value={newItem.category.en} onChange={handleInputChange} className={inputClasses} required />
-                        </FormField>
-                    </div>
-                    <div className="flex justify-end">
-                        <button type="submit" className="bg-amber-500 text-gray-900 font-semibold px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors">
-                            {t.saveWork}
-                        </button>
-                    </div>
-                 </form>
+            {modalState.isOpen && (
+                <PortfolioItemFormModal
+                    itemToEdit={modalState.itemToEdit}
+                    onClose={() => setModalState({ isOpen: false })}
+                    onSave={handleSave}
+                    language={language}
+                />
+            )}
+            {isUpgradeModalOpen && <UpgradePlanModal language={language} onClose={() => setIsUpgradeModalOpen(false)} />}
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t.portfolioTitle}</h1>
+                <button 
+                    onClick={handleAddWorkClick}
+                    className="bg-amber-500 text-gray-900 font-semibold px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors"
+                >
+                    {t.addWork}
+                </button>
             </div>
-
-            <div className="mb-4">
+            
+            <div className="mb-6">
                  <input
                     type="text"
                     placeholder={t.filter.search}
@@ -185,46 +128,34 @@ const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) 
                     className={inputClasses + " max-w-xs"}
                 />
             </div>
+            
+            {loading ? (
+                <p>Loading portfolio...</p>
+            ) : sortedAndFilteredPortfolio.length > 0 ? (
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {sortedAndFilteredPortfolio.map(item => (
+                        <div key={item.id} className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden group flex flex-col">
+                            <div className="relative aspect-square bg-gray-100 dark:bg-gray-700">
+                                <img src={item.src} alt={item.alt} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="p-4 flex-grow">
+                                <h3 className="font-bold text-gray-900 dark:text-white truncate" title={item.title[language]}>{item.title[language]}</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{item.category[language]}</p>
+                            </div>
+                            <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50">
+                                <button onClick={() => setModalState({ isOpen: true, itemToEdit: item })} className="font-medium text-amber-600 dark:text-amber-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900/50">{t_shared.edit}</button>
+                                <button onClick={() => handleDelete(item.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50">{t.portfolioTable.delete}</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
+                    <CubeIcon className="w-12 h-12 mx-auto text-gray-400" />
+                    <p className="mt-4 text-xl text-gray-600 dark:text-gray-400">{t.portfolioTable.noWorks}</p>
+                </div>
+            )}
 
-            {/* Portfolio Table */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" className="px-6 py-3">{t.portfolioTable.image}</th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('title')}>
-                                <div className="flex items-center">{t.portfolioTable.title}{getSortIcon('title')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('category')}>
-                                <div className="flex items-center">{t.portfolioTable.category}{getSortIcon('category')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3">{t.portfolioTable.actions}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan={4} className="text-center p-8">Loading...</td></tr>
-                        ) : sortedAndFilteredPortfolio.length > 0 ? (
-                            sortedAndFilteredPortfolio.map(item => (
-                                <tr key={item.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="px-6 py-4">
-                                        <img src={item.src} alt={item.alt} className="w-16 h-16 object-cover rounded-md" />
-                                    </td>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item.title[language]}
-                                    </th>
-                                    <td className="px-6 py-4">{item.category[language]}</td>
-                                    <td className="px-6 py-4">
-                                        <button onClick={() => handleDelete(item.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t.portfolioTable.delete}</button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                             <tr><td colSpan={4} className="text-center p-8">{t.portfolioTable.noWorks}</td></tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
         </div>
     );
 };

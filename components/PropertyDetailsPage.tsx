@@ -1,44 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, FloorIcon, CalendarIcon, WalletIcon } from './icons/Icons';
-import type { Property, Language } from '../types';
+import type { Property, Language, Project } from '../types';
 import { translations } from '../data/translations';
 import { useFavorites } from './shared/FavoritesContext';
 import Lightbox from './shared/Lightbox';
-import ServiceRequestModal from './ServiceRequestModal';
-import { useData } from './shared/DataContext';
 import { isCommercial } from '../utils/propertyUtils';
+import BannerDisplay from './shared/BannerDisplay';
+import { getPropertyById } from '../api/properties';
+import { getAllProjects } from '../api/projects';
+import { getAllAmenities } from '../api/filters';
+import { useApiQuery } from './shared/useApiQuery';
+import DetailItem from './shared/DetailItem';
 
 interface PropertyDetailsPageProps {
     language: Language;
 }
 
-const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
-    <div>
-        <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</dt>
-        <dd className="mt-1 text-md font-semibold text-gray-900 dark:text-white">{value}</dd>
-    </div>
-);
-
 const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) => {
     const { propertyId } = useParams<{ propertyId: string }>();
     const t = translations[language];
-    const { properties, loading: isLoading } = useData();
+    const navigate = useNavigate();
     
-    const [property, setProperty] = useState<Property | null | undefined>(undefined);
+    const fetchProperty = useCallback(() => {
+        if (!propertyId) return Promise.resolve(undefined);
+        return getPropertyById(propertyId);
+    }, [propertyId]);
+
+    const { data: property, isLoading: isLoadingProperty } = useApiQuery(`property-${propertyId}`, fetchProperty, { enabled: !!propertyId });
+    const { data: projects, isLoading: isLoadingProjects } = useApiQuery('allProjects', getAllProjects);
+    const { data: amenities, isLoading: isLoadingAmenities } = useApiQuery('allAmenities', getAllAmenities);
+
+    const isLoading = isLoadingProperty || isLoadingProjects || isLoadingAmenities;
+    
     const [mainImage, setMainImage] = useState<string | undefined>(undefined);
     const [lightboxState, setLightboxState] = useState({ isOpen: false, startIndex: 0 });
-    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const project = useMemo(() => {
+        if (property?.projectId && projects) {
+            return projects.find(p => p.id === property.projectId);
+        }
+        return undefined;
+    }, [property, projects]);
 
     useEffect(() => {
-        if (!isLoading && propertyId) {
-            const prop = properties.find(p => p.id === propertyId);
-            setProperty(prop);
-            if (prop) {
-                setMainImage(prop.gallery[0] || prop.imageUrl);
-            }
+        if (property) {
+            setMainImage(property.gallery[0] || property.imageUrl);
         }
-    }, [propertyId, properties, isLoading]);
+    }, [property]);
     
     const { isFavorite, toggleFavorite } = useFavorites();
     const isFav = property ? isFavorite(property.id) : false;
@@ -81,6 +90,22 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
         }
     };
 
+    const handleContactRequest = () => {
+        if (!property) return;
+        const serviceTitle = `${t.propertyDetailsPage.inquiryAbout} "${property.title[language]}"`;
+        navigate('/request-service', {
+            state: {
+                serviceTitle,
+                partnerId: property.partnerId,
+                propertyId: property.id,
+            }
+        });
+    };
+
+    const amenityMap = useMemo(() => {
+        return new Map((amenities || []).map(a => [a.en, a[language]]));
+    }, [amenities, language]);
+
     if (isLoading) {
         return (
              <div className="py-20 text-center text-xl">
@@ -104,7 +129,7 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
     const isForSale = property.status.en === 'For Sale';
     const isCommercialProp = isCommercial(property);
     const currentGallery = [property.imageUrl, ...property.gallery].filter((url, index, self) => self.indexOf(url) === index);
-    const serviceTitle = `${t.propertyDetailsPage.inquiryAbout} "${property.title[language]}"`;
+    const isDefaultImage = mainImage === property.imageUrl;
 
     const formatDeliveryDate = (delivery: Property['delivery']) => {
         if (!delivery) return '-';
@@ -118,21 +143,11 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
         return '-';
     }
     
-    const translateAmenity = (amenity: string): string => {
-        const amenitiesDict = t.propertyDetailsPage.amenitiesIncluded as Record<string, string>;
-        return amenitiesDict[amenity] || amenity;
-    };
+    const displayedAmenities = property.amenities.en.map(amenityEn => amenityMap.get(amenityEn) || amenityEn);
+
 
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white py-12">
-            {isModalOpen && (
-                <ServiceRequestModal
-                    onClose={() => setIsModalOpen(false)}
-                    serviceTitle={serviceTitle}
-                    partnerId={property.partnerId}
-                    language={language}
-                />
-            )}
             {lightboxState.isOpen && (
                 <Lightbox 
                     images={currentGallery}
@@ -155,6 +170,7 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                             aria-label={isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}
                         >
                             <HeartIcon className={`w-6 h-6 transition-colors ${isFav ? 'text-red-500 fill-current' : ''}`} />
+                            <span>{isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}</span>
                         </button>
                         <button 
                             onClick={handleShare}
@@ -177,9 +193,12 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                                     className="w-full block"
                                 >
                                     <img 
-                                        src={mainImage} 
+                                        src={mainImage}
+                                        srcSet={isDefaultImage ? `${property.imageUrl_small} 480w, ${property.imageUrl_medium} 800w, ${property.imageUrl_large || property.imageUrl} 1200w` : undefined}
+                                        sizes={isDefaultImage ? "(max-width: 1024px) 90vw, 60vw" : undefined}
                                         alt={property.title[language]} 
                                         className="w-full h-[500px] object-cover rounded-lg shadow-lg hover:opacity-90 transition-opacity"
+                                        loading="lazy"
                                     />
                                 </button>
                                 <span className={`absolute top-4 ${language === 'ar' ? 'right-4' : 'left-4'} text-white font-semibold px-4 py-2 rounded-md text-base ${isForSale ? 'bg-green-600' : 'bg-sky-600'}`}>
@@ -213,7 +232,8 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                          <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
                             <h2 className="text-2xl font-bold text-amber-500 mb-6">{t.propertyDetailsPage.keyInfo}</h2>
                             <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-6">
-                                <DetailItem label={t.propertiesPage.allTypes} value={property.type[language]} />
+                                <DetailItem label={t.propertiesPage.typeLabel} value={property.type[language]} />
+                                <DetailItem label={t.propertiesPage.statusLabel} value={property.status[language]} />
                                 {property.finishingStatus && <DetailItem label={t.propertiesPage.finishing} value={property.finishingStatus[language]} />}
                                 {property.floor !== undefined && <DetailItem label={t.propertiesPage.floor} value={property.floor} />}
                                 {property.isInCompound !== undefined && <DetailItem label={t.propertyDetailsPage.inCompound} value={property.isInCompound ? t.propertyDetailsPage.yes : t.propertyDetailsPage.no} />}
@@ -224,10 +244,10 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                         <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
                              <h2 className="text-2xl font-bold text-amber-500 mb-6">{t.propertyDetailsPage.amenities}</h2>
                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                {property.amenities.en.map((amenity, index) => (
-                                    <div key={amenity} className="flex items-center gap-3">
+                                {displayedAmenities.map((amenity, index) => (
+                                    <div key={index} className="flex items-center gap-3">
                                         <CheckBadgeIcon className="w-6 h-6 text-green-500 flex-shrink-0" />
-                                        <span className="text-gray-600 dark:text-gray-300">{language === 'ar' ? translateAmenity(amenity) : amenity}</span>
+                                        <span className="text-gray-600 dark:text-gray-300">{amenity}</span>
                                     </div>
                                 ))}
                              </div>
@@ -238,7 +258,10 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                     <div className="lg:col-span-1">
                         <div className="sticky top-28 space-y-8">
                             <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700">
-                                <p className="text-4xl font-bold text-amber-500 mb-6">{property.price[language]}</p>
+                                <p className="text-4xl font-bold text-amber-500">{property.price[language]}</p>
+                                {isForSale && property.pricePerMeter && (
+                                    <p className="text-lg text-gray-500 dark:text-gray-400 -mt-2 mb-6">{property.pricePerMeter[language]}</p>
+                                )}
                                 
                                 <div className="flex justify-around items-center text-gray-600 dark:text-gray-300 border-y border-gray-200 dark:border-gray-700 py-6 mb-6">
                                     {isCommercialProp ? (
@@ -277,10 +300,25 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                                 
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t.propertyDetailsPage.contactAgent}</h3>
                                 <p className="text-gray-500 dark:text-gray-400 mb-6">{t.propertyDetailsPage.contactText}</p>
-                                <button onClick={() => setIsModalOpen(true)} className="w-full block text-center bg-amber-500 text-gray-900 font-bold px-6 py-4 rounded-lg text-lg hover:bg-amber-600 transition-colors duration-200">
+                                <button onClick={handleContactRequest} className="w-full block text-center bg-amber-500 text-gray-900 font-bold px-6 py-4 rounded-lg text-lg hover:bg-amber-600 transition-colors duration-200">
                                     {t.propertyDetailsPage.contactButton}
                                 </button>
                             </div>
+                            
+                             {project && (
+                                <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">{t.propertyDetailsPage.partOfProject}</h3>
+                                     <Link to={`/projects/${project.id}`} className="block group">
+                                        <div className="flex items-center gap-4">
+                                            <img src={project.imageUrl} alt={project.name[language]} className="w-20 h-20 object-cover rounded-md flex-shrink-0" />
+                                            <div>
+                                                <p className="font-bold group-hover:text-amber-500 transition-colors">{project.name[language]}</p>
+                                                <p className="text-sm text-amber-600 dark:text-amber-500 group-hover:underline">{t.propertyDetailsPage.viewProject}</p>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                </div>
+                             )}
 
                              { (property.delivery || property.installments) &&
                                 <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -317,6 +355,9 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                                     </div>
                                 </div>
                              }
+                              <div className="!mt-0">
+                                <BannerDisplay location="details" language={language} />
+                             </div>
                         </div>
                     </div>
                 </div>

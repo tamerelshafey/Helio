@@ -1,22 +1,27 @@
 import type { Property } from '../types';
 
+const parseLocalDate = (dateString: string): Date => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    // Month is 0-indexed in JS Date
+    return new Date(year, month - 1, day);
+};
+
 export const isListingActive = (p: Property): boolean => {
     const now = new Date();
-    // Set hours to 0 to compare dates only
-    now.setHours(0, 0, 0, 0); 
+    now.setHours(0, 0, 0, 0);
     
-    // If no start date, it's active from the beginning of time
-    const startDate = p.listingStartDate ? new Date(p.listingStartDate) : new Date(0);
-    // If no end date, it's active indefinitely
-    const endDate = p.listingEndDate ? new Date(p.listingEndDate) : new Date('9999-12-31');
+    const startActive = p.listingStartDate ? now >= parseLocalDate(p.listingStartDate) : true;
     
-    // Adjust for timezone differences by getting time in UTC for comparison
-    const nowTime = now.getTime();
-    const startTime = startDate.getTime();
-    const endTime = endDate.getTime();
+    let endActive = true;
+    if (p.listingEndDate) {
+        const endDate = parseLocalDate(p.listingEndDate);
+        endDate.setHours(23, 59, 59, 999); // Make end date inclusive for the whole day
+        endActive = now <= endDate;
+    }
 
-    return nowTime >= startTime && nowTime <= endTime;
+    return startActive && endActive;
 };
+
 
 export const isCommercial = (property: Property): boolean => {
     return property.type.en === 'Commercial';

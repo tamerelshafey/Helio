@@ -1,11 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Language, ContactRequest, RequestStatus } from '../../types';
 import { translations } from '../../data/translations';
 import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
-import { useData } from '../shared/DataContext';
+import { getAllContactRequests, updateContactRequestStatus, deleteContactRequest } from '../../api/contactRequests';
+import { useApiQuery } from '../shared/useApiQuery';
+import { useAuth } from '../auth/AuthContext';
 
 const statusColors: { [key in RequestStatus]: string } = {
+    new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     reviewed: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
     closed: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
@@ -14,20 +17,26 @@ const statusColors: { [key in RequestStatus]: string } = {
 };
 
 type SortConfig = {
-    key: 'name' | 'createdAt';
+    key: 'name' | 'createdAt' | 'message' | 'status';
     direction: 'ascending' | 'descending';
 } | null;
 
 const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard.adminRequests;
-    const { contactRequests, loading, updateContactRequestStatus, deleteContactRequest } = useData();
+    const { currentUser } = useAuth();
+    const { data: contactRequests, isLoading: loading, refetch } = useApiQuery('contactRequests', getAllContactRequests);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
 
 
     const sortedAndFilteredRequests = useMemo(() => {
-        let filteredReqs = [...contactRequests];
+        let initialReqs = contactRequests || [];
+        if (currentUser && currentUser.type !== 'admin') {
+            initialReqs = initialReqs.filter(req => req.managerId === currentUser?.id);
+        }
+
+        let filteredReqs = [...initialReqs];
         if (searchTerm) {
             const lowercasedFilter = searchTerm.toLowerCase();
             filteredReqs = filteredReqs.filter(req =>
@@ -49,9 +58,9 @@ const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }
             });
         }
         return filteredReqs;
-    }, [contactRequests, searchTerm, sortConfig]);
+    }, [contactRequests, searchTerm, sortConfig, currentUser]);
     
-    const requestSort = (key: 'name' | 'createdAt') => {
+    const requestSort = (key: 'name' | 'createdAt' | 'message' | 'status') => {
         let direction: 'ascending' | 'descending' = 'ascending';
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
             direction = 'descending';
@@ -59,7 +68,7 @@ const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }
         setSortConfig({ key, direction });
     };
 
-    const getSortIcon = (key: 'name' | 'createdAt') => {
+    const getSortIcon = (key: 'name' | 'createdAt' | 'message' | 'status') => {
         if (!sortConfig || sortConfig.key !== key) {
             return <span className="w-4 h-4 ml-1 inline-block"></span>;
         }
@@ -70,11 +79,13 @@ const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }
 
     const handleStatusChange = async (id: string, status: RequestStatus) => {
         await updateContactRequestStatus(id, status);
+        refetch();
     };
 
     const handleDelete = async (id: string) => {
         if (window.confirm(t.confirmDelete)) {
             await deleteContactRequest(id);
+            refetch();
         }
     }
 
@@ -100,11 +111,15 @@ const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }
                             <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('name')}>
                                 <div className="flex items-center">{t.table.requester}{getSortIcon('name')}</div>
                             </th>
-                            <th scope="col" className="px-6 py-3">{t.table.message}</th>
+                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('message')}>
+                                <div className="flex items-center">{t.table.message}{getSortIcon('message')}</div>
+                            </th>
                             <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
                                 <div className="flex items-center">{t.table.date}{getSortIcon('createdAt')}</div>
                             </th>
-                            <th scope="col" className="px-6 py-3">{t.table.status}</th>
+                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
+                                <div className="flex items-center">{t.table.status}{getSortIcon('status')}</div>
+                            </th>
                             <th scope="col" className="px-6 py-3">{t.table.actions}</th>
                         </tr>
                     </thead>

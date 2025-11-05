@@ -1,49 +1,117 @@
 export type Language = 'ar' | 'en';
 export type Theme = 'light' | 'dark';
 
-export interface PropertyInstallments {
-  downPayment: number;
-  monthlyInstallment: number;
-  years: number;
+export interface Translatable {
+  ar: string;
+  en: string;
 }
 
-export interface PropertyDelivery {
-  isImmediate: boolean;
-  date?: string; // YYYY-MM
+// --- Enums ---
+
+export enum Role {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  DEVELOPER_PARTNER = 'DEVELOPER_PARTNER',
+  FINISHING_PARTNER = 'FINISHING_PARTNER',
+  AGENCY_PARTNER = 'AGENCY_PARTNER',
+  // New specialized admin roles
+  FINISHING_MANAGER = 'FINISHING_MANAGER',
+  DECORATIONS_MANAGER = 'DECORATIONS_MANAGER',
+  LISTINGS_MANAGER = 'LISTINGS_MANAGER',
+  PARTNER_RELATIONS_MANAGER = 'PARTNER_RELATIONS_MANAGER',
+  CONTENT_MANAGER = 'CONTENT_MANAGER',
+}
+
+export enum Permission {
+  // Admin Permissions
+  VIEW_ADMIN_DASHBOARD = 'VIEW_ADMIN_DASHBOARD',
+  MANAGE_USERS = 'MANAGE_USERS',
+  MANAGE_ROLES_PERMISSIONS = 'MANAGE_ROLES_PERMISSIONS',
+  MANAGE_ALL_PARTNERS = 'MANAGE_ALL_PARTNERS',
+  MANAGE_ALL_PROPERTIES = 'MANAGE_ALL_PROPERTIES',
+  MANAGE_ALL_PROJECTS = 'MANAGE_ALL_PROJECTS',
+  MANAGE_ALL_LEADS = 'MANAGE_ALL_LEADS',
+  MANAGE_PARTNER_REQUESTS = 'MANAGE_PARTNER_REQUESTS',
+  MANAGE_PROPERTY_REQUESTS = 'MANAGE_PROPERTY_REQUESTS',
+  MANAGE_CONTACT_REQUESTS = 'MANAGE_CONTACT_REQUESTS',
+  MANAGE_PROPERTY_INQUIRIES = 'MANAGE_PROPERTY_INQUIRIES',
+  MANAGE_FINISHING_LEADS = 'MANAGE_FINISHING_LEADS',
+  MANAGE_DECORATIONS_CONTENT = 'MANAGE_DECORATIONS_CONTENT',
+  MANAGE_DECORATIONS_LEADS = 'MANAGE_DECORATIONS_LEADS',
+  MANAGE_PLANS = 'MANAGE_PLANS',
+  MANAGE_FILTERS = 'MANAGE_FILTERS',
+  MANAGE_BANNERS = 'MANAGE_BANNERS',
+  MANAGE_SITE_CONTENT = 'MANAGE_SITE_CONTENT',
+  VIEW_ANALYTICS = 'VIEW_ANALYTICS',
+  MANAGE_SETTINGS = 'MANAGE_SETTINGS',
+
+  // Partner Permissions
+  VIEW_PARTNER_DASHBOARD = 'VIEW_PARTNER_DASHBOARD',
+  MANAGE_OWN_PROFILE = 'MANAGE_OWN_PROFILE',
+  MANAGE_OWN_PROJECTS = 'MANAGE_OWN_PROJECTS',
+  MANAGE_OWN_PROPERTIES = 'MANAGE_OWN_PROPERTIES',
+  MANAGE_OWN_PORTFOLIO = 'MANAGE_OWN_PORTFOLIO',
+  VIEW_OWN_LEADS = 'VIEW_OWN_LEADS',
+  MANAGE_OWN_SUBSCRIPTION = 'MANAGE_OWN_SUBSCRIPTION',
+}
+
+
+// --- Models & Data Structures ---
+
+export type PartnerType = 'developer' | 'finishing' | 'agency' | 'admin' | 'decorations_manager' | 'finishing_manager' | 'listings_manager' | 'partner_relations_manager' | 'content_manager';
+export type PartnerStatus = 'active' | 'pending' | 'disabled';
+export type PlanCategory = 'developer' | 'agency' | 'finishing' | 'individual';
+export type SubscriptionPlan = 'basic' | 'professional' | 'elite' | 'commission' | 'paid_listing';
+export type PartnerDisplayType = 'mega_project' | 'featured' | 'standard';
+
+export interface Partner {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  imageUrl_small?: string;
+  imageUrl_medium?: string;
+  imageUrl_large?: string;
+  email: string;
+  password?: string; // Should not be sent to client
+  type: PartnerType;
+  status: PartnerStatus;
+  role: Role;
+  subscriptionPlan: SubscriptionPlan;
+  subscriptionEndDate?: string;
+  displayType: PartnerDisplayType;
+}
+
+export interface AdminPartner extends Partner {
+    nameAr: string;
+    descriptionAr: string;
+}
+
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    password?: string;
+    role: Role;
+    avatarUrl?: string;
 }
 
 export interface Property {
   id: string;
   partnerId: string;
-  partnerName?: string;
-  partnerImageUrl?: string;
+  projectId?: string;
   imageUrl: string;
+  imageUrl_small?: string;
+  imageUrl_medium?: string;
+  imageUrl_large?: string;
   gallery: string[];
-  status: {
-    ar: 'للبيع' | 'إيجار';
-    en: 'For Sale' | 'For Rent';
-  };
-  price: {
-    ar: string;
-    en: string;
-  };
+  status: Translatable;
+  price: Translatable;
   priceNumeric: number;
-  type: {
-    ar: 'فيلا' | 'شقة' | 'تجاري' | 'أرض';
-    en: 'Villa' | 'Apartment' | 'Commercial' | 'Land';
-  };
-  title: {
-    ar: string;
-    en: string;
-  };
-  address: {
-    ar: string;
-    en: string;
-  };
-  description: {
-    ar: string;
-    en: string;
-  };
+  pricePerMeter?: Translatable;
+  type: Translatable;
+  title: Translatable;
+  address: Translatable;
+  description: Translatable;
   beds: number;
   baths: number;
   area: number;
@@ -52,127 +120,111 @@ export interface Property {
     ar: string[];
     en: string[];
   };
-  finishingStatus?: {
-    ar: 'تشطيب كامل' | 'نصف تشطيب' | 'سوبر لوكس' | 'تشطيب فاخر' | 'مفروشة بالكامل' | 'بدون تشطيب';
-    en: 'Fully Finished' | 'Semi-finished' | 'Super Lux' | 'Luxury Finishing' | 'Fully Furnished' | 'Without Finishing';
-  };
-  installmentsAvailable: boolean;
-  installments?: PropertyInstallments;
-  delivery?: PropertyDelivery;
+  finishingStatus?: Translatable;
+  installmentsAvailable?: boolean;
   isInCompound?: boolean;
+  delivery?: {
+    isImmediate: boolean;
+    date?: string; // YYYY-MM
+  };
+  installments?: {
+    downPayment: number;
+    monthlyInstallment: number;
+    years: number;
+  };
   location: {
     lat: number;
     lng: number;
   };
-  listingStartDate?: string; // YYYY-MM-DD
-  listingEndDate?: string; // YYYY-MM-DD
+  listingStartDate?: string;
+  listingEndDate?: string;
+  partnerName?: string;
+  partnerImageUrl?: string;
+}
+
+export interface Project {
+  id: string;
+  partnerId: string;
+  name: Translatable;
+  description: Translatable;
+  imageUrl: string;
+  imageUrl_small?: string;
+  imageUrl_medium?: string;
+  imageUrl_large?: string;
+  createdAt: string;
+  features: {
+    icon: string;
+    text: Translatable;
+  }[];
 }
 
 export interface PortfolioItem {
-    id: string;
-    partnerId: string;
-    src: string;
-    alt: string;
-    title: {
-        ar: string;
-        en: string;
-    };
-    category: {
-        ar: string;
-        en: string;
-    };
+  id: string;
+  partnerId: string;
+  src: string;
+  alt: string;
+  title: Translatable;
+  category: Translatable;
+  price?: number;
+  dimensions?: string;
+  availability?: 'In Stock' | 'Made to Order';
 }
 
 export interface DecorationCategory {
-  id: string;
-  name: { ar: string; en: string };
-  description: { ar: string; en: string };
+    id: string;
+    name: Translatable;
+    description: Translatable;
 }
 
-export type LeadStatus = 'new' | 'contacted' | 'in-progress' | 'completed' | 'cancelled';
-
+export type LeadStatus = 'new' | 'contacted' | 'site-visit' | 'quoted' | 'in-progress' | 'completed' | 'cancelled';
 export interface Lead {
     id: string;
     partnerId: string;
+    managerId?: string;
+    propertyId?: string;
     customerName: string;
     customerPhone: string;
-    customerNotes: string;
     contactTime: string;
     serviceTitle: string;
+    customerNotes: string;
     status: LeadStatus;
-    createdAt: string; // ISO 8601 date string
-    updatedAt: string; // ISO 8601 date string
+    createdAt: string;
+    updatedAt: string;
     internalNotes?: string;
+    partnerName?: string;
+    assignedTo?: string; // 'internal-team' or partnerId
 }
 
-export type PartnerStatus = 'active' | 'pending' | 'disabled';
-
-export interface Partner {
+export interface Notification {
     id: string;
-    name: string;
-    description: string;
-    imageUrl: string;
-    email: string;
-    password?: string;
-    type: 'developer' | 'finishing' | 'agency' | 'admin' | 'decorations';
-    status: PartnerStatus;
-}
-
-export interface AdminPartner extends Partner {
-    nameAr?: string;
-    descriptionAr?: string;
-}
-
-export interface Quote {
-    quote: {
-        ar: string;
-        en: string;
-    };
-    author: {
-        ar: string;
-        en: string;
-    };
-}
-
-export type RequestStatus = 'pending' | 'reviewed' | 'closed' | 'approved' | 'rejected';
-
-export interface AddPropertyRequest {
-    id: string;
-    customerName: string;
-    customerPhone: string;
-    contactTime: string;
-    images?: string[];
-    propertyDetails: {
-        purpose: { ar: 'للبيع' | 'إيجار'; en: 'For Sale' | 'For Rent' };
-        propertyType: {
-            ar: 'شقة' | 'فيلا' | 'تجاري' | 'أرض';
-            en: 'Apartment' | 'Villa' | 'Commercial' | 'Land';
-        };
-        finishingStatus: {
-            ar: 'تشطيب كامل' | 'نصف تشطيب' | 'بدون تشطيب' | 'سوبر لوكس' | 'تشطيب فاخر' | 'مفروشة بالكامل';
-            en: 'Fully Finished' | 'Semi-finished' | 'Without Finishing' | 'Super Lux' | 'Luxury Finishing' | 'Fully Furnished';
-        };
-        area: number;
-        price: number;
-        bedrooms?: number;
-        bathrooms?: number;
-        floor?: number;
-        address: string;
-        description: string;
-        isInCompound: boolean;
-        deliveryType: 'immediate' | 'future';
-        deliveryMonth?: string;
-        deliveryYear?: string;
-        hasInstallments: boolean;
-        downPayment?: number;
-        monthlyInstallment?: number;
-        years?: number;
-        listingStartDate?: string;
-        listingEndDate?: string;
-    };
-    status: RequestStatus;
+    userId: string;
+    message: Translatable;
+    link: string;
+    isRead: boolean;
     createdAt: string;
 }
+
+export interface FilterOption {
+    id: string;
+    en: string;
+    ar: string;
+    applicableTo?: string[];
+}
+
+export interface Banner {
+    id: string;
+    title: string;
+    imageUrl: string;
+    link?: string;
+    locations: ('home' | 'properties' | 'details' | 'finishing' | 'decorations')[];
+    status: 'active' | 'inactive';
+    startDate?: string;
+    endDate?: string;
+}
+
+// --- Requests ---
+
+export type RequestStatus = 'pending' | 'reviewed' | 'closed' | 'approved' | 'rejected' | 'new';
 
 export interface ContactRequest {
     id: string;
@@ -184,10 +236,56 @@ export interface ContactRequest {
     createdAt: string;
     inquiryType: 'client' | 'partner';
     companyName?: string;
-    businessType?: string;
+    businessType?: PartnerType;
+    managerId?: string;
 }
 
-// New types for detailed partner registration
+export interface PropertyInquiryRequest {
+    id: string;
+    customerName: string;
+    customerPhone: string;
+    contactTime: string;
+    details: string;
+    status: RequestStatus;
+    createdAt: string;
+    managerId?: string;
+}
+
+export interface AddPropertyRequest {
+    id: string;
+    customerName: string;
+    customerPhone: string;
+    contactTime: string;
+    cooperationType: 'paid_listing' | 'commission';
+    propertyDetails: {
+        purpose: Translatable;
+        propertyType: Translatable;
+        finishingStatus: Translatable;
+        area: number;
+        price: number;
+        bedrooms?: number;
+        bathrooms?: number;
+        floor?: number;
+        address: string;
+        description: string;
+        location: { lat: number, lng: number };
+        isInCompound: boolean;
+        deliveryType: 'immediate' | 'future';
+        deliveryMonth?: string;
+        deliveryYear?: string;
+        hasInstallments: boolean;
+        downPayment?: number;
+        monthlyInstallment?: number;
+        years?: number;
+        listingStartDate?: string;
+        listingEndDate?: string;
+    };
+    images: string[];
+    status: RequestStatus;
+    createdAt: string;
+    managerId?: string;
+}
+
 export interface ManagementContact {
     name: string;
     position: string;
@@ -202,26 +300,67 @@ export interface OfficialDocument {
 
 export interface PartnerRequest {
     id: string;
-    
-    // Company Info
     companyName: string;
-    companyType: 'developer' | 'finishing' | 'agency';
+    companyType: PartnerType;
     companyAddress: string;
     website?: string;
     description: string;
     logo: string; // base64
-
-    // Primary Contact
     contactName: string;
     contactEmail: string;
     contactPhone: string;
-
-    // Management
     managementContacts: ManagementContact[];
-
-    // Documents
     documents: OfficialDocument[];
+    status: RequestStatus;
+    createdAt: string;
+    subscriptionPlan: SubscriptionPlan;
+    managerId?: string;
+}
 
-    status: 'pending' | 'approved' | 'rejected';
-    createdAt: string; // ISO 8601
+
+// --- Content Management ---
+
+export interface Quote {
+    quote: Translatable;
+    author: Translatable;
+}
+
+export interface SubscriptionPlanDetails {
+    name: string;
+    price: string;
+    description: string;
+    features: string[];
+    commissionRate?: number;
+}
+
+export interface SiteContent {
+  logoUrl: string;
+  locationPickerMapUrl: string;
+  hero: { ar: { title: string; subtitle: string; }; en: { title: string; subtitle: string; }; };
+  whyUs: { ar: { title: string; description: string; features: { title: string; description: string; }[]; }; en: { title: string; description: string; features: { title: string; description: string; }[]; }; };
+  services: { ar: { title: string; description: string; features: { title: string; description: string; link: string; icon: string; }[]; }; en: { title: string; description: string; features: { title: string; description: string; link: string; icon: string; }[]; }; };
+  partners: { ar: { title: string; description: string; }; en: { title: string; description: string; }; };
+  whyNewHeliopolis: {
+    ar: { title: string; location: { title: string; description: string; stats: { value: string; desc: string; }[]; }; };
+    en: { title: string; location: { title: string; description: string; stats: { value: string; desc: string; }[]; }; };
+    images: { src: string; alt: string; }[];
+  };
+  finishingServices: {
+    title: Translatable;
+    description: Translatable;
+    price?: number;
+    pricingTiers?: {
+        unitType: Translatable;
+        areaRange: Translatable;
+        price: number;
+    }[];
+  }[];
+  quotes: Quote[];
+  footer: {
+    ar: { description: string; address: string; };
+    en: { description: string; address: string; };
+    phone: string;
+    email: string;
+    social: { facebook: string; twitter: string; instagram: string; linkedin: string; };
+  };
 }

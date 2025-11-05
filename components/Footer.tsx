@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { TwitterIcon, LinkedInIcon, FacebookIcon, InstagramIcon } from './icons/Icons';
-import type { Language } from '../types';
+import type { Language, SiteContent } from '../types';
 import { translations } from '../data/translations';
+import { HelioLogo } from './HelioLogo';
+import { getContent } from '../api/content';
+import { useApiQuery } from './shared/useApiQuery';
 
 interface FooterProps {
     language: Language;
@@ -10,34 +13,41 @@ interface FooterProps {
 
 const FooterLink: React.FC<{ to: string; children: React.ReactNode }> = ({ to, children }) => (
     <li>
-        <Link to={to} className="text-gray-600 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200">{children}</Link>
+        <Link to={to} className="text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200">{children}</Link>
     </li>
 );
 
 const SocialLink: React.FC<{ href: string; children: React.ReactNode }> = ({ href, children }) => (
-     <a href={href} target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-white bg-gray-200 dark:bg-gray-700 hover:bg-amber-500 p-2 rounded-full transition-colors duration-200">{children}</a>
+     <a href={href} target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200">{children}</a>
 );
 
 const Footer: React.FC<FooterProps> = ({ language }) => {
     const t = translations[language];
+    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
+
+    if (isLoading || !siteContent) {
+        return <footer className="bg-gray-200 dark:bg-gray-900 pt-16 h-64 animate-pulse"></footer>;
+    }
+
+    const content = siteContent.footer;
+    const contentLang = content[language];
+
     return (
-        <footer className="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white">
-            <div className="container mx-auto px-6 py-16">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-                    <div className="md:col-span-2">
-                        <Link to="/" className="text-3xl font-bold text-amber-500 mb-4 block">
-                          ONLY HELIO
+        <footer className="bg-gray-200 dark:bg-gray-900 pt-16 pb-12">
+            <div className="container mx-auto px-6">
+                {/* Main Footer Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                    {/* About */}
+                    <div className="md:col-span-2 lg:col-span-1">
+                        <Link to="/" className="flex items-center gap-3 text-3xl font-bold text-amber-500 mb-4">
+                          <HelioLogo className="h-10 w-10" />
+                          <span className="text-2xl">ONLY HELIO</span>
                         </Link>
                         <p className="text-gray-600 dark:text-gray-400 max-w-md">
-                           {t.footer.description}
+                           {contentLang.description}
                         </p>
-                        <div className={`flex space-x-4 mt-6 ${language === 'ar' ? 'space-x-reverse' : ''}`}>
-                           <SocialLink href="#"><FacebookIcon className="h-5 w-5" /></SocialLink>
-                           <SocialLink href="#"><TwitterIcon className="h-5 w-5" /></SocialLink>
-                           <SocialLink href="#"><InstagramIcon className="h-5 w-5" /></SocialLink>
-                           <SocialLink href="#"><LinkedInIcon className="h-5 w-5" /></SocialLink>
-                        </div>
                     </div>
+                    {/* Quick Links */}
                     <div>
                         <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">{t.footer.quickLinks}</h3>
                         <ul className="space-y-3">
@@ -46,31 +56,50 @@ const Footer: React.FC<FooterProps> = ({ language }) => {
                             <FooterLink to="/finishing">{t.nav.finishing}</FooterLink>
                             <FooterLink to="/decorations">{t.nav.decorations}</FooterLink>
                             <FooterLink to="/contact">{t.nav.contact}</FooterLink>
-                            <FooterLink to="/add-property">{t.addProperty}</FooterLink>
-                            <FooterLink to="/register">{t.joinAsPartner}</FooterLink>
+                            <FooterLink to="/privacy-policy">{t.nav.privacyPolicy}</FooterLink>
+                            <FooterLink to="/terms-of-use">{t.nav.termsOfUse}</FooterLink>
                         </ul>
                     </div>
+                    {/* For Partners */}
                     <div>
-                        <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">{t.footer.contactUs}</h3>
+                        <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">{t.footer.forPartners}</h3>
+                        <ul className="space-y-3">
+                            <FooterLink to="/add-property">{t.addProperty}</FooterLink>
+                            <FooterLink to="/register">{t.joinAsPartner}</FooterLink>
+                            <FooterLink to="/login">{t.auth.login}</FooterLink>
+                        </ul>
+                    </div>
+                    {/* Contact Info */}
+                    <div>
+                         <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">{t.footer.contactUs}</h3>
                         <ul className="space-y-3 text-gray-600 dark:text-gray-400">
                             <li className="flex items-start gap-3">
                                 <span>📍</span>
-                                <span>{t.footer.address}</span>
+                                <span>{contentLang.address}</span>
                             </li>
                              <li className="flex items-center gap-3">
                                 <span>📞</span>
-                                <span dir="ltr">+20 123 456 7890</span>
+                                <span dir="ltr">{content.phone}</span>
                             </li>
                              <li className="flex items-center gap-3">
                                 <span>✉️</span>
-                                <span>info@onlyhelio.com</span>
+                                <span>{content.email}</span>
                             </li>
                         </ul>
                     </div>
                 </div>
 
-                <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700 text-center">
-                    <p className="text-gray-500 dark:text-gray-500 text-sm">&copy; {new Date().getFullYear()} ONLY HELIO. {t.footer.rightsReserved}</p>
+                {/* Bottom Bar */}
+                <div className="mt-12 pt-8 border-t border-gray-300 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center">
+                    <p className="text-gray-500 dark:text-gray-500 text-sm mb-4 sm:mb-0">
+                        &copy; {new Date().getFullYear()} ONLY HELIO. {t.footer.rightsReserved}
+                    </p>
+                    <div className={`flex space-x-6 ${language === 'ar' ? 'space-x-reverse' : ''}`}>
+                       <SocialLink href={content.social.facebook}><FacebookIcon className="h-6 w-6" /></SocialLink>
+                       <SocialLink href={content.social.twitter}><TwitterIcon className="h-6 w-6" /></SocialLink>
+                       <SocialLink href={content.social.instagram}><InstagramIcon className="h-6 w-6" /></SocialLink>
+                       <SocialLink href={content.social.linkedin}><LinkedInIcon className="h-6 w-6" /></SocialLink>
+                    </div>
                 </div>
             </div>
         </footer>

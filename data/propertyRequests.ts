@@ -6,6 +6,7 @@ export let propertyRequestsData: AddPropertyRequest[] = [
         customerName: 'علي رضا',
         customerPhone: '01122334455',
         contactTime: 'ظهراً (12م - 3م)',
+        cooperationType: 'commission',
         images: [
             "https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=2070&auto=format&fit=crop",
             "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=2070&auto=format&fit=crop"
@@ -21,6 +22,7 @@ export let propertyRequestsData: AddPropertyRequest[] = [
             floor: 0,
             address: 'الحي الثالث، بجوار المنطقة الخضراء، هليوبوليس الجديدة',
             description: 'فيلا مستقلة على مساحة أرض 500 متر، مباني على 350 متر. تصميم مميز وموقع رائع. تحتاج تشطيبات داخلية.',
+            location: { lat: 30.120, lng: 31.600 },
             isInCompound: false,
             deliveryType: 'immediate',
             hasInstallments: false,

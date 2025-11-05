@@ -1,5 +1,6 @@
 import { contactRequestsData } from '../data/contactRequests';
-import type { ContactRequest, RequestStatus } from '../types';
+import type { ContactRequest, RequestStatus, PartnerType } from '../types';
+import { addNotification } from './notifications';
 
 const SIMULATED_DELAY = 300;
 
@@ -21,6 +22,16 @@ export const addContactRequest = (data: Omit<ContactRequest, 'id' | 'status' | '
         createdAt: new Date().toISOString(),
       };
       contactRequestsData.unshift(newRequest);
+
+      addNotification({
+        userId: 'admin-user',
+        message: {
+          ar: `رسالة تواصل جديدة من "${newRequest.name}".`,
+          en: `New contact message from "${newRequest.name}".`,
+        },
+        link: '/admin/contact-requests',
+      });
+
       resolve(newRequest);
     }, SIMULATED_DELAY);
   });

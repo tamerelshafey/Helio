@@ -1,51 +1,64 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import type { Language, Partner, PortfolioItem, Property } from '../types';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import type { Language, Partner, PortfolioItem, Property, AdminPartner, Project } from '../types';
 import { translations } from '../data/translations';
-import ServiceRequestModal from './ServiceRequestModal';
 import Lightbox from './shared/Lightbox';
-import FeatureSection from './FeatureSection';
-import { useData } from './shared/DataContext';
-
+import PropertyCard from './shared/PropertyCard';
+import { getAllPartnersForAdmin } from '../api/partners';
+import { getPortfolioByPartnerId } from '../api/portfolio';
+import { getPropertiesByPartnerId } from '../api/properties';
+import { getAllProjects } from '../api/projects';
+import { useApiQuery } from './shared/useApiQuery';
 
 interface PartnerProfilePageProps {
     language: Language;
 }
 
+const PartnerProfileSkeleton: React.FC = () => (
+    <div className="animate-pulse">
+        <section className="py-20 bg-gray-50 dark:bg-gray-800">
+            <div className="container mx-auto px-6 text-center">
+                <div className="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-6"></div>
+                <div className="h-10 w-1/2 bg-gray-200 dark:bg-gray-700 mx-auto mb-4 rounded"></div>
+                <div className="h-6 w-3/4 bg-gray-200 dark:bg-gray-700 mx-auto rounded"></div>
+                <div className="h-12 w-48 bg-gray-200 dark:bg-gray-700 mx-auto mt-8 rounded-lg"></div>
+            </div>
+        </section>
+        <section className="py-20">
+            <div className="container mx-auto px-6">
+                <div className="h-8 w-1/3 bg-gray-200 dark:bg-gray-700 mx-auto mb-12 rounded"></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                        <div key={index} className="w-full h-80 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    </div>
+);
+
+
 const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => {
     const { partnerId } = useParams<{ partnerId: string }>();
     const t = translations[language];
-    const { partners, portfolio, properties, loading } = useData();
+    const navigate = useNavigate();
 
-    const [partnerInfo, setPartnerInfo] = useState<Partner | undefined>();
-    const [partnerPortfolio, setPartnerPortfolio] = useState<PortfolioItem[]>([]);
-    const [partnerProperties, setPartnerProperties] = useState<Property[]>([]);
+    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartners', getAllPartnersForAdmin);
+    const { data: partnerPortfolio, isLoading: isLoadingPortfolio } = useApiQuery(`partnerPortfolio-${partnerId}`, () => getPortfolioByPartnerId(partnerId!), { enabled: !!partnerId });
+    const { data: partnerProperties, isLoading: isLoadingProperties } = useApiQuery(`partnerProperties-${partnerId}`, () => getPropertiesByPartnerId(partnerId!), { enabled: !!partnerId });
+    const { data: allProjects, isLoading: isLoadingProjects } = useApiQuery('allProjects', getAllProjects);
+
+    const loading = isLoadingPartners || isLoadingPortfolio || isLoadingProperties || isLoadingProjects;
+
+    const partnerInfo = useMemo(() => partners?.find(p => p.id === partnerId), [partners, partnerId]);
     
-    useEffect(() => {
-        if (!loading && partnerId) {
-            const partner = partners.find(p => p.id === partnerId);
-            setPartnerInfo(partner);
-            if (partner) {
-                if (partner.type === 'finishing') {
-                    setPartnerPortfolio(portfolio.filter(item => item.partnerId === partnerId));
-                } else {
-                    setPartnerProperties(properties.filter(prop => prop.partnerId === partnerId));
-                }
-            }
-        }
-    }, [partnerId, partners, portfolio, properties, loading]);
-    
+    // Create a memoized map for efficient localized partner lookup
     const localizedPartner = useMemo(() => {
         if (!partnerInfo) return null;
-        return [
-            ...t.partners.developers, 
-            ...t.partners.finishing_companies, 
-            ...t.partners.agencies
-        ].find(p => p.id === partnerInfo.id);
-    }, [partnerInfo, t.partners]);
+        return (translations[language].partnerInfo as any)[partnerInfo.id] || null;
+    }, [partnerInfo, language]);
 
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [lightboxState, setLightboxState] = useState({
         isOpen: false,
         images: [] as string[],
@@ -61,7 +74,7 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
     };
 
     if (loading) {
-        return <div className="py-20 text-center">Loading...</div>;
+        return <PartnerProfileSkeleton />;
     }
 
     if (!partnerInfo || !localizedPartner) {
@@ -76,18 +89,18 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
         );
     }
     
-    const serviceTitle = `${t.partnerProfilePage.serviceRequestFor} ${localizedPartner.name}`;
+    const handleRequestService = () => {
+        const serviceTitle = `${t.partnerProfilePage.serviceRequestFor} ${localizedPartner.name}`;
+        navigate('/request-service', {
+            state: {
+                serviceTitle,
+                partnerId: partnerInfo.id,
+            }
+        });
+    };
 
     return (
         <div className="bg-white dark:bg-gray-900">
-             {isModalOpen && (
-                <ServiceRequestModal
-                    onClose={() => setIsModalOpen(false)}
-                    serviceTitle={serviceTitle}
-                    partnerId={partnerInfo.id}
-                    language={language}
-                />
-            )}
             {lightboxState.isOpen && (
                 <Lightbox 
                     images={lightboxState.images}
@@ -104,7 +117,7 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
                     <h1 className="text-4xl md:text-5xl font-bold text-amber-500">{localizedPartner.name}</h1>
                     <p className="max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400 mt-4">{localizedPartner.description}</p>
                     <button 
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={handleRequestService}
                         className="mt-8 bg-amber-500 text-gray-900 font-semibold px-8 py-3 rounded-lg text-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20"
                     >
                         {t.partnerProfilePage.requestService}
@@ -119,7 +132,7 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
                         <div className="text-center mb-12">
                             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">{t.partnerProfilePage.galleryTitle}</h2>
                         </div>
-                        {partnerPortfolio.length > 0 ? (
+                        {(partnerPortfolio && partnerPortfolio.length > 0) ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                                 {partnerPortfolio.map((img, index) => (
                                     <div key={index} className="group relative overflow-hidden rounded-lg shadow-lg aspect-w-1 aspect-h-1 bg-gray-100 dark:bg-gray-800">
@@ -152,11 +165,12 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
                         <div className="text-center mb-12">
                             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">{t.partnerProfilePage.ourListings}</h2>
                         </div>
-                         {partnerProperties.length > 0 ? (
+                         {(partnerProperties && partnerProperties.length > 0) ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                                {partnerProperties.map((prop) => (
-                                    <FeatureSection key={prop.id} {...prop} language={language} />
-                                ))}
+                                {partnerProperties.map((prop) => {
+                                    const project = (allProjects || []).find(p => p.id === prop.projectId);
+                                    return <PropertyCard key={prop.id} {...prop} project={project} language={language} />;
+                                })}
                             </div>
                         ) : (
                             <p className="text-center text-gray-500 dark:text-gray-400">This partner has not listed any properties yet.</p>

@@ -1,5 +1,6 @@
 import { partnerRequestsData } from '../data/partnerRequests';
 import type { PartnerRequest } from '../types';
+import { addNotification } from './notifications';
 
 const SIMULATED_DELAY = 300;
 
@@ -21,6 +22,16 @@ export const addPartnerRequest = (data: Omit<PartnerRequest, 'id' | 'status' | '
         createdAt: new Date().toISOString(),
       };
       partnerRequestsData.unshift(newRequest);
+      
+      addNotification({
+        userId: 'partner-relations-manager-1',
+        message: {
+          ar: `لديك طلب انضمام شريك جديد من "${newRequest.companyName}".`,
+          en: `New partner request from "${newRequest.companyName}".`,
+        },
+        link: `/admin/partner-requests/${newRequest.id}`,
+      });
+
       resolve(newRequest);
     }, SIMULATED_DELAY);
   });

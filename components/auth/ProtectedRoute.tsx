@@ -1,15 +1,16 @@
+
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import type { Partner } from '../../types';
+import { Permission } from '../../types';
 
 interface ProtectedRouteProps {
     children: React.ReactElement;
-    role?: Partner['type'];
+    permission: Permission;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }) => {
-    const { currentUser, loading } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, permission }) => {
+    const { currentUser, loading, hasPermission } = useAuth();
     const location = useLocation();
 
     if (loading) {
@@ -20,8 +21,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }) => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
     
-    if (role && currentUser.type !== role) {
-        // Redirect if role does not match
+    if (!hasPermission(permission)) {
+        // Redirect if user doesn't have the required permission
         return <Navigate to="/" replace />;
     }
 

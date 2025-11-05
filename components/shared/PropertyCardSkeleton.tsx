@@ -2,7 +2,11 @@ import React from 'react';
 
 const PropertyCardSkeleton: React.FC = () => {
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden animate-pulse">
+    <div 
+      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden animate-pulse"
+      role="status"
+      aria-label="Loading property"
+    >
       <div className="w-full h-56 bg-gray-200 dark:bg-gray-700"></div>
       <div className="p-5">
         <div className="h-6 w-1/2 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>

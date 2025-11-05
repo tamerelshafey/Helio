@@ -2,11 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { Language, PartnerRequest } from '../../types';
 import { translations } from '../../data/translations';
 import { CloseIcon } from '../icons/Icons';
-import { useData } from '../shared/DataContext';
+import { addPartner } from '../../api/partners';
+import { updatePartnerRequestStatus } from '../../api/partnerRequests';
 
 interface AdminPartnerRequestModalProps {
     request: PartnerRequest;
     onClose: () => void;
+    onSave: () => void; // Added for consistency with other modals, triggers refetch
     language: Language;
 }
 
@@ -26,9 +28,8 @@ const DetailItem: React.FC<{ label: string; value?: string | React.ReactNode }> 
     ) : null
 );
 
-const AdminPartnerRequestModal: React.FC<AdminPartnerRequestModalProps> = ({ request, onClose, language }) => {
+const AdminPartnerRequestModal: React.FC<AdminPartnerRequestModalProps> = ({ request, onClose, onSave, language }) => {
     const t = translations[language].adminDashboard.adminRequests;
-    const { approvePartnerRequest, rejectPartnerRequest } = useData();
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
 
@@ -46,15 +47,18 @@ const AdminPartnerRequestModal: React.FC<AdminPartnerRequestModalProps> = ({ req
 
     const handleApprove = async () => {
         setLoading(true);
-        await approvePartnerRequest(request);
+        await addPartner(request);
+        await updatePartnerRequestStatus(request.id, 'approved');
         setLoading(false);
+        onSave();
         onClose();
     };
 
     const handleReject = async () => {
         setLoading(true);
-        await rejectPartnerRequest(request.id);
+        await updatePartnerRequestStatus(request.id, 'rejected');
         setLoading(false);
+        onSave();
         onClose();
     };
 

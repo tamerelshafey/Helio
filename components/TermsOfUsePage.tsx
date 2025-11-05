@@ -1,0 +1,44 @@
+import React from 'react';
+import type { Language } from '../types';
+import { translations } from '../data/translations';
+
+interface TermsOfUsePageProps {
+  language: Language;
+}
+
+const TermsOfUsePage: React.FC<TermsOfUsePageProps> = ({ language }) => {
+  const t = translations[language].termsOfUsePage;
+
+  const sections = [
+    t.agreement,
+    t.serviceDescription,
+    t.userAccounts,
+    t.prohibited,
+    t.intellectualProperty,
+    t.disclaimer,
+    t.limitation,
+    t.governingLaw,
+    t.contact,
+  ];
+
+  return (
+    <div className="bg-white dark:bg-gray-900 py-20">
+      <div className="container mx-auto px-6 max-w-4xl">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white">{t.title}</h1>
+          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">{t.lastUpdated}</p>
+        </div>
+        <div className="prose prose-lg dark:prose-invert max-w-none mx-auto space-y-8">
+          {sections.map(section => (
+            <div key={section.title}>
+              <h2 className="!text-amber-500 !font-bold">{section.title}</h2>
+              <p className="whitespace-pre-line">{section.content}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TermsOfUsePage;
