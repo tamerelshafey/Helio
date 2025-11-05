@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { Language } from '../types';
 import { CloseIcon } from './icons/Icons';
 import { useApiQuery } from './shared/useApiQuery';
-import { getContent } from '../api/content';
+import { getContent } from '../mockApi/content';
 
 interface QuietZoneProps {
   onClose: () => void;

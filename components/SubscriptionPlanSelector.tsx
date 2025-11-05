@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import type { Language, SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../types';
 import { translations } from '../data/translations';
 import { CheckCircleIcon } from './icons/Icons';
-import { getPlans } from '../api/plans';
+import { getPlans } from '../mockApi/plans';
 import { useApiQuery } from './shared/useApiQuery';
 
 interface SubscriptionPlanSelectorProps {

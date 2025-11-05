@@ -5,9 +5,12 @@ import { useAuth } from '../auth/AuthContext';
 import { CheckCircleIcon } from '../icons/Icons';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
 import { useApiQuery } from '../shared/useApiQuery';
-import { getPropertiesByPartnerId } from '../../api/properties';
-import { getProjectsByPartnerId } from '../../api/projects';
-import { getPortfolioByPartnerId } from '../../api/portfolio';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getPropertiesByPartnerId } from '../../mockApi/properties';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getProjectsByPartnerId } from '../../mockApi/projects';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getPortfolioByPartnerId } from '../../mockApi/portfolio';
 
 const PlanCard: React.FC<{
     planKey: SubscriptionPlan,

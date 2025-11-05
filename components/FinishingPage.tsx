@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem, AdminPartner, SiteContent } from '../types';
 import { translations } from '../data/translations';
 import BannerDisplay from './shared/BannerDisplay';
-import { getAllPortfolioItems } from '../api/portfolio';
-import { getAllPartnersForAdmin } from '../api/partners';
-import { getContent } from '../api/content';
+import { getAllPortfolioItems } from '../mockApi/portfolio';
+import { getAllPartnersForAdmin } from '../mockApi/partners';
+import { getContent } from '../mockApi/content';
 import { useApiQuery } from './shared/useApiQuery';
 
 interface FinishingPageProps {

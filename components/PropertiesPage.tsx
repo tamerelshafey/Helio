@@ -10,10 +10,10 @@ import { isListingActive } from '../utils/propertyUtils';
 import BannerDisplay from './shared/BannerDisplay';
 import PropertyInquiryModal from './shared/PropertyInquiryModal';
 import PropertiesMapView from './PropertiesMapView';
-import { getProperties } from '../api/properties';
-import { getAllProjects } from '../api/projects';
-import { getAllPartnersForAdmin } from '../api/partners';
-import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../api/filters';
+import { getProperties } from '../mockApi/properties';
+import { getAllProjects } from '../mockApi/projects';
+import { getAllPartnersForAdmin } from '../mockApi/partners';
+import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../mockApi/filters';
 import { useApiQuery } from './shared/useApiQuery';
 import { usePropertyFilters } from './shared/usePropertyFilters';
 

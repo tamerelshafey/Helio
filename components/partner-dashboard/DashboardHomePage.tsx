@@ -4,10 +4,14 @@ import { Language, Role, Project, Property, Lead } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { translations } from '../../data/translations';
 import { useApiQuery } from '../shared/useApiQuery';
-import { getProjectsByPartnerId } from '../../api/projects';
-import { getPropertiesByPartnerId } from '../../api/properties';
-import { getLeadsByPartnerId } from '../../api/leads';
-import { getPortfolioByPartnerId } from '../../api/portfolio';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getPropertiesByPartnerId } from '../../mockApi/properties';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getProjectsByPartnerId } from '../../mockApi/projects';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getLeadsByPartnerId } from '../../mockApi/leads';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getPortfolioByPartnerId } from '../../mockApi/portfolio';
 import StatCard from '../shared/StatCard';
 import { CubeIcon, BuildingIcon, InboxIcon, ClipboardDocumentListIcon } from '../icons/Icons';
 
@@ -111,22 +115,23 @@ const DeveloperDashboard: React.FC<{ language: Language }> = ({ language }) => {
                     {projectsWithUnitCount.length > 0 ? (
                         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
                             {projectsWithUnitCount.map(p => (
-                                <li key={p.id} className="py-3">
-                                    <Link to={`/dashboard/projects/${p.id}`} className="flex items-center justify-between p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <div>
-                                            <p className="font-semibold text-gray-800 dark:text-gray-200">{p.name[language]}</p>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">{p.unitCount} {translations[language].projectDashboard.units}</p>
-                                        </div>
-                                        <div className="text-right text-sm font-semibold text-amber-500">
-                                            {translations[language].projectDashboard.manageProject}
-                                        </div>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-gray-500 dark:text-gray-400 text-center py-4">{translations[language].projectDashboard.noProjects}</p>
-                    )}
+                                     <li key={p.id} className="py-3">
+                                        <Link to={`/dashboard/projects/${p.id}`} className="flex items-center justify-between p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                            <div>
+                                                <p className="font-semibold text-gray-800 dark:text-gray-200">{p.name[language]}</p>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">{p.unitCount} {translations[language].projectDashboard.units}</p>
+                                            </div>
+                                             <div className="text-right text-sm font-semibold text-amber-500">
+                                                {translations[language].projectDashboard.manageProject}
+                                            </div>
+                                        </Link>
+                                     </li>
+                                ))}
+                            </ul>
+                        ) : (
+                             <p className="text-gray-500 dark:text-gray-400 text-center py-4">{translations[language].projectDashboard.noProjects}</p>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

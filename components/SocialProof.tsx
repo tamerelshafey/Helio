@@ -5,8 +5,8 @@ import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 import type { Language, Project } from '../types';
 import { translations } from '../data/translations';
 import { isListingActive } from '../utils/propertyUtils';
-import { getProperties } from '../api/properties';
-import { getAllProjects } from '../api/projects';
+import { getProperties } from '../mockApi/properties';
+import { getAllProjects } from '../mockApi/projects';
 import { useApiQuery } from './shared/useApiQuery';
 
 

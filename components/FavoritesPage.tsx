@@ -5,8 +5,10 @@ import type { Language, Project } from '../types';
 import { translations } from '../data/translations';
 import { useFavorites } from './shared/FavoritesContext';
 import { HeartIcon } from './icons/Icons';
-import { getProperties } from '../api/properties';
-import { getAllProjects } from '../api/projects';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getProperties } from '../mockApi/properties';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getAllProjects } from '../mockApi/projects';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 import { useApiQuery } from './shared/useApiQuery';
 

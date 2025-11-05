@@ -7,7 +7,7 @@ import { ArrowUpIcon, ArrowDownIcon, CubeIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
 import PortfolioItemFormModal from './PortfolioItemFormModal';
 import UpgradePlanModal from '../UpgradePlanModal';
-import { deletePortfolioItem as apiDeletePortfolioItem } from '../../api/portfolio';
+import { deletePortfolioItem as apiDeletePortfolioItem } from '../../mockApi/portfolio';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 
 type SortConfig = {

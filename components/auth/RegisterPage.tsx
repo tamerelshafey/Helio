@@ -5,7 +5,8 @@ import type { Language, ManagementContact, OfficialDocument, PartnerRequest, Sub
 import { translations } from '../../data/translations';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CheckCircleIcon, CloseIcon } from '../icons/Icons';
-import { addPartnerRequest } from '../../api/partnerRequests';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { addPartnerRequest } from '../../mockApi/partnerRequests';
 import SubscriptionPlanSelector from '../SubscriptionPlanSelector';
 import { HelioLogo } from '../HelioLogo';
 

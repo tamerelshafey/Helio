@@ -6,7 +6,8 @@ import { useAuth } from '../auth/AuthContext';
 import { CubeIcon } from '../icons/Icons';
 import PortfolioItemFormModal from './PortfolioItemFormModal';
 import UpgradePlanModal from '../UpgradePlanModal';
-import { deletePortfolioItem as apiDeletePortfolioItem } from '../../api/portfolio';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { deletePortfolioItem as apiDeletePortfolioItem } from '../../mockApi/portfolio';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 
 const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) => {

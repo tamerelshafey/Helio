@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem, DecorationCategory } from '../types';
 import { translations } from '../data/translations';
 import BannerDisplay from './shared/BannerDisplay';
-import { getAllPortfolioItems } from '../api/portfolio';
-import { getDecorationCategories } from '../api/decorations';
+import { getAllPortfolioItems } from '../mockApi/portfolio';
+import { getDecorationCategories } from '../mockApi/decorations';
 import { useApiQuery } from './shared/useApiQuery';
 
 interface DecorationsPageProps {

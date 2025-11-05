@@ -5,10 +5,11 @@ import type { Language, Property, FilterOption } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
-import { CloseIcon } from '../icons/Icons';
-import { getAllProperties, addProperty as apiAddProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
-import { getAllProjects } from '../../api/projects';
-import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../api/filters';
+import { CloseIcon, SparklesIcon } from '../icons/Icons';
+import { GoogleGenAI } from '@google/genai';
+import { getAllProperties, addProperty as apiAddProperty, updateProperty as apiUpdateProperty } from '../../mockApi/properties';
+import { getAllProjects } from '../../mockApi/projects';
+import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../mockApi/filters';
 import { useApiQuery } from '../shared/useApiQuery';
 import LocationPickerModal from '../shared/LocationPickerModal';
 import { Role } from '../../types';
@@ -45,7 +46,9 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
     
     const [mainImage, setMainImage] = useState<string>(''); // Can be URL or dataURL
     const [galleryImages, setGalleryImages] = useState<string[]>([]); // Can be URLs or dataURLs
+    const [translationLoading, setTranslationLoading] = useState<Partial<Record<TranslatableField, boolean>>>({});
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+    const [isGeneratingDesc, setIsGeneratingDesc] = useState<'ar' | 'en' | null>(null);
 
     const watchType = watch('type');
     const watchStatus = watch('status');
@@ -66,7 +69,8 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
     useEffect(() => {
         if (propertyId && properties) {
             const prop = properties.find(p => p.id === propertyId);
-            if (prop && currentUser && (prop.partnerId === currentUser.id || currentUser.role === Role.SUPER_ADMIN)) {
+            // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
+            if (prop && currentUser && 'type' in currentUser && (prop.partnerId === currentUser.id || currentUser.type === 'admin')) {
                 reset({
                     ...prop,
                     delivery: prop.delivery || { isImmediate: true, date: '' },
@@ -147,7 +151,7 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
 
         setValue('amenities', { en: newAmenities, ar: amenitiesAr });
     };
-    
+
     const availableAmenities = useMemo(() => {
         if (!amenities) return [];
         const selectedType = watchType?.en;
@@ -173,7 +177,8 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
 
 
     const onSubmit = async (formData: Partial<Property>) => {
-        if (!currentUser || !amenities) return;
+        // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
+        if (!currentUser || !('type' in currentUser) || !amenities) return;
 
         const priceNumeric = Number(formData.priceNumeric) || 0;
         const formattedPriceAr = `${priceNumeric.toLocaleString('ar-EG')} ج.م`;
@@ -202,11 +207,11 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
             alert(td.addSuccess);
         }
         const projectId = propertyData.projectId;
-        if (currentUser.role === Role.SUPER_ADMIN) {
+        if (currentUser.type === 'admin') {
             navigate('/admin/properties');
-        } else if (currentUser.role === Role.DEVELOPER_PARTNER && projectId) {
+        } else if (currentUser.type === 'developer' && projectId) {
             navigate(`/dashboard/projects/${projectId}`);
-        } else if (currentUser.role === Role.DEVELOPER_PARTNER) {
+        } else if (currentUser.type === 'developer') {
             navigate('/dashboard/projects');
         } else {
             navigate('/dashboard/properties');
@@ -230,7 +235,7 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                 {propertyId ? td.editTitle : td.addTitle}
             </h1>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                {currentUser && currentUser.role === Role.DEVELOPER_PARTNER && (
+                {currentUser && 'type' in currentUser && currentUser.type === 'developer' && (
                     <FormField label="Project" id="projectId">
                         <select {...register("projectId", { required: true })} className={selectClasses} >
                             <option value="" disabled>Select a project</option>

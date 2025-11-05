@@ -5,7 +5,10 @@ import { Role } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { BuildingIcon } from '../icons/Icons';
 import { translations } from '../../data/translations';
-import { getProperties } from '../../api/properties';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { deleteProject as apiDeleteProject } from '../../mockApi/projects';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getProperties } from '../../mockApi/properties';
 import { useApiQuery } from '../shared/useApiQuery';
 import UpgradePlanModal from '../UpgradePlanModal';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';

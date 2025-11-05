@@ -3,9 +3,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Language, Property, Lead } from '../../types';
 import { translations } from '../../data/translations';
 import { useApiQuery } from '../shared/useApiQuery';
-import { getAllProjects, deleteProject as apiDeleteProject } from '../../api/projects';
-import { getPropertiesByPartnerId, deleteProperty as apiDeleteProperty } from '../../api/properties';
-import { getLeadsByPartnerId } from '../../api/leads';
+import { getAllProjects, deleteProject as apiDeleteProject } from '../../mockApi/projects';
+import { getPropertiesByPartnerId, deleteProperty as apiDeleteProperty } from '../../mockApi/properties';
+import { getLeadsByPartnerId } from '../../mockApi/leads';
 import { BuildingIcon, ChartBarIcon, InboxIcon } from '../icons/Icons';
 import { useAuth } from '../auth/AuthContext';
 import UpgradePlanModal from '../UpgradePlanModal';
@@ -192,8 +192,8 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
             {activeTab === 'analytics' && (
                 <div className="animate-fadeIn space-y-8">
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <StatCard title={t.dashboardHome.totalUnits} value={projectProperties.length} icon={<BuildingIcon className="w-6 h-6"/>} linkTo="#"/>
-                        <StatCard title={t_analytics.totalLeads} value={projectAnalytics.totalLeads} icon={<InboxIcon className="w-6 h-6"/>} linkTo="#"/>
+                        <StatCard title={t.dashboardHome.totalUnits} value={projectProperties.length} icon={BuildingIcon} linkTo="#"/>
+                        <StatCard title={t_analytics.totalLeads} value={projectAnalytics.totalLeads} icon={InboxIcon} linkTo="#"/>
                      </div>
                      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t_analytics.topPerformingUnits}</h3>

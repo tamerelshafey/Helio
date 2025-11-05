@@ -5,7 +5,7 @@ import { useAuth } from '../auth/AuthContext';
 import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
-import { getLeadsByPartnerId, updateLead, deleteLead as apiDeleteLead } from '../../api/leads';
+import { getLeadsByPartnerId, updateLead, deleteLead as apiDeleteLead } from '../../mockApi/leads';
 import { useApiQuery } from '../shared/useApiQuery';
 
 const statusColors: { [key in LeadStatus]: string } = {

@@ -2,10 +2,10 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Partner, Project, AdminPartner, SiteContent } from '../types';
 import { translations } from '../data/translations';
-import { getAllPartnersForAdmin } from '../api/partners';
-import { getAllProjects } from '../api/projects';
+import { getAllPartnersForAdmin } from '../mockApi/partners';
+import { getAllProjects } from '../mockApi/projects';
 import { useApiQuery } from './shared/useApiQuery';
-import { getContent } from '../api/content';
+import { getContent } from '../mockApi/content';
 
 interface PartnersProps {
     language: Language;

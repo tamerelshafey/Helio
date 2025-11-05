@@ -4,7 +4,7 @@ import { TwitterIcon, LinkedInIcon, FacebookIcon, InstagramIcon } from './icons/
 import type { Language, SiteContent } from '../types';
 import { translations } from '../data/translations';
 import { HelioLogo } from './HelioLogo';
-import { getContent } from '../api/content';
+import { getContent } from '../mockApi/content';
 import { useApiQuery } from './shared/useApiQuery';
 
 interface FooterProps {

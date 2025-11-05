@@ -4,7 +4,8 @@ import { useAuth } from './AuthContext';
 import { Role } from '../../types';
 import type { Language, Partner } from '../../types';
 import { translations } from '../../data/translations';
-import { getPartnerByEmail } from '../../api/partners';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getPartnerByEmail } from '../../mockApi/partners';
 import { inputClasses } from '../shared/FormField';
 import { HelioLogo } from '../HelioLogo';
 import { partnersData } from '../../data/partners';

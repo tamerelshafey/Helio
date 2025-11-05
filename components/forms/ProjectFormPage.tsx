@@ -4,8 +4,10 @@ import type { Language, Project } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses } from '../shared/FormField';
-import { addProject, updateProject } from '../../api/projects';
-import { getAllProjects } from '../../api/projects';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { addProject, updateProject } from '../../mockApi/projects';
+// FIX: Corrected import path from 'api' to 'mockApi'.
+import { getAllProjects } from '../../mockApi/projects';
 import { useApiQuery } from '../shared/useApiQuery';
 import { Role } from '../../types';
 
@@ -35,14 +37,15 @@ const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
     useEffect(() => {
         if (projectId && projects) {
             const project = projects.find(p => p.id === projectId);
-            if (project && currentUser && (project.partnerId === currentUser.id || currentUser.role === Role.SUPER_ADMIN)) {
+            // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
+            if (project && currentUser && 'type' in currentUser && (project.partnerId === currentUser.id || currentUser.type === 'admin')) {
                 setFormData({
                     name: project.name,
                     description: project.description,
                 });
                 setImage(project.imageUrl);
             } else if (!projectsLoading) { // check if projects have been loaded
-                 const redirectPath = currentUser && currentUser.role === Role.SUPER_ADMIN ? '/admin/projects' : '/dashboard/projects';
+                 const redirectPath = currentUser && 'type' in currentUser && currentUser.type === 'admin' ? '/admin/projects' : '/dashboard/projects';
                 navigate(redirectPath);
             }
         }
@@ -81,7 +84,8 @@ const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
         }
         
         setFormLoading(false);
-        const redirectPath = currentUser && currentUser.role === Role.SUPER_ADMIN ? '/admin/projects' : '/dashboard/projects';
+        // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
+        const redirectPath = currentUser && 'type' in currentUser && currentUser.type === 'admin' ? '/admin/projects' : '/dashboard/projects';
         navigate(redirectPath);
     };
     

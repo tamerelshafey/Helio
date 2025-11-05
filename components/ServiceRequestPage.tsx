@@ -3,11 +3,11 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import type { Language, PortfolioItem } from '../types';
 import { translations } from '../data/translations';
 import FormField, { inputClasses, selectClasses } from './shared/FormField';
-import { addLead } from '../api/leads';
+import { addLead } from '../mockApi/leads';
 import { CheckCircleIcon } from './icons/Icons';
 import { HelioLogo } from './HelioLogo';
 import { useApiQuery } from './shared/useApiQuery';
-import { getAllPartnersForAdmin } from '../api/partners';
+import { getAllPartnersForAdmin } from '../mockApi/partners';
 
 const ServiceRequestPage: React.FC<{ language: Language }> = ({ language }) => {
     const location = useLocation();

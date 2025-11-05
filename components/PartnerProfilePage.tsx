@@ -4,10 +4,10 @@ import type { Language, Partner, PortfolioItem, Property, AdminPartner, Project 
 import { translations } from '../data/translations';
 import Lightbox from './shared/Lightbox';
 import PropertyCard from './shared/PropertyCard';
-import { getAllPartnersForAdmin } from '../api/partners';
-import { getPortfolioByPartnerId } from '../api/portfolio';
-import { getPropertiesByPartnerId } from '../api/properties';
-import { getAllProjects } from '../api/projects';
+import { getAllPartnersForAdmin } from '../mockApi/partners';
+import { getPortfolioByPartnerId } from '../mockApi/portfolio';
+import { getPropertiesByPartnerId } from '../mockApi/properties';
+import { getAllProjects } from '../mockApi/projects';
 import { useApiQuery } from './shared/useApiQuery';
 
 interface PartnerProfilePageProps {

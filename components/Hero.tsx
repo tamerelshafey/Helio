@@ -4,7 +4,7 @@ import type { Language } from '../types';
 import { translations } from '../data/translations';
 import { SearchIcon } from './icons/Icons';
 import { useApiQuery } from './shared/useApiQuery';
-import { getContent } from '../api/content';
+import { getContent } from '../mockApi/content';
 
 interface HeroProps {
   language: Language;

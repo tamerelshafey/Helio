@@ -7,9 +7,9 @@ import { useFavorites } from './shared/FavoritesContext';
 import Lightbox from './shared/Lightbox';
 import { isCommercial } from '../utils/propertyUtils';
 import BannerDisplay from './shared/BannerDisplay';
-import { getPropertyById } from '../api/properties';
-import { getAllProjects } from '../api/projects';
-import { getAllAmenities } from '../api/filters';
+import { getPropertyById } from '../mockApi/properties';
+import { getAllProjects } from '../mockApi/projects';
+import { getAllAmenities } from '../mockApi/filters';
 import { useApiQuery } from './shared/useApiQuery';
 import DetailItem from './shared/DetailItem';
 

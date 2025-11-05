@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Language } from '../types';
 import { translations } from '../data/translations';
 import { inputClasses, selectClasses } from './shared/FormField';
-import { addContactRequest } from '../api/contactRequests';
+import { addContactRequest } from '../mockApi/contactRequests';
 import { CheckCircleIcon } from './icons/Icons';
 
 interface ContactPageProps {

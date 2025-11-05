@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import type { Language, Project, Partner, Property } from '../types';
 import { translations } from '../data/translations';
 import { BuildingIcon } from './icons/Icons';
-import { getAllProjects } from '../api/projects';
-import { getAllPartnersForAdmin } from '../api/partners';
-import { getAllProperties } from '../api/properties';
+import { getAllProjects } from '../mockApi/projects';
+import { getAllPartnersForAdmin } from '../mockApi/partners';
+import { getAllProperties } from '../mockApi/properties';
 import { useApiQuery } from './shared/useApiQuery';
 
 interface ProjectsPageProps {
