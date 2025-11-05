@@ -1,40 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import type { Language, SiteContent } from '../../types';
 import { inputClasses } from '../shared/FormField';
 import { translations } from '../../data/translations';
-import { CloseIcon } from '../icons/Icons';
+import { CloseIcon, PhotoIcon } from '../icons/Icons';
 import { getContent, updateContent as updateSiteContent } from '../../api/content';
 import { useApiQuery } from '../shared/useApiQuery';
+import { useToast } from '../shared/ToastContext';
 
 interface AdminSettingsPageProps {
   language: Language;
 }
-
-const DualLanguageInput: React.FC<{ name: string; value: { ar: string, en: string }; onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; label: string }> = ({ name, value, onChange, label }) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-            <label htmlFor={`${name}.ar`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label} (AR)</label>
-            <input type="text" id={`${name}.ar`} name={`${name}.ar`} value={value.ar} onChange={onChange} className={inputClasses} />
-        </div>
-        <div>
-            <label htmlFor={`${name}.en`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label} (EN)</label>
-            <input type="text" id={`${name}.en`} name={`${name}.en`} value={value.en} onChange={onChange} className={inputClasses} />
-        </div>
-    </div>
-);
-
-const DualLanguageTextarea: React.FC<{ name: string; value: { ar: string, en: string }; onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; label: string }> = ({ name, value, onChange, label }) => (
-     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-            <label htmlFor={`${name}.ar`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label} (AR)</label>
-            <textarea id={`${name}.ar`} name={`${name}.ar`} value={value.ar} onChange={onChange} className={inputClasses} rows={4} />
-        </div>
-        <div>
-            <label htmlFor={`${name}.en`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label} (EN)</label>
-            <textarea id={`${name}.en`} name={`${name}.en`} value={value.en} onChange={onChange} className={inputClasses} rows={4} />
-        </div>
-    </div>
-);
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -48,90 +24,47 @@ const fileToBase64 = (file: File): Promise<string> => {
 const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ language }) => {
     const { data: siteContent, isLoading: dataLoading, refetch } = useApiQuery('siteContent', getContent);
     const t = translations[language];
+    const { showToast } = useToast();
     
-    const [formData, setFormData] = useState<SiteContent | null>(null);
-    const [isSaving, setIsSaving] = useState(false);
+    const { register, handleSubmit, reset, watch, setValue, formState: { isSubmitting, isDirty } } = useForm<SiteContent>();
+    
     const [activeTab, setActiveTab] = useState<'general' | 'contact' | 'social' | 'services'>('general');
 
     useEffect(() => {
         if (siteContent) {
-            setFormData(JSON.parse(JSON.stringify(siteContent))); // Deep copy
+            reset(siteContent); // Populate form with fetched data
         }
-    }, [siteContent]);
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value, type } = e.target;
-        const keys = name.split('.');
-        setFormData(prevData => {
-            if (!prevData) return null;
-            const newData = JSON.parse(JSON.stringify(prevData)); // Deep copy to ensure nested objects are updated
-            let current: any = newData;
-            for (let i = 0; i < keys.length - 1; i++) {
-                const key = keys[i];
-                if (!isNaN(Number(key))) { // It's an array index
-                    current = current[Number(key)];
-                } else {
-                    current = current[key];
-                }
-            }
-            
-            const lastKey = keys[keys.length - 1];
-            current[lastKey] = type === 'number' ? Number(value) : value;
-
-            return newData;
-        });
-    };
-    
-    const handleAddTier = (serviceIndex: number) => {
-        setFormData(prevData => {
-            if (!prevData) return null;
-            const newData = JSON.parse(JSON.stringify(prevData));
-            if (!newData.finishingServices[serviceIndex].pricingTiers) {
-                newData.finishingServices[serviceIndex].pricingTiers = [];
-            }
-            newData.finishingServices[serviceIndex].pricingTiers.push({
-                unitType: { ar: '', en: '' },
-                areaRange: { ar: '', en: '' },
-                price: 0
-            });
-            return newData;
-        });
-    };
-
-    const handleRemoveTier = (serviceIndex: number, tierIndex: number) => {
-        setFormData(prevData => {
-            if (!prevData) return null;
-            const newData = JSON.parse(JSON.stringify(prevData));
-            newData.finishingServices[serviceIndex].pricingTiers.splice(tierIndex, 1);
-            return newData;
-        });
-    };
-
+    }, [siteContent, reset]);
 
     const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            const base64 = await fileToBase64(file);
-            setFormData(prevData => {
-                if (!prevData) return null;
-                const newData = JSON.parse(JSON.stringify(prevData));
-                newData.logoUrl = base64;
-                return newData;
-            });
+            const base64 = await fileToBase64(e.target.files[0]);
+            setValue('logoUrl', base64, { shouldDirty: true });
         }
     };
+    
+    const watchLogoUrl = watch('logoUrl');
+    const watchFinishingServices = watch('finishingServices');
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!formData) return;
-        setIsSaving(true);
-        await updateSiteContent(formData);
-        refetch();
-        setIsSaving(false);
-        alert('Settings updated successfully!');
+    const handleAddTier = (serviceIndex: number) => {
+        const currentTiers = watchFinishingServices?.[serviceIndex]?.pricingTiers || [];
+        const newTier = { unitType: { ar: '', en: '' }, areaRange: { ar: '', en: '' }, price: 0 };
+        setValue(`finishingServices.${serviceIndex}.pricingTiers`, [...currentTiers, newTier], { shouldDirty: true });
     };
 
-    if (dataLoading || !formData) {
+    const handleRemoveTier = (serviceIndex: number, tierIndex: number) => {
+        const currentTiers = watchFinishingServices?.[serviceIndex]?.pricingTiers || [];
+        setValue(`finishingServices.${serviceIndex}.pricingTiers`, currentTiers.filter((_, i) => i !== tierIndex), { shouldDirty: true });
+    };
+
+    const onSubmit = async (formData: SiteContent) => {
+        await updateSiteContent(formData);
+        refetch();
+        showToast('Settings updated successfully!', 'success');
+        reset(formData); // Resets the form state, making isDirty false again
+    };
+
+    if (dataLoading) {
         return <div>Loading settings...</div>;
     }
     
@@ -150,7 +83,7 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ language }) => {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.adminDashboard.nav.settings}</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-8">Manage global settings for the website, such as footer content and contact information.</p>
             
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                     <div className="px-6 border-b border-gray-200 dark:border-gray-700">
                          <div className="flex -mb-px space-x-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
@@ -164,22 +97,19 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ language }) => {
                     <div className="p-6 space-y-6">
                         {activeTab === 'general' && (
                              <div className="space-y-6 animate-fadeIn">
-                                <DualLanguageTextarea 
-                                    name="description" 
-                                    value={{ ar: formData.footer.ar.description, en: formData.footer.en.description }} 
-                                    onChange={e => {
-                                        const { name, value } = e.target;
-                                        const lang = name.endsWith('.ar') ? 'ar' : 'en';
-                                        const field = name.substring(0, name.length - 3);
-                                        handleInputChange({ target: { name: `footer.${lang}.${field}`, value, type: 'textarea' }} as React.ChangeEvent<HTMLTextAreaElement>);
-                                    }} 
-                                    label="Site Description (in Footer)" 
-                                />
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Site Description (in Footer) (AR)</label>
+                                    <textarea {...register('footer.ar.description')} className={inputClasses} rows={3}/>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Site Description (in Footer) (EN)</label>
+                                    <textarea {...register('footer.en.description')} className={inputClasses} rows={3}/>
+                                </div>
                                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                                     <label htmlFor="logoUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Site Logo</label>
                                     <div className="flex items-center gap-4">
-                                        {formData.logoUrl ? 
-                                            <img src={formData.logoUrl} alt="Logo preview" className="w-20 h-20 rounded-full object-contain border p-1 bg-gray-100 dark:bg-gray-700" />
+                                        {watchLogoUrl ? 
+                                            <img src={watchLogoUrl} alt="Logo preview" className="w-20 h-20 rounded-full object-contain border p-1 bg-gray-100 dark:bg-gray-700" />
                                             : <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-400">No Logo</div>
                                         }
                                         <input 
@@ -193,30 +123,39 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ language }) => {
                                 </div>
                                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                                     <label htmlFor="locationPickerMapUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location Picker Map URL</label>
-                                    <input 
-                                        type="url" 
-                                        id="locationPickerMapUrl" 
-                                        name="locationPickerMapUrl" 
-                                        value={formData.locationPickerMapUrl} 
-                                        onChange={handleInputChange} 
-                                        className={inputClasses} 
-                                    />
+                                    <input type="url" {...register('locationPickerMapUrl')} className={inputClasses} />
                                 </div>
                             </div>
                         )}
                         {activeTab === 'services' && (
                              <div className="space-y-6 animate-fadeIn">
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">Finishing Services</h3>
-                                {formData.finishingServices?.map((service, serviceIndex) => (
+                                {(watchFinishingServices || []).map((service, serviceIndex) => (
                                     <div key={serviceIndex} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4">
                                         <h4 className="font-semibold text-gray-600 dark:text-gray-300">Service {serviceIndex + 1}</h4>
-                                        <DualLanguageInput name={`finishingServices.${serviceIndex}.title`} value={service.title} onChange={handleInputChange} label="Service Title" />
-                                        <DualLanguageTextarea name={`finishingServices.${serviceIndex}.description`} value={service.description} onChange={handleInputChange} label="Service Description" />
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Title (AR)</label>
+                                                <input {...register(`finishingServices.${serviceIndex}.title.ar`)} className={inputClasses} />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Title (EN)</label>
+                                                <input {...register(`finishingServices.${serviceIndex}.title.en`)} className={inputClasses} />
+                                            </div>
+                                        </div>
+                                         <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Description (AR)</label>
+                                            <textarea {...register(`finishingServices.${serviceIndex}.description.ar`)} className={inputClasses} rows={3}/>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Description (EN)</label>
+                                            <textarea {...register(`finishingServices.${serviceIndex}.description.en`)} className={inputClasses} rows={3}/>
+                                        </div>
                                         
                                         {service.price !== undefined && (
                                             <div>
-                                                <label htmlFor={`finishingServices.${serviceIndex}.price`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (EGP)</label>
-                                                <input type="number" id={`finishingServices.${serviceIndex}.price`} name={`finishingServices.${serviceIndex}.price`} value={service.price} onChange={handleInputChange} className={inputClasses} />
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (EGP)</label>
+                                                <input type="number" {...register(`finishingServices.${serviceIndex}.price`, { valueAsNumber: true })} className={inputClasses} />
                                             </div>
                                         )}
 
@@ -227,11 +166,15 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ language }) => {
                                                     <div key={tierIndex} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-md border border-gray-300 dark:border-gray-600 relative">
                                                         <button type="button" onClick={() => handleRemoveTier(serviceIndex, tierIndex)} className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1"><CloseIcon className="w-4 h-4" /></button>
                                                         <div className="space-y-4">
-                                                            <DualLanguageInput name={`finishingServices.${serviceIndex}.pricingTiers.${tierIndex}.unitType`} value={tier.unitType} onChange={handleInputChange} label="Unit Type" />
-                                                            <DualLanguageInput name={`finishingServices.${serviceIndex}.pricingTiers.${tierIndex}.areaRange`} value={tier.areaRange} onChange={handleInputChange} label="Area Range" />
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                <div><label className="text-xs">Unit Type (AR)</label><input {...register(`finishingServices.${serviceIndex}.pricingTiers.${tierIndex}.unitType.ar`)} className={inputClasses} /></div>
+                                                                <div><label className="text-xs">Unit Type (EN)</label><input {...register(`finishingServices.${serviceIndex}.pricingTiers.${tierIndex}.unitType.en`)} className={inputClasses} /></div>
+                                                                <div><label className="text-xs">Area Range (AR)</label><input {...register(`finishingServices.${serviceIndex}.pricingTiers.${tierIndex}.areaRange.ar`)} className={inputClasses} /></div>
+                                                                <div><label className="text-xs">Area Range (EN)</label><input {...register(`finishingServices.${serviceIndex}.pricingTiers.${tierIndex}.areaRange.en`)} className={inputClasses} /></div>
+                                                            </div>
                                                             <div>
-                                                                <label htmlFor={`finishingServices.${serviceIndex}.pricingTiers.${tierIndex}.price`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (EGP)</label>
-                                                                <input type="number" id={`finishingServices.${serviceIndex}.pricingTiers.${tierIndex}.price`} name={`finishingServices.${serviceIndex}.pricingTiers.${tierIndex}.price`} value={tier.price} onChange={handleInputChange} className={inputClasses} />
+                                                                <label className="text-xs">Price (EGP)</label>
+                                                                <input type="number" {...register(`finishingServices.${serviceIndex}.pricingTiers.${tierIndex}.price`, { valueAsNumber: true })} className={inputClasses} />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -245,25 +188,22 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ language }) => {
                         )}
                         {activeTab === 'contact' && (
                              <div className="space-y-4 animate-fadeIn">
-                                <DualLanguageInput 
-                                    name="address" 
-                                    value={{ar: formData.footer.ar.address, en: formData.footer.en.address}} 
-                                    onChange={e => {
-                                        const { name, value } = e.target;
-                                        const lang = name.endsWith('.ar') ? 'ar' : 'en';
-                                        const field = name.substring(0, name.length - 3);
-                                        handleInputChange({ target: { name: `footer.${lang}.${field}`, value, type: 'text' }} as React.ChangeEvent<HTMLInputElement>);
-                                    }} 
-                                    label="Address" 
-                                />
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address (AR)</label>
+                                    <input {...register('footer.ar.address')} className={inputClasses} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address (EN)</label>
+                                    <input {...register('footer.en.address')} className={inputClasses} />
+                                </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label htmlFor="footer.phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
-                                        <input type="text" id="footer.phone" name="footer.phone" value={formData.footer.phone} onChange={handleInputChange} className={inputClasses} />
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
+                                        <input {...register('footer.phone')} className={inputClasses} />
                                     </div>
                                     <div>
-                                        <label htmlFor="footer.email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
-                                        <input type="email" id="footer.email" name="footer.email" value={formData.footer.email} onChange={handleInputChange} className={inputClasses} />
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+                                        <input type="email" {...register('footer.email')} className={inputClasses} />
                                     </div>
                                 </div>
                             </div>
@@ -272,20 +212,20 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ language }) => {
                             <div className="space-y-4 animate-fadeIn">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label htmlFor="footer.social.facebook" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Facebook URL</label>
-                                        <input type="url" id="footer.social.facebook" name="footer.social.facebook" value={formData.footer.social.facebook} onChange={handleInputChange} className={inputClasses} />
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Facebook URL</label>
+                                        <input type="url" {...register('footer.social.facebook')} className={inputClasses} />
                                     </div>
                                     <div>
-                                        <label htmlFor="footer.social.twitter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Twitter URL</label>
-                                        <input type="url" id="footer.social.twitter" name="footer.social.twitter" value={formData.footer.social.twitter} onChange={handleInputChange} className={inputClasses} />
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Twitter URL</label>
+                                        <input type="url" {...register('footer.social.twitter')} className={inputClasses} />
                                     </div>
                                     <div>
-                                        <label htmlFor="footer.social.instagram" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Instagram URL</label>
-                                        <input type="url" id="footer.social.instagram" name="footer.social.instagram" value={formData.footer.social.instagram} onChange={handleInputChange} className={inputClasses} />
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Instagram URL</label>
+                                        <input type="url" {...register('footer.social.instagram')} className={inputClasses} />
                                     </div>
                                     <div>
-                                        <label htmlFor="footer.social.linkedin" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">LinkedIn URL</label>
-                                        <input type="url" id="footer.social.linkedin" name="footer.social.linkedin" value={formData.footer.social.linkedin} onChange={handleInputChange} className={inputClasses} />
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">LinkedIn URL</label>
+                                        <input type="url" {...register('footer.social.linkedin')} className={inputClasses} />
                                     </div>
                                 </div>
                             </div>
@@ -293,9 +233,10 @@ const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ language }) => {
                     </div>
                 </div>
 
-                <div className="mt-8 flex justify-end">
-                    <button type="submit" disabled={isSaving} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
-                        {isSaving ? 'Saving...' : 'Save All Settings'}
+                <div className="mt-8 flex justify-end items-center gap-4">
+                    {isDirty && <span className="text-sm text-yellow-600 dark:text-yellow-400">You have unsaved changes.</span>}
+                    <button type="submit" disabled={isSubmitting || !isDirty} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
+                        {isSubmitting ? 'Saving...' : 'Save All Settings'}
                     </button>
                 </div>
             </form>
