@@ -10,7 +10,6 @@ import { useApiQuery } from '../shared/useApiQuery';
 import DetailItem from '../shared/DetailItem';
 import { useToast } from '../shared/ToastContext';
 
-// FIX: Added missing status keys 'site-visit' and 'quoted' to match the LeadStatus type.
 const statusColors: { [key in LeadStatus]?: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
     contacted: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',

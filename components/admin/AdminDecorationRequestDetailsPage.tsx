@@ -4,11 +4,9 @@ import type { Language, LeadStatus, Lead } from '../../types';
 import { translations } from '../../data/translations';
 import { ChevronLeftIcon } from '../icons/Icons';
 import { selectClasses, inputClasses } from '../shared/FormField';
-// FIX: Imported 'updateLead' instead of non-existent 'updateLeadStatus' and 'updateLeadNotes'.
 import { getAllLeads, updateLead } from '../../api/leads';
 import { useApiQuery } from '../shared/useApiQuery';
 
-// FIX: Added missing status keys 'site-visit' and 'quoted' to match the LeadStatus type.
 const statusColors: { [key in LeadStatus]?: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
     contacted: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
@@ -55,7 +53,6 @@ const AdminDecorationRequestDetailsPage: React.FC<{ language: Language }> = ({ l
 
     const handleNotesSave = async () => {
         if (request && request.internalNotes !== notes) {
-            // FIX: Used 'updateLead' to update the internalNotes property.
             await updateLead(request.id, { internalNotes: notes });
             refetchLeads();
         }
@@ -63,7 +60,6 @@ const AdminDecorationRequestDetailsPage: React.FC<{ language: Language }> = ({ l
 
     const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         if (request) {
-            // FIX: Used 'updateLead' to update the status property.
             await updateLead(request.id, { status: e.target.value as LeadStatus });
             refetchLeads();
         }
