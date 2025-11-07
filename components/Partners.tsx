@@ -93,7 +93,9 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
                 {/* Major Developers Section */}
                 {categorizedPartners.majorDevelopers.length > 0 && (
                      <div className="mb-16">
-                        <h3 className="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-8">{content.mega_projects_title}</h3>
+                        <div className="border-b-2 border-amber-500/20 pb-4 mb-12">
+                            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">{content.mega_projects_title}</h3>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                            {categorizedPartners.majorDevelopers.map(partner => (
                                <PartnerCard key={partner.id} partner={partner} language={language} />
@@ -105,7 +107,9 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
                 {/* City Developers Section */}
                 {categorizedPartners.cityDevelopers.length > 0 && (
                      <div className="mb-16">
-                        <h3 className="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-8">{content.developers_title}</h3>
+                         <div className="border-b-2 border-amber-500/20 pb-4 mb-12">
+                            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">{content.developers_title}</h3>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                            {categorizedPartners.cityDevelopers.map(partner => (
                                <PartnerCard key={partner.id} partner={partner} language={language} />
@@ -118,7 +122,9 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
                 {/* Other Partners */}
                 {categorizedPartners.sections.map(section => (
                     <div key={section.title} className="mb-16">
-                        <h3 className="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-8">{section.title}</h3>
+                        <div className="border-b-2 border-amber-500/20 pb-4 mb-12">
+                            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">{section.title}</h3>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                             {section.partners.map((partner) => (
                                <PartnerCard key={partner.id} partner={partner} language={language} />

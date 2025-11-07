@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import type { Language } from '../types';
+import { useForm } from 'react-hook-form';
+// FIX: Import PartnerType to ensure type safety for businessType
+import type { Language, PartnerType } from '../types';
 import { translations } from '../data/translations';
 import { inputClasses, selectClasses } from './shared/FormField';
 import { addContactRequest } from '../api/contactRequests';
@@ -11,54 +13,48 @@ interface ContactPageProps {
   language: Language;
 }
 
+type FormData = {
+    name: string;
+    phone: string;
+    contactTime: string;
+    message: string;
+    inquiryType: 'client' | 'partner';
+    companyName: string;
+    // FIX: Use a more specific type for businessType instead of a generic string.
+    businessType: PartnerType | '';
+};
+
 const ContactPage: React.FC<ContactPageProps> = ({ language }) => {
     const t = translations[language].contactPage;
     const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
-
-    const [formData, setFormData] = useState({
-        name: '',
-        phone: '',
-        contactTime: '',
-        message: '',
-        inquiryType: 'client' as 'client' | 'partner',
-        companyName: '',
-        businessType: '',
-    });
-    const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    
+    const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
+        defaultValues: {
+            inquiryType: 'client',
+            contactTime: '',
+            businessType: '',
+        }
+    });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    const inquiryType = watch('inquiryType');
 
     const handleInquiryTypeChange = (type: 'client' | 'partner') => {
-        setFormData(prev => ({ 
-            ...prev, 
-            inquiryType: type,
-            // Reset partner fields if switching back to client
-            companyName: type === 'client' ? '' : prev.companyName,
-            businessType: type === 'client' ? '' : prev.businessType,
-        }));
+        setValue('inquiryType', type);
     };
 
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        
+    const onSubmit = async (data: FormData) => {
         const requestData = {
-            name: formData.name,
-            phone: formData.phone,
-            contactTime: formData.contactTime,
-            message: formData.message,
-            inquiryType: formData.inquiryType,
-            companyName: formData.inquiryType === 'partner' ? formData.companyName : undefined,
-            businessType: formData.inquiryType === 'partner' ? formData.businessType : undefined,
+            name: data.name,
+            phone: data.phone,
+            contactTime: data.contactTime,
+            message: data.message,
+            inquiryType: data.inquiryType,
+            companyName: data.inquiryType === 'partner' ? data.companyName : undefined,
+            // FIX: Ensure businessType is either a valid PartnerType or undefined, correctly handling the empty string from the form.
+            businessType: data.inquiryType === 'partner' && data.businessType ? data.businessType : undefined,
         };
-
         await addContactRequest(requestData);
-        setLoading(false);
         setSubmitted(true);
     };
 
@@ -79,24 +75,24 @@ const ContactPage: React.FC<ContactPageProps> = ({ language }) => {
                         <>
                             <div>
                                 <h2 className="text-2xl font-bold text-amber-500 mb-6">{t.formTitle}</h2>
-                                <form className="space-y-6" onSubmit={handleSubmit}>
+                                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.inquiryTypeLabel}</label>
                                         <div className="flex gap-4 p-1 bg-gray-200 dark:bg-gray-700 rounded-lg">
-                                            <button type="button" onClick={() => handleInquiryTypeChange('client')} className={`w-full py-2 rounded-md transition-colors ${formData.inquiryType === 'client' ? 'bg-white dark:bg-gray-800 shadow text-amber-600 font-semibold' : 'text-gray-600 dark:text-gray-300'}`}>{t.clientOption}</button>
-                                            <button type="button" onClick={() => handleInquiryTypeChange('partner')} className={`w-full py-2 rounded-md transition-colors ${formData.inquiryType === 'partner' ? 'bg-white dark:bg-gray-800 shadow text-amber-600 font-semibold' : 'text-gray-600 dark:text-gray-300'}`}>{t.partnerOption}</button>
+                                            <button type="button" onClick={() => handleInquiryTypeChange('client')} className={`w-full py-2 rounded-md transition-colors ${inquiryType === 'client' ? 'bg-white dark:bg-gray-800 shadow text-amber-600 font-semibold' : 'text-gray-600 dark:text-gray-300'}`}>{t.clientOption}</button>
+                                            <button type="button" onClick={() => handleInquiryTypeChange('partner')} className={`w-full py-2 rounded-md transition-colors ${inquiryType === 'partner' ? 'bg-white dark:bg-gray-800 shadow text-amber-600 font-semibold' : 'text-gray-600 dark:text-gray-300'}`}>{t.partnerOption}</button>
                                         </div>
                                     </div>
                                     
-                                    {formData.inquiryType === 'partner' && (
+                                    {inquiryType === 'partner' && (
                                         <div className="space-y-6 p-4 border border-amber-500/20 rounded-lg animate-fadeIn">
                                             <div>
                                                 <label htmlFor="companyName" className="sr-only">{t.companyNamePlaceholder}</label>
-                                                <input type="text" id="companyName" name="companyName" value={formData.companyName} onChange={handleChange} placeholder={t.companyNamePlaceholder} className={inputClasses} required />
+                                                <input type="text" id="companyName" {...register("companyName", { required: true })} placeholder={t.companyNamePlaceholder} className={inputClasses} />
                                             </div>
                                             <div>
                                                 <label htmlFor="businessType" className="sr-only">{t.businessTypeLabel}</label>
-                                                 <select id="businessType" name="businessType" value={formData.businessType} onChange={handleChange} className={`${selectClasses} ${!formData.businessType ? 'text-gray-500 dark:text-gray-400' : ''}`} required>
+                                                 <select id="businessType" {...register("businessType", { required: true })} className={`${selectClasses} ${!watch('businessType') ? 'text-gray-500 dark:text-gray-400' : ''}`} >
                                                     <option value="" disabled>{t.businessTypeLabel}</option>
                                                     <option value="developer" className="text-gray-900 dark:text-white">{t.developerOption}</option>
                                                     <option value="finishing" className="text-gray-900 dark:text-white">{t.finishingOption}</option>
@@ -108,15 +104,15 @@ const ContactPage: React.FC<ContactPageProps> = ({ language }) => {
 
                                     <div>
                                         <label htmlFor="name" className="sr-only">{t.namePlaceholder}</label>
-                                        <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} placeholder={t.namePlaceholder} className={inputClasses} required />
+                                        <input type="text" id="name" {...register("name", { required: true })} placeholder={t.namePlaceholder} className={inputClasses} />
                                     </div>
                                     <div>
                                         <label htmlFor="phone" className="sr-only">{t.phonePlaceholder}</label>
-                                        <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder={t.phonePlaceholder} className={inputClasses} required dir="ltr" />
+                                        <input type="tel" id="phone" {...register("phone", { required: true })} placeholder={t.phonePlaceholder} className={inputClasses} dir="ltr" />
                                     </div>
                                     <div>
                                         <label htmlFor="contactTime" className="sr-only">{t.contactTimeLabel}</label>
-                                        <select id="contactTime" name="contactTime" value={formData.contactTime} onChange={handleChange} className={`${selectClasses} ${!formData.contactTime ? 'text-gray-500 dark:text-gray-400' : ''}`} required>
+                                        <select id="contactTime" {...register("contactTime", { required: true })} className={`${selectClasses} ${!watch('contactTime') ? 'text-gray-500 dark:text-gray-400' : ''}`}>
                                             <option value="" disabled>{t.contactTimeDefault}</option>
                                             <option value="morning" className="text-gray-900 dark:text-white">{t.contactTimeMorning}</option>
                                             <option value="afternoon" className="text-gray-900 dark:text-white">{t.contactTimeAfternoon}</option>
@@ -125,11 +121,11 @@ const ContactPage: React.FC<ContactPageProps> = ({ language }) => {
                                     </div>
                                     <div>
                                         <label htmlFor="message" className="sr-only">{t.messagePlaceholder}</label>
-                                        <textarea id="message" name="message" value={formData.message} onChange={handleChange} rows={5} placeholder={t.messagePlaceholder} className={inputClasses} required></textarea>
+                                        <textarea id="message" {...register("message", { required: true })} rows={5} placeholder={t.messagePlaceholder} className={inputClasses}></textarea>
                                     </div>
                                     <div>
-                                        <button type="submit" disabled={loading} className="w-full bg-amber-500 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
-                                            {loading ? '...' : t.sendButton}
+                                        <button type="submit" disabled={isSubmitting} className="w-full bg-amber-500 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
+                                            {isSubmitting ? '...' : t.sendButton}
                                         </button>
                                     </div>
                                 </form>
