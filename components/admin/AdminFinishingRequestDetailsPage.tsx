@@ -9,6 +9,7 @@ import { getAllPartnersForAdmin } from '../../api/partners';
 import { useApiQuery } from '../shared/useApiQuery';
 import DetailItem from '../shared/DetailItem';
 import { useToast } from '../shared/ToastContext';
+import ConversationThread from '../shared/ConversationThread';
 
 const statusColors: { [key in LeadStatus]?: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -46,14 +47,12 @@ const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ la
 
     const [status, setStatus] = useState<LeadStatus>('new');
     const [assignedTo, setAssignedTo] = useState('');
-    const [internalNotes, setInternalNotes] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if(request) {
             setStatus(request.status);
             setAssignedTo(request.assignedTo || 'internal-team');
-            setInternalNotes(request.internalNotes || '');
         }
     }, [request]);
 
@@ -63,12 +62,10 @@ const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ la
         await updateLead(request.id, {
             status,
             assignedTo,
-            internalNotes,
         });
         await refetchLeads();
         setIsSaving(false);
         showToast('Request updated successfully!', 'success');
-        navigate('/admin/finishing-requests');
     };
 
     if (loadingLeads || loadingPartners) {
@@ -99,6 +96,9 @@ const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ la
                          <DetailItem label={translations[language].dashboard.leadTable.service} value={request.serviceTitle} fullWidth />
                          <DetailItem label={translations[language].dashboard.leadTable.notes} value={<p className="whitespace-pre-wrap">{request.customerNotes || '-'}</p>} fullWidth />
                     </DetailSection>
+                    
+                    <ConversationThread lead={request} onMessageSent={refetchLeads} language={language} />
+
                 </div>
 
                 <div className="space-y-8">
@@ -119,16 +119,6 @@ const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ la
                                     <option key={p.id} value={p.id}>{p.name}</option>
                                 ))}
                             </select>
-                        </div>
-                        <div>
-                            <label htmlFor="internalNotes" className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{t_req.internalNotes}</label>
-                            <textarea
-                                id="internalNotes"
-                                value={internalNotes}
-                                onChange={(e) => setInternalNotes(e.target.value)}
-                                rows={8}
-                                className={inputClasses}
-                            />
                         </div>
                         <button
                             onClick={handleSaveChanges}

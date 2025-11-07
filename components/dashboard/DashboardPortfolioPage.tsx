@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Language, PortfolioItem } from '../../types';
 import { Role } from '../../types';
@@ -7,7 +8,7 @@ import { ArrowUpIcon, ArrowDownIcon, CubeIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
 import PortfolioItemFormModal from './PortfolioItemFormModal';
 import UpgradePlanModal from '../UpgradePlanModal';
-import { deletePortfolioItem as apiDeletePortfolioItem } from '../../mockApi/portfolio';
+import { deletePortfolioItem as apiDeletePortfolioItem } from '../../api/portfolio';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 
 type SortConfig = {
@@ -136,7 +137,8 @@ const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) 
                     {sortedAndFilteredPortfolio.map(item => (
                         <div key={item.id} className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden group flex flex-col">
                             <div className="relative aspect-square bg-gray-100 dark:bg-gray-700">
-                                <img src={item.src} alt={item.alt} className="w-full h-full object-cover" />
+                                {/* FIX: Changed item.src to item.imageUrl to match PortfolioItem type. */}
+                                <img src={item.imageUrl} alt={item.alt} className="w-full h-full object-cover" />
                             </div>
                             <div className="p-4 flex-grow">
                                 <h3 className="font-bold text-gray-900 dark:text-white truncate" title={item.title[language]}>{item.title[language]}</h3>

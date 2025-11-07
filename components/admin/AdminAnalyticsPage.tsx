@@ -7,10 +7,10 @@ import { useApiQuery } from '../shared/useApiQuery';
 import { getAllLeads } from '../../api/leads';
 import { getAllProperties } from '../../api/properties';
 import { getAllPartnersForAdmin } from '../../api/partners';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, BarElement } from 'chart.js';
-import { Line, Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
 const StatCard: React.FC<{ title: string; value: number | string; icon: React.ReactNode; }> = ({ title, value, icon }) => (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
@@ -30,6 +30,7 @@ type TimePeriod = '7d' | '30d' | 'month' | 'year';
 
 const AdminAnalyticsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminAnalytics;
+    const t_dashboard = translations[language].dashboard;
     const { data: leads, isLoading: loadingLeads } = useApiQuery('allLeadsAnalytics', getAllLeads);
     const { data: properties, isLoading: loadingProperties } = useApiQuery('allPropertiesAnalytics', getAllProperties);
     const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAnalytics', getAllPartnersForAdmin);
@@ -55,22 +56,11 @@ const AdminAnalyticsPage: React.FC<{ language: Language }> = ({ language }) => {
     const analyticsData = useMemo(() => {
         if (!leads || !properties || !partners) return null;
 
-        const partnersWithDate = partners.map((p, i) => ({ ...p, createdAt: new Date(Date.now() - i * 30 * 24 * 60 * 60 * 1000) }));
-        const propertiesWithDate = properties.map(p => ({ ...p, createdAt: new Date(p.listingStartDate || Date.now()) }));
-
         const filteredLeads = leads.filter(l => {
             const leadDateTs = new Date(l.createdAt).getTime();
             return leadDateTs >= rangeStart.getTime() && leadDateTs <= rangeEnd.getTime();
         });
-        const filteredPartners = partnersWithDate.filter(p => {
-            const partnerDateTs = p.createdAt.getTime();
-            return partnerDateTs >= rangeStart.getTime() && partnerDateTs <= rangeEnd.getTime();
-        });
-        const filteredProperties = propertiesWithDate.filter(p => {
-            const propDateTs = p.createdAt.getTime();
-            return propDateTs >= rangeStart.getTime() && propDateTs <= rangeEnd.getTime();
-        });
-
+        
         const conversionRate = properties.length > 0 ? (Number(leads.length) / Number(properties.length)).toFixed(2) : "0.00";
 
         const leadsByProperty = leads.reduce((acc, lead) => {
@@ -95,147 +85,194 @@ const AdminAnalyticsPage: React.FC<{ language: Language }> = ({ language }) => {
             .map(([id, count]) => ({ partner: partners.find(p => p.id === id), count }))
             .filter(p => p.partner);
 
-        const cumulativeGrowth = () => {
-            const allDates = [...partnersWithDate.map(p => p.createdAt), ...propertiesWithDate.map(p => p.createdAt)]
-                .filter(Boolean)
-                .sort((a,b) => a.getTime() - b.getTime());
-            if (allDates.length === 0) return { labels: [], partners: [], properties: [] };
+        const leadsOverTime = (() => {
+            const groupedData = new Map<string, number>();
 
-            const startDate = allDates[0];
-            const endDate = allDates[allDates.length - 1];
+            filteredLeads.forEach(lead => {
+                const date = new Date(lead.createdAt);
+                const key = timePeriod === 'year'
+                    ? `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`
+                    : date.toISOString().split('T')[0];
+                groupedData.set(key, (groupedData.get(key) || 0) + 1);
+            });
 
             const labels: string[] = [];
-            let currentDate = new Date(startDate);
-            
-            while (currentDate.getTime() <= endDate.getTime()) {
-                labels.push(currentDate.toLocaleDateString(language, { month: 'short', year: 'numeric' }));
-                currentDate.setMonth(currentDate.getMonth() + 1);
+            const data: number[] = [];
+            let currentDate = new Date(rangeStart);
+
+            if (timePeriod === 'year') {
+                for (let i = 0; i < 12; i++) {
+                    const monthDate = new Date(rangeStart.getFullYear(), i, 1);
+                    labels.push(monthDate.toLocaleString(language, { month: 'short' }));
+                    const key = `${monthDate.getFullYear()}-${String(i).padStart(2, '0')}`;
+                    data.push(groupedData.get(key) || 0);
+                }
+            } else {
+                while (currentDate <= rangeEnd) {
+                    labels.push(currentDate.toLocaleDateString(language, { day: 'numeric', month: 'short' }));
+                    const key = currentDate.toISOString().split('T')[0];
+                    data.push(groupedData.get(key) || 0);
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
             }
+            return { labels, data };
+        })();
+        
+        const propertyTypes = properties.reduce((acc, prop) => {
+            const type = prop.type[language];
+            acc[type] = (acc[type] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
 
-            let partnerCount = 0;
-            let propertyCount = 0;
-            let partnerIndex = 0;
-            let propertyIndex = 0;
-
-            const sortedPartners = partnersWithDate.sort((a,b) => a.createdAt.getTime() - b.createdAt.getTime());
-            const sortedProperties = propertiesWithDate.sort((a,b) => a.createdAt.getTime() - b.createdAt.getTime());
-
-            return {
-                labels,
-                partners: labels.map(labelDate => {
-                    const d = new Date(labelDate);
-                    while(partnerIndex < sortedPartners.length && sortedPartners[partnerIndex].createdAt.getTime() <= d.getTime()) {
-                        partnerCount++;
-                        partnerIndex++;
-                    }
-                    return partnerCount;
-                }),
-                properties: labels.map(labelDate => {
-                    const d = new Date(labelDate);
-                    while(propertyIndex < sortedProperties.length && sortedProperties[propertyIndex].createdAt.getTime() <= d.getTime()) {
-                        propertyCount++;
-                        propertyIndex++;
-                    }
-                    return propertyCount;
-                })
-            }
-        };
-
-        const growthData = cumulativeGrowth();
+        const leadStatuses = leads.reduce((acc, lead) => {
+            const status = t_dashboard.leadStatus[lead.status];
+            acc[status] = (acc[status] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
         
         return {
             newLeads: filteredLeads.length,
-            newPartners: filteredPartners.length,
-            newProperties: filteredProperties.length,
+            newPartners: partners.filter(p => new Date(p.subscriptionEndDate || 0) > rangeStart).length, // Simplified logic
+            newProperties: properties.filter(p => new Date(p.listingStartDate || 0) > rangeStart).length, // Simplified logic
             conversionRate,
             topProperties,
             topPartners,
-            growthData,
+            leadsOverTime,
+            propertyTypes,
+            leadStatuses,
         };
-    }, [leads, properties, partners, rangeStart, rangeEnd, language]);
+    }, [leads, properties, partners, rangeStart, rangeEnd, language, t_dashboard.leadStatus, timePeriod]);
 
     if (loading || !analyticsData) return <div>Loading analytics...</div>;
     
-    const { growthData } = analyticsData;
+    const { leadsOverTime, propertyTypes, leadStatuses } = analyticsData;
+    
     const lineChartData = {
-        labels: growthData.labels,
-        datasets: [
-            {
-                label: t.partners,
-                data: growthData.partners,
-                borderColor: 'rgb(245, 158, 11)',
-                backgroundColor: 'rgba(245, 158, 11, 0.5)',
-            },
-            {
-                label: t.users, // Using 'users' for properties for simplicity
-                data: growthData.properties,
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.5)',
-            },
-        ],
+        labels: leadsOverTime.labels,
+        datasets: [{
+            label: t.newLeads,
+            data: leadsOverTime.data,
+            borderColor: '#F59E0B',
+            backgroundColor: 'rgba(245, 158, 11, 0.2)',
+            fill: true,
+            tension: 0.3,
+        }],
+    };
+
+    const doughnutChartData = {
+        labels: Object.keys(propertyTypes),
+        datasets: [{
+            data: Object.values(propertyTypes),
+            backgroundColor: ['#F59E0B', '#D97706', '#B45309', '#92400E', '#78350F'],
+            hoverOffset: 4,
+        }],
+    };
+    
+    const barChartData = {
+        labels: Object.keys(leadStatuses),
+        datasets: [{
+            label: 'Lead Count',
+            data: Object.values(leadStatuses),
+            backgroundColor: '#FBBF24',
+            borderRadius: 4,
+        }],
+    };
+
+    const commonChartOptions = (title: string) => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: title, font: { size: 16 }, color: document.documentElement.classList.contains('dark') ? '#E5E7EB' : '#374151' },
+        },
+        scales: {
+             x: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#6B7280' } },
+             y: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#6B7280' } },
+        }
+    });
+
+    const doughnutOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'top' as const, labels: { color: document.documentElement.classList.contains('dark') ? '#E5E7EB' : '#374151' } },
+        }
     };
 
     return (
-        <div>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.title}</h1>
                     <p className="text-gray-500 dark:text-gray-400">{t.subtitle}</p>
                 </div>
                 <div className="flex-shrink-0 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg flex gap-1">
                     {(Object.keys(t) as (keyof typeof t)[]).filter(k => String(k).startsWith('last') || String(k).startsWith('this')).map(periodKey => {
-                        const periodMap: Record<string, TimePeriod> = { last7Days: '7d', last30Days: '30d', thisMonth: 'month', thisYear: 'year' };
-                        const key = String(periodKey).replace(/([A-Z])/g, ' $1').trim().split(' ').map(s=>s.toLowerCase()).join('');
-                        const p = Object.keys(periodMap).find(k => k.toLowerCase() === key) as keyof typeof periodMap;
+                        const periodMap: Record<string, TimePeriod> = { last7days: '7d', last30days: '30d', thismonth: 'month', thisyear: 'year' };
+                        const key = String(periodKey).replace(/([A-Z])/g, '$1').toLowerCase();
                         return (
-                            <button key={p} onClick={() => setTimePeriod(periodMap[p])} className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${timePeriod === periodMap[p] ? 'bg-white dark:bg-gray-700 shadow text-amber-600' : 'text-gray-600 dark:text-gray-400'}`}>{t[periodKey]}</button>
+                            <button key={key} onClick={() => setTimePeriod(periodMap[key])} className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${timePeriod === periodMap[key] ? 'bg-white dark:bg-gray-700 shadow text-amber-600' : 'text-gray-600 dark:text-gray-400'}`}>{t[periodKey]}</button>
                         );
                     })}
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard title={t.newLeads} value={analyticsData.newLeads} icon={<InboxIcon className="w-6 h-6" />} />
                 <StatCard title={t.newPartners} value={analyticsData.newPartners} icon={<UsersIcon className="w-6 h-6" />} />
                 <StatCard title={t.newProperties} value={analyticsData.newProperties} icon={<BuildingIcon className="w-6 h-6" />} />
                 <StatCard title={t.conversionRate} value={`${analyticsData.conversionRate} ${t.leadsPerProperty}`} icon={<ChartBarIcon className="w-6 h-6" />} />
             </div>
-
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700 mb-8">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t.userGrowth}</h3>
-                <div className="h-80"><Line data={lineChartData} options={{ responsive: true, maintainAspectRatio: false }}/></div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                    <div className="h-80"><Line data={lineChartData} options={commonChartOptions('Leads Over Time')}/></div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                    <div className="h-80"><Bar data={barChartData} options={{...commonChartOptions('Lead Status Distribution'), indexAxis: 'y'}}/></div>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t.topPerformingProperties}</h3>
-                     <ul className="space-y-3">
-                        {analyticsData.topProperties.map(({ property, count }) => property && (
-                            <li key={property.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md">
-                                <img src={property.imageUrl} alt="" className="w-10 h-10 rounded-md object-cover" />
-                                <div className="flex-grow">
-                                    <p className="font-semibold text-sm truncate">{property.title[language]}</p>
-                                    <p className="text-xs text-gray-500">{property.partnerName}</p>
-                                </div>
-                                <div className="font-bold text-gray-800 dark:text-gray-200">{count} {t.leads}</div>
-                            </li>
-                        ))}
-                    </ul>
+                     <h3 className="text-lg font-bold text-gray-900 dark:text-white text-center mb-4">Property Type Distribution</h3>
+                     <div className="h-72 w-full"><Doughnut data={doughnutChartData} options={doughnutOptions} /></div>
                 </div>
-                 <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t.topPerformingPartners}</h3>
-                     <ul className="space-y-3">
-                        {analyticsData.topPartners.map(({ partner, count }) => partner && (
-                            <li key={partner.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-md">
-                                <img src={partner.imageUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
-                                <div className="flex-grow">
-                                    <p className="font-semibold text-sm truncate">{partner.name}</p>
-                                    <p className="text-xs text-gray-500">{partner.type}</p>
-                                </div>
-                                <div className="font-bold text-gray-800 dark:text-gray-200">{count} {t.leads}</div>
-                            </li>
-                        ))}
-                    </ul>
+                 <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t.topPerformingPartners}</h3>
+                        <ul className="space-y-3">
+                            {analyticsData.topPartners.map(({ partner, count }) => partner && (
+                                <li key={partner.id}>
+                                     <Link to={`/admin/partners?edit=${partner.id}`} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <img src={partner.imageUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
+                                        <div className="flex-grow">
+                                            <p className="font-semibold text-sm truncate">{partner.name}</p>
+                                            <p className="text-xs text-gray-500">{partner.type}</p>
+                                        </div>
+                                        <div className="font-bold text-gray-800 dark:text-gray-200">{count} {t.leads}</div>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t.topPerformingProperties}</h3>
+                        <ul className="space-y-3">
+                            {analyticsData.topProperties.map(({ property, count }) => property && (
+                                <li key={property.id}>
+                                    <Link to={`/admin/properties/edit/${property.id}`} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <img src={property.imageUrl} alt="" className="w-10 h-10 rounded-md object-cover" />
+                                        <div className="flex-grow overflow-hidden">
+                                            <p className="font-semibold text-sm truncate">{property.title[language]}</p>
+                                            <p className="text-xs text-gray-500">{property.partnerName}</p>
+                                        </div>
+                                        <div className="font-bold text-gray-800 dark:text-gray-200 flex-shrink-0">{count} {t.leads}</div>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>

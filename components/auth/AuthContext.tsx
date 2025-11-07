@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { getPartnerByEmail, getPartnerById } from '../../mockApi/partners';
+import { getPartnerByEmail, getPartnerById } from '../../api/partners';
 import { Role, Permission } from '../../types';
 import type { Partner } from '../../types';
 import { rolePermissions } from '../../data/permissions';

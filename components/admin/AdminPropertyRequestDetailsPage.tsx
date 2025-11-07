@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Language, AddPropertyRequest, Property } from '../../types';
@@ -58,7 +59,7 @@ const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ lan
         } : undefined;
         
         const newPropertyData: Omit<Property, 'id' | 'partnerName' | 'partnerImageUrl'> = {
-            partnerId: 'individual-listings',
+            partnerId: 'individual-listings', // Assign to the "Individual" partner
             status: details.purpose,
             type: details.propertyType,
             finishingStatus: details.finishingStatus,
@@ -82,6 +83,8 @@ const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ lan
             installments: installments,
             listingStartDate: details.listingStartDate,
             listingEndDate: details.listingEndDate,
+            contactMethod: details.contactMethod,
+            ownerPhone: request.customerPhone,
         };
 
         await addProperty(newPropertyData);
@@ -137,6 +140,9 @@ const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ lan
                         <DetailItem label={t.phone} value={request.customerPhone} />
                         <DetailItem label={t.contactTime} value={request.contactTime} />
                         <DetailItem label={t_admin.adminRequests.cooperationType} value={cooperationModelText} />
+                        {request.propertyDetails.contactMethod && (
+                            <DetailItem label={t.contactPreference.title} value={t.contactPreference[request.propertyDetails.contactMethod]} />
+                        )}
                     </div>
                     <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                         <h4 className="font-semibold">{t.propertyInfo}</h4>

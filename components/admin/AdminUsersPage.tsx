@@ -8,6 +8,7 @@ import { useApiQuery } from '../shared/useApiQuery';
 import AdminUserFormModal from './AdminUserFormModal';
 import { useToast } from '../shared/ToastContext';
 import ConfirmationModal from '../shared/ConfirmationModal';
+import Pagination from '../shared/Pagination';
 
 const statusColors: { [key in PartnerStatus]: string } = {
     active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
@@ -19,6 +20,8 @@ type SortConfig = {
     key: 'name' | 'type' | 'status';
     direction: 'ascending' | 'descending';
 } | null;
+
+const ITEMS_PER_PAGE = 10;
 
 const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
     const t_admin = translations[language].adminDashboard;
@@ -33,6 +36,7 @@ const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
     const [modalState, setModalState] = useState<{ isOpen: boolean; userToEdit?: AdminPartner }>({ isOpen: false });
     const [userToDelete, setUserToDelete] = useState<AdminPartner | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const sortedAndFilteredUsers = useMemo(() => {
         let filteredUsers = (partners || []).filter(p => p.id !== 'admin-user');
@@ -62,6 +66,16 @@ const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
         }
         return filteredUsers;
     }, [partners, searchTerm, typeFilter, sortConfig, language]);
+
+    const totalPages = Math.ceil(sortedAndFilteredUsers.length / ITEMS_PER_PAGE);
+    const paginatedUsers = sortedAndFilteredUsers.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, typeFilter]);
 
     const requestSort = (key: 'name' | 'type' | 'status') => {
         let direction: 'ascending' | 'descending' = 'ascending';
@@ -148,48 +162,51 @@ const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
                 </select>
             </div>
             
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('name')}>{t_um.user}</th>
-                            <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('type')}>{t_um.role}</th>
-                            <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>{t_um.status}</th>
-                            <th className="px-6 py-3">{t_um.actions}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan={4} className="text-center p-8">Loading users...</td></tr>
-                        ) : sortedAndFilteredUsers.length > 0 ? (
-                            sortedAndFilteredUsers.map(user => (
-                                <tr key={user.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        <div className="flex items-center gap-3">
-                                            <img src={user.imageUrl} alt={user.name} className="w-10 h-10 object-cover rounded-full" />
-                                            <div>
-                                                <div>{language === 'ar' ? user.nameAr || user.name : user.name}</div>
-                                                <div className="text-xs text-gray-500">{user.email}</div>
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('name')}>{t_um.user}</th>
+                                <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('type')}>{t_um.role}</th>
+                                <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>{t_um.status}</th>
+                                <th className="px-6 py-3">{t_um.actions}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan={4} className="text-center p-8">Loading users...</td></tr>
+                            ) : paginatedUsers.length > 0 ? (
+                                paginatedUsers.map(user => (
+                                    <tr key={user.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                            <div className="flex items-center gap-3">
+                                                <img src={user.imageUrl} alt={user.name} className="w-10 h-10 object-cover rounded-full" />
+                                                <div>
+                                                    <div>{language === 'ar' ? user.nameAr || user.name : user.name}</div>
+                                                    <div className="text-xs text-gray-500">{user.email}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </th>
-                                    <td className="px-6 py-4">{partnerTypes[user.type as keyof typeof partnerTypes] || user.type}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColors[user.status]}`}>
-                                            {partnerStatuses[user.status as keyof typeof partnerStatuses] || user.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 space-x-4 whitespace-nowrap">
-                                        <button onClick={() => setModalState({ isOpen: true, userToEdit: user })} className="font-medium text-amber-600 hover:underline">{t_um.editUser}</button>
-                                        <button onClick={() => setUserToDelete(user)} className="font-medium text-red-600 hover:underline">{t_shared.delete}</button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr><td colSpan={4} className="text-center p-8">No users found.</td></tr>
-                        )}
-                    </tbody>
-                </table>
+                                        </th>
+                                        <td className="px-6 py-4">{partnerTypes[user.type as keyof typeof partnerTypes] || user.type}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColors[user.status]}`}>
+                                                {partnerStatuses[user.status as keyof typeof partnerStatuses] || user.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 space-x-4 whitespace-nowrap">
+                                            <button onClick={() => setModalState({ isOpen: true, userToEdit: user })} className="font-medium text-amber-600 hover:underline">{t_um.editUser}</button>
+                                            <button onClick={() => setUserToDelete(user)} className="font-medium text-red-600 hover:underline">{t_shared.delete}</button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr><td colSpan={4} className="text-center p-8">No users found.</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
             </div>
         </div>
     );

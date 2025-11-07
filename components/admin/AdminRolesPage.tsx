@@ -41,13 +41,17 @@ const permissionGroups = {
 const RolePermissions: React.FC<{
     role: Role;
     roleName: string;
+    roleDescription: string;
     permissions: Permission[];
     onPermissionChange: (role: Role, permission: Permission, checked: boolean) => void;
     language: Language;
-}> = ({ role, roleName, permissions, onPermissionChange, language }) => {
+}> = ({ role, roleName, roleDescription, permissions, onPermissionChange, language }) => {
     return (
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
-            <h2 className="p-4 bg-gray-50 dark:bg-gray-700/50 text-xl font-bold text-gray-800 dark:text-gray-200">{roleName}</h2>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700/50">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">{roleName}</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{roleDescription}</p>
+            </div>
             <div className="p-6 space-y-6">
                 {Object.values(permissionGroups).map(group => (
                     <div key={group.title.en}>
@@ -76,7 +80,7 @@ const RolePermissions: React.FC<{
 const AdminRolesPage: React.FC<{ language: Language }> = ({ language }) => {
     const { data, isLoading, refetch } = useApiQuery('rolePermissions', getRolePermissions);
     const { showToast } = useToast();
-    const t_nav = translations[language].adminDashboard.nav;
+    const t_admin = translations[language].adminDashboard;
     
     const [permissionsMap, setPermissionsMap] = useState<Map<Role, Permission[]>>(new Map());
     const [isSaving, setIsSaving] = useState(false);
@@ -126,7 +130,7 @@ const AdminRolesPage: React.FC<{ language: Language }> = ({ language }) => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_nav.rolesAndPermissions}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_admin.nav.rolesAndPermissions}</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-8">Manage what each user role can see and do on the platform.</p>
 
             <div className="space-y-6">
@@ -135,6 +139,7 @@ const AdminRolesPage: React.FC<{ language: Language }> = ({ language }) => {
                         key={role}
                         role={role}
                         roleName={getRoleName(role)}
+                        roleDescription={t_admin.roleDescriptions[role as keyof typeof t_admin.roleDescriptions] || ''}
                         permissions={permissionsMap.get(role) || []}
                         onPermissionChange={handlePermissionChange}
                         language={language}

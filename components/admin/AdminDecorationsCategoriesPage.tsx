@@ -1,0 +1,65 @@
+import React, { useState } from 'react';
+import type { Language, DecorationCategory } from '../../types';
+import { translations } from '../../data/translations';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getDecorationCategories, deleteDecorationCategory as apiDeleteDecorationCategory } from '../../api/decorations';
+import AdminDecorationCategoryFormModal from './AdminDecorationCategoryFormModal';
+
+const AdminDecorationsCategoriesPage: React.FC<{ language: Language }> = ({ language }) => {
+    const t_nav = translations[language].adminDashboard.nav;
+    const t_decor = translations[language].adminDashboard.decorationsManagement;
+    const { data: categories, refetch: refetchCategories, isLoading: loading } = useApiQuery('decorationCategories', getDecorationCategories);
+    const [modalState, setModalState] = useState<{ isOpen: boolean; categoryToEdit?: DecorationCategory }>({ isOpen: false });
+
+    const handleDelete = async (categoryId: string) => {
+        if (window.confirm(t_decor.confirmDelete.replace('item', 'category'))) {
+            await apiDeleteDecorationCategory(categoryId);
+            refetchCategories();
+        }
+    };
+
+    const handleSave = () => {
+        setModalState({ isOpen: false });
+        refetchCategories();
+    };
+
+    return (
+        <div className="animate-fadeIn">
+            {modalState.isOpen && <AdminDecorationCategoryFormModal categoryToEdit={modalState.categoryToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} language={language} />}
+            
+            <div className="flex justify-between items-center mb-8">
+                 <div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_nav.decorationsCategories}</h1>
+                    <p className="text-gray-500 dark:text-gray-400">Manage the main categories for decoration portfolio items.</p>
+                </div>
+                <button onClick={() => setModalState({ isOpen: true })} className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600">
+                    {t_decor.addNewCategory}
+                </button>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {loading ? (
+                        <li className="p-8 text-center">Loading...</li>
+                    ) : (categories || []).map(cat => (
+                        <li key={cat.id} className="p-4 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <div>
+                                <p className="font-bold text-gray-900 dark:text-white">{cat.name[language]}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{cat.description[language]}</p>
+                            </div>
+                            <div className="space-x-4">
+                                <button onClick={() => setModalState({ isOpen: true, categoryToEdit: cat })} className="font-medium text-amber-600 hover:underline">{translations[language].adminShared.edit}</button>
+                                <button onClick={() => handleDelete(cat.id)} className="font-medium text-red-600 hover:underline">{translations[language].adminShared.delete}</button>
+                            </div>
+                        </li>
+                    ))}
+                     {(categories || []).length === 0 && !loading && (
+                        <li className="p-8 text-center text-gray-500">No categories found.</li>
+                    )}
+                </ul>
+            </div>
+        </div>
+    );
+};
+
+export default AdminDecorationsCategoriesPage;

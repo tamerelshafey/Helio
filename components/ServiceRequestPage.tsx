@@ -1,13 +1,14 @@
+
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import type { Language, PortfolioItem } from '../types';
 import { translations } from '../data/translations';
 import FormField, { inputClasses, selectClasses } from './shared/FormField';
-import { addLead } from '../mockApi/leads';
+import { addLead } from '../api/leads';
 import { CheckCircleIcon } from './icons/Icons';
 import { HelioLogo } from './HelioLogo';
 import { useApiQuery } from './shared/useApiQuery';
-import { getAllPartnersForAdmin } from '../mockApi/partners';
+import { getAllPartnersForAdmin } from '../api/partners';
 
 const ServiceRequestPage: React.FC<{ language: Language }> = ({ language }) => {
     const location = useLocation();
@@ -107,7 +108,8 @@ const ServiceRequestPage: React.FC<{ language: Language }> = ({ language }) => {
                                     <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
                                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t_decor_modal.reference}</p>
                                         <div className="flex gap-4 items-start">
-                                            <img src={workItem.src} alt={workItem.alt} className="w-24 h-24 object-cover rounded-lg flex-shrink-0 shadow-md" />
+                                            {/* FIX: Correct property name from workItem.src to workItem.imageUrl */}
+                                            <img src={workItem.imageUrl} alt={workItem.alt} className="w-24 h-24 object-cover rounded-lg flex-shrink-0 shadow-md" />
                                             <div className="space-y-1 text-sm">
                                                 <h3 className="font-bold text-gray-900 dark:text-white text-base">{workItem.title[language]}</h3>
                                                 {workItem.price != null && <p className="font-semibold text-amber-500">{new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', { style: 'currency', currency: 'EGP', minimumFractionDigits: 0 }).format(workItem.price)}</p>}

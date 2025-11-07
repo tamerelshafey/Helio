@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import type { Language } from '../types';
 import { translations } from '../data/translations';
 import { inputClasses, selectClasses } from './shared/FormField';
-import { addContactRequest } from '../mockApi/contactRequests';
+import { addContactRequest } from '../api/contactRequests';
 import { CheckCircleIcon } from './icons/Icons';
+import { useApiQuery } from './shared/useApiQuery';
+import { getContent } from '../api/content';
 
 interface ContactPageProps {
   language: Language;
@@ -11,6 +13,8 @@ interface ContactPageProps {
 
 const ContactPage: React.FC<ContactPageProps> = ({ language }) => {
     const t = translations[language].contactPage;
+    const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
+
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -132,34 +136,38 @@ const ContactPage: React.FC<ContactPageProps> = ({ language }) => {
                             </div>
                             <div className="space-y-6">
                                 <h2 className="text-2xl font-bold text-amber-500 mb-6">{t.contactInfoTitle}</h2>
-                                <div className="flex items-start gap-4">
-                                    <span className="text-amber-500 mt-1">📍</span>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-900 dark:text-white">{t.addressTitle}</h3>
-                                        <p className="text-gray-600 dark:text-gray-400">{t.addressText}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-4">
-                                    <span className="text-amber-500 mt-1">📞</span>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-900 dark:text-white">{t.phoneTitle}</h3>
-                                        <p className="text-gray-600 dark:text-gray-400" dir="ltr">+20 123 456 7890</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-4">
-                                    <span className="text-amber-500 mt-1">✉️</span>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-900 dark:text-white">{t.emailTitle}</h3>
-                                        <p className="text-gray-600 dark:text-gray-400">info@onlyhelio.com</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-4">
-                                    <span className="text-amber-500 mt-1">⏰</span>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-900 dark:text-white">{t.hoursTitle}</h3>
-                                        <p className="text-gray-600 dark:text-gray-400">{t.hoursText}</p>
-                                    </div>
-                                </div>
+                                {isLoadingContent ? <div className="animate-pulse space-y-4"><div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div><div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div></div> : (
+                                    <>
+                                        <div className="flex items-start gap-4">
+                                            <span className="text-amber-500 mt-1">📍</span>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 dark:text-white">{t.addressTitle}</h3>
+                                                <p className="text-gray-600 dark:text-gray-400">{siteContent?.footer[language].address}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-4">
+                                            <span className="text-amber-500 mt-1">📞</span>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 dark:text-white">{t.phoneTitle}</h3>
+                                                <p className="text-gray-600 dark:text-gray-400" dir="ltr">{siteContent?.footer.phone}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-4">
+                                            <span className="text-amber-500 mt-1">✉️</span>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 dark:text-white">{t.emailTitle}</h3>
+                                                <p className="text-gray-600 dark:text-gray-400">{siteContent?.footer.email}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-4">
+                                            <span className="text-amber-500 mt-1">⏰</span>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-900 dark:text-white">{t.hoursTitle}</h3>
+                                                <p className="text-gray-600 dark:text-gray-400">{siteContent?.footer[language].hours}</p>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </>
                     )}

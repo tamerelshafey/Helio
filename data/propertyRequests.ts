@@ -26,6 +26,7 @@ export let propertyRequestsData: AddPropertyRequest[] = [
             isInCompound: false,
             deliveryType: 'immediate',
             hasInstallments: false,
+            contactMethod: 'platform',
         },
         status: 'pending',
         createdAt: new Date('2024-07-25T15:00:00Z').toISOString(),

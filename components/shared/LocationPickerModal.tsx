@@ -20,7 +20,7 @@ const MAP_BOUNDS = {
 };
 
 const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ onClose, onLocationSelect, language, initialLocation }) => {
-    const defaultCenter = { lat: 30.129, lng: 31.621 }; // Center of New Heliopolis
+    const defaultCenter = { lat: 30.139407, lng: 31.678342 }; // Center of New Heliopolis
     const [pin, setPin] = useState<{ lat: number, lng: number } | null>(initialLocation || defaultCenter);
     const modalRef = useRef<HTMLDivElement>(null);
     const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);

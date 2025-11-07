@@ -80,7 +80,7 @@ const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loadi
     }, [activePropertyId, properties]);
 
     return (
-        <div className="flex flex-col md:flex-row h-[calc(100vh-280px)] border-t border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col md:flex-row h-full">
             {/* Property List */}
             <div ref={listRef} className="w-full md:w-1/2 lg:w-2/5 xl:w-1/3 h-1/2 md:h-full overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800/50">
                 {loading ? (

@@ -1,6 +1,5 @@
 
 
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -8,7 +7,7 @@ import type { Language, SubscriptionPlan } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import { inputClasses } from '../shared/FormField';
-import { updatePartner } from '../../mockApi/partners';
+import { updatePartner } from '../../api/partners';
 // FIX: Import useToast for notifications
 import { useToast } from '../shared/ToastContext';
 

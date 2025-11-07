@@ -3,28 +3,7 @@ import { Role, Permission, PartnerType } from '../types';
 export let rolePermissions: Map<Role, Permission[]> = new Map([
   [
     Role.SUPER_ADMIN,
-    [
-      Permission.VIEW_ADMIN_DASHBOARD,
-      Permission.MANAGE_USERS,
-      Permission.MANAGE_ROLES_PERMISSIONS,
-      Permission.MANAGE_ALL_PARTNERS,
-      Permission.MANAGE_ALL_PROPERTIES,
-      Permission.MANAGE_ALL_PROJECTS,
-      Permission.MANAGE_ALL_LEADS,
-      Permission.MANAGE_PARTNER_REQUESTS,
-      Permission.MANAGE_PROPERTY_REQUESTS,
-      Permission.MANAGE_CONTACT_REQUESTS,
-      Permission.MANAGE_PROPERTY_INQUIRIES,
-      Permission.MANAGE_FINISHING_LEADS,
-      Permission.MANAGE_DECORATIONS_CONTENT,
-      Permission.MANAGE_DECORATIONS_LEADS,
-      Permission.MANAGE_PLANS,
-      Permission.MANAGE_FILTERS,
-      Permission.MANAGE_BANNERS,
-      Permission.MANAGE_SITE_CONTENT,
-      Permission.VIEW_ANALYTICS,
-      Permission.MANAGE_SETTINGS,
-    ],
+    Object.values(Permission), // Super admin gets all permissions
   ],
   [
     Role.DEVELOPER_PARTNER,
@@ -56,33 +35,35 @@ export let rolePermissions: Map<Role, Permission[]> = new Map([
       Permission.MANAGE_OWN_SUBSCRIPTION,
     ],
   ],
-  // New Specialized Admin Roles
+  // New & Refined Admin Roles
   [
-    Role.FINISHING_MANAGER,
+    Role.SERVICE_MANAGER, // Combines Finishing & Decorations
     [
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_FINISHING_LEADS,
+      Permission.MANAGE_DECORATIONS_LEADS,
+      Permission.MANAGE_DECORATIONS_CONTENT, // Manages portfolio items and categories
     ],
   ],
   [
-    Role.DECORATIONS_MANAGER,
+    Role.CUSTOMER_RELATIONS_MANAGER, // Manages individual customer interactions
     [
       Permission.VIEW_ADMIN_DASHBOARD,
-      Permission.MANAGE_DECORATIONS_CONTENT,
-      Permission.MANAGE_DECORATIONS_LEADS,
+      Permission.MANAGE_PROPERTY_REQUESTS,
+      Permission.MANAGE_PROPERTY_INQUIRIES,
+      Permission.MANAGE_CONTACT_REQUESTS,
     ],
   ],
   [
-    Role.LISTINGS_MANAGER,
+    Role.LISTINGS_MANAGER, // Focused on platform inventory
     [
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_ALL_PROPERTIES,
-      Permission.MANAGE_PROPERTY_REQUESTS,
-      Permission.MANAGE_PROPERTY_INQUIRIES,
+      Permission.MANAGE_ALL_PROJECTS,
     ],
   ],
   [
-    Role.PARTNER_RELATIONS_MANAGER,
+    Role.PARTNER_RELATIONS_MANAGER, // Focused on commercial partners
     [
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_ALL_PARTNERS,
@@ -90,16 +71,17 @@ export let rolePermissions: Map<Role, Permission[]> = new Map([
     ],
   ],
    [
-    Role.CONTENT_MANAGER,
+    Role.CONTENT_MANAGER, // Focused on site-wide content
     [
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_BANNERS,
       Permission.MANAGE_SITE_CONTENT,
+      Permission.MANAGE_FILTERS, // Added filter management
     ],
   ],
 ]);
 
-// Helper to map old `type` to new `Role`
+// Helper to map `type` to new `Role`
 export const mapPartnerTypeToRole = (type: PartnerType): Role => {
     switch (type) {
         case 'admin': return Role.SUPER_ADMIN;
@@ -107,8 +89,8 @@ export const mapPartnerTypeToRole = (type: PartnerType): Role => {
         case 'finishing': return Role.FINISHING_PARTNER;
         case 'agency': return Role.AGENCY_PARTNER;
         // Internal roles
-        case 'finishing_manager': return Role.FINISHING_MANAGER;
-        case 'decorations_manager': return Role.DECORATIONS_MANAGER;
+        case 'service_manager': return Role.SERVICE_MANAGER;
+        case 'customer_relations_manager': return Role.CUSTOMER_RELATIONS_MANAGER;
         case 'listings_manager': return Role.LISTINGS_MANAGER;
         case 'partner_relations_manager': return Role.PARTNER_RELATIONS_MANAGER;
         case 'content_manager': return Role.CONTENT_MANAGER;

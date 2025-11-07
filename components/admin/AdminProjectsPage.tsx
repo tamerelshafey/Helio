@@ -8,11 +8,14 @@ import { getAllProjects, deleteProject as apiDeleteProject } from '../../api/pro
 import { getAllPartnersForAdmin } from '../../api/partners';
 import { getAllProperties } from '../../api/properties';
 import { useApiQuery } from '../shared/useApiQuery';
+import Pagination from '../shared/Pagination';
 
 type SortConfig = {
     key: 'name' | 'partnerName';
     direction: 'ascending' | 'descending';
 } | null;
+
+const ITEMS_PER_PAGE = 10;
 
 const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard.projects;
@@ -26,6 +29,7 @@ const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [partnerFilter, setPartnerFilter] = useState('all');
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const partnerOptions = useMemo(() => {
         return (partners || [])
@@ -68,6 +72,16 @@ const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
 
         return filteredProjects;
     }, [projectsWithDetails, searchTerm, partnerFilter, sortConfig, language]);
+
+    const totalPages = Math.ceil(sortedAndFilteredProjects.length / ITEMS_PER_PAGE);
+    const paginatedProjects = sortedAndFilteredProjects.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, partnerFilter]);
     
     const requestSort = (key: 'name' | 'partnerName') => {
         let direction: 'ascending' | 'descending' = 'ascending';
@@ -102,60 +116,54 @@ const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={`${inputClasses} md:col-span-2`}
                 />
-                <select
-                    value={partnerFilter}
-                    onChange={(e) => setPartnerFilter(e.target.value)}
-                    className={selectClasses}
-                    disabled={loading}
-                >
+                 <select value={partnerFilter} onChange={(e) => setPartnerFilter(e.target.value)} className={selectClasses}>
                     <option value="all">{t_filter.allPartners}</option>
-                    {(partnerOptions || []).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    {partnerOptions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
             </div>
-
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('name')}>
-                                <div className="flex items-center">{t.table.project}{getSortIcon('name')}</div>
-                            </th>
-                            <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('partnerName')}>
-                                <div className="flex items-center">{t.table.partner}{getSortIcon('partnerName')}</div>
-                            </th>
-                            <th className="px-6 py-3">{t.table.units}</th>
-                            <th className="px-6 py-3">{t.table.actions}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan={4} className="text-center p-8">Loading projects...</td></tr>
-                        ) : sortedAndFilteredProjects.length > 0 ? (
-                            sortedAndFilteredProjects.map(project => (
+            
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                     <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('name')}>
+                                    <div className="flex items-center">{t.table.project}{getSortIcon('name')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('partnerName')}>
+                                    <div className="flex items-center">{t.table.partner}{getSortIcon('partnerName')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3">{t.table.units}</th>
+                                <th scope="col" className="px-6 py-3">{t.table.actions}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan={4} className="text-center p-8">Loading projects...</td></tr>
+                            ) : paginatedProjects.length > 0 ? (
+                                paginatedProjects.map(project => (
                                 <tr key={project.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <img src={project.imageUrl} alt={project.name[language]} className="w-12 h-12 object-cover rounded-md" />
-                                            <span className="font-medium text-gray-900 dark:text-white">{project.name[language]}</span>
+                                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                                         <div className="flex items-center gap-3">
+                                            <img src={project.imageUrl} alt={project.name[language]} className="w-16 h-16 object-cover rounded-md"/>
+                                            {project.name[language]}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">{project.partnerName}</td>
-                                    <td className="px-6 py-4">{project.unitsCount}</td>
-                                    <td className="px-6 py-4 space-x-4 whitespace-nowrap">
-                                        <Link to={`/admin/projects/edit/${project.id}`} className="font-medium text-amber-600 hover:underline">
-                                            {translations[language].adminShared.edit}
-                                        </Link>
-                                        <button onClick={() => handleDelete(project.id)} className="font-medium text-red-600 hover:underline">
-                                            {translations[language].adminShared.delete}
-                                        </button>
+                                    <td className="px-6 py-4 font-bold">{project.unitsCount}</td>
+                                    <td className="px-6 py-4 space-x-2 whitespace-nowrap">
+                                        <Link to={`/admin/projects/edit/${project.id}`} className="font-medium text-amber-600 dark:text-amber-500 hover:underline">Edit</Link>
+                                        <button onClick={() => handleDelete(project.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">Delete</button>
                                     </td>
                                 </tr>
                             ))
-                        ) : (
-                            <tr><td colSpan={4} className="text-center p-8">No projects found.</td></tr>
-                        )}
-                    </tbody>
-                </table>
+                            ) : (
+                                <tr><td colSpan={4} className="text-center p-8">No projects found.</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
             </div>
         </div>
     );

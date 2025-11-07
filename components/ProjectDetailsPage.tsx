@@ -13,9 +13,9 @@ import {
     ParkingIcon, 
     ElevatorIcon 
 } from './icons/Icons';
-import { getAllProjects } from '../mockApi/projects';
-import { getAllProperties } from '../mockApi/properties';
-import { getAllPartnersForAdmin } from '../mockApi/partners';
+import { getAllProjects } from '../api/projects';
+import { getAllProperties } from '../api/properties';
+import { getAllPartnersForAdmin } from '../api/partners';
 import { useApiQuery } from './shared/useApiQuery';
 
 const iconMap: { [key: string]: React.FC<{className?: string}> } = {

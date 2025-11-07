@@ -24,24 +24,20 @@ const AdminDashboardLayout: React.FC<{ language: Language }> = ({ language }) =>
     }, [currentUser, hasPermission]);
     
     const linkGroups = useMemo(() => {
-        const groups: { [key: string]: typeof visibleNavLinks } = {
-            main: [],
-            requests: [],
-            management: []
-        };
-        const groupKeys: { [key: string]: 'main' | 'requests' | 'management' } = {
-            'Super Admin': 'main',
-            'Super Admin Requests': 'requests',
-            'Super Admin Management': 'management'
-        };
-
+        const groupOrder = ['Main', 'Requests', 'Entities', 'Content', 'System'];
+        const groups: { [key: string]: typeof visibleNavLinks } = {};
+        
         visibleNavLinks.forEach(link => {
-            const groupKey = groupKeys[link.group];
-            if (groupKey) {
-                groups[groupKey].push(link);
+            if (!groups[link.group]) {
+                groups[link.group] = [];
             }
+            groups[link.group].push(link);
         });
-        return [groups.main, groups.requests, groups.management].filter(g => g.length > 0);
+
+        return groupOrder
+            .map(groupName => groups[groupName])
+            .filter(group => group && group.length > 0);
+            
     }, [visibleNavLinks]);
 
     const pageTitle = useMemo(() => {

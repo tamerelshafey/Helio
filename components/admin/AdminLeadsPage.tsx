@@ -9,6 +9,7 @@ import ExportDropdown from '../shared/ExportDropdown';
 import { getAllLeads, deleteLead as apiDeleteLead } from '../../api/leads';
 import { getAllPartnersForAdmin } from '../../api/partners';
 import { useApiQuery } from '../shared/useApiQuery';
+import Pagination from '../shared/Pagination';
 
 const statusColors: { [key in LeadStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -24,6 +25,8 @@ type SortConfig = {
     key: 'customerName' | 'partnerName' | 'serviceTitle' | 'createdAt' | 'customerPhone';
     direction: 'ascending' | 'descending';
 } | null;
+
+const ITEMS_PER_PAGE = 10;
 
 const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard;
@@ -41,6 +44,7 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
     const [endDateFilter, setEndDateFilter] = useState('');
     const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
+    const [currentPage, setCurrentPage] = useState(1);
     
     const initialTab = searchParams.get('tab') as 'all' | 'finishing' | 'decorations' | 'other' | null;
     const [activeTab, setActiveTab] = useState<'all' | 'finishing' | 'decorations' | 'other'>(initialTab || 'all');
@@ -126,6 +130,16 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
         return filteredLeads;
     }, [leads, searchTerm, partnerFilter, startDateFilter, endDateFilter, sortConfig, currentUser, activeTab, managerIds]);
     
+    const totalPages = Math.ceil(sortedAndFilteredLeads.length / ITEMS_PER_PAGE);
+    const paginatedLeads = sortedAndFilteredLeads.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, partnerFilter, startDateFilter, endDateFilter, activeTab]);
+    
     const requestSort = (key: 'customerName' | 'partnerName' | 'serviceTitle' | 'createdAt' | 'customerPhone') => {
         let direction: 'ascending' | 'descending' = 'ascending';
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -153,7 +167,7 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
-            setSelectedLeads(sortedAndFilteredLeads.map(l => l.id));
+            setSelectedLeads(paginatedLeads.map(l => l.id));
         } else {
             setSelectedLeads([]);
         }
@@ -276,8 +290,8 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                                         type="checkbox"
                                         className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500"
                                         onChange={handleSelectAll}
-                                        checked={sortedAndFilteredLeads.length > 0 && selectedLeads.length === sortedAndFilteredLeads.length}
-                                        ref={input => { if (input) input.indeterminate = selectedLeads.length > 0 && selectedLeads.length < sortedAndFilteredLeads.length }}
+                                        checked={paginatedLeads.length > 0 && selectedLeads.length === paginatedLeads.length}
+                                        ref={input => { if (input) input.indeterminate = selectedLeads.length > 0 && selectedLeads.length < paginatedLeads.length }}
                                     />
                                 </th>
                                 <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerName')}>
@@ -303,8 +317,8 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                         <tbody>
                             {loading ? (
                                 <tr><td colSpan={7} className="text-center p-8">Loading leads...</td></tr>
-                            ) : sortedAndFilteredLeads.length > 0 ? (
-                                sortedAndFilteredLeads.map(lead => (
+                            ) : paginatedLeads.length > 0 ? (
+                                paginatedLeads.map(lead => (
                                     <tr key={lead.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td className="w-4 p-4">
                                              <input
@@ -337,6 +351,7 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                         </tbody>
                     </table>
                 </div>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
             </div>
         </div>
     );

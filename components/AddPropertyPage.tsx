@@ -1,13 +1,15 @@
+
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import type { Language, SubscriptionPlanDetails, PlanCategory, FilterOption, SubscriptionPlan } from '../types';
+import type { Language, SubscriptionPlanDetails, PlanCategory, FilterOption, SubscriptionPlan, AddPropertyRequest } from '../types';
 import { translations } from '../data/translations';
-import { addPropertyRequest } from '../mockApi/propertyRequests';
+import { addPropertyRequest } from '../api/propertyRequests';
 import FormField, { inputClasses, selectClasses } from './shared/FormField';
 import { CheckCircleIcon, CloseIcon } from './icons/Icons';
-import { getAllPropertyTypes, getAllFinishingStatuses } from '../mockApi/filters';
-import { getPlans } from '../mockApi/plans';
+import { getAllPropertyTypes, getAllFinishingStatuses } from '../api/filters';
+import { getPlans } from '../../api/plans';
 import { useApiQuery } from './shared/useApiQuery';
 import CooperationCard from './shared/CooperationCard';
 import LocationPickerModal from './shared/LocationPickerModal';
@@ -50,12 +52,15 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
             deliveryMonth: '',
             deliveryYear: '',
             hasInstallments: 'no' as 'yes' | 'no',
+            realEstateFinanceAvailable: 'no' as 'yes' | 'no',
             downPayment: '',
             monthlyInstallment: '',
             years: '',
             listingStartDate: '',
             listingEndDate: '',
             isOwner: false,
+            contactMethod: 'platform' as 'platform' | 'direct',
+            ownerPhone: '',
         }
     });
 
@@ -70,6 +75,7 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
     const watchHasInstallments = watch("hasInstallments");
     const watchLatitude = watch("latitude");
     const watchLongitude = watch("longitude");
+    const watchContactMethod = watch("contactMethod");
 
 
      const fileToBase64 = (file: File): Promise<string> => {
@@ -115,7 +121,7 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
         
         const imageBase64Strings = await Promise.all(images.map(file => fileToBase64(file)));
         
-        const propertyDetails = {
+        const propertyDetails: AddPropertyRequest['propertyDetails'] = {
             purpose: purposeOptions.find(o => o.en === formData.purpose)!,
             propertyType: (propertyTypes || []).find(o => o.en === formData.propertyType)!,
             finishingStatus: (finishingStatuses || []).find(o => o.en === formData.finishingStatus)!,
@@ -132,11 +138,14 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
             deliveryMonth: formData.deliveryMonth,
             deliveryYear: formData.deliveryYear,
             hasInstallments: formData.hasInstallments === 'yes',
+            realEstateFinanceAvailable: formData.realEstateFinanceAvailable === 'yes',
             downPayment: formData.downPayment ? parseInt(formData.downPayment) : undefined,
             monthlyInstallment: formData.monthlyInstallment ? parseInt(formData.monthlyInstallment) : undefined,
             years: formData.years ? parseInt(formData.years) : undefined,
             listingStartDate: formData.listingStartDate,
             listingEndDate: formData.listingEndDate,
+            contactMethod: cooperationType === 'commission' ? 'platform' : formData.contactMethod,
+            ownerPhone: formData.ownerPhone,
         };
 
         await addPropertyRequest({
@@ -224,6 +233,29 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
                                     {!cooperationType && <p className="text-red-500 text-sm mt-2">{t.errors.cooperationType}</p>}
                                 </fieldset>
 
+                                {cooperationType === 'paid_listing' && (
+                                    <fieldset className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-4 animate-fadeIn">
+                                        <legend className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t.contactPreference.title}:</legend>
+                                        <div className="flex gap-4 pt-2">
+                                            <label className="flex items-center gap-2">
+                                                <input type="radio" {...register("contactMethod")} value="platform" defaultChecked />
+                                                <span>{t.contactPreference.platform}</span>
+                                            </label>
+                                            <label className="flex items-center gap-2">
+                                                <input type="radio" {...register("contactMethod")} value="direct" />
+                                                <span>{t.contactPreference.direct}</span>
+                                            </label>
+                                        </div>
+                                        {watchContactMethod === 'direct' && (
+                                             <div className="pt-2 animate-fadeIn">
+                                                <FormField label={`${t.phone} (For Public Inquiries)`} id="ownerPhone" error={errors.ownerPhone?.message}>
+                                                    <input type="tel" {...register("ownerPhone", { required: watchContactMethod === 'direct' ? t.errors.required : false, pattern: { value: /^\+?[0-9\s-]{10,}$/, message: t.errors.invalidPhone } })} className={inputClasses}  dir="ltr" />
+                                                </FormField>
+                                             </div>
+                                        )}
+                                    </fieldset>
+                                )}
+
                                 {/* Owner Info */}
                                 <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                                     <legend className="text-lg font-semibold text-amber-500 mb-2">{t.ownerInfo}</legend>
@@ -231,7 +263,7 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
                                         <FormField label={t.fullName} id="customerName" error={errors.customerName?.message}>
                                             <input type="text" {...register("customerName", { required: t.errors.required })} className={inputClasses}  />
                                         </FormField>
-                                        <FormField label={t.phone} id="customerPhone" error={errors.customerPhone?.message}>
+                                        <FormField label={`${t.phone} (For Verification)`} id="customerPhone" error={errors.customerPhone?.message}>
                                             <input type="tel" {...register("customerPhone", { required: t.errors.required, pattern: { value: /^\+?[0-9\s-]{10,}$/, message: t.errors.invalidPhone } })} className={inputClasses}  dir="ltr" />
                                         </FormField>
                                     </div>
@@ -353,7 +385,7 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
                                 {/* More Details */}
                                 <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                                     <legend className="text-lg font-semibold text-amber-500 mb-2">{translations[language].propertyDetailsPage.deliveryPayment}</legend>
-                                    <div className="grid sm:grid-cols-2 gap-6">
+                                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                         <FormField label={t.inCompound} id="isInCompound">
                                             <div className="flex gap-4 pt-2">
                                                 <label className="flex items-center gap-2"><input type="radio" {...register("isInCompound")} value="yes" /> {t.yes}</label>
@@ -364,6 +396,12 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
                                              <div className="flex gap-4 pt-2">
                                                 <label className="flex items-center gap-2"><input type="radio" {...register("deliveryType")} value="immediate" /> {t.immediate}</label>
                                                 <label className="flex items-center gap-2"><input type="radio" {...register("deliveryType")} value="future" /> {t.future}</label>
+                                            </div>
+                                        </FormField>
+                                        <FormField label={t.realEstateFinance} id="realEstateFinanceAvailable">
+                                            <div className="flex gap-4 pt-2">
+                                                <label className="flex items-center gap-2"><input type="radio" {...register("realEstateFinanceAvailable")} value="yes" /> {t.yes}</label>
+                                                <label className="flex items-center gap-2"><input type="radio" {...register("realEstateFinanceAvailable")} value="no" /> {t.no}</label>
                                             </div>
                                         </FormField>
                                     </div>

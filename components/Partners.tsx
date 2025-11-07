@@ -1,11 +1,12 @@
+
+
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, Partner, Project, AdminPartner, SiteContent } from '../types';
+import type { Language, Partner, AdminPartner, SiteContent } from '../types';
 import { translations } from '../data/translations';
-import { getAllPartnersForAdmin } from '../mockApi/partners';
-import { getAllProjects } from '../mockApi/projects';
+import { getAllPartnersForAdmin } from '../api/partners';
 import { useApiQuery } from './shared/useApiQuery';
-import { getContent } from '../mockApi/content';
+import { getContent } from '../api/content';
 
 interface PartnersProps {
     language: Language;
@@ -40,60 +41,42 @@ const PartnerCard: React.FC<{ partner: Partner, language: Language }> = ({ partn
     );
 };
 
-const ProjectCard: React.FC<{ project: Project, developer: Partner, language: Language }> = ({ project, developer, language }) => (
-    <Link to={`/projects/${project.id}`} className="block h-full">
-      <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 transform hover:-translate-y-2 transition-transform duration-300 group h-full flex flex-col">
-        <div className="relative">
-            <img 
-                src={project.imageUrl_large || project.imageUrl}
-                srcSet={`${project.imageUrl_small} 480w, ${project.imageUrl_medium} 800w, ${project.imageUrl_large || project.imageUrl} 1200w`}
-                sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, 30vw"
-                alt={project.name[language]} 
-                className="w-full h-56 object-cover"
-                loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 p-4">
-                <h3 className="text-white text-xl font-bold">{project.name[language]}</h3>
-                <p className="text-amber-300 text-sm">{translations[language].propertyCard.by} {developer.name}</p>
-            </div>
-        </div>
-      </div>
-    </Link>
-);
-
-
 const Partners: React.FC<PartnersProps> = ({ language }) => {
-    const t = translations[language].partners;
     const { data: partners, isLoading: isLoadingPartners } = useApiQuery<AdminPartner[]>('allPartners', getAllPartnersForAdmin);
-    const { data: projects, isLoading: isLoadingProjects } = useApiQuery('allProjects', getAllProjects);
     const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
 
-    const loading = isLoadingPartners || isLoadingProjects || isLoadingContent;
+    const loading = isLoadingPartners || isLoadingContent;
+
+    const content = useMemo(() => {
+        if (!siteContent) return null;
+        return siteContent.partners[language];
+    }, [siteContent, language]);
 
     const categorizedPartners = useMemo(() => {
-        const activePartners = (partners || []).filter(p => p.status === 'active');
-        const megaProjectDevelopers = activePartners.filter(p => p.type === 'developer' && p.displayType === 'mega_project');
-        
-        const partnerIdsWithMegaProjects = megaProjectDevelopers.map(p => p.id);
-        const megaProjects = (projects || []).filter(proj => partnerIdsWithMegaProjects.includes(proj.partnerId));
+        if (!partners || !content) return { majorDevelopers: [], cityDevelopers: [], sections: [] };
 
-        const otherPartners = activePartners.filter(p => p.displayType !== 'mega_project' && p.type !== 'admin' && p.type !== 'decorations' && p.id !== 'individual-listings');
+        const activePartners = (partners || []).filter(p => p.status === 'active');
+        
+        // Group 1: Major Developers
+        const majorDevelopers = activePartners.filter(p => p.type === 'developer' && p.displayType === 'mega_project');
+
+        // Group 2: City Developers
+        const cityDevelopers = activePartners.filter(p => p.type === 'developer' && p.displayType !== 'mega_project');
+
+        // Other partners (finishing, agency)
+        const otherPartners = activePartners.filter(p => p.type !== 'developer' && p.type !== 'admin' && p.id !== 'individual-listings');
         
         const sections = [
-            { title: t.developers_title, partners: otherPartners.filter(p => p.type === 'developer') },
-            { title: t.finishing_companies_title, partners: otherPartners.filter(p => p.type === 'finishing') },
-            { title: t.agencies_title, partners: otherPartners.filter(p => p.type === 'agency') },
+            { title: content.finishing_companies_title, partners: otherPartners.filter(p => p.type === 'finishing') },
+            { title: content.agencies_title, partners: otherPartners.filter(p => p.type === 'agency') },
         ].filter(section => section.partners.length > 0);
 
-        return { megaProjects, megaProjectDevelopers, sections };
-    }, [partners, projects, t]);
+        return { majorDevelopers, cityDevelopers, sections };
+    }, [partners, content]);
     
-    if (loading) {
+    if (loading || !content) {
         return <div className="py-20 bg-gray-50 dark:bg-gray-900 animate-pulse h-[500px]"></div>;
     }
-
-    const content = siteContent.partners[language];
 
     return (
         <div className="py-20 bg-gray-50 dark:bg-gray-900">
@@ -107,16 +90,26 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
                     </p>
                 </div>
 
-                {/* Mega Projects Section */}
-                {categorizedPartners.megaProjects.length > 0 && (
+                {/* Major Developers Section */}
+                {categorizedPartners.majorDevelopers.length > 0 && (
                      <div className="mb-16">
-                        <h3 className="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-8">{t.mega_projects_title}</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                           {categorizedPartners.megaProjects.map(project => {
-                               const developer = categorizedPartners.megaProjectDevelopers.find(p => p.id === project.partnerId);
-                               if (!developer) return null;
-                               return <ProjectCard key={project.id} project={project} developer={developer} language={language} />;
-                           })}
+                        <h3 className="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-8">{content.mega_projects_title}</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                           {categorizedPartners.majorDevelopers.map(partner => (
+                               <PartnerCard key={partner.id} partner={partner} language={language} />
+                           ))}
+                        </div>
+                    </div>
+                )}
+                
+                {/* City Developers Section */}
+                {categorizedPartners.cityDevelopers.length > 0 && (
+                     <div className="mb-16">
+                        <h3 className="text-2xl font-semibold text-center text-gray-800 dark:text-white mb-8">{content.developers_title}</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                           {categorizedPartners.cityDevelopers.map(partner => (
+                               <PartnerCard key={partner.id} partner={partner} language={language} />
+                           ))}
                         </div>
                     </div>
                 )}

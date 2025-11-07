@@ -1,19 +1,19 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PropertyCard from './shared/PropertyCard';
-import type { Language, Property, Project, Partner, FilterOption } from '../types';
+import type { Language, Property, Project, FilterOption } from '../types';
 import { translations } from '../data/translations';
-import { SearchIcon, ArrowDownIcon, ListIcon, MapIcon } from './icons/Icons';
+import { SearchIcon, ArrowDownIcon, ListIcon, MapIcon, ChevronRightIcon } from './icons/Icons';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 import { inputClasses, selectClasses } from './shared/FormField';
 import { isListingActive } from '../utils/propertyUtils';
 import BannerDisplay from './shared/BannerDisplay';
 import PropertyInquiryModal from './shared/PropertyInquiryModal';
 import PropertiesMapView from './PropertiesMapView';
-import { getProperties } from '../mockApi/properties';
-import { getAllProjects } from '../mockApi/projects';
-import { getAllPartnersForAdmin } from '../mockApi/partners';
-import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../mockApi/filters';
+import { getProperties } from '../api/properties';
+import { getAllProjects } from '../api/projects';
+import { getAllPartnersForAdmin } from '../api/partners';
+import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../api/filters';
 import { useApiQuery } from './shared/useApiQuery';
 import { usePropertyFilters } from './shared/usePropertyFilters';
 
@@ -29,7 +29,7 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ language }) => {
         minPrice: minPriceFilter, maxPrice: maxPriceFilter, project: projectFilter, 
         finishing: finishingFilter, installments: installmentsFilter, floor: floorFilter, 
         compound: compoundFilter, delivery: deliveryFilter, amenities: amenitiesFilter,
-        beds: bedsFilter, baths: bathsFilter,
+        beds: bedsFilter, baths: bathsFilter, realEstateFinance: realEstateFinanceFilter,
         setFilter 
     } = usePropertyFilters();
 
@@ -73,6 +73,7 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ language }) => {
         projectFilter !== 'all',
         finishingFilter !== 'all',
         installmentsFilter !== 'all',
+        realEstateFinanceFilter !== 'all',
         compoundFilter !== 'all',
         deliveryFilter !== 'all',
         !!floorFilter,
@@ -119,6 +120,10 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ language }) => {
                 (installmentsFilter === 'yes' && p.installmentsAvailable) ||
                 (installmentsFilter === 'no' && !p.installmentsAvailable);
             
+            const realEstateFinanceMatch = realEstateFinanceFilter === 'all' ||
+                (realEstateFinanceFilter === 'yes' && p.realEstateFinanceAvailable) ||
+                (realEstateFinanceFilter === 'no' && !p.realEstateFinanceAvailable);
+
             const floorMatch = !floorFilter || (p.floor !== undefined && p.floor === parseInt(floorFilter, 10));
 
             const compoundMatch = compoundFilter === 'all' || 
@@ -133,58 +138,21 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ language }) => {
             const bedsMatch = !bedsFilter || p.beds >= parseInt(bedsFilter, 10);
             const bathsMatch = !bathsFilter || p.baths >= parseInt(bathsFilter, 10);
 
-            return statusMatch && typeMatch && queryMatch && priceMatch && finishingMatch && installmentsMatch && floorMatch && compoundMatch && deliveryMatch && amenitiesMatch && projectMatch && bedsMatch && bathsMatch;
+            return statusMatch && typeMatch && queryMatch && priceMatch && finishingMatch && installmentsMatch && realEstateFinanceMatch && floorMatch && compoundMatch && deliveryMatch && amenitiesMatch && projectMatch && bedsMatch && bathsMatch;
         });
-    }, [activeProperties, statusFilter, typeFilter, queryFilter, minPriceFilter, maxPriceFilter, finishingFilter, installmentsFilter, floorFilter, compoundFilter, deliveryFilter, amenitiesFilter, projectFilter, bedsFilter, bathsFilter]);
+    }, [activeProperties, statusFilter, typeFilter, queryFilter, minPriceFilter, maxPriceFilter, finishingFilter, installmentsFilter, realEstateFinanceFilter, floorFilter, compoundFilter, deliveryFilter, amenitiesFilter, projectFilter, bedsFilter, bathsFilter]);
     
     const isForRent = statusFilter === 'For Rent';
     const isFinishingDisabled = typeFilter === 'Land' || availableFinishingStatuses.length === 0;
 
-    const listOrGrid = (
-         <div className="container mx-auto px-6">
-            {filteredProperties.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-                {filteredProperties.map((prop) => {
-                    const project = prop.projectId ? projectsMap.get(prop.projectId) : undefined;
-                    return (
-                        <div
-                            key={prop.id}
-                            onMouseEnter={() => setActivePropertyId(prop.id)}
-                            onMouseLeave={() => setActivePropertyId(null)}
-                            className={`rounded-lg transition-all duration-300 ${activePropertyId === prop.id ? 'shadow-2xl ring-2 ring-amber-500' : ''}`}
-                        >
-                            <PropertyCard {...prop} language={language} project={project} />
-                        </div>
-                    )
-                })}
-                </div>
-              ) : (
-                <div className="col-span-full text-center py-16 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <p className="text-xl text-gray-600 dark:text-gray-400">{t.noResults}</p>
-                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white mt-8">{t.cantFindTitle}</h3>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-lg mx-auto">{t.cantFindSubtitle}</p>
-                    <button
-                        onClick={() => setIsRequestModalOpen(true)}
-                        className="mt-6 bg-amber-500 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-md shadow-amber-500/20"
-                    >
-                        {t.leaveRequestButton}
-                    </button>
-                </div>
-              )}
-            </div>
-    );
-
-    return (
-        <div className="bg-white dark:bg-gray-900">
-            {isRequestModalOpen && <PropertyInquiryModal onClose={() => setIsRequestModalOpen(false)} language={language} />}
-          <div className="container mx-auto px-6 pt-20">
+    const filterControls = (
+        <>
             <div className="text-center mb-12">
                 <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">{t.title}</h1>
                 <p className="text-lg text-gray-500 dark:text-gray-400 mt-4 max-w-2xl mx-auto">{t.subtitle}</p>
             </div>
             
             <div className="mb-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4">
-                {/* Primary Filters */}
                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     <div className="sm:col-span-2 lg:col-span-4 xl:col-span-5">
                         <label htmlFor="search-query" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.searchLabel}</label>
@@ -241,7 +209,6 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ language }) => {
                     </div>
                 </div>
                 
-                {/* Advanced Filters Toggle */}
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                      <button onClick={() => setShowAdvanced(!showAdvanced)} className="flex items-center gap-2 font-semibold text-amber-600 dark:text-amber-500">
                         <span>{showAdvanced ? t.hideFilters : t.advancedFilters}</span>
@@ -254,7 +221,6 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ language }) => {
                     </button>
                 </div>
 
-                {/* Advanced Filters Section */}
                 {showAdvanced && (
                     <div className="pt-4 space-y-4 animate-fadeIn">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -274,30 +240,7 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ language }) => {
                                     ))}
                                 </select>
                             </div>
-                            <div>
-                                <label htmlFor="installments-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.installments}</label>
-                                <select id="installments-filter" value={installmentsFilter} onChange={e => setFilter('installments', e.target.value)} className={selectClasses} disabled={isForRent}>
-                                    <option value="all">{t.allInstallments}</option>
-                                    <option value="yes">{t.installmentsYes}</option>
-                                    <option value="no">{t.installmentsNo}</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label htmlFor="compound-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.inCompound}</label>
-                                <select id="compound-filter" value={compoundFilter} onChange={e => setFilter('compound', e.target.value)} className={selectClasses}>
-                                    <option value="all">{t.allCompound}</option>
-                                    <option value="yes">{t.compoundYes}</option>
-                                    <option value="no">{t.compoundNo}</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label htmlFor="delivery-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.delivery}</label>
-                                <select id="delivery-filter" value={deliveryFilter} onChange={e => setFilter('delivery', e.target.value)} className={selectClasses}>
-                                    <option value="all">{t.allDelivery}</option>
-                                    <option value="immediate">{t.immediateDelivery}</option>
-                                </select>
-                            </div>
-                             {(typeFilter !== 'Villa' && typeFilter !== 'Land') && (
+                            {(typeFilter !== 'Villa' && typeFilter !== 'Land') && (
                                 <div>
                                     <label htmlFor="floor-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.floor}</label>
                                     <input
@@ -312,6 +255,47 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ language }) => {
                                 </div>
                             )}
                         </div>
+
+                        <details className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <summary className="font-semibold text-gray-800 dark:text-gray-300 cursor-pointer list-none flex items-center gap-2">
+                                <ChevronRightIcon className="w-4 h-4 transition-transform duration-200 rotate-on-open" />
+                                {t.additionalOptions}
+                            </summary>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+                                <div>
+                                    <label htmlFor="installments-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.installments}</label>
+                                    <select id="installments-filter" value={installmentsFilter} onChange={e => setFilter('installments', e.target.value)} className={selectClasses} disabled={isForRent}>
+                                        <option value="all">{t.allInstallments}</option>
+                                        <option value="yes">{t.installmentsYes}</option>
+                                        <option value="no">{t.installmentsNo}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label htmlFor="real-estate-finance-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.realEstateFinance}</label>
+                                    <select id="real-estate-finance-filter" value={realEstateFinanceFilter} onChange={e => setFilter('realEstateFinance', e.target.value)} className={selectClasses} disabled={isForRent}>
+                                        <option value="all">{t.allRealEstateFinance}</option>
+                                        <option value="yes">{t.realEstateFinanceYes}</option>
+                                        <option value="no">{t.realEstateFinanceNo}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label htmlFor="compound-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.inCompound}</label>
+                                    <select id="compound-filter" value={compoundFilter} onChange={e => setFilter('compound', e.target.value)} className={selectClasses}>
+                                        <option value="all">{t.allCompound}</option>
+                                        <option value="yes">{t.compoundYes}</option>
+                                        <option value="no">{t.compoundNo}</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label htmlFor="delivery-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.delivery}</label>
+                                    <select id="delivery-filter" value={deliveryFilter} onChange={e => setFilter('delivery', e.target.value)} className={selectClasses}>
+                                        <option value="all">{t.allDelivery}</option>
+                                        <option value="immediate">{t.immediateDelivery}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </details>
+
                         <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                              <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-4">{t.amenities}</h4>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-3">
@@ -351,18 +335,68 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ language }) => {
             </div>
             
             <BannerDisplay location="properties" language={language} />
+        </>
+    );
+
+    if (view === 'map') {
+        return (
+            <div className="bg-white dark:bg-gray-900 flex flex-col" style={{ height: `calc(100vh - 80px)` }}>
+                {isRequestModalOpen && <PropertyInquiryModal onClose={() => setIsRequestModalOpen(false)} language={language} />}
+                <div className="container mx-auto px-6 pt-8 pb-4 shrink-0 overflow-y-auto">
+                    {filterControls}
+                </div>
+                <div className="flex-grow min-h-0">
+                    <PropertiesMapView 
+                        properties={filteredProperties}
+                        loading={isLoading}
+                        language={language}
+                        activePropertyId={activePropertyId}
+                        setActivePropertyId={setActivePropertyId}
+                    />
+                </div>
+            </div>
+        );
+    }
+    
+    return (
+        <div className="bg-white dark:bg-gray-900">
+            {isRequestModalOpen && <PropertyInquiryModal onClose={() => setIsRequestModalOpen(false)} language={language} />}
+          <div className="container mx-auto px-6 pt-20">
+            {filterControls}
           </div>
 
-          <div className="pb-20">
-              {view === 'list' ? listOrGrid : (
-                  <PropertiesMapView 
-                      properties={filteredProperties}
-                      loading={isLoading}
-                      language={language}
-                      activePropertyId={activePropertyId}
-                      setActivePropertyId={setActivePropertyId}
-                  />
+          <div className="pb-8">
+            <div className="container mx-auto px-6">
+            {filteredProperties.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+                {filteredProperties.map((prop) => {
+                    const project = prop.projectId ? projectsMap.get(prop.projectId) : undefined;
+                    return (
+                        <div
+                            key={prop.id}
+                            onMouseEnter={() => setActivePropertyId(prop.id)}
+                            onMouseLeave={() => setActivePropertyId(null)}
+                            className={`rounded-lg transition-all duration-300 ${activePropertyId === prop.id ? 'shadow-2xl ring-2 ring-amber-500' : ''}`}
+                        >
+                            <PropertyCard {...prop} language={language} project={project} />
+                        </div>
+                    )
+                })}
+                </div>
+              ) : (
+                <div className="col-span-full text-center py-16 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <p className="text-xl text-gray-600 dark:text-gray-400">{t.noResults}</p>
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white mt-8">{t.cantFindTitle}</h3>
+                    <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-lg mx-auto">{t.cantFindSubtitle}</p>
+                    <button
+                        onClick={() => setIsRequestModalOpen(true)}
+                        className="mt-6 bg-amber-500 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-md shadow-amber-500/20"
+                    >
+                        {t.leaveRequestButton}
+                    </button>
+                </div>
               )}
+            </div>
           </div>
         </div>
     );

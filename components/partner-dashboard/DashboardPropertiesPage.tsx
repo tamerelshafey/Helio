@@ -8,8 +8,7 @@ import { BuildingIcon } from '../icons/Icons';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import UpgradePlanModal from '../UpgradePlanModal';
 import ExportDropdown from '../shared/ExportDropdown';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { deleteProperty as apiDeleteProperty } from '../../mockApi/properties';
+import { deleteProperty as apiDeleteProperty } from '../../api/properties';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 
 

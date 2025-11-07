@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Language, PortfolioItem } from '../../types';
 import { translations } from '../../data/translations';
@@ -40,7 +41,8 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
     });
 
     const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(itemToEdit?.src || null);
+    // FIX: Changed itemToEdit?.src to itemToEdit?.imageUrl to match PortfolioItem type.
+    const [imagePreview, setImagePreview] = useState<string | null>(itemToEdit?.imageUrl || null);
 
     useEffect(() => {
         if (decorationCategories && decorationCategories.length > 0 && !formData.categoryId) {
@@ -70,7 +72,8 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
         e.preventDefault();
         setLoading(true);
 
-        let imageSrc = itemToEdit?.src || '';
+        // FIX: Changed itemToEdit?.src to itemToEdit?.imageUrl to match PortfolioItem type.
+        let imageSrc = itemToEdit?.imageUrl || '';
         if (imageFile) {
             imageSrc = await fileToBase64(imageFile);
         }
@@ -84,9 +87,10 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
 
         const dataToSave: Omit<PortfolioItem, 'id'> = {
             title: formData.title,
-            partnerId: 'decor-manager-1', // All decoration items are managed internally
+            partnerId: 'admin-user', // All decoration items are managed internally
             category: selectedCategory.name,
-            src: imageSrc,
+            // FIX: Changed src to imageUrl to match PortfolioItem type and fix the error.
+            imageUrl: imageSrc,
             alt: formData.title.en || 'Decoration work',
             price: formData.price ? parseInt(String(formData.price), 10) : undefined,
             dimensions: formData.dimensions || undefined,
@@ -111,10 +115,10 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
                         <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
                     </div>
                     <div className="flex-grow overflow-y-auto p-6 space-y-6">
-                        <FormField label={t.workImageURL} id="src">
+                        <FormField label={t.workImageURL} id="imageUrl">
                             <div className="flex items-center gap-4">
                                 {imagePreview && <img src={imagePreview} alt="Preview" className="w-20 h-20 rounded-md object-cover border-2" />}
-                                <input type="file" id="src" accept="image/*" onChange={handleFileChange} className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`} required={!itemToEdit} />
+                                <input type="file" id="imageUrl" accept="image/*" onChange={handleFileChange} className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`} required={!itemToEdit} />
                             </div>
                         </FormField>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -3,12 +3,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Language, Property, Lead } from '../../types';
 import { translations } from '../../data/translations';
 import { useApiQuery } from '../shared/useApiQuery';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { getAllProjects, deleteProject as apiDeleteProject } from '../../mockApi/projects';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { getPropertiesByPartnerId, deleteProperty as apiDeleteProperty } from '../../mockApi/properties';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { getLeadsByPartnerId } from '../../mockApi/leads';
+import { getAllProjects, deleteProject as apiDeleteProject } from '../../api/projects';
+import { getPropertiesByPartnerId, deleteProperty as apiDeleteProperty } from '../../api/properties';
+import { getLeadsByPartnerId } from '../../api/leads';
 import { BuildingIcon, ChartBarIcon, InboxIcon } from '../icons/Icons';
 import { useAuth } from '../auth/AuthContext';
 import UpgradePlanModal from '../UpgradePlanModal';
@@ -24,7 +21,7 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
     const t_prop_table = t.dashboard.propertyTable;
     const t_analytics = t.dashboard.projectAnalytics;
 
-    const { data: projects, isLoading: loadingProjects } = useApiQuery('allProjects', getAllProjects);
+    const { data: projects, isLoading: loadingProjects, refetch: refetchProjects } = useApiQuery('allProjects', getAllProjects);
     const { data: partnerProperties, isLoading: loadingProperties, refetch: refetchProperties } = useApiQuery(
         `partner-properties-${currentUser?.id}`,
         () => getPropertiesByPartnerId(currentUser!.id),
@@ -65,11 +62,10 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
         }
     };
     
-    // Analytics Data Memoization
     const projectAnalytics = useMemo(() => {
         if (!leads || !projectProperties) return { totalLeads: 0, topUnits: [] };
         
-        const propertyIdMap = new Map<string, string>(); // Map title -> propertyId
+        const propertyIdMap = new Map<string, string>();
         projectProperties.forEach(p => {
             propertyIdMap.set(p.title.ar, p.id);
             propertyIdMap.set(p.title.en, p.id);

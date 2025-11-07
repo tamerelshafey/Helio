@@ -1,3 +1,5 @@
+
+
 export type Language = 'ar' | 'en';
 export type Theme = 'light' | 'dark';
 
@@ -13,9 +15,9 @@ export enum Role {
   DEVELOPER_PARTNER = 'DEVELOPER_PARTNER',
   FINISHING_PARTNER = 'FINISHING_PARTNER',
   AGENCY_PARTNER = 'AGENCY_PARTNER',
-  // New specialized admin roles
-  FINISHING_MANAGER = 'FINISHING_MANAGER',
-  DECORATIONS_MANAGER = 'DECORATIONS_MANAGER',
+  // Refined & New Admin Roles
+  SERVICE_MANAGER = 'SERVICE_MANAGER', // Manages Finishing & Decorations
+  CUSTOMER_RELATIONS_MANAGER = 'CUSTOMER_RELATIONS_MANAGER', // Manages individual requests
   LISTINGS_MANAGER = 'LISTINGS_MANAGER',
   PARTNER_RELATIONS_MANAGER = 'PARTNER_RELATIONS_MANAGER',
   CONTENT_MANAGER = 'CONTENT_MANAGER',
@@ -57,7 +59,7 @@ export enum Permission {
 
 // --- Models & Data Structures ---
 
-export type PartnerType = 'developer' | 'finishing' | 'agency' | 'admin' | 'decorations_manager' | 'finishing_manager' | 'listings_manager' | 'partner_relations_manager' | 'content_manager';
+export type PartnerType = 'developer' | 'finishing' | 'agency' | 'admin' | 'service_manager' | 'customer_relations_manager' | 'listings_manager' | 'partner_relations_manager' | 'content_manager';
 export type PartnerStatus = 'active' | 'pending' | 'disabled';
 export type PlanCategory = 'developer' | 'agency' | 'finishing' | 'individual';
 export type SubscriptionPlan = 'basic' | 'professional' | 'elite' | 'commission' | 'paid_listing';
@@ -79,6 +81,11 @@ export interface Partner {
   subscriptionPlan: SubscriptionPlan;
   subscriptionEndDate?: string;
   displayType: PartnerDisplayType;
+  contactMethods?: {
+    whatsapp: { enabled: boolean; number: string; };
+    phone: { enabled: boolean; number: string; };
+    form: { enabled: boolean; };
+  };
 }
 
 export interface AdminPartner extends Partner {
@@ -123,6 +130,7 @@ export interface Property {
   finishingStatus?: Translatable;
   installmentsAvailable?: boolean;
   isInCompound?: boolean;
+  realEstateFinanceAvailable?: boolean;
   delivery?: {
     isImmediate: boolean;
     date?: string; // YYYY-MM
@@ -140,6 +148,8 @@ export interface Property {
   listingEndDate?: string;
   partnerName?: string;
   partnerImageUrl?: string;
+  contactMethod?: 'platform' | 'direct';
+  ownerPhone?: string;
 }
 
 export interface Project {
@@ -161,7 +171,7 @@ export interface Project {
 export interface PortfolioItem {
   id: string;
   partnerId: string;
-  src: string;
+  imageUrl: string;
   alt: string;
   title: Translatable;
   category: Translatable;
@@ -177,10 +187,21 @@ export interface DecorationCategory {
 }
 
 export type LeadStatus = 'new' | 'contacted' | 'site-visit' | 'quoted' | 'in-progress' | 'completed' | 'cancelled';
+
+export interface LeadMessage {
+  id: string;
+  sender: 'partner' | 'admin' | 'client' | 'system';
+  senderId?: string; // a partnerId or userId
+  type: 'message' | 'note';
+  content: string;
+  timestamp: string;
+}
+
 export interface Lead {
     id: string;
     partnerId: string;
     managerId?: string;
+    serviceType?: 'property' | 'finishing' | 'decorations';
     propertyId?: string;
     customerName: string;
     customerPhone: string;
@@ -190,7 +211,7 @@ export interface Lead {
     status: LeadStatus;
     createdAt: string;
     updatedAt: string;
-    internalNotes?: string;
+    messages: LeadMessage[];
     partnerName?: string;
     assignedTo?: string; // 'internal-team' or partnerId
 }
@@ -274,11 +295,14 @@ export interface AddPropertyRequest {
         deliveryMonth?: string;
         deliveryYear?: string;
         hasInstallments: boolean;
+        realEstateFinanceAvailable?: boolean;
         downPayment?: number;
         monthlyInstallment?: number;
         years?: number;
         listingStartDate?: string;
         listingEndDate?: string;
+        contactMethod: 'platform' | 'direct';
+        ownerPhone?: string;
     };
     images: string[];
     status: RequestStatus;
@@ -318,6 +342,27 @@ export interface PartnerRequest {
 }
 
 
+// --- AI Estimator ---
+
+export interface AIEstimatorOption {
+    key: string;
+    en: string;
+    ar: string;
+}
+
+export interface AIEstimatorConfig {
+    prompt: string;
+    model: string;
+    options: {
+        flooring: AIEstimatorOption[];
+        walls: AIEstimatorOption[];
+        ceiling: AIEstimatorOption[];
+        electrical: AIEstimatorOption[];
+        plumbing: AIEstimatorOption[];
+    };
+}
+
+
 // --- Content Management ---
 
 export interface Quote {
@@ -336,10 +381,32 @@ export interface SubscriptionPlanDetails {
 export interface SiteContent {
   logoUrl: string;
   locationPickerMapUrl: string;
-  hero: { ar: { title: string; subtitle: string; }; en: { title: string; subtitle: string; }; };
+  hero: {
+    ar: { title: string; subtitle: string; };
+    en: { title: string; subtitle: string; };
+    images: string[];
+  };
   whyUs: { ar: { title: string; description: string; features: { title: string; description: string; }[]; }; en: { title: string; description: string; features: { title: string; description: string; }[]; }; };
   services: { ar: { title: string; description: string; features: { title: string; description: string; link: string; icon: string; }[]; }; en: { title: string; description: string; features: { title: string; description: string; link: string; icon: string; }[]; }; };
-  partners: { ar: { title: string; description: string; }; en: { title: string; description: string; }; };
+  // FIX: Added missing partner category titles to the SiteContent interface.
+  partners: {
+    ar: {
+      title: string;
+      description: string;
+      mega_projects_title: string;
+      developers_title: string;
+      finishing_companies_title: string;
+      agencies_title: string;
+    };
+    en: {
+      title: string;
+      description: string;
+      mega_projects_title: string;
+      developers_title: string;
+      finishing_companies_title: string;
+      agencies_title: string;
+    };
+  };
   whyNewHeliopolis: {
     ar: { title: string; location: { title: string; description: string; stats: { value: string; desc: string; }[]; }; };
     en: { title: string; location: { title: string; description: string; stats: { value: string; desc: string; }[]; }; };
@@ -357,8 +424,8 @@ export interface SiteContent {
   }[];
   quotes: Quote[];
   footer: {
-    ar: { description: string; address: string; };
-    en: { description: string; address: string; };
+    ar: { description: string; address: string; hours?: string; };
+    en: { description: string; address: string; hours?: string; };
     phone: string;
     email: string;
     social: { facebook: string; twitter: string; instagram: string; linkedin: string; };

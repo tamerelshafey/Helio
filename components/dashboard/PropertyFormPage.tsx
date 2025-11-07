@@ -7,9 +7,9 @@ import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CloseIcon, SparklesIcon } from '../icons/Icons';
 import { GoogleGenAI } from '@google/genai';
-import { getAllProperties, addProperty as apiAddProperty, updateProperty as apiUpdateProperty } from '../../mockApi/properties';
-import { getAllProjects } from '../../mockApi/projects';
-import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../mockApi/filters';
+import { getAllProperties, addProperty as apiAddProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
+import { getAllProjects } from '../../api/projects';
+import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../api/filters';
 import { useApiQuery } from '../shared/useApiQuery';
 import LocationPickerModal from '../shared/LocationPickerModal';
 
@@ -123,8 +123,7 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
     const translateText = async (text: string, targetLang: 'en' | 'ar'): Promise<string> => {
         if (!text.trim()) return '';
         try {
-            // FIX: Removed 'as string' from API key
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash',
                 contents: `Translate the following text to ${targetLang === 'en' ? 'English' : 'Arabic'}:\n\n${text}`,
@@ -199,8 +198,7 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
         const prompt = `You are a professional real estate copywriter. Based on the following property data, write a compelling and attractive property description in ${targetLang === 'en' ? 'English' : 'Arabic'}. Make it sound luxurious and highlight the key features. The description should be around 2-3 paragraphs.\n\nProperty Data:\n${JSON.stringify(dataForPrompt, null, 2)}\n\nWrite the description now.`;
 
         try {
-            // FIX: Removed 'as string' from API key
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
             const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
             setValue(`description.${targetLang}`, response.text);
         } catch (error) {
@@ -527,3 +525,5 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
         </div>
     );
 };
+
+export default PropertyFormPage;

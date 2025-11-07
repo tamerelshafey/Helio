@@ -374,7 +374,13 @@ export let siteContentData: SiteContent = {
     en: {
       title: 'Your Exclusive Gateway to the Finest Properties in New Heliopolis',
       subtitle: 'At ONLY HELIO, we specialize in delivering architectural masterpieces and integrated services tailored to meet the ambitions of New Heliopolis residents.',
-    }
+    },
+    images: [
+        "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=1600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=1600&auto=format&fit=crop",
+    ]
   },
   whyUs: {
     ar: {
@@ -420,44 +426,52 @@ export let siteContentData: SiteContent = {
   },
   partners: {
     ar: {
-        title: 'شركاء النجاح',
-        description: 'مسيرتنا نحو التميز مبنية على الثقة والتعاون مع نخبة من أفضل الشركات في مختلف المجالات.'
+        title: 'شركاء العمل',
+        description: 'نتعاون مع نخبة من المطورين والشركات لتقديم أفضل الخدمات في هليوبوليس الجديدة.',
+        mega_projects_title: 'كبار المطورين',
+        developers_title: 'مطورو المدينة',
+        finishing_companies_title: 'شركات التشطيب والتصميم',
+        agencies_title: 'المكاتب العقارية'
     },
     en: {
-        title: 'Our Partners in Success',
-        description: 'Our journey towards excellence is built on trust and collaboration with a selection of the best companies in various fields.'
+        title: 'Our Business Partners',
+        description: 'We collaborate with a selection of top developers and companies to offer the best services in New Heliopolis.',
+        mega_projects_title: 'Major Developers',
+        developers_title: 'City Developers',
+        finishing_companies_title: 'Finishing & Design Companies',
+        agencies_title: 'Real Estate Agencies'
     }
   },
   whyNewHeliopolis: {
     ar: {
       title: 'لماذا هليوبوليس الجديدة؟',
       location: {
-        title: 'موقع استراتيجي فريد',
-        description: 'تقع هليوبوليس الجديدة على مقربة من أهم المحاور الرئيسية، مما يجعلها نقطة انطلاق مثالية نحو العاصمة الإدارية الجديدة والقاهرة الجديدة ومدينة بدر.',
+        title: 'مستقبل واعد وموقع استراتيجي فريد',
+        description: 'هليوبوليس الجديدة ليست مجرد امتداد عمراني، بل هي رؤية لمستقبل الحياة العصرية في شرق القاهرة. بفضل موقعها الاستراتيجي على مقربة من المحاور الرئيسية، أصبحت المدينة نقطة انطلاق مثالية نحو العاصمة الإدارية، القاهرة الجديدة، ومدينة بدر، مع الحفاظ على هدوء وخصوصية مجتمعاتها السكنية.',
         stats: [
-          { value: '15 دقيقة', desc: 'من العاصمة الإدارية' },
-          { value: '20 دقيقة', desc: 'من القاهرة الجديدة' },
-          { value: '10 دقائق', desc: 'من مدينة بدر' },
-          { value: '30 دقيقة', desc: 'من مطار القاهرة' },
+          { value: '15 دقيقة', desc: 'للعاصمة الإدارية' },
+          { value: '20 دقيقة', desc: 'للقاهرة الجديدة' },
+          { value: '10 دقائق', desc: 'لمدينتي والشروق' },
+          { value: '30 دقيقة', desc: 'لمطار القاهرة الدولي' },
         ]
       }
     },
     en: {
       title: 'Why New Heliopolis?',
       location: {
-        title: 'A Unique Strategic Location',
-        description: 'New Heliopolis is located near the most important main axes, making it an ideal starting point towards the New Administrative Capital, New Cairo, and Badr City.',
+        title: 'A Promising Future and a Unique Strategic Location',
+        description: 'New Heliopolis is not just an urban extension; it is a vision for the future of modern living in East Cairo. Thanks to its strategic location near major axes, the city has become an ideal launchpad to the New Administrative Capital, New Cairo, and Badr City, while maintaining the tranquility and privacy of its residential communities.',
         stats: [
-          { value: '15 mins', desc: 'from the New Capital' },
-          { value: '20 mins', desc: 'from New Cairo' },
-          { value: '10 mins', desc: 'from Badr City' },
-          { value: '30 mins', desc: 'from Cairo Airport' },
+          { value: '15 mins', desc: 'to the New Capital' },
+          { value: '20 mins', desc: 'to New Cairo' },
+          { value: '10 mins', desc: 'to Madinaty & El Shorouk' },
+          { value: '30 mins', desc: 'to Cairo International Airport' },
         ]
       }
     },
     images: [
-        { src: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=2070&auto=format&fit=crop", alt: "Map showing location of New Heliopolis" },
-        { src: "https://images.unsplash.com/photo-1595995449553-15104a3b3f9?q=80&w=2070&auto=format&fit=crop", alt: "Gate of New Heliopolis" }
+        { src: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=1200&auto=format&fit=crop", alt: "Map showing location of New Heliopolis" },
+        { src: "https://images.unsplash.com/photo-1595995449553-15104a3b3f9?q=80&w=1200&auto=format&fit=crop", alt: "Gate of New Heliopolis" }
     ]
   },
   finishingServices: [
@@ -467,8 +481,8 @@ export let siteContentData: SiteContent = {
         en: 'Consultation & Concept Design'
       },
       description: {
-        ar: 'جلسات استشارية مع مهندسينا لفهم متطلباتك ووضع تصورات مبدئية للتصميم، مع تقديم مقايسات تقديرية للتكاليف.',
-        en: 'Consultation sessions with our engineers to understand your requirements, develop initial design concepts, and provide preliminary cost estimates.'
+        ar: 'جلسات استشارية معمقة مع مهندسينا لفهم رؤيتك ومتطلباتك، نترجمها إلى تصورات مبدئية مبتكرة للتصميم الداخلي مع تقديم مقايسات تقديرية دقيقة للتكاليف وخيارات المواد.',
+        en: 'In-depth consultation sessions with our engineers to understand your vision and requirements, translating them into innovative initial interior design concepts with accurate cost estimates and material options.'
       },
       pricingTiers: [
         {
@@ -494,8 +508,8 @@ export let siteContentData: SiteContent = {
         en: '3D Design & Visualization'
       },
       description: {
-        ar: 'نحول التصور المبدئي إلى تصميم ثلاثي الأبعاد واقعي، مما يسمح لك برؤية منزلك المستقبلي قبل البدء في التنفيذ.',
-        en: 'We transform the initial concept into a realistic 3D design, allowing you to visualize your future home before implementation begins.'
+        ar: 'نحول التصور المبدئي إلى تصميم ثلاثي الأبعاد واقعي وتفاعلي، مما يسمح لك بالتجول افتراضيًا في منزلك المستقبلي وتعديل التفاصيل قبل البدء في أي أعمال تنفيذ.',
+        en: 'We transform the initial concept into a realistic and interactive 3D design, allowing you to virtually walk through your future home and adjust details before any implementation work begins.'
       },
       pricingTiers: [
         {
@@ -526,10 +540,12 @@ export let siteContentData: SiteContent = {
     ar: {
       description: 'وجهتكم الأولى لاستكشاف أرقى العقارات والخدمات المتكاملة في قلب هليوبوليس الجديدة. نحن نصنع روائع معمارية تلبي طموحاتكم.',
       address: 'هليوبوليس الجديدة, القاهرة, مصر',
+      hours: 'الأحد - الخميس: 9 صباحًا - 6 مساءً',
     },
     en: {
       description: 'Your premier destination for exploring the finest properties and integrated services in the heart of New Heliopolis. We create architectural masterpieces that meet your ambitions.',
       address: 'New Heliopolis, Cairo, Egypt',
+      hours: 'Sunday - Thursday: 9 AM - 6 PM',
     },
     phone: '+20 123 456 7890',
     email: 'info@onlyhelio.com',

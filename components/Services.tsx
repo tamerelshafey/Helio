@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { BuildingIcon, DecorationIcon, FinishingIcon, SparklesIcon } from './icons/Icons';
 import type { Language, SiteContent } from '../types';
-import { getContent } from '../mockApi/content';
+import { getContent } from '../api/content';
 import { useApiQuery } from './shared/useApiQuery';
 
 interface ServicesProps {

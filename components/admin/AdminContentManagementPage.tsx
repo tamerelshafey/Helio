@@ -167,6 +167,39 @@ const AdminContentManagementPage: React.FC<{ language: Language }> = ({ language
                             <div className="space-y-4">
                                 <DualLanguageInput name="title" value={data} onChange={e => handleDataChange(e.target.name, e.target.value)} label="Main Title" />
                                 <DualLanguageTextarea name="subtitle" value={data} onChange={e => handleDataChange(e.target.name, e.target.value)} label="Subtitle" />
+                                <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
+                                     <h3 className="font-semibold text-lg mb-2">Hero Background Images</h3>
+                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                        {(data.images || []).map((image: string, index: number) => (
+                                            <div key={index} className="relative group">
+                                                <img src={image} alt={`Hero image ${index + 1}`} className="w-full h-32 object-cover rounded-lg" />
+                                                <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button type="button" disabled={index === 0} onClick={() => {
+                                                        const newImages = [...data.images];
+                                                        [newImages[index - 1], newImages[index]] = [newImages[index], newImages[index - 1]];
+                                                        handleDataChange('images', newImages);
+                                                    }} className="p-1 bg-black/50 text-white rounded-full hover:bg-black/80 disabled:opacity-30"><ArrowUpIcon className="w-4 h-4"/></button>
+                                                    <button type="button" disabled={index === data.images.length - 1} onClick={() => {
+                                                        const newImages = [...data.images];
+                                                        [newImages[index + 1], newImages[index]] = [newImages[index], newImages[index + 1]];
+                                                        handleDataChange('images', newImages);
+                                                    }} className="p-1 bg-black/50 text-white rounded-full hover:bg-black/80 disabled:opacity-30"><ArrowDownIcon className="w-4 h-4"/></button>
+                                                    <button type="button" onClick={() => handleDataChange('images', data.images.filter((_:any, i:number) => i !== index))} className="p-1 bg-red-600 text-white rounded-full hover:bg-red-700"><TrashIcon className="w-4 h-4"/></button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                         <label className="w-full h-32 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                                            <PhotoIcon className="w-8 h-8"/>
+                                            <span className="text-sm mt-1">{t.uploadImage}</span>
+                                            <input type="file" className="hidden" accept="image/*" onChange={async e => {
+                                                if(e.target.files?.[0]) {
+                                                    const base64 = await fileToBase64(e.target.files[0]);
+                                                    handleDataChange('images', [...(data.images || []), base64]);
+                                                }
+                                            }}/>
+                                        </label>
+                                     </div>
+                                </div>
                             </div>
                         )}
                     </SectionEditor>

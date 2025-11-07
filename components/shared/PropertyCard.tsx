@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { BedIcon, BathIcon, AreaIcon, HeartIcon, FloorIcon, CompoundIcon, TagIcon } from '../icons/Icons';
+import { BedIcon, BathIcon, AreaIcon, HeartIcon, FloorIcon, CompoundIcon, TagIcon, BanknotesIcon } from '../icons/Icons';
 import type { Property, Language, Project } from '../../types';
 import { translations } from '../../data/translations';
 import { useFavorites } from './FavoritesContext';
@@ -32,6 +32,7 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
     partnerId,
     partnerName,
     installmentsAvailable,
+    realEstateFinanceAvailable,
     language,
     project,
   } = props;
@@ -79,6 +80,11 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
             {installmentsAvailable && isForSale && (
                 <div className="p-2 rounded-full bg-black/50" title={t.propertiesPage.installments}>
                     <TagIcon className="w-6 h-6 text-white" />
+                </div>
+            )}
+             {realEstateFinanceAvailable && isForSale && (
+                <div className="p-2 rounded-full bg-black/50" title={t.propertiesPage.realEstateFinance}>
+                    <BanknotesIcon className="w-6 h-6 text-white" />
                 </div>
             )}
           </div>

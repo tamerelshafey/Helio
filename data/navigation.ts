@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Permission, Role } from '../types';
 import {
@@ -17,32 +18,40 @@ export interface NavLinkItem {
 }
 
 export const adminNavLinks: NavLinkItem[] = [
-  // --- SUPER ADMIN Group ---
-  { name: t => t.nav.dashboard, href: '/admin', icon: HomeIcon, permission: Permission.VIEW_ADMIN_DASHBOARD, roles: [Role.SUPER_ADMIN], exact: true, group: 'Super Admin' },
-  { name: t => t.nav.analytics, href: '/admin/analytics', icon: ChartBarIcon, permission: Permission.VIEW_ANALYTICS, roles: [Role.SUPER_ADMIN], group: 'Super Admin' },
-  { name: t => t.nav.reports, href: '/admin/reports', icon: FileDownloadIcon, permission: Permission.VIEW_ANALYTICS, roles: [Role.SUPER_ADMIN], group: 'Super Admin' },
+  // --- Group: Main ---
+  { name: t => t.nav.dashboard, href: '/admin', icon: HomeIcon, permission: Permission.VIEW_ADMIN_DASHBOARD, exact: true, group: 'Main' },
+  { name: t => t.nav.analytics, href: '/admin/analytics', icon: ChartBarIcon, permission: Permission.VIEW_ANALYTICS, roles: [Role.SUPER_ADMIN], group: 'Main' },
+  { name: t => t.nav.reports, href: '/admin/reports', icon: FileDownloadIcon, permission: Permission.VIEW_ANALYTICS, roles: [Role.SUPER_ADMIN], group: 'Main' },
   
-  // Requests Group
-  { name: t => t.nav.partnerRequests, href: '/admin/partner-requests', icon: UserPlusIcon, permission: Permission.MANAGE_PARTNER_REQUESTS, roles: [Role.SUPER_ADMIN, Role.PARTNER_RELATIONS_MANAGER], group: 'Super Admin Requests' },
-  { name: t => t.nav.propertyRequests, href: '/admin/property-requests', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_PROPERTY_REQUESTS, roles: [Role.SUPER_ADMIN, Role.LISTINGS_MANAGER], group: 'Super Admin Requests' },
-  { name: t => t.nav.propertyInquiries, href: '/admin/property-inquiries', icon: SearchIcon, permission: Permission.MANAGE_PROPERTY_INQUIRIES, roles: [Role.SUPER_ADMIN, Role.LISTINGS_MANAGER], group: 'Super Admin Requests' },
-  { name: t => t.nav.contactRequests, href: '/admin/contact-requests', icon: InboxIcon, permission: Permission.MANAGE_CONTACT_REQUESTS, roles: [Role.SUPER_ADMIN], group: 'Super Admin Requests' },
-  { name: t => t.nav.finishingRequests, href: '/admin/finishing-requests', icon: WrenchScrewdriverIcon, permission: Permission.MANAGE_FINISHING_LEADS, roles: [Role.SUPER_ADMIN, Role.FINISHING_MANAGER], group: 'Super Admin Requests' },
-  { name: t => t.nav.decorationsRequests, href: '/admin/decoration-requests', icon: SparklesIcon, permission: Permission.MANAGE_DECORATIONS_LEADS, roles: [Role.SUPER_ADMIN, Role.DECORATIONS_MANAGER], group: 'Super Admin Requests' },
+  // --- Group: Requests ---
+  { name: t => t.nav.partnerRequests, href: '/admin/partner-requests', icon: UserPlusIcon, permission: Permission.MANAGE_PARTNER_REQUESTS, roles: [Role.SUPER_ADMIN, Role.PARTNER_RELATIONS_MANAGER], group: 'Requests' },
+  { name: t => t.nav.propertyRequests, href: '/admin/property-requests', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_PROPERTY_REQUESTS, roles: [Role.SUPER_ADMIN, Role.CUSTOMER_RELATIONS_MANAGER], group: 'Requests' },
+  { name: t => t.nav.finishingRequests, href: '/admin/finishing-requests', icon: WrenchScrewdriverIcon, permission: Permission.MANAGE_FINISHING_LEADS, roles: [Role.SUPER_ADMIN, Role.SERVICE_MANAGER], group: 'Requests' },
+  { name: t => t.nav.decorationsRequests, href: '/admin/decoration-requests', icon: QuoteIcon, permission: Permission.MANAGE_DECORATIONS_LEADS, roles: [Role.SUPER_ADMIN, Role.SERVICE_MANAGER], group: 'Requests' },
+  { name: t => t.nav.propertyInquiries, href: '/admin/property-inquiries', icon: SearchIcon, permission: Permission.MANAGE_PROPERTY_INQUIRIES, roles: [Role.SUPER_ADMIN, Role.CUSTOMER_RELATIONS_MANAGER], group: 'Requests' },
+  { name: t => t.nav.contactRequests, href: '/admin/contact-requests', icon: InboxIcon, permission: Permission.MANAGE_CONTACT_REQUESTS, roles: [Role.SUPER_ADMIN, Role.CUSTOMER_RELATIONS_MANAGER], group: 'Requests' },
   
-  // Management Group
-  { name: t => t.nav.managePartners, href: '/admin/partners', icon: WrenchScrewdriverIcon, permission: Permission.MANAGE_ALL_PARTNERS, roles: [Role.SUPER_ADMIN, Role.PARTNER_RELATIONS_MANAGER], group: 'Super Admin Management' },
-  { name: t => t.nav.users, href: '/admin/users', icon: UsersIcon, permission: Permission.MANAGE_USERS, roles: [Role.SUPER_ADMIN], group: 'Super Admin Management' },
-  { name: t => t.nav.rolesAndPermissions, href: '/admin/roles', icon: ShieldCheckIcon, permission: Permission.MANAGE_ROLES_PERMISSIONS, roles: [Role.SUPER_ADMIN], group: 'Super Admin Management' },
-  { name: t => t.nav.manageProjects, href: '/admin/projects', icon: CubeIcon, permission: Permission.MANAGE_ALL_PROJECTS, roles: [Role.SUPER_ADMIN], group: 'Super Admin Management' },
-  { name: t => t.nav.manageProperties, href: '/admin/properties', icon: BuildingIcon, permission: Permission.MANAGE_ALL_PROPERTIES, roles: [Role.SUPER_ADMIN, Role.LISTINGS_MANAGER], group: 'Super Admin Management' },
-  { name: t => t.nav.manageLeads, href: '/admin/leads', icon: QuoteIcon, permission: Permission.MANAGE_ALL_LEADS, roles: [Role.SUPER_ADMIN], group: 'Super Admin Management' },
-  { name: t => t.nav.manageDecorations, href: '/admin/decorations', icon: SparklesIcon, permission: Permission.MANAGE_DECORATIONS_CONTENT, roles: [Role.SUPER_ADMIN, Role.DECORATIONS_MANAGER], group: 'Super Admin Management' },
-  { name: t => t.nav.managePlans, href: '/admin/plans', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_PLANS, roles: [Role.SUPER_ADMIN], group: 'Super Admin Management' },
-  { name: t => t.nav.manageFilters, href: '/admin/filters', icon: CogIcon, permission: Permission.MANAGE_FILTERS, roles: [Role.SUPER_ADMIN], group: 'Super Admin Management' },
-  { name: t => t.nav.manageBanners, href: '/admin/banners', icon: PhotoIcon, permission: Permission.MANAGE_BANNERS, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Super Admin Management' },
-  { name: t => t.nav.contentManagement, href: '/admin/content', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_SITE_CONTENT, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Super Admin Management' },
-  { name: t => t.nav.settings, href: '/admin/settings', icon: CogIcon, permission: Permission.MANAGE_SETTINGS, roles: [Role.SUPER_ADMIN], group: 'Super Admin Management' },
+  // --- Group: Core Entities ---
+  { name: t => t.nav.partners, href: '/admin/partners', icon: UsersIcon, permission: Permission.MANAGE_ALL_PARTNERS, roles: [Role.SUPER_ADMIN, Role.PARTNER_RELATIONS_MANAGER], group: 'Entities' },
+  { name: t => t.nav.projects, href: '/admin/projects', icon: CubeIcon, permission: Permission.MANAGE_ALL_PROJECTS, roles: [Role.SUPER_ADMIN, Role.LISTINGS_MANAGER], group: 'Entities' },
+  { name: t => t.nav.properties, href: '/admin/properties', icon: BuildingIcon, permission: Permission.MANAGE_ALL_PROPERTIES, roles: [Role.SUPER_ADMIN, Role.LISTINGS_MANAGER], group: 'Entities' },
+  { name: t => t.nav.allLeads, href: '/admin/leads', icon: QuoteIcon, permission: Permission.MANAGE_ALL_LEADS, roles: [Role.SUPER_ADMIN], group: 'Entities' },
+
+  // --- Group: Website Content ---
+  { name: t => t.nav.decorationWorks, href: '/admin/decoration-works', icon: SparklesIcon, permission: Permission.MANAGE_DECORATIONS_CONTENT, roles: [Role.SUPER_ADMIN, Role.SERVICE_MANAGER], group: 'Content' },
+  { name: t => t.nav.decorationsCategories, href: '/admin/decorations-categories', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_DECORATIONS_CONTENT, roles: [Role.SUPER_ADMIN, Role.SERVICE_MANAGER], group: 'Content' },
+  { name: t => t.nav.banners, href: '/admin/banners', icon: PhotoIcon, permission: Permission.MANAGE_BANNERS, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },
+  { name: t => t.nav.siteContent, href: '/admin/content', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_SITE_CONTENT, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },
+  { name: t => t.nav.finishingServices, href: '/admin/finishing-services', icon: WrenchScrewdriverIcon, permission: Permission.MANAGE_SITE_CONTENT, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },
+  { name: t => t.nav.propertyFilters, href: '/admin/filters', icon: CogIcon, permission: Permission.MANAGE_FILTERS, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },
+  { name: t => t.nav.aiEstimatorSettings, href: '/admin/ai-estimator-settings', icon: SparklesIcon, permission: Permission.MANAGE_SITE_CONTENT, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },
+
+
+  // --- Group: System ---
+  { name: t => t.nav.users, href: '/admin/users', icon: UsersIcon, permission: Permission.MANAGE_USERS, roles: [Role.SUPER_ADMIN], group: 'System' },
+  { name: t => t.nav.rolesAndPermissions, href: '/admin/roles', icon: ShieldCheckIcon, permission: Permission.MANAGE_ROLES_PERMISSIONS, roles: [Role.SUPER_ADMIN], group: 'System' },
+  { name: t => t.nav.subscriptionPlans, href: '/admin/plans', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_PLANS, roles: [Role.SUPER_ADMIN], group: 'System' },
+  { name: t => t.nav.settings, href: '/admin/settings', icon: CogIcon, permission: Permission.MANAGE_SETTINGS, roles: [Role.SUPER_ADMIN], group: 'System' },
 ];
 
 export const partnerNavLinks: NavLinkItem[] = [

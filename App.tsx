@@ -1,10 +1,7 @@
 
-
-
 import React, { useState, useEffect, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-// FIX: Changed to a named import to resolve "no default export" error.
 import { Header } from './components/Header';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
@@ -31,7 +28,7 @@ const PartnerDashboardLayout = React.lazy(() => import('./components/partner-das
 const DashboardHomePage = React.lazy(() => import('./components/partner-dashboard/DashboardHomePage'));
 const DashboardProfilePage = React.lazy(() => import('./components/partner-dashboard/DashboardProfilePage'));
 const DashboardPortfolioPage = React.lazy(() => import('./components/partner-dashboard/DashboardPortfolioPage'));
-const DashboardPropertiesPage = React.lazy(() => import('./components/partner-dashboard/DashboardPropertiesPage'));
+const DashboardPropertiesPage = React.lazy(() => import('./components/dashboard/DashboardPropertiesPage'));
 const DashboardProjectsPage = React.lazy(() => import('./components/partner-dashboard/DashboardProjectsPage'));
 const DashboardProjectDetailsPage = React.lazy(() => import('./components/partner-dashboard/DashboardProjectDetailsPage'));
 const DashboardLeadsPage = React.lazy(() => import('./components/partner-dashboard/DashboardLeadsPage'));
@@ -48,6 +45,7 @@ const AdminHomePage = React.lazy(() => import('./components/admin/AdminHomePage'
 const AdminPartnerRequestDetailsPage = React.lazy(() => import('./components/admin/AdminPartnerRequestDetailsPage'));
 const AdminPropertyRequestDetailsPage = React.lazy(() => import('./components/admin/AdminPropertyRequestDetailsPage'));
 const AdminDecorationsPage = React.lazy(() => import('./components/admin/AdminDecorationsPage'));
+const AdminDecorationsCategoriesPage = React.lazy(() => import('./components/admin/AdminDecorationsCategoriesPage'));
 const AdminDecorationRequestDetailsPage = React.lazy(() => import('./components/admin/AdminDecorationRequestDetailsPage'));
 const AdminPlansPage = React.lazy(() => import('./components/admin/AdminPlansPage'));
 const ProjectFormPage = React.lazy(() => import('./components/forms/ProjectFormPage'));
@@ -69,6 +67,8 @@ const AdminFinishingRequestsPage = React.lazy(() => import('./components/admin/A
 const AdminFinishingRequestDetailsPage = React.lazy(() => import('./components/admin/AdminFinishingRequestDetailsPage'));
 const AdminDecorationRequestsPage = React.lazy(() => import('./components/admin/AdminDecorationRequestsPage'));
 const AdminRolesPage = React.lazy(() => import('./components/admin/AdminRolesPage'));
+const AdminFinishingServicesPage = React.lazy(() => import('./components/admin/AdminFinishingServicesPage'));
+const AdminAIEstimatorPage = React.lazy(() => import('./components/admin/AdminAIEstimatorPage'));
 
 
 const LoadingFallback = () => (
@@ -206,11 +206,14 @@ const App: React.FC = () => {
                   <Route path="banners" element={<AdminBannersPage language={language} />} />
                   <Route path="content" element={<AdminContentManagementPage language={language} />} />
                   <Route path="settings" element={<AdminSettingsPage language={language} />} />
-                  <Route path="decorations" element={<AdminDecorationsPage language={language} />} />
+                  <Route path="decoration-works" element={<AdminDecorationsPage language={language} />} />
+                  <Route path="decorations-categories" element={<AdminDecorationsCategoriesPage language={language} />} />
+                  <Route path="finishing-services" element={<AdminFinishingServicesPage language={language} />} />
                   <Route path="finishing-requests" element={<AdminFinishingRequestsPage language={language} />} />
                   <Route path="finishing-requests/:requestId" element={<AdminFinishingRequestDetailsPage language={language} />} />
                   <Route path="decoration-requests" element={<AdminDecorationRequestsPage language={language} />} />
                   <Route path="decoration-requests/:requestId" element={<AdminDecorationRequestDetailsPage language={language} />} />
+                  <Route path="ai-estimator-settings" element={<AdminAIEstimatorPage language={language} />} />
               </Route>
             </Routes>
           </Suspense>

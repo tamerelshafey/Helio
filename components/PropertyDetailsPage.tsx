@@ -1,17 +1,21 @@
+
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, FloorIcon, CalendarIcon, WalletIcon } from './icons/Icons';
-import type { Property, Language, Project } from '../types';
+import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon } from './icons/Icons';
+import type { Property, Language, Project, AdminPartner } from '../types';
 import { translations } from '../data/translations';
 import { useFavorites } from './shared/FavoritesContext';
 import Lightbox from './shared/Lightbox';
 import { isCommercial } from '../utils/propertyUtils';
 import BannerDisplay from './shared/BannerDisplay';
-import { getPropertyById } from '../mockApi/properties';
-import { getAllProjects } from '../mockApi/projects';
-import { getAllAmenities } from '../mockApi/filters';
+import { getPropertyById } from '../api/properties';
+import { getAllProjects } from '../api/projects';
+import { getAllAmenities } from '../api/filters';
 import { useApiQuery } from './shared/useApiQuery';
 import DetailItem from './shared/DetailItem';
+import { getAllPartnersForAdmin } from '../api/partners';
+import ContactOptionsModal from './shared/ContactOptionsModal';
 
 interface PropertyDetailsPageProps {
     language: Language;
@@ -30,11 +34,14 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
     const { data: property, isLoading: isLoadingProperty } = useApiQuery(`property-${propertyId}`, fetchProperty, { enabled: !!propertyId });
     const { data: projects, isLoading: isLoadingProjects } = useApiQuery('allProjects', getAllProjects);
     const { data: amenities, isLoading: isLoadingAmenities } = useApiQuery('allAmenities', getAllAmenities);
+    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartners', getAllPartnersForAdmin);
 
-    const isLoading = isLoadingProperty || isLoadingProjects || isLoadingAmenities;
+    const isLoading = isLoadingProperty || isLoadingProjects || isLoadingAmenities || isLoadingPartners;
     
     const [mainImage, setMainImage] = useState<string | undefined>(undefined);
     const [lightboxState, setLightboxState] = useState({ isOpen: false, startIndex: 0 });
+    const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+    const [activeContactMethods, setActiveContactMethods] = useState<any>(null);
 
     const project = useMemo(() => {
         if (property?.projectId && projects) {
@@ -42,6 +49,13 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
         }
         return undefined;
     }, [property, projects]);
+    
+    const partner = useMemo(() => {
+        if (property?.partnerId && partners) {
+            return partners.find(p => p.id === property.partnerId);
+        }
+        return undefined;
+    }, [property, partners]);
 
     useEffect(() => {
         if (property) {
@@ -90,7 +104,51 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
         }
     };
 
-    const handleContactRequest = () => {
+    const handleContactClick = () => {
+        if (!property) return;
+
+        // Priority 1: Direct contact for individual listings
+        if (property.contactMethod === 'direct' && property.ownerPhone) {
+            const directContactMethods = {
+                whatsapp: { enabled: true, number: property.ownerPhone },
+                phone: { enabled: true, number: property.ownerPhone },
+                form: { enabled: false } // No internal form for direct contact
+            };
+            setActiveContactMethods(directContactMethods);
+            setIsContactModalOpen(true);
+            return;
+        }
+
+        // Priority 2: Partner's contact methods (the default)
+        if (partner?.contactMethods) {
+            const { contactMethods } = partner;
+            const enabledMethods = Object.entries(contactMethods)
+                .filter(([, value]) => typeof value === 'object' && value !== null && (value as any).enabled)
+                .map(([key]) => key);
+
+            if (enabledMethods.length === 1) {
+                const method = enabledMethods[0];
+                if (method === 'whatsapp' && contactMethods.whatsapp.number) {
+                    window.open(`https://wa.me/${contactMethods.whatsapp.number.replace(/\D/g, '')}`, '_blank');
+                } else if (method === 'phone' && contactMethods.phone.number) {
+                    window.location.href = `tel:${contactMethods.phone.number.replace(/\s/g, '')}`;
+                } else { 
+                    navigateToServiceRequest();
+                }
+            } else if (enabledMethods.length > 1) {
+                setActiveContactMethods(contactMethods);
+                setIsContactModalOpen(true);
+            } else { 
+                navigateToServiceRequest();
+            }
+            return;
+        }
+        
+        // Fallback: If no specific method is defined, use the internal form.
+        navigateToServiceRequest();
+    };
+
+    const navigateToServiceRequest = () => {
         if (!property) return;
         const serviceTitle = `${t.propertyDetailsPage.inquiryAbout} "${property.title[language]}"`;
         navigate('/request-service', {
@@ -98,6 +156,7 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                 serviceTitle,
                 partnerId: property.partnerId,
                 propertyId: property.id,
+                serviceType: 'property',
             }
         });
     };
@@ -128,9 +187,9 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
     
     const isForSale = property.status.en === 'For Sale';
     const isCommercialProp = isCommercial(property);
-    const currentGallery = [property.imageUrl, ...property.gallery].filter((url, index, self) => self.indexOf(url) === index);
+    const currentGallery = [property.imageUrl, ...property.gallery].filter((url, index, self) => url && self.indexOf(url) === index);
     const isDefaultImage = mainImage === property.imageUrl;
-
+    
     const formatDeliveryDate = (delivery: Property['delivery']) => {
         if (!delivery) return '-';
         if (delivery.isImmediate) return t.propertyDetailsPage.immediate;
@@ -156,34 +215,24 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                     language={language}
                 />
             )}
+             {isContactModalOpen && activeContactMethods && (
+                <ContactOptionsModal
+                    isOpen={isContactModalOpen}
+                    onClose={() => setIsContactModalOpen(false)}
+                    contactMethods={activeContactMethods}
+                    onSelectForm={navigateToServiceRequest}
+                    language={language}
+                />
+            )}
             <div className="container mx-auto px-6">
                 {/* Header */}
-                <div className="mb-8 flex flex-col sm:flex-row justify-between items-start gap-4">
-                    <div>
-                        <h1 className="text-4xl md:text-5xl font-bold">{property.title[language]}</h1>
-                        <p className="text-lg text-gray-500 dark:text-gray-400 mt-2">{property.address[language]}</p>
-                    </div>
-                    <div className="flex-shrink-0 w-full sm:w-auto flex items-center gap-2">
-                         <button 
-                            onClick={handleFavoriteClick}
-                            className="flex-shrink-0 flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 px-4 py-2 rounded-lg hover:border-red-500 hover:text-red-500 transition-colors"
-                            aria-label={isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}
-                        >
-                            <HeartIcon className={`w-6 h-6 transition-colors ${isFav ? 'text-red-500 fill-current' : ''}`} />
-                            <span>{isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}</span>
-                        </button>
-                        <button 
-                            onClick={handleShare}
-                            className="flex-shrink-0 flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 px-4 py-2 rounded-lg hover:border-amber-500 hover:text-amber-500 transition-colors"
-                        >
-                            <ShareIcon className="w-6 h-6" />
-                            <span>{t.sharing.shareProperty}</span>
-                        </button>
-                    </div>
+                <div className="mb-8">
+                    <h1 className="text-4xl md:text-5xl font-bold">{property.title[language]}</h1>
+                    <p className="text-lg text-gray-500 dark:text-gray-400 mt-2">{property.address[language]}</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column: Images and Map */}
+                    {/* Left Column: Images and Details */}
                     <div className="lg:col-span-2">
                         {/* Image Gallery */}
                         <div className="mb-8">
@@ -222,146 +271,142 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                             </div>
                         </div>
 
+                        {/* Overview */}
+                        <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
+                            <h2 className="text-2xl font-bold text-amber-500 mb-6">{language === 'ar' ? 'نظرة عامة' : 'Overview'}</h2>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-6">
+                                <DetailItem icon={<BuildingIcon className="w-6 h-6" />} label={t.propertiesPage.typeLabel} value={property.type[language]} />
+                                {!isCommercialProp && <DetailItem icon={<BedIcon className="w-6 h-6" />} label={t.propertyDetailsPage.bedrooms} value={property.beds} />}
+                                {!isCommercialProp && <DetailItem icon={<BathIcon className="w-6 h-6" />} label={t.propertyDetailsPage.bathrooms} value={property.baths} />}
+                                <DetailItem icon={<AreaIcon className="w-6 h-6" />} label={t.propertyDetailsPage.area} value={`${property.area.toLocaleString(language)} m²`} />
+                                {property.finishingStatus && <DetailItem icon={<WrenchScrewdriverIcon className="w-6 h-6" />} label={t.propertiesPage.finishing} value={property.finishingStatus[language]} />}
+                                {property.floor !== undefined && <DetailItem icon={<FloorIcon className="w-6 h-6" />} label={t.propertiesPage.floor} value={property.floor} />}
+                            </div>
+                        </div>
+                        
                         {/* Description */}
                         <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
                             <h2 className="text-2xl font-bold text-amber-500 mb-4">{t.propertyDetailsPage.description}</h2>
                             <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line">{property.description[language]}</p>
                         </div>
                         
-                        {/* Key Information */}
-                         <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
-                            <h2 className="text-2xl font-bold text-amber-500 mb-6">{t.propertyDetailsPage.keyInfo}</h2>
-                            <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-6">
-                                <DetailItem label={t.propertiesPage.typeLabel} value={property.type[language]} />
-                                <DetailItem label={t.propertiesPage.statusLabel} value={property.status[language]} />
-                                {property.finishingStatus && <DetailItem label={t.propertiesPage.finishing} value={property.finishingStatus[language]} />}
-                                {property.floor !== undefined && <DetailItem label={t.propertiesPage.floor} value={property.floor} />}
-                                {property.isInCompound !== undefined && <DetailItem label={t.propertyDetailsPage.inCompound} value={property.isInCompound ? t.propertyDetailsPage.yes : t.propertyDetailsPage.no} />}
+                        {/* Details */}
+                        <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
+                            <h2 className="text-2xl font-bold text-amber-500 mb-6">{language === 'ar' ? 'التفاصيل' : 'Details'}</h2>
+                            <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+                                <DetailItem icon={<CompoundIcon className="w-5 h-5" />} label={t.propertyDetailsPage.inCompound} value={property.isInCompound ? t.propertyDetailsPage.yes : t.propertyDetailsPage.no} />
+                                {isForSale && (
+                                    <DetailItem icon={<BanknotesIcon className="w-5 h-5" />} label={t.propertiesPage.realEstateFinance} value={property.realEstateFinanceAvailable ? t.propertyDetailsPage.yes : t.propertyDetailsPage.no} />
+                                )}
+                                <DetailItem icon={<CalendarIcon className="w-5 h-5" />} label={t.propertyDetailsPage.deliveryDate} value={formatDeliveryDate(property.delivery)} />
+                                {isForSale && (
+                                    <DetailItem icon={<WalletIcon className="w-5 h-5" />} label={t.propertiesPage.installments} value={property.installmentsAvailable ? t.propertyDetailsPage.yes : t.propertyDetailsPage.no} />
+                                )}
+                                {property.installmentsAvailable && property.installments && isForSale && (
+                                    <div className="md:col-span-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                        <h3 className="text-lg font-semibold mb-2">{t.propertyDetailsPage.installmentsPlan}</h3>
+                                        <div className="grid grid-cols-3 gap-4 text-center">
+                                            <div><dt className="text-sm text-gray-500">{t.propertyDetailsPage.downPayment}</dt><dd className="font-bold">{property.installments.downPayment.toLocaleString(language)}</dd></div>
+                                            <div><dt className="text-sm text-gray-500">{t.propertyDetailsPage.monthlyInstallment}</dt><dd className="font-bold">{property.installments.monthlyInstallment.toLocaleString(language)}</dd></div>
+                                            <div><dt className="text-sm text-gray-500">{t.propertyDetailsPage.years}</dt><dd className="font-bold">{property.installments.years}</dd></div>
+                                        </div>
+                                    </div>
+                                )}
                             </dl>
                         </div>
 
                         {/* Amenities */}
+                         {displayedAmenities.length > 0 && (
+                            <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
+                                <h2 className="text-2xl font-bold text-amber-500 mb-6">{t.propertyDetailsPage.amenities}</h2>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {displayedAmenities.map((amenity, index) => (
+                                        <div key={index} className="flex items-center gap-3">
+                                            <CheckBadgeIcon className="w-6 h-6 text-green-500 flex-shrink-0" />
+                                            <span className="text-gray-600 dark:text-gray-300">{amenity}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Location Map */}
                         <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
-                             <h2 className="text-2xl font-bold text-amber-500 mb-6">{t.propertyDetailsPage.amenities}</h2>
-                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                {displayedAmenities.map((amenity, index) => (
-                                    <div key={index} className="flex items-center gap-3">
-                                        <CheckBadgeIcon className="w-6 h-6 text-green-500 flex-shrink-0" />
-                                        <span className="text-gray-600 dark:text-gray-300">{amenity}</span>
-                                    </div>
-                                ))}
-                             </div>
+                            <h2 className="text-2xl font-bold text-amber-500 mb-4">{t.propertyDetailsPage.location}</h2>
+                            <div className="relative rounded-lg overflow-hidden border dark:border-gray-700" style={{ paddingTop: '56.25%' }}>
+                                <a href={`https://www.google.com/maps/search/?api=1&query=${property.location.lat},${property.location.lng}`} target="_blank" rel="noopener noreferrer" title="View on Google Maps" className="absolute inset-0">
+                                    <img 
+                                        src={`https://maps.googleapis.com/maps/api/staticmap?center=${property.location.lat},${property.location.lng}&zoom=15&size=800x450&markers=color:0xf59e0b%7C${property.location.lat},${property.location.lng}&maptype=roadmap&style=feature:poi|visibility:off&style=feature:transit|visibility:off`}
+                                        alt={`${t.propertyDetailsPage.mapOf} ${property.title[language]}`}
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
+                                    />
+                                </a>
+                            </div>
                         </div>
+
+                        {project && (
+                            <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-6 rounded-r-lg">
+                                <p className="text-lg font-semibold text-blue-800 dark:text-blue-200">{t.propertyDetailsPage.partOfProject}</p>
+                                <div className="flex justify-between items-center mt-2">
+                                    <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{project.name[language]}</p>
+                                    <Link to={`/projects/${project.id}`} className="font-semibold text-blue-600 dark:text-blue-300 hover:underline">
+                                        {t.propertyDetailsPage.viewProject}
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Right Column: Price and Details */}
+                    {/* Right Column: Contact Card */}
                     <div className="lg:col-span-1">
-                        <div className="sticky top-28 space-y-8">
-                            <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700">
-                                <p className="text-4xl font-bold text-amber-500">{property.price[language]}</p>
-                                {isForSale && property.pricePerMeter && (
-                                    <p className="text-lg text-gray-500 dark:text-gray-400 -mt-2 mb-6">{property.pricePerMeter[language]}</p>
-                                )}
-                                
-                                <div className="flex justify-around items-center text-gray-600 dark:text-gray-300 border-y border-gray-200 dark:border-gray-700 py-6 mb-6">
-                                    {isCommercialProp ? (
-                                        <>
-                                            <div className="flex flex-col items-center gap-2">
-                                                <FloorIcon className="w-8 h-8 text-gray-500 dark:text-gray-400" />
-                                                <span className="font-bold">{property.floor}</span>
-                                                <span>{t.propertyDetailsPage.floor}</span>
-                                            </div>
-                                            <div className="flex flex-col items-center gap-2">
-                                                <AreaIcon className="w-8 h-8 text-gray-500 dark:text-gray-400" />
-                                                <span className="font-bold">{property.area} m²</span>
-                                                <span>{t.propertyDetailsPage.area}</span>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className="flex flex-col items-center gap-2">
-                                                <BedIcon className="w-8 h-8 text-gray-500 dark:text-gray-400" />
-                                                <span className="font-bold">{property.beds}</span>
-                                                <span>{t.propertyDetailsPage.bedrooms}</span>
-                                            </div>
-                                            <div className="flex flex-col items-center gap-2">
-                                                <BathIcon className="w-8 h-8 text-gray-500 dark:text-gray-400" />
-                                                <span className="font-bold">{property.baths}</span>
-                                                <span>{t.propertyDetailsPage.bathrooms}</span>
-                                            </div>
-                                            <div className="flex flex-col items-center gap-2">
-                                                <AreaIcon className="w-8 h-8 text-gray-500 dark:text-gray-400" />
-                                                <span className="font-bold">{property.area} m²</span>
-                                                <span>{t.propertyDetailsPage.area}</span>
-                                            </div>
-                                        </>
-                                    )}
+                        <div className="sticky top-28 space-y-6">
+                            <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div>
+                                        <p className="text-3xl font-bold text-amber-500">{property.price[language]}</p>
+                                        {isForSale && property.pricePerMeter && (
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{property.pricePerMeter[language]}</p>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                        <button onClick={handleShare} className="p-2 text-gray-500 dark:text-gray-400 hover:text-amber-500 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label={t.sharing.shareProperty}>
+                                            <ShareIcon className="w-6 h-6" />
+                                        </button>
+                                        <button onClick={handleFavoriteClick} className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label={isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}>
+                                            <HeartIcon className={`w-6 h-6 transition-colors ${isFav ? 'text-red-500 fill-current' : ''}`} />
+                                        </button>
+                                    </div>
                                 </div>
                                 
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t.propertyDetailsPage.contactAgent}</h3>
-                                <p className="text-gray-500 dark:text-gray-400 mb-6">{t.propertyDetailsPage.contactText}</p>
-                                <button onClick={handleContactRequest} className="w-full block text-center bg-amber-500 text-gray-900 font-bold px-6 py-4 rounded-lg text-lg hover:bg-amber-600 transition-colors duration-200">
+                                <div className="my-6 border-t border-gray-200 dark:border-gray-700 pt-6">
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">{t.propertyDetailsPage.contactAgent}</p>
+                                    {partner ? (
+                                        <Link to={`/partners/${partner.id}`} className="flex items-center gap-3 group">
+                                            <img src={partner.imageUrl} alt={partner.name} className="w-12 h-12 rounded-full object-cover"/>
+                                            <div>
+                                                <p className="font-bold text-gray-800 dark:text-white group-hover:text-amber-500">{partner.name}</p>
+                                            </div>
+                                        </Link>
+                                    ) : (
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                                <BuildingIcon className="w-6 h-6 text-gray-400"/>
+                                            </div>
+                                            <p className="font-bold text-gray-800 dark:text-white">{t.partnerInfo['individual-listings'].name}</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button onClick={handleContactClick} className="w-full bg-amber-500 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors text-lg">
                                     {t.propertyDetailsPage.contactButton}
                                 </button>
                             </div>
-                            
-                             {project && (
-                                <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">{t.propertyDetailsPage.partOfProject}</h3>
-                                     <Link to={`/projects/${project.id}`} className="block group">
-                                        <div className="flex items-center gap-4">
-                                            <img src={project.imageUrl} alt={project.name[language]} className="w-20 h-20 object-cover rounded-md flex-shrink-0" />
-                                            <div>
-                                                <p className="font-bold group-hover:text-amber-500 transition-colors">{project.name[language]}</p>
-                                                <p className="text-sm text-amber-600 dark:text-amber-500 group-hover:underline">{t.propertyDetailsPage.viewProject}</p>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </div>
-                             )}
-
-                             { (property.delivery || property.installments) &&
-                                <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700">
-                                    <h2 className="text-2xl font-bold text-amber-500 mb-6">{t.propertyDetailsPage.deliveryPayment}</h2>
-                                    <div className="space-y-6">
-                                        {property.delivery && (
-                                            <div className="flex items-center gap-4">
-                                                <CalendarIcon className="w-8 h-8 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                                                <DetailItem label={t.propertyDetailsPage.deliveryDate} value={formatDeliveryDate(property.delivery)} />
-                                            </div>
-                                        )}
-                                        {property.installments && (
-                                             <div className="flex items-start gap-4">
-                                                <WalletIcon className="w-8 h-8 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-1" />
-                                                <div>
-                                                     <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-2">{t.propertyDetailsPage.installmentsPlan}</h3>
-                                                    <div className="grid grid-cols-3 gap-2 text-center text-sm">
-                                                        <div>
-                                                            <div className="font-bold text-amber-500">{property.installments.downPayment.toLocaleString(language)}</div>
-                                                            <div className="text-gray-500 dark:text-gray-400">{t.propertyDetailsPage.downPayment}</div>
-                                                        </div>
-                                                         <div>
-                                                            <div className="font-bold text-amber-500">{property.installments.monthlyInstallment.toLocaleString(language)}</div>
-                                                            <div className="text-gray-500 dark:text-gray-400">{t.propertyDetailsPage.monthlyInstallment}</div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="font-bold text-amber-500">{property.installments.years}</div>
-                                                            <div className="text-gray-500 dark:text-gray-400">{t.propertyDetailsPage.years}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                             }
-                              <div className="!mt-0">
-                                <BannerDisplay location="details" language={language} />
-                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+             <BannerDisplay location="details" language={language} />
         </div>
     );
 };

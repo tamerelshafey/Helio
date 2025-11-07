@@ -3,9 +3,9 @@ import type { PartnerType, SubscriptionPlan, Property, Project, PortfolioItem } 
 import { useAuth } from '../auth/AuthContext';
 import { useApiQuery } from './useApiQuery';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
-import { getPropertiesByPartnerId } from '../../mockApi/properties';
-import { getProjectsByPartnerId } from '../../mockApi/projects';
-import { getPortfolioByPartnerId } from '../../mockApi/portfolio';
+import { getPropertiesByPartnerId } from '../../api/properties';
+import { getProjectsByPartnerId } from '../../api/projects';
+import { getPortfolioByPartnerId } from '../../api/portfolio';
 
 type UsageType = 'properties' | 'projects' | 'units' | 'portfolio';
 

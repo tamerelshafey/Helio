@@ -4,10 +4,9 @@ import type { Language, Project } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses } from '../shared/FormField';
-import { addProject, updateProject } from '../../mockApi/projects';
-import { getAllProjects } from '../../mockApi/projects';
+import { addProject, updateProject } from '../../api/projects';
+import { getAllProjects } from '../../api/projects';
 import { useApiQuery } from '../shared/useApiQuery';
-import { Role } from '../../types';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {

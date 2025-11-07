@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Language, SiteContent } from '../types';
-import { getContent } from '../mockApi/content';
+import { getContent } from '../api/content';
 import { useApiQuery } from './shared/useApiQuery';
 
 interface AboutCityProps {

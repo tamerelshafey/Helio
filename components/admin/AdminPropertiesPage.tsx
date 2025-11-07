@@ -9,6 +9,7 @@ import ExportDropdown from '../shared/ExportDropdown';
 import { getAllProperties, deleteProperty as apiDeleteProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
 import { getAllPartnersForAdmin } from '../../api/partners';
 import { useApiQuery } from '../shared/useApiQuery';
+import Pagination from '../shared/Pagination';
 
 type SortConfig = {
     key: 'title' | 'partnerName' | 'status' | 'priceNumeric' | 'listingStartDate' | 'listingEndDate';
@@ -22,6 +23,7 @@ interface AdminPropertiesPageProps {
   };
 }
 
+const ITEMS_PER_PAGE = 10;
 
 const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, filterOptions }) => {
     const t = translations[language].adminDashboard;
@@ -40,6 +42,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
     const [endDateFilter, setEndDateFilter] = useState('');
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
     const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
 
      const partnerOptions = useMemo(() => {
         return (partners || [])
@@ -118,6 +121,16 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
         return filteredProps;
     }, [properties, searchTerm, partnerFilter, statusFilter, typeFilter, startDateFilter, endDateFilter, sortConfig, language, filterOptions]);
 
+    const totalPages = Math.ceil(sortedAndFilteredProperties.length / ITEMS_PER_PAGE);
+    const paginatedProperties = sortedAndFilteredProperties.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, partnerFilter, statusFilter, typeFilter, startDateFilter, endDateFilter]);
+
     const requestSort = (key: 'title' | 'partnerName' | 'status' | 'priceNumeric' | 'listingStartDate' | 'listingEndDate') => {
         let direction: 'ascending' | 'descending' = 'ascending';
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -145,7 +158,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
-            setSelectedProperties(sortedAndFilteredProperties.map(p => p.id));
+            setSelectedProperties(paginatedProperties.map(p => p.id));
         } else {
             setSelectedProperties([]);
         }
@@ -276,8 +289,8 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                                     <input type="checkbox"
                                         className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500"
                                         onChange={handleSelectAll}
-                                        checked={sortedAndFilteredProperties.length > 0 && selectedProperties.length === sortedAndFilteredProperties.length}
-                                        ref={input => { if (input) input.indeterminate = selectedProperties.length > 0 && selectedProperties.length < sortedAndFilteredProperties.length }}
+                                        checked={paginatedProperties.length > 0 && selectedProperties.length === paginatedProperties.length}
+                                        ref={input => { if (input) input.indeterminate = selectedProperties.length > 0 && selectedProperties.length < paginatedProperties.length }}
                                     />
                                 </th>
                                 <th scope="col" className="px-6 py-3">{t_dash.propertyTable.image}</th>
@@ -302,8 +315,8 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                         <tbody>
                             {loading ? (
                                 <tr><td colSpan={8} className="text-center p-8">Loading properties...</td></tr>
-                            ) : sortedAndFilteredProperties.length > 0 ? (
-                                sortedAndFilteredProperties.map(prop => (
+                            ) : paginatedProperties.length > 0 ? (
+                                paginatedProperties.map(prop => (
                                     <tr key={prop.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td className="w-4 p-4">
                                             <input type="checkbox" className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500"
@@ -348,6 +361,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                         </tbody>
                     </table>
                 </div>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
             </div>
         </div>
     );

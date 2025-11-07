@@ -5,6 +5,7 @@ import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
 import { getAllPropertyInquiries, updatePropertyInquiryStatus, deletePropertyInquiry } from '../../api/propertyInquiries';
 import { useApiQuery } from '../shared/useApiQuery';
+import Pagination from '../shared/Pagination';
 
 const statusColors: { [key in RequestStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -20,6 +21,8 @@ type SortConfig = {
     direction: 'ascending' | 'descending';
 } | null;
 
+const ITEMS_PER_PAGE = 10;
+
 const AdminPropertyInquiriesPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard.propertyInquiries;
     const t_req = translations[language].adminDashboard.adminRequests;
@@ -27,7 +30,7 @@ const AdminPropertyInquiriesPage: React.FC<{ language: Language }> = ({ language
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
-
+    const [currentPage, setCurrentPage] = useState(1);
 
     const sortedAndFilteredRequests = useMemo(() => {
         let filteredReqs = [...(propertyInquiries || [])];
@@ -53,6 +56,16 @@ const AdminPropertyInquiriesPage: React.FC<{ language: Language }> = ({ language
         }
         return filteredReqs;
     }, [propertyInquiries, searchTerm, sortConfig]);
+
+    const totalPages = Math.ceil(sortedAndFilteredRequests.length / ITEMS_PER_PAGE);
+    const paginatedRequests = sortedAndFilteredRequests.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
     
     const requestSort = (key: 'customerName' | 'createdAt' | 'details' | 'status') => {
         let direction: 'ascending' | 'descending' = 'ascending';
@@ -98,63 +111,66 @@ const AdminPropertyInquiriesPage: React.FC<{ language: Language }> = ({ language
                 />
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerName')}>
-                                <div className="flex items-center">{t_req.table.requester}{getSortIcon('customerName')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('details')}>
-                                <div className="flex items-center">{t.table.details}{getSortIcon('details')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
-                                <div className="flex items-center">{t_req.table.date}{getSortIcon('createdAt')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
-                                <div className="flex items-center">{t_req.table.status}{getSortIcon('status')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3">{t_req.table.actions}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan={5} className="text-center p-8">Loading requests...</td></tr>
-                        ) : sortedAndFilteredRequests.length > 0 ? (
-                            sortedAndFilteredRequests.map(req => (
-                                <tr key={req.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="px-6 py-4">
-                                        <div className="font-medium text-gray-900 dark:text-white">{req.customerName}</div>
-                                        <div className="text-xs text-gray-500">{req.customerPhone}</div>
-                                    </td>
-                                    <td className="px-6 py-4 max-w-md">
-                                        <p className="whitespace-pre-wrap">{req.details}</p>
-                                        <p className="text-xs text-gray-400 mt-1">Contact at: {req.contactTime}</p>
-                                    </td>
-                                    <td className="px-6 py-4">{new Date(req.createdAt).toLocaleDateString(language)}</td>
-                                    <td className="px-6 py-4">
-                                         <select
-                                            value={req.status}
-                                            onChange={(e) => handleStatusChange(req.id, e.target.value as RequestStatus)}
-                                            className={`text-xs font-medium px-2.5 py-0.5 rounded-full border-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800 ${statusColors[req.status]}`}
-                                        >
-                                           {Object.keys(t_req.requestStatus).map((key) => (
-                                                <option key={key} value={key} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                                                    {t_req.requestStatus[key as keyof typeof t_req.requestStatus]}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </td>
-                                    <td className="px-6 py-4 space-x-2 whitespace-nowrap">
-                                        <button onClick={() => handleDelete(req.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t_req.table.delete}</button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr><td colSpan={5} className="text-center p-8">{t.noRequests}</td></tr>
-                        )}
-                    </tbody>
-                </table>
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerName')}>
+                                    <div className="flex items-center">{t_req.table.requester}{getSortIcon('customerName')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('details')}>
+                                    <div className="flex items-center">{t.table.details}{getSortIcon('details')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
+                                    <div className="flex items-center">{t_req.table.date}{getSortIcon('createdAt')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
+                                    <div className="flex items-center">{t_req.table.status}{getSortIcon('status')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3">{t_req.table.actions}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan={5} className="text-center p-8">Loading requests...</td></tr>
+                            ) : paginatedRequests.length > 0 ? (
+                                paginatedRequests.map(req => (
+                                    <tr key={req.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                        <td className="px-6 py-4">
+                                            <div className="font-medium text-gray-900 dark:text-white">{req.customerName}</div>
+                                            <div className="text-xs text-gray-500">{req.customerPhone}</div>
+                                        </td>
+                                        <td className="px-6 py-4 max-w-md">
+                                            <p className="whitespace-pre-wrap">{req.details}</p>
+                                            <p className="text-xs text-gray-400 mt-1">Contact at: {req.contactTime}</p>
+                                        </td>
+                                        <td className="px-6 py-4">{new Date(req.createdAt).toLocaleDateString(language)}</td>
+                                        <td className="px-6 py-4">
+                                            <select
+                                                value={req.status}
+                                                onChange={(e) => handleStatusChange(req.id, e.target.value as RequestStatus)}
+                                                className={`text-xs font-medium px-2.5 py-0.5 rounded-full border-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800 ${statusColors[req.status]}`}
+                                            >
+                                            {Object.keys(t_req.requestStatus).map((key) => (
+                                                    <option key={key} value={key} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                                        {t_req.requestStatus[key as keyof typeof t_req.requestStatus]}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </td>
+                                        <td className="px-6 py-4 space-x-2 whitespace-nowrap">
+                                            <button onClick={() => handleDelete(req.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t_req.table.delete}</button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr><td colSpan={5} className="text-center p-8">{t.noRequests}</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
             </div>
         </div>
     );

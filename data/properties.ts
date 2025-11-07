@@ -23,7 +23,7 @@ export let propertiesData: Property[] = [
       pricePerMeter: { ar: "٨٬٥٥٦ ج.م/م²", en: "EGP 8,556/m²" },
       type: { ar: "فيلا", en: "Villa" },
       title: { ar: "فيلا بتصميم عصري مميز للبيع", en: "Villa with a Unique Modern Design for Sale" },
-      address: { ar: "شارع 5، الحى الثانى، هليوبوليس الجديدة", en: "Street 5, 2nd District, New Heliopolis" },
+      address: { ar: "كمبوند تلالا، هليوبوليس الجديدة", en: "Talala Compound, New Heliopolis" },
       description: {
           ar: "فيلا فاخرة بتصميم عصري تقع في قلب هليوبوليس الجديدة.\nتتميز الفيلا بحديقة خاصة واسعة وحمام سباحة، بالإضافة إلى تشطيبات عالية الجودة. تتكون من طابقين، وتحتوي على 7 غرف نوم ماستر، وغرفة معيشة كبيرة، ومطبخ مجهز بالكامل. مثالية للعائلات الكبيرة التي تبحث عن الرفاهية والخصوصية.",
           en: "A luxurious modern design villa located in the heart of New Heliopolis.\nThe villa features a large private garden and a swimming pool, in addition to high-quality finishes. It consists of two floors, containing 7 master bedrooms, a large living room, and a fully equipped kitchen. Ideal for large families looking for luxury and privacy."
@@ -38,11 +38,13 @@ export let propertiesData: Property[] = [
       finishingStatus: { ar: "تشطيب كامل", en: "Fully Finished" },
       installmentsAvailable: true,
       isInCompound: true,
+      realEstateFinanceAvailable: true,
       delivery: { isImmediate: false, date: '2025-06' },
       installments: { downPayment: 770000, monthlyInstallment: 36666, years: 7 },
-      location: { lat: 30.125, lng: 31.608 },
+      location: { lat: 30.146973, lng: 31.679802 },
       listingStartDate: '2023-01-01',
       listingEndDate: '2025-12-31',
+      contactMethod: 'platform',
     },
     {
       id: 'apartment-rent-2',
@@ -83,6 +85,7 @@ export let propertiesData: Property[] = [
       location: { lat: 30.118, lng: 31.615 },
       listingStartDate: '2024-01-01',
       listingEndDate: '2024-12-31',
+      contactMethod: 'platform',
     },
     {
       id: 'apartment-sale-3',
@@ -120,14 +123,17 @@ export let propertiesData: Property[] = [
       finishingStatus: { ar: "نصف تشطيب", en: "Semi-finished" },
       installmentsAvailable: true,
       isInCompound: false,
+      realEstateFinanceAvailable: true,
       delivery: { isImmediate: true },
       installments: { downPayment: 420000, monthlyInstallment: 20000, years: 7 },
       location: { lat: 30.128, lng: 31.620 },
       listingStartDate: '2023-05-01',
+      contactMethod: 'platform',
     },
      {
       id: 'penthouse-sale-4',
       partnerId: 'alrowad-engineering',
+      projectId: 'proj-6',
       imageUrl: "https://images.unsplash.com/photo-1628744449833-4f938a3a3bde?q=80&w=1974&auto=format&fit=crop",
       imageUrl_small: "https://images.unsplash.com/photo-1628744449833-4f938a3a3bde?q=80&w=480&auto=format&fit=crop",
       imageUrl_medium: "https://images.unsplash.com/photo-1628744449833-4f938a3a3bde?q=80&w=800&auto=format&fit=crop",
@@ -145,7 +151,7 @@ export let propertiesData: Property[] = [
       pricePerMeter: { ar: "١١٬٤٢٩ ج.م/م²", en: "EGP 11,429/m²" },
       type: { ar: "شقة", en: "Apartment" },
       title: { ar: "شقة بنتهاوس فاخرة للبيع", en: "Luxury Penthouse Apartment for Sale" },
-      address: { ar: "برج النخبة، هليوبوليس الجديدة", en: "El Nokhba Tower, New Heliopolis" },
+      address: { ar: "كمبوند تيباروز، هليوبوليس الجديدة", en: "Tibarose Compound, New Heliopolis" },
       description: {
           ar: "بنتهاوس دوبلكس فاخر مع رووف خاص وإطلالة مفتوحة. يتميز بتصميم فريد وتشطيبات على أعلى مستوى. يوفر مساحة معيشة واسعة ومثالية للاسترخاء والترفيه.",
           en: "Luxury duplex penthouse with a private roof and an open view. It features a unique design and top-level finishes. Provides a spacious living area ideal for relaxation and entertainment."
@@ -160,11 +166,13 @@ export let propertiesData: Property[] = [
       },
       finishingStatus: { ar: "تشطيب فاخر", en: "Luxury Finishing" },
       installmentsAvailable: true,
-      isInCompound: false,
+      isInCompound: true,
+      realEstateFinanceAvailable: false,
       delivery: { isImmediate: true },
       installments: { downPayment: 800000, monthlyInstallment: 50000, years: 5 },
-      location: { lat: 30.122, lng: 31.625 },
+      location: { lat: 30.1352246, lng: 31.6833697 },
       listingEndDate: '2024-10-31',
+      contactMethod: 'platform',
     },
     {
       id: 'villa-sale-5',
@@ -187,10 +195,10 @@ export let propertiesData: Property[] = [
       pricePerMeter: { ar: "٨٬٦٦٧ ج.م/م²", en: "EGP 8,667/m²" },
       type: { ar: "فيلا", en: "Villa" },
       title: { ar: "منزل حديث بتصميم رائع", en: "Modern House with a Wonderful Design" },
-      address: { ar: "كمبوند لافيستا، هليوبوليس الجديدة", en: "La Vista Compound, New Heliopolis" },
+      address: { ar: "كمبوند تلالا، هليوبوليس الجديدة", en: "Talala Compound, New Heliopolis" },
       description: {
-          ar: "فيلا مستقلة بتصميم معماري حديث ومميز في كمبوند لافيستا. الفيلا محاطة بحديقة كبيرة وتوفر خصوصية تامة. تصميم داخلي مفتوح يوفر إضاءة وتهوية طبيعية ممتازة.",
-          en: "An independent villa with a modern and distinctive architectural design in La Vista Compound. The villa is surrounded by a large garden and offers complete privacy. An open interior design provides excellent natural lighting and ventilation."
+          ar: "فيلا مستقلة بتصميم معماري حديث ومميز في كمبوند تلالا. الفيلا محاطة بحديقة كبيرة وتوفر خصوصية تامة. تصميم داخلي مفتوح يوفر إضاءة وتهوية طبيعية ممتازة.",
+          en: "An independent villa with a modern and distinctive architectural design in Talala Compound. The villa is surrounded by a large garden and offers complete privacy. An open interior design provides excellent natural lighting and ventilation."
       },
       beds: 5,
       baths: 4,
@@ -202,11 +210,13 @@ export let propertiesData: Property[] = [
       finishingStatus: { ar: "تشطيب كامل", en: "Fully Finished" },
       installmentsAvailable: true,
       isInCompound: true,
+      realEstateFinanceAvailable: true,
       delivery: { isImmediate: true },
       installments: { downPayment: 1040000, monthlyInstallment: 40000, years: 8 },
-      location: { lat: 30.115, lng: 31.605 },
+      location: { lat: 30.1471, lng: 31.6800 },
       listingStartDate: '2022-01-01',
       listingEndDate: '2023-12-31', // Expired
+      contactMethod: 'platform',
     },
     {
       id: 'apartment-sale-sodic-east',
@@ -232,9 +242,11 @@ export let propertiesData: Property[] = [
       finishingStatus: { ar: "تشطيب كامل", en: "Fully Finished" },
       installmentsAvailable: true,
       isInCompound: true,
+      realEstateFinanceAvailable: true,
       delivery: { isImmediate: false, date: '2026-12' },
       location: { lat: 30.135, lng: 31.635 },
       listingStartDate: '2024-07-01',
+      contactMethod: 'platform',
     },
     {
       id: 'villa-sale-al-burouj',
@@ -259,9 +271,11 @@ export let propertiesData: Property[] = [
       finishingStatus: { ar: "تشطيب كامل", en: "Fully Finished" },
       installmentsAvailable: true,
       isInCompound: true,
+      realEstateFinanceAvailable: false,
       delivery: { isImmediate: true },
       location: { lat: 30.140, lng: 31.650 },
       listingStartDate: '2024-06-15',
+      contactMethod: 'platform',
     },
     {
       id: 'penthouse-korba-heights',
@@ -287,9 +301,11 @@ export let propertiesData: Property[] = [
       finishingStatus: { ar: "نصف تشطيب", en: "Semi-finished" },
       installmentsAvailable: true,
       isInCompound: true,
+      realEstateFinanceAvailable: true,
       delivery: { isImmediate: false, date: '2025-08' },
-      location: { lat: 30.133, lng: 31.628 },
+      location: { lat: 30.1449918, lng: 31.6691054 },
       listingStartDate: '2024-05-20',
+      contactMethod: 'platform',
     },
     {
       id: 'apartment-rent-6',
@@ -329,6 +345,7 @@ export let propertiesData: Property[] = [
       delivery: { isImmediate: true },
       location: { lat: 30.120, lng: 31.600 },
       listingStartDate: '2024-06-01',
+      contactMethod: 'platform',
     },
     {
       id: 'commercial-sale-7',
@@ -351,7 +368,7 @@ export let propertiesData: Property[] = [
       pricePerMeter: { ar: "١٢٬٥٠٠ ج.م/م²", en: "EGP 12,500/m²" },
       type: { ar: "تجاري", en: "Commercial" },
       title: { ar: "محل تجاري للبيع بموقع مميز", en: "Commercial Space for Sale in a Prime Location" },
-      address: { ar: "المنطقة التجارية، هليوبوليس الجديدة", en: "Commercial Zone, New Heliopolis" },
+      address: { ar: "كمبوند جولز، هليوبوليس الجديدة", en: "Joules Compound, New Heliopolis" },
       description: {
           ar: "مساحة تجارية تصلح لمختلف الأنشطة. موقع استراتيجي على طريق رئيسي.",
           en: "Commercial space suitable for various activities. Strategic location on a main road."
@@ -365,15 +382,17 @@ export let propertiesData: Property[] = [
           en: ["Strategic Location", "Frontage on a Main Street", "Fully Serviced"]
       },
       installmentsAvailable: true,
+      realEstateFinanceAvailable: false,
       delivery: { isImmediate: true },
-      isInCompound: false,
-      location: { lat: 30.130, lng: 31.630 },
+      isInCompound: true,
+      location: { lat: 30.1368684, lng: 31.6825982 },
       listingStartDate: '2024-03-01',
       listingEndDate: '2025-03-01',
+      contactMethod: 'platform',
     },
     {
       id: 'apartment-sale-8',
-      partnerId: 'ebdaa-integrated-finishes',
+      partnerId: 'individual-listings',
       imageUrl: "https://images.unsplash.com/photo-1528740561666-dc2479703592?q=80&w=1974&auto=format&fit=crop",
       imageUrl_small: "https://images.unsplash.com/photo-1528740561666-dc2479703592?q=80&w=480&auto=format&fit=crop",
       imageUrl_medium: "https://images.unsplash.com/photo-1528740561666-dc2479703592?q=80&w=800&auto=format&fit=crop",
@@ -406,8 +425,11 @@ export let propertiesData: Property[] = [
       },
       finishingStatus: { ar: "بدون تشطيب", en: "Without Finishing" },
       installmentsAvailable: true,
+      realEstateFinanceAvailable: false,
       isInCompound: false,
       delivery: { isImmediate: false, date: '2026-01' },
-      location: { lat: 30.132, lng: 31.618 }
+      location: { lat: 30.132, lng: 31.618 },
+      contactMethod: 'direct',
+      ownerPhone: '01122334455',
     }
 ];

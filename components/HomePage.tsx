@@ -1,6 +1,6 @@
 import React from 'react';
 import Hero from './Hero';
-import SocialProof from './SocialProof';
+import LatestProperties from './LatestProperties';
 import Services from './Services';
 import Partners from './Partners';
 import Integrations from './Integrations';
@@ -21,7 +21,7 @@ const HomePage: React.FC<HomePageProps> = ({ language }) => {
       <Services language={language} />
       <AboutCity language={language} />
       <Integrations language={language} />
-      <SocialProof language={language} />
+      <LatestProperties language={language} />
       <Partners language={language} />
       <CTA language={language} />
     </>

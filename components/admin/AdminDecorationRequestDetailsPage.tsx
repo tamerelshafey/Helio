@@ -6,6 +6,8 @@ import { ChevronLeftIcon } from '../icons/Icons';
 import { selectClasses, inputClasses } from '../shared/FormField';
 import { getAllLeads, updateLead } from '../../api/leads';
 import { useApiQuery } from '../shared/useApiQuery';
+import { useToast } from '../shared/ToastContext';
+import ConversationThread from '../shared/ConversationThread';
 
 const statusColors: { [key in LeadStatus]?: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -35,34 +37,31 @@ const DetailItem: React.FC<{ label: string; value?: string | React.ReactNode; fu
 
 const AdminDecorationRequestDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
     const { requestId } = useParams<{ requestId: string }>();
-    const location = useLocation();
     const t = translations[language].adminDashboard.decorationsManagement;
     const t_lead_status = translations[language].dashboard.leadStatus;
     const t_shared = translations[language].adminShared;
+    const { showToast } = useToast();
     
     const { data: leads, isLoading: loading, refetch: refetchLeads } = useApiQuery('allLeadsAdmin', getAllLeads);
 
     const request = useMemo(() => (leads || []).find(l => l.id === requestId), [leads, requestId]);
     
-    const [notes, setNotes] = useState('');
+    const [status, setStatus] = useState<LeadStatus>('new');
+    const [isSaving, setIsSaving] = useState(false);
+
     useEffect(() => {
         if(request) {
-            setNotes(request.internalNotes || '');
+            setStatus(request.status);
         }
     }, [request]);
 
-    const handleNotesSave = async () => {
-        if (request && request.internalNotes !== notes) {
-            await updateLead(request.id, { internalNotes: notes });
-            refetchLeads();
-        }
-    };
-
-    const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-        if (request) {
-            await updateLead(request.id, { status: e.target.value as LeadStatus });
-            refetchLeads();
-        }
+    const handleSaveChanges = async () => {
+        if (!request) return;
+        setIsSaving(true);
+        await updateLead(request.id, { status });
+        await refetchLeads();
+        setIsSaving(false);
+        showToast('Request updated successfully!', 'success');
     };
 
     if (loading) {
@@ -93,29 +92,28 @@ const AdminDecorationRequestDetailsPage: React.FC<{ language: Language }> = ({ l
                          <DetailItem label={translations[language].dashboard.leadTable.service} value={request.serviceTitle} fullWidth />
                          <DetailItem label={translations[language].dashboard.leadTable.notes} value={<p className="whitespace-pre-wrap">{request.customerNotes || '-'}</p>} fullWidth />
                     </DetailSection>
+
+                    <ConversationThread lead={request} onMessageSent={refetchLeads} language={language} />
+
                 </div>
 
                 <div className="space-y-8">
                      <DetailSection title={t.management}>
                         <div>
                             <label htmlFor="status" className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{translations[language].dashboard.leadTable.status}</label>
-                            <select id="status" value={request.status} onChange={handleStatusChange} className={`${selectClasses} ${statusColors[request.status]}`}>
+                            <select id="status" value={status} onChange={(e) => setStatus(e.target.value as LeadStatus)} className={`${selectClasses} ${statusColors[status]}`}>
                                 {Object.entries(t_lead_status).map(([key, value]) => (
                                     <option key={key} value={key} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">{value}</option>
                                 ))}
                             </select>
                         </div>
-                        <div>
-                            <label htmlFor="internalNotes" className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{t.internalNotes}</label>
-                            <textarea
-                                id="internalNotes"
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                                onBlur={handleNotesSave}
-                                rows={10}
-                                className={inputClasses}
-                            />
-                        </div>
+                        <button
+                            onClick={handleSaveChanges}
+                            disabled={isSaving}
+                            className="w-full bg-amber-500 text-gray-900 font-bold px-4 py-3 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
+                        >
+                            {isSaving ? '...' : t_shared.save}
+                        </button>
                      </DetailSection>
                 </div>
             </div>

@@ -1,12 +1,14 @@
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Language, Lead, LeadStatus } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
-import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
+import { ArrowUpIcon, ArrowDownIcon, ChevronRightIcon } from '../icons/Icons';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
-import { getLeadsByPartnerId, updateLead, deleteLead as apiDeleteLead } from '../../mockApi/leads';
+import { getLeadsByPartnerId, updateLead, deleteLead as apiDeleteLead } from '../../api/leads';
 import { useApiQuery } from '../shared/useApiQuery';
+import ConversationThread from '../shared/ConversationThread';
 
 const statusColors: { [key in LeadStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -35,6 +37,7 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
+    const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
 
     const sortedAndFilteredLeads = useMemo(() => {
         if (!partnerLeads) return [];
@@ -69,34 +72,13 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
         return filteredLeads;
     }, [partnerLeads, searchTerm, statusFilter, sortConfig]);
 
-    const requestSort = (key: keyof Lead) => {
-        let direction: 'ascending' | 'descending' = 'ascending';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    const getSortIcon = (key: keyof Lead) => {
-        if (!sortConfig || sortConfig.key !== key) {
-            return <span className="w-4 h-4 ml-1 inline-block"></span>;
-        }
-        if (sortConfig.direction === 'ascending') {
-            return <ArrowUpIcon className="w-4 h-4 ml-1 inline-block" />;
-        }
-        return <ArrowDownIcon className="w-4 h-4 ml-1 inline-block" />;
-    };
-
-    const handleDelete = async (leadId: string) => {
-        if (window.confirm(t.leadTable.confirmDelete)) {
-            await apiDeleteLead(leadId);
-            refetch();
-        }
-    };
-
     const handleStatusChange = async (leadId: string, status: LeadStatus) => {
         await updateLead(leadId, { status });
         refetch();
+    };
+    
+    const toggleExpand = (leadId: string) => {
+        setExpandedLeadId(prevId => (prevId === leadId ? null : leadId));
     };
 
     const exportData = useMemo(() => (sortedAndFilteredLeads || []).map(lead => ({
@@ -120,94 +102,70 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.leadsTitle}</h1>
                     <p className="text-gray-500 dark:text-gray-400">{t.leadsSubtitle}</p>
                 </div>
-                <ExportDropdown
-                    data={exportData}
-                    columns={exportColumns}
-                    filename="my-leads"
-                    language={language}
-                />
+                <ExportDropdown data={exportData} columns={exportColumns} filename="my-leads" language={language} />
             </div>
 
             <div className="mb-4 flex flex-wrap items-center gap-4">
-                <input
-                    type="text"
-                    placeholder={t.filter.search}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className={inputClasses + " max-w-xs"}
-                />
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className={selectClasses + " max-w-xs"}
-                >
+                <input type="text" placeholder={t.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={inputClasses + " max-w-xs"} />
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={selectClasses + " max-w-xs"}>
                     <option value="all">{t.filter.filterByStatus} ({t.filter.all})</option>
-                    {Object.entries(t.leadStatus).map(([key, value]) => (
-                        <option key={key} value={key}>{value}</option>
-                    ))}
+                    {Object.entries(t.leadStatus).map(([key, value]) => (<option key={key} value={key}>{value}</option>))}
                 </select>
             </div>
             
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerName')}>
-                                <div className="flex items-center">{t.leadTable.customer}{getSortIcon('customerName')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerPhone')}>
-                                <div className="flex items-center">{t.leadTable.phone}{getSortIcon('customerPhone')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('serviceTitle')}>
-                                <div className="flex items-center">{t.leadTable.service}{getSortIcon('serviceTitle')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('contactTime')}>
-                                <div className="flex items-center">{t.leadTable.contactTime}{getSortIcon('contactTime')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
-                                <div className="flex items-center">{t.leadTable.date}{getSortIcon('createdAt')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
-                                <div className="flex items-center">{t.leadTable.status}{getSortIcon('status')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3">{t.leadTable.actions}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan={7} className="text-center p-8">Loading...</td></tr>
-                        ) : sortedAndFilteredLeads.length > 0 ? (
-                            sortedAndFilteredLeads.map(lead => (
-                                <tr key={lead.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {lead.customerName}
-                                        {lead.customerNotes && <p className="font-normal text-gray-500 dark:text-gray-400 text-xs mt-1 max-w-xs truncate" title={lead.customerNotes}>{lead.customerNotes}</p>}
-                                    </th>
-                                    <td className="px-6 py-4" dir="ltr">{lead.customerPhone}</td>
-                                    <td className="px-6 py-4 max-w-xs truncate" title={lead.serviceTitle}>{lead.serviceTitle}</td>
-                                    <td className="px-6 py-4">{lead.contactTime}</td>
-                                    <td className="px-6 py-4">{new Date(lead.createdAt).toLocaleDateString(language)}</td>
-                                    <td className="px-6 py-4">
-                                        <select
-                                            value={lead.status}
-                                            onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
-                                            className={`text-xs font-medium px-2.5 py-0.5 rounded-full border-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800 ${statusColors[lead.status]}`}
-                                        >
-                                           {Object.entries(t.leadStatus).map(([key, value]) => (
-                                                <option key={key} value={key}>{value}</option>
-                                            ))}
-                                        </select>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <button onClick={() => handleDelete(lead.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t.leadTable.delete}</button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                             <tr><td colSpan={7} className="text-center p-8">{t.leadTable.noLeads}</td></tr>
-                        )}
-                    </tbody>
-                </table>
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" className="px-6 py-3 w-8"></th>
+                                <th scope="col" className="px-6 py-3">{t.leadTable.customer}</th>
+                                <th scope="col" className="px-6 py-3">{t.leadTable.service}</th>
+                                <th scope="col" className="px-6 py-3">{t.leadTable.date}</th>
+                                <th scope="col" className="px-6 py-3">{t.leadTable.status}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan={5} className="text-center p-8">Loading...</td></tr>
+                            ) : sortedAndFilteredLeads.length > 0 ? (
+                                sortedAndFilteredLeads.map(lead => (
+                                    <React.Fragment key={lead.id}>
+                                        <tr className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer" onClick={() => toggleExpand(lead.id)}>
+                                            <td className="px-6 py-4">
+                                                <ChevronRightIcon className={`w-5 h-5 transition-transform ${expandedLeadId === lead.id ? 'rotate-90' : ''}`} />
+                                            </td>
+                                            <td scope="row" className="px-6 py-4">
+                                                <div className="font-medium text-gray-900 whitespace-nowrap dark:text-white">{lead.customerName}</div>
+                                                <div className="text-xs text-gray-500 dark:text-gray-400" dir="ltr">{lead.customerPhone}</div>
+                                            </td>
+                                            <td className="px-6 py-4 max-w-xs truncate" title={lead.serviceTitle}>{lead.serviceTitle}</td>
+                                            <td className="px-6 py-4">{new Date(lead.createdAt).toLocaleDateString(language)}</td>
+                                            <td className="px-6 py-4">
+                                                <span onClick={e => e.stopPropagation()}>
+                                                    <select value={lead.status} onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)} className={`text-xs font-medium px-2.5 py-0.5 rounded-full border-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800 ${statusColors[lead.status]}`}>
+                                                        {Object.entries(t.leadStatus).map(([key, value]) => (<option key={key} value={key}>{value}</option>))}
+                                                    </select>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {expandedLeadId === lead.id && (
+                                            <tr className="bg-gray-50 dark:bg-gray-800/50">
+                                                <td colSpan={5} className="p-0">
+                                                    <div className="p-4 animate-fadeIn">
+                                                        <ConversationThread lead={lead} onMessageSent={refetch} language={language} />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))
+                            ) : (
+                                <tr><td colSpan={5} className="text-center p-8">{t.leadTable.noLeads}</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

@@ -7,11 +7,14 @@ import { ArrowDownIcon, ArrowUpIcon } from '../icons/Icons';
 import { getAllPartnerRequests } from '../../api/partnerRequests';
 import { useApiQuery } from '../shared/useApiQuery';
 import { useAuth } from '../auth/AuthContext';
+import Pagination from '../shared/Pagination';
 
 type SortConfig = {
     key: 'companyName' | 'companyType' | 'createdAt' | 'status';
     direction: 'ascending' | 'descending';
 } | null;
+
+const ITEMS_PER_PAGE = 10;
 
 const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard;
@@ -22,6 +25,7 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('pending');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
+    const [currentPage, setCurrentPage] = useState(1);
 
 
     const sortedAndFilteredRequests = useMemo(() => {
@@ -50,6 +54,16 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
         return filteredReqs;
     }, [partnerRequests, statusFilter, searchTerm, sortConfig, currentUser]);
     
+    const totalPages = Math.ceil(sortedAndFilteredRequests.length / ITEMS_PER_PAGE);
+    const paginatedRequests = sortedAndFilteredRequests.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, statusFilter]);
+
     const requestSort = (key: 'companyName' | 'companyType' | 'createdAt' | 'status') => {
         let direction: 'ascending' | 'descending' = 'ascending';
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -94,53 +108,56 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
                 </select>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('companyName')}>
-                                <div className="flex items-center">{t.partnerTable.partner}{getSortIcon('companyName')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('companyType')}>
-                                <div className="flex items-center">{t.partnerTable.type}{getSortIcon('companyType')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
-                                <div className="flex items-center">{t_req.table.date}{getSortIcon('createdAt')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
-                                <div className="flex items-center">{t.partnerTable.status}{getSortIcon('status')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3">{t.partnerTable.actions}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan={5} className="text-center p-8">Loading requests...</td></tr>
-                        ) : sortedAndFilteredRequests.length > 0 ? (
-                            sortedAndFilteredRequests.map(req => (
-                            <tr key={req.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <img src={req.logo} alt={req.companyName} className="w-10 h-10 object-cover rounded-full" />
-                                        <div>
-                                            <div className="font-medium text-gray-900 dark:text-white">{req.companyName}</div>
-                                            <div className="text-xs text-gray-500">{req.contactEmail}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">{getPartnerTypeName(req.companyType)}</td>
-                                <td className="px-6 py-4">{new Date(req.createdAt).toLocaleDateString(language)}</td>
-                                <td className="px-6 py-4">{getStatusName(req.status)}</td>
-                                <td className="px-6 py-4 space-x-2 whitespace-nowrap">
-                                    <Link to={`/admin/partner-requests/${req.id}`} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">{t_req.table.details}</Link>
-                                </td>
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('companyName')}>
+                                    <div className="flex items-center">{t.partnerTable.partner}{getSortIcon('companyName')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('companyType')}>
+                                    <div className="flex items-center">{t.partnerTable.type}{getSortIcon('companyType')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
+                                    <div className="flex items-center">{t_req.table.date}{getSortIcon('createdAt')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
+                                    <div className="flex items-center">{t.partnerTable.status}{getSortIcon('status')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3">{t.partnerTable.actions}</th>
                             </tr>
-                        ))
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan={5} className="text-center p-8">Loading requests...</td></tr>
+                            ) : paginatedRequests.length > 0 ? (
+                                paginatedRequests.map(req => (
+                                <tr key={req.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <img src={req.logo} alt={req.companyName} className="w-10 h-10 rounded-full object-cover"/>
+                                            <div>
+                                                <div className="font-medium text-gray-900 dark:text-white">{req.companyName}</div>
+                                                <div className="text-xs text-gray-500">{req.contactName}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">{getPartnerTypeName(req.companyType)}</td>
+                                    <td className="px-6 py-4">{new Date(req.createdAt).toLocaleDateString(language)}</td>
+                                    <td className="px-6 py-4">{getStatusName(req.status)}</td>
+                                    <td className="px-6 py-4">
+                                        <Link to={`/admin/partner-requests/${req.id}`} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">{t_req.table.details}</Link>
+                                    </td>
+                                </tr>
+                            ))
                         ) : (
                             <tr><td colSpan={5} className="text-center p-8">{t_req.noPartnerRequests}</td></tr>
                         )}
                     </tbody>
                 </table>
+                </div>
+                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
             </div>
         </div>
     );

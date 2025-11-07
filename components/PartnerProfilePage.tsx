@@ -4,10 +4,10 @@ import type { Language, Partner, PortfolioItem, Property, AdminPartner, Project 
 import { translations } from '../data/translations';
 import Lightbox from './shared/Lightbox';
 import PropertyCard from './shared/PropertyCard';
-import { getAllPartnersForAdmin } from '../mockApi/partners';
-import { getPortfolioByPartnerId } from '../mockApi/portfolio';
-import { getPropertiesByPartnerId } from '../mockApi/properties';
-import { getAllProjects } from '../mockApi/projects';
+import { getAllPartnersForAdmin } from '../api/partners';
+import { getPortfolioByPartnerId } from '../api/portfolio';
+import { getPropertiesByPartnerId } from '../api/properties';
+import { getAllProjects } from '../api/projects';
 import { useApiQuery } from './shared/useApiQuery';
 
 interface PartnerProfilePageProps {
@@ -68,7 +68,7 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
     const openLightbox = (gallery: PortfolioItem[], startIndex: number) => {
         setLightboxState({
             isOpen: true,
-            images: gallery.map(img => img.src),
+            images: gallery.map(img => img.imageUrl),
             startIndex,
         });
     };
@@ -136,7 +136,7 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                                 {partnerPortfolio.map((img, index) => (
                                     <div key={index} className="group relative overflow-hidden rounded-lg shadow-lg aspect-w-1 aspect-h-1 bg-gray-100 dark:bg-gray-800">
-                                        <img src={img.src} alt={img.alt} className="w-full h-80 object-cover transform transition-transform duration-300 group-hover:scale-105" />
+                                        <img src={img.imageUrl} alt={img.alt} className="w-full h-80 object-cover transform transition-transform duration-300 group-hover:scale-105" />
                                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2">
                                             <button 
                                                 onClick={() => openLightbox(partnerPortfolio, index)}

@@ -5,17 +5,21 @@ import AdminBannerFormModal from './AdminBannerFormModal';
 import { ArrowDownIcon, ArrowUpIcon } from '../icons/Icons';
 import { getAllBanners, deleteBanner as apiDeleteBanner } from '../../api/banners';
 import { useApiQuery } from '../shared/useApiQuery';
+import Pagination from '../shared/Pagination';
 
 type SortConfig = {
     key: 'title' | 'locations' | 'status';
     direction: 'ascending' | 'descending';
 } | null;
 
+const ITEMS_PER_PAGE = 10;
+
 const AdminBannersPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard.manageBanners;
     const { data: banners, isLoading: loading, refetch } = useApiQuery('banners', getAllBanners);
     const [modalState, setModalState] = useState<{ isOpen: boolean, bannerToEdit?: Banner }>({ isOpen: false });
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const sortedBanners = useMemo(() => {
         let sortableItems = [...(banners || [])];
@@ -39,6 +43,12 @@ const AdminBannersPage: React.FC<{ language: Language }> = ({ language }) => {
         }
         return sortableItems;
     }, [banners, sortConfig]);
+
+    const totalPages = Math.ceil(sortedBanners.length / ITEMS_PER_PAGE);
+    const paginatedBanners = sortedBanners.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
     const requestSort = (key: 'title' | 'locations' | 'status') => {
         let direction: 'ascending' | 'descending' = 'ascending';
@@ -88,52 +98,55 @@ const AdminBannersPage: React.FC<{ language: Language }> = ({ language }) => {
                 </button>
             </div>
             
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" className="px-6 py-3">{t.tableImage}</th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('title')}>
-                                <div className="flex items-center">{t.tableTitle}{getSortIcon('title')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('locations')}>
-                                <div className="flex items-center">{t.tableLocations}{getSortIcon('locations')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
-                                <div className="flex items-center">{t.tableStatus}{getSortIcon('status')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3">{t.tableActions}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan={5} className="text-center p-8">Loading...</td></tr>
-                        ) : sortedBanners.length > 0 ? (
-                            sortedBanners.map(banner => (
-                                <tr key={banner.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="px-6 py-4">
-                                        <img src={banner.imageUrl} alt={banner.title} className="w-24 h-12 object-cover rounded-md" />
-                                    </td>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {banner.title}
-                                    </th>
-                                    <td className="px-6 py-4 capitalize">{banner.locations.join(', ')}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${banner.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-300'}`}>
-                                            {banner.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 space-x-2 whitespace-nowrap">
-                                        <button onClick={() => setModalState({ isOpen: true, bannerToEdit: banner })} className="font-medium text-amber-600 dark:text-amber-500 hover:underline">{t.edit}</button>
-                                        <button onClick={() => handleDelete(banner.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t.delete}</button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                             <tr><td colSpan={5} className="text-center p-8">No banners found.</td></tr>
-                        )}
-                    </tbody>
-                </table>
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" className="px-6 py-3">{t.tableImage}</th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('title')}>
+                                    <div className="flex items-center">{t.tableTitle}{getSortIcon('title')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('locations')}>
+                                    <div className="flex items-center">{t.tableLocations}{getSortIcon('locations')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
+                                    <div className="flex items-center">{t.tableStatus}{getSortIcon('status')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3">{t.tableActions}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan={5} className="text-center p-8">Loading...</td></tr>
+                            ) : paginatedBanners.length > 0 ? (
+                                paginatedBanners.map(banner => (
+                                    <tr key={banner.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                        <td className="px-6 py-4">
+                                            <img src={banner.imageUrl} alt={banner.title} className="w-24 h-12 object-cover rounded-md" />
+                                        </td>
+                                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                            {banner.title}
+                                        </th>
+                                        <td className="px-6 py-4 capitalize">{banner.locations.join(', ')}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${banner.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-300'}`}>
+                                                {banner.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 space-x-2 whitespace-nowrap">
+                                            <button onClick={() => setModalState({ isOpen: true, bannerToEdit: banner })} className="font-medium text-amber-600 dark:text-amber-500 hover:underline">{t.edit}</button>
+                                            <button onClick={() => handleDelete(banner.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t.delete}</button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr><td colSpan={5} className="text-center p-8">No banners found.</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
             </div>
         </div>
     );

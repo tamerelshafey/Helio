@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -5,8 +7,7 @@ import type { Language, SubscriptionPlan } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import { inputClasses } from '../shared/FormField';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { updatePartner } from '../../mockApi/partners';
+import { updatePartner } from '../../api/partners';
 import { useToast } from '../shared/ToastContext';
 
 const textareaClasses = `${inputClasses} min-h-[120px]`;
@@ -31,7 +32,7 @@ const DashboardProfilePage: React.FC<{ language: Language }> = ({ language }) =>
     const [logoFile, setLogoFile] = useState<File | null>(null);
     
     useEffect(() => {
-        if (currentUser) {
+        if (currentUser && 'type' in currentUser) {
             const arPartnerInfo = translations.ar.partnerInfo[currentUser.id as keyof typeof translations.ar.partnerInfo];
             const enPartnerInfo = translations.en.partnerInfo[currentUser.id as keyof typeof translations.en.partnerInfo];
 
@@ -55,7 +56,7 @@ const DashboardProfilePage: React.FC<{ language: Language }> = ({ language }) =>
     };
 
     const onSubmit = async (data: any) => {
-        if (!currentUser) return;
+        if (!currentUser || !('type' in currentUser)) return;
 
         let imageUrl = currentUser.imageUrl;
         if (logoFile) {
@@ -74,7 +75,6 @@ const DashboardProfilePage: React.FC<{ language: Language }> = ({ language }) =>
 
         if (result) {
             showToast(t.profileUpdateSuccess, 'success');
-            // Reload to reflect changes globally (e.g., in Header)
             setTimeout(() => window.location.reload(), 1500);
         } else {
             showToast('Failed to update profile.', 'error');

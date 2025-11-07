@@ -22,6 +22,11 @@ const AdminPartnerEditModal: React.FC<AdminPartnerEditModalProps> = ({ partner, 
 
     const [plan, setPlan] = useState<SubscriptionPlan>(partner.subscriptionPlan);
     const [endDate, setEndDate] = useState(partner.subscriptionEndDate?.split('T')[0] || '');
+    const [contactMethods, setContactMethods] = useState(partner.contactMethods || {
+        whatsapp: { enabled: false, number: '' },
+        phone: { enabled: false, number: '' },
+        form: { enabled: true },
+    });
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -35,10 +40,24 @@ const AdminPartnerEditModal: React.FC<AdminPartnerEditModalProps> = ({ partner, 
         };
     }, [onClose]);
 
+    const handleContactMethodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked, value } = e.target;
+        const [method, field] = name.split('.');
+        
+        setContactMethods(prev => ({
+            ...prev,
+            [method]: {
+                ...prev[method as keyof typeof prev],
+                [field]: field === 'enabled' ? checked : value,
+            }
+        }));
+    };
+
     const handleSave = async () => {
         await updatePartnerAdmin(partner.id, {
             subscriptionPlan: plan,
             subscriptionEndDate: new Date(endDate).toISOString(),
+            contactMethods,
         });
         onSave();
     };
@@ -62,7 +81,7 @@ const AdminPartnerEditModal: React.FC<AdminPartnerEditModalProps> = ({ partner, 
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
                 </div>
                 
-                <div className="p-6 overflow-y-auto space-y-4">
+                <div className="p-6 overflow-y-auto space-y-6">
                     <FormField label={t.changePlan} id="subscriptionPlan">
                         <select
                             id="subscriptionPlan"
@@ -87,6 +106,37 @@ const AdminPartnerEditModal: React.FC<AdminPartnerEditModalProps> = ({ partner, 
                             className={inputClasses}
                         />
                     </FormField>
+
+                    <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                        <legend className="text-lg font-semibold text-amber-500">{t.partnerTable.contactMethods}</legend>
+                        
+                        <div className="space-y-3">
+                            <label className="flex items-center gap-2 text-sm font-medium">
+                                <input type="checkbox" name="whatsapp.enabled" checked={contactMethods.whatsapp.enabled} onChange={handleContactMethodChange} className="h-4 w-4 rounded"/>
+                                {t.partnerTable.enableWhatsApp}
+                            </label>
+                            {contactMethods.whatsapp.enabled && (
+                                <input type="text" name="whatsapp.number" value={contactMethods.whatsapp.number} onChange={handleContactMethodChange} placeholder={t.partnerTable.whatsAppNumber} className={inputClasses} />
+                            )}
+                        </div>
+
+                         <div className="space-y-3">
+                            <label className="flex items-center gap-2 text-sm font-medium">
+                                <input type="checkbox" name="phone.enabled" checked={contactMethods.phone.enabled} onChange={handleContactMethodChange} className="h-4 w-4 rounded"/>
+                                {t.partnerTable.enablePhone}
+                            </label>
+                            {contactMethods.phone.enabled && (
+                                <input type="text" name="phone.number" value={contactMethods.phone.number} onChange={handleContactMethodChange} placeholder={t.partnerTable.phoneNumber} className={inputClasses} />
+                            )}
+                        </div>
+                        
+                         <div className="space-y-3">
+                            <label className="flex items-center gap-2 text-sm font-medium">
+                                <input type="checkbox" name="form.enabled" checked={contactMethods.form.enabled} onChange={handleContactMethodChange} className="h-4 w-4 rounded"/>
+                                {t.partnerTable.enableForm}
+                            </label>
+                        </div>
+                    </fieldset>
                 </div>
 
                 <div className="p-4 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">

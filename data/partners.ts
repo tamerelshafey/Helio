@@ -10,6 +10,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'dev1@onlyhelio.com',
         type: 'developer', status: 'active', subscriptionPlan: 'elite',
         subscriptionEndDate: '2025-12-31T00:00:00Z', displayType: 'mega_project',
+        contactMethods: { whatsapp: { enabled: true, number: '+201012345678' }, phone: { enabled: true, number: '+201012345678' }, form: { enabled: true } },
     },
     {
         id: 'modern-construction-group',
@@ -17,6 +18,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'dev2@onlyhelio.com',
         type: 'developer', status: 'active', subscriptionPlan: 'professional',
         subscriptionEndDate: '2025-08-01T00:00:00Z', displayType: 'mega_project',
+        contactMethods: { whatsapp: { enabled: true, number: '+201122334455' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
     {
         id: 'sodic',
@@ -24,6 +26,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'sodic@onlyhelio.com',
         type: 'developer', status: 'active', subscriptionPlan: 'elite',
         subscriptionEndDate: '2029-12-31T00:00:00Z', displayType: 'mega_project',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: true, number: '+201234567890' }, form: { enabled: true } },
     },
     {
         id: 'capital-group-properties',
@@ -31,6 +34,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'cgp@onlyhelio.com',
         type: 'developer', status: 'active', subscriptionPlan: 'elite',
         subscriptionEndDate: '2029-12-31T00:00:00Z', displayType: 'mega_project',
+        contactMethods: { whatsapp: { enabled: true, number: '+201555666777' }, phone: { enabled: true, number: '+201555666777' }, form: { enabled: false } },
     },
     {
         id: 'heliopolis-developers-group',
@@ -38,6 +42,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'hdg@onlyhelio.com',
         type: 'developer', status: 'active', subscriptionPlan: 'professional',
         subscriptionEndDate: '2026-12-31T00:00:00Z', displayType: 'mega_project',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
     {
         id: 'alrowad-engineering',
@@ -45,6 +50,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'dev3@onlyhelio.com',
         type: 'developer', status: 'pending', subscriptionPlan: 'basic',
         subscriptionEndDate: '2024-09-15T00:00:00Z', displayType: 'featured',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
     {
         id: 'future-real-estate-dev',
@@ -52,6 +58,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'dev4@onlyhelio.com',
         type: 'developer', status: 'disabled', subscriptionPlan: 'basic',
         subscriptionEndDate: '2024-07-31T00:00:00Z', displayType: 'featured',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
     // Finishing Companies
     {
@@ -60,6 +67,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'fin1@onlyhelio.com',
         type: 'finishing', status: 'active', subscriptionPlan: 'professional',
         subscriptionEndDate: '2025-06-20T00:00:00Z', displayType: 'featured',
+        contactMethods: { whatsapp: { enabled: true, number: '+201011122233' }, phone: { enabled: true, number: '+201011122233' }, form: { enabled: true } },
     },
     {
         id: 'design-hub',
@@ -67,6 +75,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'fin2@onlyhelio.com',
         type: 'finishing', status: 'active', subscriptionPlan: 'professional',
         subscriptionEndDate: '2025-10-10T00:00:00Z', displayType: 'featured',
+        contactMethods: { whatsapp: { enabled: true, number: '+201144556677' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
     {
         id: 'artistic-touch-decor',
@@ -74,6 +83,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'fin3@onlyhelio.com',
         type: 'finishing', status: 'pending', subscriptionPlan: 'commission',
         subscriptionEndDate: '2024-11-05T00:00:00Z', displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
     {
         id: 'ebdaa-integrated-finishes',
@@ -81,6 +91,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'fin4@onlyhelio.com',
         type: 'finishing', status: 'active', subscriptionPlan: 'commission',
         subscriptionEndDate: '2025-02-28T00:00:00Z', displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: true, number: '+201555123456' }, form: { enabled: true } },
     },
     // Agencies
     {
@@ -89,6 +100,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'agency1@onlyhelio.com',
         type: 'agency', status: 'active', subscriptionPlan: 'professional',
         subscriptionEndDate: '2025-09-01T00:00:00Z', displayType: 'featured',
+        contactMethods: { whatsapp: { enabled: true, number: '+201288990011' }, phone: { enabled: true, number: '+201288990011' }, form: { enabled: true } },
     },
     // Admins & System Users
     {
@@ -97,27 +109,31 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'admin@onlyhelio.com',
         type: 'admin', status: 'active', subscriptionPlan: 'elite',
         subscriptionEndDate: '2099-12-31T00:00:00Z', displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: true, number: '+201000000000' }, phone: { enabled: true, number: '+201000000000' }, form: { enabled: true } },
     },
     {
-        id: 'finishing-manager-1',
-        imageUrl: 'https://images.unsplash.com/photo-1531891437562-b1a5b0648509?q=80&w=1974&auto=format&fit=crop',
-        email: 'finishing-manager@onlyhelio.com',
-        type: 'finishing_manager', status: 'active', subscriptionPlan: 'basic',
+        id: 'service-manager-1',
+        imageUrl: 'https://images.unsplash.com/photo-1531891437562-b1a5b0648509?q=80&w=1974&auto.format&fit=crop',
+        email: 'service-manager@onlyhelio.com',
+        type: 'service_manager', status: 'active', subscriptionPlan: 'basic',
         displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
-    {
-        id: 'decorations-manager-1',
-        imageUrl: 'https://images.unsplash.com/photo-1543462378-94183658e3e4?q=80&w=1974&auto=format&fit=crop',
-        email: 'decorations-manager@onlyhelio.com',
-        type: 'decorations_manager', status: 'active', subscriptionPlan: 'basic',
+     {
+        id: 'customer-relations-manager-1',
+        imageUrl: 'https://images.unsplash.com/photo-1543462378-94183658e3e4?q=80&w=1974&auto.format&fit=crop',
+        email: 'customer-relations-manager@onlyhelio.com',
+        type: 'customer_relations_manager', status: 'active', subscriptionPlan: 'basic',
         displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
     {
         id: 'listings-manager-1',
-        imageUrl: 'https://images.unsplash.com/photo-1599948058230-787cd7a5f629?q=80&w=1974&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1599948058230-787cd7a5f629?q=80&w=1974&auto.format&fit=crop',
         email: 'listings-manager@onlyhelio.com',
         type: 'listings_manager', status: 'active', subscriptionPlan: 'basic',
         displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
     {
         id: 'partner-relations-manager-1',
@@ -125,6 +141,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'partner-relations-manager@onlyhelio.com',
         type: 'partner_relations_manager', status: 'active', subscriptionPlan: 'basic',
         displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
     {
         id: 'content-manager-1',
@@ -132,6 +149,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'content-manager@onlyhelio.com',
         type: 'content_manager', status: 'active', subscriptionPlan: 'basic',
         displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
     // Individual Listings (system partner)
     {
@@ -140,6 +158,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         email: 'individual@onlyhelio.com',
         type: 'agency', status: 'active', subscriptionPlan: 'elite',
         subscriptionEndDate: '2099-12-31T00:00:00Z', displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: true, number: '+201000000001' }, phone: { enabled: true, number: '+201000000001' }, form: { enabled: true } },
     },
 ];
 

@@ -3,12 +3,17 @@ import type { Language, PortfolioItem } from '../../types';
 import { Role } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
-import { CubeIcon } from '../icons/Icons';
+import { ArrowUpIcon, ArrowDownIcon, CubeIcon } from '../icons/Icons';
+import { inputClasses } from '../shared/FormField';
 import PortfolioItemFormModal from './PortfolioItemFormModal';
 import UpgradePlanModal from '../UpgradePlanModal';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { deletePortfolioItem as apiDeletePortfolioItem } from '../../mockApi/portfolio';
+import { deletePortfolioItem as apiDeletePortfolioItem } from '../../api/portfolio';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+
+type SortConfig = {
+    key: 'title' | 'category';
+    direction: 'ascending' | 'descending';
+} | null;
 
 const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].dashboard;
@@ -22,12 +27,55 @@ const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) 
         refetch 
     } = useSubscriptionUsage('portfolio');
 
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortConfig, setSortConfig] = useState<SortConfig>(null);
     const [modalState, setModalState] = useState<{ isOpen: boolean; itemToEdit?: PortfolioItem }>({ isOpen: false });
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+    
+    const sortedAndFilteredPortfolio = useMemo(() => {
+        if (!partnerPortfolio) return [];
+        let filteredItems = [...(partnerPortfolio as PortfolioItem[])];
+
+        if (searchTerm) {
+            const lowercasedFilter = searchTerm.toLowerCase();
+            filteredItems = filteredItems.filter(item =>
+                item.title[language].toLowerCase().includes(lowercasedFilter) ||
+                item.category[language].toLowerCase().includes(lowercasedFilter)
+            );
+        }
+        
+        if (sortConfig !== null) {
+            filteredItems.sort((a, b) => {
+                const aValue = a[sortConfig.key][language];
+                const bValue = b[sortConfig.key][language];
+                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
+                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
+                return 0;
+            });
+        }
+        return filteredItems;
+    }, [partnerPortfolio, searchTerm, sortConfig, language]);
     
     if (currentUser?.role !== Role.FINISHING_PARTNER) {
         return null;
     }
+
+    const requestSort = (key: 'title' | 'category') => {
+        let direction: 'ascending' | 'descending' = 'ascending';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const getSortIcon = (key: 'title' | 'category') => {
+        if (!sortConfig || sortConfig.key !== key) {
+            return <span className="w-4 h-4 ml-1 inline-block"></span>;
+        }
+        return sortConfig.direction === 'ascending'
+            ? <ArrowUpIcon className="w-4 h-4 ml-1 inline-block" />
+            : <ArrowDownIcon className="w-4 h-4 ml-1 inline-block" />;
+    };
     
     const handleDelete = async (itemId: string) => {
         if (window.confirm(t.confirmDeleteWork)) {
@@ -49,6 +97,7 @@ const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) 
         refetch();
     }
     
+
     return (
         <div>
             {modalState.isOpen && (
@@ -70,14 +119,24 @@ const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) 
                 </button>
             </div>
             
+            <div className="mb-6">
+                 <input
+                    type="text"
+                    placeholder={t.filter.search}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className={inputClasses + " max-w-xs"}
+                />
+            </div>
+            
             {loading ? (
                 <p>Loading portfolio...</p>
-            ) : partnerPortfolio && partnerPortfolio.length > 0 ? (
+            ) : sortedAndFilteredPortfolio.length > 0 ? (
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {(partnerPortfolio as PortfolioItem[]).map(item => (
+                    {sortedAndFilteredPortfolio.map(item => (
                         <div key={item.id} className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden group flex flex-col">
                             <div className="relative aspect-square bg-gray-100 dark:bg-gray-700">
-                                <img src={item.src} alt={item.alt} className="w-full h-full object-cover" />
+                                <img src={item.imageUrl} alt={item.alt} className="w-full h-full object-cover" />
                             </div>
                             <div className="p-4 flex-grow">
                                 <h3 className="font-bold text-gray-900 dark:text-white truncate" title={item.title[language]}>{item.title[language]}</h3>

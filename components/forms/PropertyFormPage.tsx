@@ -6,13 +6,13 @@ import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CloseIcon, SparklesIcon } from '../icons/Icons';
-import { GoogleGenAI } from '@google/genai';
-import { getAllProperties, addProperty as apiAddProperty, updateProperty as apiUpdateProperty } from '../../mockApi/properties';
-import { getAllProjects } from '../../mockApi/projects';
-import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../mockApi/filters';
+import { getAllProperties, addProperty as apiAddProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
+import { getAllProjects } from '../../api/projects';
+import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../api/filters';
 import { useApiQuery } from '../shared/useApiQuery';
 import LocationPickerModal from '../shared/LocationPickerModal';
-import { Role } from '../../types';
+import { Role, Permission } from '../../types';
+import AIContentHelper from '../ai/AIContentHelper';
 
 
 const fileToBase64 = (file: File): Promise<string> => {
@@ -24,13 +24,11 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-type TranslatableField = 'title' | 'address' | 'description';
-
 const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
     const { propertyId } = useParams();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { currentUser } = useAuth();
+    const { currentUser, hasPermission } = useAuth();
 
     const { data: properties, isLoading: isLoadingProps } = useApiQuery('allProperties', getAllProperties, { enabled: !!propertyId });
     const { data: projects, isLoading: isLoadingProjs } = useApiQuery('allProjects', getAllProjects);
@@ -46,9 +44,11 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
     
     const [mainImage, setMainImage] = useState<string>(''); // Can be URL or dataURL
     const [galleryImages, setGalleryImages] = useState<string[]>([]); // Can be URLs or dataURLs
-    const [translationLoading, setTranslationLoading] = useState<Partial<Record<TranslatableField, boolean>>>({});
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-    const [isGeneratingDesc, setIsGeneratingDesc] = useState<'ar' | 'en' | null>(null);
+    const [aiHelperState, setAiHelperState] = useState<{
+        isOpen: boolean;
+        field: 'description.ar' | 'description.en' | null;
+    }>({ isOpen: false, field: null });
 
     const watchType = watch('type');
     const watchStatus = watch('status');
@@ -58,6 +58,7 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
     const watchArea = watch('area');
     const watchAmenities = watch('amenities');
     const watchLocation = watch('location');
+    const watchContactMethod = watch('contactMethod');
 
     const partnerProjects = useMemo(() => (projects || []).filter(p => p.partnerId === currentUser?.id), [projects, currentUser]);
 
@@ -69,20 +70,23 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
     useEffect(() => {
         if (propertyId && properties) {
             const prop = properties.find(p => p.id === propertyId);
-            // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
-            if (prop && currentUser && 'type' in currentUser && (prop.partnerId === currentUser.id || currentUser.type === 'admin')) {
+            const userCanEdit = currentUser && 'type' in currentUser && (prop?.partnerId === currentUser.id || hasPermission(Permission.MANAGE_ALL_PROPERTIES));
+
+            if (prop && userCanEdit) {
                 reset({
                     ...prop,
                     delivery: prop.delivery || { isImmediate: true, date: '' },
                     installments: prop.installments || { downPayment: 0, monthlyInstallment: 0, years: 0 },
+                    contactMethod: prop.contactMethod || 'platform',
+                    ownerPhone: prop.ownerPhone || '',
                 });
                 setMainImage(prop.imageUrl);
                 setGalleryImages(prop.gallery);
-            } else if (properties.length > 0) {
-                navigate('/dashboard'); 
+            } else if (propertyId && !isLoadingProps) {
+                const redirectPath = hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/properties' : '/dashboard/properties';
+                navigate(redirectPath);
             }
         } else if (!propertyId) {
-            // Set default for new property
              reset({
                 projectId: searchParams.get('projectId') || undefined,
                 status: { en: 'For Sale', ar: 'للبيع' },
@@ -97,9 +101,11 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                 isInCompound: false,
                 delivery: { isImmediate: true, date: '' },
                 installments: { downPayment: 0, monthlyInstallment: 0, years: 0 },
+                contactMethod: 'platform',
+                ownerPhone: '',
             });
         }
-    }, [propertyId, currentUser, navigate, properties, reset, searchParams]);
+    }, [propertyId, currentUser, navigate, properties, reset, searchParams, hasPermission, isLoadingProps]);
 
     const handleMainImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -151,7 +157,7 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
 
         setValue('amenities', { en: newAmenities, ar: amenitiesAr });
     };
-
+    
     const availableAmenities = useMemo(() => {
         if (!amenities) return [];
         const selectedType = watchType?.en;
@@ -175,9 +181,17 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
         setIsLocationModalOpen(false);
     };
 
+    const openAiHelper = (field: 'description.ar' | 'description.en') => {
+        setAiHelperState({ isOpen: true, field });
+    };
+
+    const handleApplyAiText = (newText: string) => {
+        if (aiHelperState.field) {
+            setValue(aiHelperState.field, newText, { shouldDirty: true });
+        }
+    };
 
     const onSubmit = async (formData: Partial<Property>) => {
-        // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
         if (!currentUser || !('type' in currentUser) || !amenities) return;
 
         const priceNumeric = Number(formData.priceNumeric) || 0;
@@ -192,7 +206,7 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
 
         const propertyData: any = {
             ...formData,
-            partnerId: currentUser.id,
+            partnerId: propertyId ? properties?.find(p => p.id === propertyId)?.partnerId || currentUser.id : currentUser.id,
             price: { ar: formattedPriceAr, en: formattedPriceEn },
             pricePerMeter,
             imageUrl: mainImage,
@@ -207,11 +221,11 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
             alert(td.addSuccess);
         }
         const projectId = propertyData.projectId;
-        if (currentUser.type === 'admin') {
+        if (hasPermission(Permission.VIEW_ADMIN_DASHBOARD)) {
             navigate('/admin/properties');
-        } else if (currentUser.type === 'developer' && projectId) {
+        } else if (currentUser.role === Role.DEVELOPER_PARTNER && projectId) {
             navigate(`/dashboard/projects/${projectId}`);
-        } else if (currentUser.type === 'developer') {
+        } else if (currentUser.role === Role.DEVELOPER_PARTNER) {
             navigate('/dashboard/projects');
         } else {
             navigate('/dashboard/properties');
@@ -231,15 +245,26 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                     initialLocation={watchLocation}
                 />
             )}
+            {aiHelperState.isOpen && aiHelperState.field && (
+                <AIContentHelper
+                    isOpen={aiHelperState.isOpen}
+                    onClose={() => setAiHelperState({ isOpen: false, field: null })}
+                    onApply={handleApplyAiText}
+                    language={language}
+                    originalText={watch(aiHelperState.field) || ''}
+                    propertyData={watch()}
+                    context={{ field: aiHelperState.field }}
+                />
+            )}
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
                 {propertyId ? td.editTitle : td.addTitle}
             </h1>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                {currentUser && 'type' in currentUser && currentUser.type === 'developer' && (
+                {currentUser && 'type' in currentUser && (currentUser.role === Role.DEVELOPER_PARTNER || currentUser.role === Role.SUPER_ADMIN) && (
                     <FormField label="Project" id="projectId">
-                        <select {...register("projectId", { required: true })} className={selectClasses} >
-                            <option value="" disabled>Select a project</option>
-                            {partnerProjects.map(proj => (
+                        <select {...register("projectId")} className={selectClasses} >
+                            <option value="">Select a project (optional)</option>
+                            { (currentUser.role === Role.SUPER_ADMIN ? projects : partnerProjects)?.map(proj => (
                                 <option key={proj.id} value={proj.id}>{proj.name[language]}</option>
                             ))}
                         </select>
@@ -263,16 +288,22 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                         </div>
                     </FormField>
                      <div className="md:col-span-2">
-                         <FormField label={td.descriptionAr} id="description.ar">
+                        <FormField label={td.descriptionAr} id="description.ar">
                             <div className="relative">
-                                <textarea {...register("description.ar")} className={inputClasses} rows={4} />
+                                <textarea {...register("description.ar")} className={`${inputClasses} pr-12`} rows={4} />
+                                <button type="button" onClick={() => openAiHelper('description.ar')} className="absolute top-2 right-2 p-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full hover:bg-amber-200">
+                                    <SparklesIcon className="w-5 h-5" />
+                                </button>
                             </div>
                         </FormField>
                     </div>
                      <div className="md:col-span-2">
                         <FormField label={td.descriptionEn} id="description.en">
                              <div className="relative">
-                                <textarea {...register("description.en")} className={inputClasses} rows={4} />
+                                <textarea {...register("description.en")} className={`${inputClasses} pr-12`} rows={4} />
+                                <button type="button" onClick={() => openAiHelper('description.en')} className="absolute top-2 right-2 p-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full hover:bg-amber-200">
+                                    <SparklesIcon className="w-5 h-5" />
+                                </button>
                             </div>
                         </FormField>
                     </div>
@@ -335,6 +366,12 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                            {td.isInCompound}
                         </label>
                     </div>
+                     <div className="flex items-center gap-2 pt-5">
+                        <input type="checkbox" id="realEstateFinanceAvailable" {...register("realEstateFinanceAvailable")} className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"/>
+                        <label htmlFor="realEstateFinanceAvailable" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
+                           {td.realEstateFinanceAvailable}
+                        </label>
+                    </div>
 
                     { watchType?.en !== 'Commercial' && watchType?.en !== 'Land' && <>
                         <FormField label={t.addPropertyPage.bedrooms} id="beds">
@@ -349,6 +386,27 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                     </FormField>
                 </div>
 
+                <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <legend className="text-lg font-semibold text-amber-500">{t.addPropertyPage.contactPreference.title}</legend>
+                    <div className="flex gap-6">
+                        <div className="flex items-center gap-2">
+                            <input type="radio" id="contactPlatform" {...register("contactMethod")} value="platform" className="h-4 w-4 text-amber-600 border-gray-300 focus:ring-amber-500" />
+                            <label htmlFor="contactPlatform" className="block text-sm text-gray-900 dark:text-gray-300">{t.addPropertyPage.contactPreference.platform}</label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input type="radio" id="contactDirect" {...register("contactMethod")} value="direct" className="h-4 w-4 text-amber-600 border-gray-300 focus:ring-amber-500" />
+                            <label htmlFor="contactDirect" className="block text-sm text-gray-900 dark:text-gray-300">{t.addPropertyPage.contactPreference.direct}</label>
+                        </div>
+                    </div>
+                    {watchContactMethod === 'direct' && (
+                        <div className="animate-fadeIn">
+                            <FormField label={t.addPropertyPage.phone} id="ownerPhone">
+                                <input type="tel" {...register("ownerPhone")} className={inputClasses} dir="ltr" placeholder="Enter phone number for direct inquiries" />
+                            </FormField>
+                        </div>
+                    )}
+                </fieldset>
+                
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
                     <h3 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{td.amenities}</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 border border-gray-200 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800/50">

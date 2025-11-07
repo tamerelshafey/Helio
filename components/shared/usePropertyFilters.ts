@@ -13,6 +13,7 @@ export const usePropertyFilters = () => {
         project: searchParams.get('project') || 'all',
         finishing: searchParams.get('finishing') || 'all',
         installments: searchParams.get('installments') || 'all',
+        realEstateFinance: searchParams.get('realEstateFinance') || 'all',
         floor: searchParams.get('floor') || '',
         compound: searchParams.get('compound') || 'all',
         delivery: searchParams.get('delivery') || 'all',

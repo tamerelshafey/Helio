@@ -1,16 +1,11 @@
-import React, { useMemo } from 'react';
-import type { Language, SubscriptionPlan, SubscriptionPlanDetails, PartnerType } from '../../types';
+
+import React, { useMemo, useEffect, useState, useCallback } from 'react';
+import type { Language, SubscriptionPlan, SubscriptionPlanDetails } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import { CheckCircleIcon } from '../icons/Icons';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
-import { useApiQuery } from '../shared/useApiQuery';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { getPropertiesByPartnerId } from '../../mockApi/properties';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { getProjectsByPartnerId } from '../../mockApi/projects';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { getPortfolioByPartnerId } from '../../mockApi/portfolio';
+import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 
 const PlanCard: React.FC<{
     planKey: SubscriptionPlan,
@@ -57,94 +52,39 @@ const PlanCard: React.FC<{
     );
 };
 
-const UsageBar: React.FC<{ label: string; count: number; limit: number; }> = ({ label, count, limit }) => {
-    const usagePercentage = limit === Infinity ? 0 : (count / limit) * 100;
-    return (
-        <div>
-            <div className="flex justify-between items-center mb-2">
-                <span className="font-semibold text-gray-700 dark:text-gray-300">{label}</span>
-                <span className="font-bold text-gray-900 dark:text-white">
-                    {count} {limit !== Infinity ? `/ ${limit}` : ''}
-                </span>
-            </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
-                <div 
-                    className="bg-amber-500 h-4 rounded-full transition-all duration-500" 
-                    style={{width: `${usagePercentage > 100 ? 100 : usagePercentage}%`}}>
-                </div>
-            </div>
-        </div>
-    );
-};
-
 const DashboardSubscriptionPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].dashboardSubscription;
     const { currentUser } = useAuth();
     
-    if (!currentUser || !('type' in currentUser)) {
-        return <div className="text-center p-8">Loading...</div>;
+    const usageType = useMemo(() => {
+        if (!currentUser || !('type' in currentUser)) return 'properties';
+        switch(currentUser.type) {
+            case 'finishing': return 'portfolio';
+            case 'agency': return 'properties';
+            case 'developer': return 'units';
+            default: return 'properties';
+        }
+    }, [currentUser]);
+
+    const { usageCount, limit: currentLimit, isLoading } = useSubscriptionUsage(usageType);
+
+    const usageLabel = useMemo(() => {
+        if (!currentUser || !('type' in currentUser)) return '';
+        const t_home = translations[language].dashboardHome;
+        switch (currentUser.type) {
+            case 'finishing': return t_home.totalPortfolio;
+            case 'agency': return t.propertiesListed;
+            case 'developer': return t_home.totalUnits;
+            default: return t.propertiesListed;
+        }
+    }, [currentUser, language, t.propertiesListed]);
+
+    // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
+    if (!currentUser || isLoading || !('type' in currentUser)) {
+        return <div>Loading...</div>;
     }
-    
-    const partnerType = currentUser.type as PartnerType;
-    const planCategory = partnerType as 'developer' | 'agency' | 'finishing';
 
-    const { data: projectsData, isLoading: isLoadingProjects } = useApiQuery(
-        `projects-sub-${currentUser.id}`,
-        () => getProjectsByPartnerId(currentUser.id),
-        { enabled: partnerType === 'developer' }
-    );
-    const { data: propertiesData, isLoading: isLoadingProperties } = useApiQuery(
-        `properties-sub-${currentUser.id}`,
-        () => getPropertiesByPartnerId(currentUser.id),
-        { enabled: partnerType === 'developer' || partnerType === 'agency' }
-    );
-    const { data: portfolioData, isLoading: isLoadingPortfolio } = useApiQuery(
-        `portfolio-sub-${currentUser.id}`,
-        () => getPortfolioByPartnerId(currentUser.id),
-        { enabled: partnerType === 'finishing' }
-    );
-
-    const isLoading = useMemo(() => {
-        if (partnerType === 'developer') return isLoadingProjects || isLoadingProperties;
-        if (partnerType === 'agency') return isLoadingProperties;
-        if (partnerType === 'finishing') return isLoadingPortfolio;
-        return false;
-    }, [partnerType, isLoadingProjects, isLoadingProperties, isLoadingPortfolio]);
-
-    const renderUsage = () => {
-        if (isLoading) {
-            return <div className="animate-pulse h-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>;
-        }
-
-        switch (partnerType) {
-            case 'developer': {
-                const projectCount = (projectsData || []).length;
-                const projectLimit = getPlanLimit('developer', currentUser.subscriptionPlan, 'projects');
-                const unitCount = (propertiesData || []).length;
-                const unitLimit = getPlanLimit('developer', currentUser.subscriptionPlan, 'units');
-
-                return (
-                    <div className="space-y-6">
-                        <UsageBar label={translations[language].dashboardHome.totalProjects} count={projectCount} limit={projectLimit} />
-                        <UsageBar label={translations[language].dashboardHome.totalUnits} count={unitCount} limit={unitLimit} />
-                    </div>
-                );
-            }
-            case 'agency': {
-                const propertyCount = (propertiesData || []).length;
-                const propertyLimit = getPlanLimit('agency', currentUser.subscriptionPlan, 'properties');
-                return <UsageBar label={t.propertiesListed} count={propertyCount} limit={propertyLimit} />;
-            }
-            case 'finishing': {
-                const portfolioCount = (portfolioData || []).length;
-                const portfolioLimit = getPlanLimit('finishing', currentUser.subscriptionPlan, 'portfolio');
-                return <UsageBar label={translations[language].dashboardHome.totalPortfolio} count={portfolioCount} limit={portfolioLimit} />;
-            }
-            default:
-                return null;
-        }
-    };
-    
+    const planCategory = currentUser.type as 'developer' | 'agency' | 'finishing';
     if (!['developer', 'agency', 'finishing'].includes(planCategory)) {
         return <div>Subscription management is not available for your account type.</div>;
     }
@@ -153,8 +93,12 @@ const DashboardSubscriptionPage: React.FC<{ language: Language }> = ({ language 
     const currentPlanKey = currentUser.subscriptionPlan;
     const currentPlanDetails = plansForCurrentUserType[currentPlanKey as keyof typeof plansForCurrentUserType];
     
+    const usagePercentage = currentLimit === Infinity ? 0 : (usageCount / currentLimit) * 100;
+    
     const planOrder: SubscriptionPlan[] = useMemo(() => {
-        if (currentUser.type === 'finishing') return ['commission', 'professional', 'elite'];
+        if (currentUser.type === 'finishing') {
+            return ['commission', 'professional', 'elite'];
+        }
         return ['basic', 'professional', 'elite'];
     }, [currentUser.type]);
 
@@ -188,7 +132,18 @@ const DashboardSubscriptionPage: React.FC<{ language: Language }> = ({ language 
                 <div className="lg:col-span-2">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t.usageTitle}</h2>
                     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                        {renderUsage()}
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">{usageLabel}</span>
+                            <span className="font-bold text-gray-900 dark:text-white">
+                                {usageCount} {currentLimit !== Infinity && `/ ${currentLimit}`}
+                            </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+                            <div 
+                                className="bg-amber-500 h-4 rounded-full transition-all duration-500" 
+                                style={{width: `${usagePercentage > 100 ? 100 : usagePercentage}%`}}>
+                            </div>
+                        </div>
                     </div>
                     
                     {upgradeOptions.length > 0 && (

@@ -4,12 +4,10 @@ import type { Language, Project } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses } from '../shared/FormField';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { addProject, updateProject } from '../../mockApi/projects';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { getAllProjects } from '../../mockApi/projects';
+import { addProject, updateProject } from '../../api/projects';
+import { getAllProjects } from '../../api/projects';
 import { useApiQuery } from '../shared/useApiQuery';
-import { Role } from '../../types';
+import { Role, Permission } from '../../types';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -23,7 +21,7 @@ const fileToBase64 = (file: File): Promise<string> => {
 const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
     const { projectId } = useParams();
     const navigate = useNavigate();
-    const { currentUser } = useAuth();
+    const { currentUser, hasPermission } = useAuth();
     const { data: projects, isLoading: projectsLoading } = useApiQuery('allProjects', getAllProjects, { enabled: !!projectId });
     const t_form = translations[language].projectDashboard.projectForm;
 
@@ -37,19 +35,20 @@ const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
     useEffect(() => {
         if (projectId && projects) {
             const project = projects.find(p => p.id === projectId);
-            // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
-            if (project && currentUser && 'type' in currentUser && (project.partnerId === currentUser.id || currentUser.type === 'admin')) {
+            const userCanEdit = currentUser && 'type' in currentUser && (project?.partnerId === currentUser.id || hasPermission(Permission.MANAGE_ALL_PROJECTS));
+
+            if (project && userCanEdit) {
                 setFormData({
                     name: project.name,
                     description: project.description,
                 });
                 setImage(project.imageUrl);
-            } else if (!projectsLoading) { // check if projects have been loaded
-                 const redirectPath = currentUser && 'type' in currentUser && currentUser.type === 'admin' ? '/admin/projects' : '/dashboard/projects';
+            } else if (projectId && !projectsLoading) { // If an edit was attempted but failed
+                const redirectPath = hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
                 navigate(redirectPath);
             }
         }
-    }, [projectId, currentUser, navigate, projects, projectsLoading]);
+    }, [projectId, currentUser, navigate, projects, projectsLoading, hasPermission]);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -66,15 +65,17 @@ const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!currentUser) return;
+        if (!currentUser || !('type' in currentUser)) return;
         setFormLoading(true);
 
-        const projectData = {
+        const existingProject = projectId ? projects?.find(p => p.id === projectId) : undefined;
+
+        const projectData: Omit<Project, 'id' | 'createdAt'> = {
             name: formData.name,
             description: formData.description,
             imageUrl: image,
-            partnerId: currentUser.id,
-            features: [], // Default empty features for new projects
+            partnerId: existingProject?.partnerId || currentUser.id,
+            features: existingProject?.features || [],
         };
 
         if (projectId) {
@@ -84,8 +85,7 @@ const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
         }
         
         setFormLoading(false);
-        // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
-        const redirectPath = currentUser && 'type' in currentUser && currentUser.type === 'admin' ? '/admin/projects' : '/dashboard/projects';
+        const redirectPath = hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
         navigate(redirectPath);
     };
     

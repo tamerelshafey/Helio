@@ -1,11 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus } from '../../../types';
 import { translations } from '../../../data/translations';
 import { useApiQuery } from '../../shared/useApiQuery';
 import { getAllLeads, deleteLead as apiDeleteLead } from '../../../api/leads';
-import { getAllPartnersForAdmin } from '../../../api/partners';
 import { inputClasses } from '../../shared/FormField';
+import Pagination from '../../shared/Pagination';
 
 const statusColors: { [key in LeadStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -17,20 +17,19 @@ const statusColors: { [key in LeadStatus]: string } = {
     cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
 
+const ITEMS_PER_PAGE = 10;
+
 const RequestsManagement: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard.decorationsManagement;
     const { data: allLeads, refetch: refetchLeads, isLoading: loadingLeads } = useApiQuery('allLeads', getAllLeads);
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
-    const loading = loadingLeads || loadingPartners;
+    const loading = loadingLeads;
 
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
     const decorationLeads = useMemo(() => {
-        const manager = (partners || []).find(p => p.type === 'decorations_manager');
-        if (!manager) return [];
-
-        let leads = (allLeads || []).filter(lead => lead.managerId === manager.id);
+        let leads = (allLeads || []).filter(lead => lead.serviceType === 'decorations');
         
         if (startDate) {
             const start = new Date(startDate);
@@ -46,7 +45,17 @@ const RequestsManagement: React.FC<{ language: Language }> = ({ language }) => {
 
         return leads.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    }, [allLeads, partners, startDate, endDate]);
+    }, [allLeads, startDate, endDate]);
+
+    const totalPages = Math.ceil(decorationLeads.length / ITEMS_PER_PAGE);
+    const paginatedLeads = decorationLeads.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [startDate, endDate]);
 
     const handleDelete = async (itemId: string) => {
         if (window.confirm(t.confirmDelete)) {
@@ -67,38 +76,41 @@ const RequestsManagement: React.FC<{ language: Language }> = ({ language }) => {
                     <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className={inputClasses}/>
                 </div>
             </div>
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th className="px-6 py-3">Customer</th>
-                            <th className="px-6 py-3">Service</th>
-                            <th className="px-6 py-3">Date</th>
-                            <th className="px-6 py-3">Status</th>
-                            <th className="px-6 py-3">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                         {loading ? (
-                            <tr><td colSpan={5} className="text-center p-8">Loading...</td></tr>
-                        ) : decorationLeads.length > 0 ? (
-                            decorationLeads.map(lead => (
-                                <tr key={lead.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{lead.customerName}<br/><span className="font-normal text-gray-500">{lead.customerPhone}</span></td>
-                                    <td className="px-6 py-4">{lead.serviceTitle}</td>
-                                    <td className="px-6 py-4">{new Date(lead.createdAt).toLocaleDateString(language)}</td>
-                                    <td className="px-6 py-4"><span className={`px-2 py-1 text-xs rounded-full ${statusColors[lead.status]}`}>{translations[language].dashboard.leadStatus[lead.status]}</span></td>
-                                    <td className="px-6 py-4 space-x-4">
-                                        <Link to={`/admin/decoration-requests/${lead.id}`} className="font-medium text-blue-600 hover:underline">View</Link>
-                                        <button onClick={() => handleDelete(lead.id)} className="font-medium text-red-600 hover:underline">{translations[language].adminShared.delete}</button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr><td colSpan={5} className="text-center p-8">{t.noRequests}</td></tr>
-                        )}
-                    </tbody>
-                </table>
+            <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th className="px-6 py-3">Customer</th>
+                                <th className="px-6 py-3">Service</th>
+                                <th className="px-6 py-3">Date</th>
+                                <th className="px-6 py-3">Status</th>
+                                <th className="px-6 py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan={5} className="text-center p-8">Loading...</td></tr>
+                            ) : paginatedLeads.length > 0 ? (
+                                paginatedLeads.map(lead => (
+                                    <tr key={lead.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                        <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{lead.customerName}<br/><span className="font-normal text-gray-500">{lead.customerPhone}</span></td>
+                                        <td className="px-6 py-4">{lead.serviceTitle}</td>
+                                        <td className="px-6 py-4">{new Date(lead.createdAt).toLocaleDateString(language)}</td>
+                                        <td className="px-6 py-4"><span className={`px-2 py-1 text-xs rounded-full ${statusColors[lead.status]}`}>{translations[language].dashboard.leadStatus[lead.status]}</span></td>
+                                        <td className="px-6 py-4 space-x-4">
+                                            <Link to={`/admin/decoration-requests/${lead.id}`} className="font-medium text-blue-600 hover:underline">View</Link>
+                                            <button onClick={() => handleDelete(lead.id)} className="font-medium text-red-600 hover:underline">{translations[language].adminShared.delete}</button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr><td colSpan={5} className="text-center p-8">{t.noRequests}</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
             </div>
         </div>
     );

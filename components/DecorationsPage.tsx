@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem, DecorationCategory } from '../types';
 import { translations } from '../data/translations';
 import BannerDisplay from './shared/BannerDisplay';
-import { getAllPortfolioItems } from '../mockApi/portfolio';
-import { getDecorationCategories } from '../mockApi/decorations';
+import { getAllPortfolioItems } from '../api/portfolio';
+import { getDecorationCategories } from '../api/decorations';
 import { useApiQuery } from './shared/useApiQuery';
+import AIEstimator from './ai/AIEstimator';
 
 interface DecorationsPageProps {
   language: Language;
@@ -16,6 +17,7 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
     const t_decor_modal = translations[language].decorationRequestModal;
     const t_custom_decor_modal = translations[language].customDecorationRequestModal;
     const navigate = useNavigate();
+    const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
 
     const { data: allWorks, isLoading: isLoadingWorks } = useApiQuery('portfolio', getAllPortfolioItems);
     const { data: decorationCategories, isLoading: isLoadingCategories } = useApiQuery('decorationCategories', getDecorationCategories);
@@ -69,6 +71,7 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
     
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
+             {isEstimatorOpen && <AIEstimator language={language} serviceType="decorations" onClose={() => setIsEstimatorOpen(false)} />}
             <div className="py-20">
                 <div className="container mx-auto px-6">
                     <div className="flex justify-center mb-8 border-b border-gray-200 dark:border-gray-700">
@@ -101,6 +104,20 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
                         </button>
                     </div>
 
+                     {/* AI Estimator CTA */}
+                    <section className="py-16 bg-amber-50 dark:bg-amber-900/10 rounded-lg">
+                        <div className="container mx-auto px-6 text-center">
+                            <h2 className="text-3xl font-bold text-amber-600 dark:text-amber-400">{translations[language].aiEstimator.ctaTitle}</h2>
+                            <p className="text-lg text-gray-600 dark:text-gray-300 mt-3 max-w-2xl mx-auto">{translations[language].aiEstimator.ctaSubtitle}</p>
+                            <button
+                                onClick={() => setIsEstimatorOpen(true)}
+                                className="mt-6 bg-amber-500 text-gray-900 font-bold px-8 py-4 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20 transform hover:scale-105"
+                            >
+                                {translations[language].aiEstimator.ctaButton}
+                            </button>
+                        </div>
+                    </section>
+
                     <BannerDisplay location="decorations" language={language} />
                    
                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 animate-fadeIn mt-12">
@@ -109,10 +126,10 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
                                 <div key={i} className="bg-gray-200 dark:bg-gray-800 rounded-lg aspect-[4/5] animate-pulse"></div>
                            ))
                        ) : filteredWorks.map((work, index) => (
-                           <div key={`${work.src}-${index}`} className="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden flex flex-col transform hover:-translate-y-2 transition-transform duration-300">
+                           <div key={`${work.imageUrl}-${index}`} className="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden flex flex-col transform hover:-translate-y-2 transition-transform duration-300">
                                 <div className="relative">
                                     <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-700">
-                                         <img src={work.src} alt={work.alt} className="w-full h-full object-cover" />
+                                         <img src={work.imageUrl} alt={work.alt} className="w-full h-full object-cover" />
                                     </div>
                                     {work.availability && (
                                         <span className={`absolute top-3 ${language === 'ar' ? 'left-3' : 'right-3'} text-xs font-bold px-2 py-1 rounded-full text-white ${work.availability === 'In Stock' ? 'bg-green-600' : 'bg-sky-600'}`}>

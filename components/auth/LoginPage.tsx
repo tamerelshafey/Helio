@@ -4,8 +4,7 @@ import { useAuth } from './AuthContext';
 import { Role } from '../../types';
 import type { Language, Partner } from '../../types';
 import { translations } from '../../data/translations';
-// FIX: Corrected import path from 'api' to 'mockApi'.
-import { getPartnerByEmail } from '../../mockApi/partners';
+import { getPartnerByEmail } from '../../api/partners';
 import { inputClasses } from '../shared/FormField';
 import { HelioLogo } from '../HelioLogo';
 import { partnersData } from '../../data/partners';
@@ -34,9 +33,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
             const partner = getPartnerByEmail(emailToLogin);
             if (partner) {
                 switch (partner.role) {
+                    // FIX: Use correct Role enum values for admin roles.
                     case Role.SUPER_ADMIN:
-                    case Role.FINISHING_MANAGER:
-                    case Role.DECORATIONS_MANAGER:
+                    case Role.SERVICE_MANAGER:
+                    case Role.CUSTOMER_RELATIONS_MANAGER:
                     case Role.LISTINGS_MANAGER:
                     case Role.PARTNER_RELATIONS_MANAGER:
                     case Role.CONTENT_MANAGER:
@@ -59,33 +59,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
         e.preventDefault();
         await handleLoginAndRedirect(email);
     };
-
-    const quickLoginUsers = useMemo(() => {
-        const quickLoginEmails = [
-            'admin@onlyhelio.com',
-            'dev1@onlyhelio.com',
-            'fin1@onlyhelio.com',
-            'agency1@onlyhelio.com',
-            'finishing-manager@onlyhelio.com',
-            'decorations-manager@onlyhelio.com',
-            'listings-manager@onlyhelio.com',
-            'partner-relations-manager@onlyhelio.com',
-            'content-manager@onlyhelio.com',
-        ];
-
-        return quickLoginEmails
-            .map(email => {
-                const partner = partnersData.find(p => p.email === email);
-                if (!partner) return null;
-                const localizedInfo = (translations[language].partnerInfo as any)[partner.id];
-                return {
-                    name: localizedInfo?.name || partner.id,
-                    email: partner.email,
-                };
-            })
-            .filter(Boolean) as { name: string; email: string }[];
-    }, [language]);
-
 
     return (
         <div className="py-20 bg-white dark:bg-gray-900 flex items-center justify-center">
@@ -144,29 +117,34 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
                         </button>
                     </div>
                 </form>
+                 <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-gray-50 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                            {language === 'ar' ? 'أو تسجيل دخول سريع للاختبار' : 'Or quick login for testing'}
+                        </span>
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <button onClick={() => handleLoginAndRedirect('dev1@onlyhelio.com')} disabled={loading} className="w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 disabled:opacity-50">
+                        {t.loginAsDeveloper}
+                    </button>
+                    <button onClick={() => handleLoginAndRedirect('fin1@onlyhelio.com')} disabled={loading} className="w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 disabled:opacity-50">
+                        {t.loginAsFinishing}
+                    </button>
+                    <button onClick={() => handleLoginAndRedirect('agency1@onlyhelio.com')} disabled={loading} className="w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 disabled:opacity-50">
+                        {t.loginAsAgency}
+                    </button>
+                    <button onClick={() => handleLoginAndRedirect('admin@onlyhelio.com')} disabled={loading} className="w-full py-2 px-4 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800/50 dark:hover:bg-red-900/40 disabled:opacity-50">
+                        {t.loginAsAdmin}
+                    </button>
+                </div>
                  <div className="text-center">
                     <Link to="/register" className="font-medium text-amber-600 hover:text-amber-500 dark:text-amber-500 dark:hover:text-amber-400">
                         {translations[language].joinAsPartner}
                     </Link>
-                </div>
-
-                {/* Quick Login Section */}
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                    <p className="text-center text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">
-                        {language === 'ar' ? 'للتجربة: تسجيل دخول سريع' : 'For Demo: Quick Logins'}
-                    </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        {quickLoginUsers.map(user => (
-                            <button
-                                key={user.email}
-                                onClick={() => handleLoginAndRedirect(user.email)}
-                                disabled={loading}
-                                className="w-full text-center text-xs p-2 rounded-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                            >
-                                {user.name}
-                            </button>
-                        ))}
-                    </div>
                 </div>
             </div>
         </div>

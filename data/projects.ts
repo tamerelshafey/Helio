@@ -5,12 +5,12 @@ export let projectsData: Project[] = [
         id: 'proj-1',
         partnerId: 'united-development',
         name: {
-            ar: 'مشروع فيلات المتحدة',
-            en: 'United Villas Project'
+            ar: 'كمبوند تلالا',
+            en: 'Talala Compound'
         },
         description: {
-            ar: 'مجموعة من الفيلات الفاخرة بتصميمات عصرية فريدة في قلب هليوبوليس الجديدة.',
-            en: 'A collection of luxury villas with unique modern designs in the heart of New Heliopolis.'
+            ar: 'كمبوند تلالا في هليوبوليس الجديدة، يقدم تجربة سكنية فاخرة مع التركيز على المساحات الخضراء والهدوء.',
+            en: 'Talala Compound in New Heliopolis, offering a luxurious residential experience with a focus on green spaces and tranquility.'
         },
         imageUrl: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?q=80&w=2148&auto=format&fit=crop',
         imageUrl_small: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?q=80&w=480&auto=format&fit=crop',
@@ -28,12 +28,12 @@ export let projectsData: Project[] = [
         id: 'proj-2',
         partnerId: 'modern-construction-group',
         name: {
-            ar: 'أبراج البناء الحديث',
-            en: 'Modern Construction Towers'
+            ar: 'كمبوند جولز',
+            en: 'Joules Compound'
         },
         description: {
-            ar: 'أبراج سكنية متكاملة الخدمات توفر شققًا بمساحات متنوعة تناسب جميع الاحتياجات.',
-            en: 'Full-service residential towers offering apartments of various sizes to suit all needs.'
+            ar: 'كمبوند جولز يقدم حياة عصرية متكاملة مع مجموعة متنوعة من الوحدات السكنية والخدمات الترفيهية.',
+            en: 'Joules Compound offers a modern, integrated lifestyle with a variety of residential units and recreational services.'
         },
         imageUrl: 'https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=2070&auto=format&fit=crop',
         imageUrl_small: 'https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=480&auto=format&fit=crop',
@@ -107,4 +107,24 @@ export let projectsData: Project[] = [
             { icon: 'ParkingIcon', text: { ar: 'مناطق انتظار للسيارات', en: 'Parking Areas' } },
         ]
     },
+    {
+        id: 'proj-6',
+        partnerId: 'alrowad-engineering',
+        name: { ar: 'كمبوند تيباروز', en: 'Tibarose Compound' },
+        description: { 
+            ar: 'كمبوند تيباروز هليوبوليس الجديدة، مجتمع سكني فاخر يوفر شققًا وبنتهاوس بتصميمات عصرية وخدمات متكاملة.', 
+            en: 'Tibarose Heliopolis, a luxurious residential community offering apartments and penthouses with modern designs and integrated services.' 
+        },
+        imageUrl: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=2070&auto=format&fit=crop',
+        imageUrl_small: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=480&auto=format&fit=crop',
+        imageUrl_medium: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=800&auto=format&fit=crop',
+        imageUrl_large: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=1200&auto=format&fit=crop',
+        createdAt: new Date('2024-03-10T00:00:00Z').toISOString(),
+        features: [
+            { icon: 'ShieldCheckIcon', text: { ar: 'أمن وحراسة', en: 'Security Services' } },
+            { icon: 'ParkIcon', text: { ar: 'مساحات خضراء', en: 'Green Spaces' } },
+            { icon: 'SwimmingPoolIcon', text: { ar: 'حمامات سباحة', en: 'Swimming Pools' } },
+            { icon: 'ElevatorIcon', text: { ar: 'مصاعد حديثة', en: 'Modern Elevators' } },
+        ]
+    }
 ];

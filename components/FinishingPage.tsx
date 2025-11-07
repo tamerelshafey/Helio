@@ -3,10 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem, AdminPartner, SiteContent } from '../types';
 import { translations } from '../data/translations';
 import BannerDisplay from './shared/BannerDisplay';
-import { getAllPortfolioItems } from '../mockApi/portfolio';
-import { getAllPartnersForAdmin } from '../mockApi/partners';
-import { getContent } from '../mockApi/content';
+import { getAllPortfolioItems } from '../api/portfolio';
+import { getAllPartnersForAdmin } from '../api/partners';
+import { getContent } from '../api/content';
 import { useApiQuery } from './shared/useApiQuery';
+import AIEstimator from './ai/AIEstimator';
 
 interface FinishingPageProps {
   language: Language;
@@ -15,6 +16,7 @@ interface FinishingPageProps {
 const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
     const t = translations[language].finishingPage;
     const navigate = useNavigate();
+    const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
 
     const { data: portfolio, isLoading: isLoadingPortfolio } = useApiQuery('portfolio', getAllPortfolioItems);
     const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartners', getAllPartnersForAdmin);
@@ -54,8 +56,9 @@ const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
 
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
+            {isEstimatorOpen && <AIEstimator language={language} serviceType="finishing" onClose={() => setIsEstimatorOpen(false)} />}
             {/* Hero Section */}
-            <section className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=2071&auto=format&fit=crop')" }}>
+            <section className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=1600&auto=format&fit=crop')" }}>
                 <div className="absolute top-0 left-0 w-full h-full bg-black/70 z-10"></div>
                 <div className="relative z-20 px-4 container mx-auto text-white">
                     <h1 className="text-4xl md:text-6xl font-extrabold">{t.heroTitle}</h1>
@@ -64,6 +67,20 @@ const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
             </section>
             
             <BannerDisplay location="finishing" language={language} />
+
+            {/* AI Estimator CTA */}
+            <section className="py-16 bg-amber-50 dark:bg-amber-900/10">
+                <div className="container mx-auto px-6 text-center">
+                    <h2 className="text-3xl font-bold text-amber-600 dark:text-amber-400">{translations[language].aiEstimator.ctaTitle}</h2>
+                    <p className="text-lg text-gray-600 dark:text-gray-300 mt-3 max-w-2xl mx-auto">{translations[language].aiEstimator.ctaSubtitle}</p>
+                    <button
+                        onClick={() => setIsEstimatorOpen(true)}
+                        className="mt-6 bg-amber-500 text-gray-900 font-bold px-8 py-4 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20 transform hover:scale-105"
+                    >
+                        {translations[language].aiEstimator.ctaButton}
+                    </button>
+                </div>
+            </section>
             
             {/* Services Packages Section */}
             <section className="py-20">
@@ -132,7 +149,7 @@ const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
                              if (!localizedPartner) return null;
                              return (
                                 <Link to={`/partners/${item.partnerId}`} key={item.partnerId} className="group relative overflow-hidden rounded-lg shadow-lg aspect-w-1 aspect-h-1 block">
-                                    <img src={item.src} alt={item.alt} className="w-full h-80 object-cover transform hover:scale-105 transition-transform duration-300" />
+                                    <img src={item.imageUrl} alt={item.alt} className="w-full h-80 object-cover transform hover:scale-105 transition-transform duration-300" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                                     <div className="absolute bottom-0 left-0 p-4">
                                         <h3 className="text-white text-lg font-bold">{localizedPartner?.name}</h3>

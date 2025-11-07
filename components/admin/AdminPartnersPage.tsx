@@ -10,6 +10,7 @@ import { getAllPartnersForAdmin, updatePartnerStatus as apiUpdatePartnerStatus, 
 import { getAllProperties } from '../../api/properties';
 import { useApiQuery } from '../shared/useApiQuery';
 import { getAllPortfolioItems } from '../../api/portfolio';
+import Pagination from '../shared/Pagination';
 
 const statusColors: { [key in PartnerStatus]: string } = {
     active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
@@ -29,6 +30,7 @@ interface AdminPartnersPageProps {
   };
 }
 
+const ITEMS_PER_PAGE = 10;
 
 const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterOptions }) => {
     const t = translations[language].adminDashboard;
@@ -49,6 +51,7 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedPartner, setSelectedPartner] = useState<AdminPartner | null>(null);
     const [selectedPartners, setSelectedPartners] = useState<string[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const handleEditClick = useCallback((partner: AdminPartner) => {
         setSelectedPartner(partner);
@@ -119,6 +122,16 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
         }
         return filteredPartners;
     }, [partners, searchTerm, typeFilter, statusFilter, planFilter, displayTypeFilter, sortConfig, language, filterOptions]);
+    
+    const totalPages = Math.ceil(sortedAndFilteredPartners.length / ITEMS_PER_PAGE);
+    const paginatedPartners = sortedAndFilteredPartners.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, typeFilter, statusFilter, planFilter, displayTypeFilter]);
 
     const requestSort = (key: 'name' | 'type' | 'displayType' | 'status' | 'subscriptionPlan') => {
         let direction: 'ascending' | 'descending' = 'ascending';
@@ -168,7 +181,7 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
-            setSelectedPartners(sortedAndFilteredPartners.map(p => p.id));
+            setSelectedPartners(paginatedPartners.map(p => p.id));
         } else {
             setSelectedPartners([]);
         }
@@ -249,10 +262,10 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
                                         type="checkbox"
                                         className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500 dark:focus:ring-amber-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         onChange={handleSelectAll}
-                                        checked={sortedAndFilteredPartners.length > 0 && selectedPartners.length === sortedAndFilteredPartners.length}
+                                        checked={paginatedPartners.length > 0 && selectedPartners.length === paginatedPartners.length}
                                         ref={input => {
                                             if (input) {
-                                                input.indeterminate = selectedPartners.length > 0 && selectedPartners.length < sortedAndFilteredPartners.length;
+                                                input.indeterminate = selectedPartners.length > 0 && selectedPartners.length < paginatedPartners.length;
                                             }
                                         }}
                                     />
@@ -278,8 +291,8 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
                         <tbody>
                             {loading ? (
                                 <tr><td colSpan={7} className="text-center p-8">Loading partners...</td></tr>
-                            ) : sortedAndFilteredPartners.length > 0 ? (
-                                sortedAndFilteredPartners.map(partner => {
+                            ) : paginatedPartners.length > 0 ? (
+                                paginatedPartners.map(partner => {
                                     const usageCount = (() => {
                                         switch(partner.type) {
                                             case 'developer':
@@ -355,6 +368,7 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
                         </tbody>
                     </table>
                 </div>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
             </div>
 
         </div>

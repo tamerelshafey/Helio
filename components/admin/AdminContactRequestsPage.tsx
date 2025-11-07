@@ -6,6 +6,7 @@ import { inputClasses } from '../shared/FormField';
 import { getAllContactRequests, updateContactRequestStatus, deleteContactRequest } from '../../api/contactRequests';
 import { useApiQuery } from '../shared/useApiQuery';
 import { useAuth } from '../auth/AuthContext';
+import Pagination from '../shared/Pagination';
 
 const statusColors: { [key in RequestStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -21,6 +22,8 @@ type SortConfig = {
     direction: 'ascending' | 'descending';
 } | null;
 
+const ITEMS_PER_PAGE = 10;
+
 const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard.adminRequests;
     const { currentUser } = useAuth();
@@ -28,7 +31,7 @@ const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
-
+    const [currentPage, setCurrentPage] = useState(1);
 
     const sortedAndFilteredRequests = useMemo(() => {
         let initialReqs = contactRequests || [];
@@ -60,6 +63,16 @@ const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }
         return filteredReqs;
     }, [contactRequests, searchTerm, sortConfig, currentUser]);
     
+    const totalPages = Math.ceil(sortedAndFilteredRequests.length / ITEMS_PER_PAGE);
+    const paginatedRequests = sortedAndFilteredRequests.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
     const requestSort = (key: 'name' | 'createdAt' | 'message' | 'status') => {
         let direction: 'ascending' | 'descending' = 'ascending';
         if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -104,63 +117,66 @@ const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }
                 />
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('name')}>
-                                <div className="flex items-center">{t.table.requester}{getSortIcon('name')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('message')}>
-                                <div className="flex items-center">{t.table.message}{getSortIcon('message')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
-                                <div className="flex items-center">{t.table.date}{getSortIcon('createdAt')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
-                                <div className="flex items-center">{t.table.status}{getSortIcon('status')}</div>
-                            </th>
-                            <th scope="col" className="px-6 py-3">{t.table.actions}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan={5} className="text-center p-8">Loading requests...</td></tr>
-                        ) : sortedAndFilteredRequests.length > 0 ? (
-                            sortedAndFilteredRequests.map(req => (
-                                <tr key={req.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="px-6 py-4">
-                                        <div className="font-medium text-gray-900 dark:text-white">{req.name}</div>
-                                        <div className="text-xs text-gray-500">{req.phone}</div>
-                                        {req.inquiryType === 'partner' && (
-                                            <div className="mt-1 text-xs font-semibold p-1 bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 rounded inline-block">
-                                                {req.companyName} ({req.businessType})
-                                            </div>
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-4 max-w-md">
-                                        <p className="truncate" title={req.message}>{req.message}</p>
-                                        <p className="text-xs text-gray-400 mt-1">Contact at: {req.contactTime}</p>
-                                    </td>
-                                    <td className="px-6 py-4">{new Date(req.createdAt).toLocaleDateString(language)}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColors[req.status]}`}>
-                                            {t.requestStatus[req.status]}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 space-x-2 whitespace-nowrap">
-                                        {req.status === 'pending' && (
-                                            <button onClick={() => handleStatusChange(req.id, 'reviewed')} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">{t.table.markAsReviewed}</button>
-                                        )}
-                                        <button onClick={() => handleDelete(req.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t.table.delete}</button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr><td colSpan={5} className="text-center p-8">{t.noContactRequests}</td></tr>
-                        )}
-                    </tbody>
-                </table>
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('name')}>
+                                    <div className="flex items-center">{t.table.requester}{getSortIcon('name')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('message')}>
+                                    <div className="flex items-center">{t.table.message}{getSortIcon('message')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
+                                    <div className="flex items-center">{t.table.date}{getSortIcon('createdAt')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
+                                    <div className="flex items-center">{t.table.status}{getSortIcon('status')}</div>
+                                </th>
+                                <th scope="col" className="px-6 py-3">{t.table.actions}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan={5} className="text-center p-8">Loading requests...</td></tr>
+                            ) : paginatedRequests.length > 0 ? (
+                                paginatedRequests.map(req => (
+                                    <tr key={req.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                        <td className="px-6 py-4">
+                                            <div className="font-medium text-gray-900 dark:text-white">{req.name}</div>
+                                            <div className="text-xs text-gray-500">{req.phone}</div>
+                                            {req.inquiryType === 'partner' && (
+                                                <div className="mt-1 text-xs font-semibold p-1 bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 rounded inline-block">
+                                                    {req.companyName} ({req.businessType})
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 max-w-md">
+                                            <p className="truncate" title={req.message}>{req.message}</p>
+                                            <p className="text-xs text-gray-400 mt-1">Contact at: {req.contactTime}</p>
+                                        </td>
+                                        <td className="px-6 py-4">{new Date(req.createdAt).toLocaleDateString(language)}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColors[req.status]}`}>
+                                                {t.requestStatus[req.status]}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 space-x-2 whitespace-nowrap">
+                                            {req.status === 'pending' && (
+                                                <button onClick={() => handleStatusChange(req.id, 'reviewed')} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">{t.table.markAsReviewed}</button>
+                                            )}
+                                            <button onClick={() => handleDelete(req.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t.table.delete}</button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr><td colSpan={5} className="text-center p-8">{t.noContactRequests}</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
             </div>
         </div>
     );
