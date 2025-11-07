@@ -1,15 +1,15 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import type { Language, LeadStatus, Lead, AdminPartner } from '../../types';
 import { translations } from '../../data/translations';
 import { ChevronLeftIcon } from '../icons/Icons';
-import { selectClasses, inputClasses } from '../shared/FormField';
-import { getAllLeads, updateLead } from '../../api/leads';
-import { getAllPartnersForAdmin } from '../../api/partners';
-import { useApiQuery } from '../shared/useApiQuery';
+import { selectClasses } from '../shared/FormField';
+import { updateLead } from '../../api/leads';
+import { useDataContext } from '../shared/DataContext';
 import DetailItem from '../shared/DetailItem';
 import { useToast } from '../shared/ToastContext';
 import ConversationThread from '../shared/ConversationThread';
+import DetailSection from '../shared/DetailSection';
 
 const statusColors: { [key in LeadStatus]?: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -21,25 +21,15 @@ const statusColors: { [key in LeadStatus]?: string } = {
     cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
 
-const DetailSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-        <h3 className="text-xl font-bold text-amber-500 mb-4">{title}</h3>
-        <div className="space-y-4">{children}</div>
-    </div>
-);
-
-
 const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
     const { requestId } = useParams<{ requestId: string }>();
-    const navigate = useNavigate();
     const t_req = translations[language].adminDashboard.decorationsManagement;
     const t_lead_status = translations[language].dashboard.leadStatus;
     const t_finishing = translations[language].adminDashboard.finishingRequests;
     const t_shared = translations[language].adminShared;
     const { showToast } = useToast();
     
-    const { data: leads, isLoading: loadingLeads, refetch: refetchLeads } = useApiQuery('allLeadsAdmin', getAllLeads);
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { allLeads: leads, allPartners: partners, isLoading, refetchAll } = useDataContext();
 
     const request = useMemo(() => (leads || []).find(l => l.id === requestId), [leads, requestId]);
     
@@ -63,12 +53,12 @@ const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ la
             status,
             assignedTo,
         });
-        await refetchLeads();
+        refetchAll();
         setIsSaving(false);
         showToast('Request updated successfully!', 'success');
     };
 
-    if (loadingLeads || loadingPartners) {
+    if (isLoading) {
         return <div className="p-8 text-center">Loading request details...</div>
     }
 
@@ -93,11 +83,11 @@ const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ la
                     </DetailSection>
 
                     <DetailSection title={t_req.requestInformation}>
-                         <DetailItem label={translations[language].dashboard.leadTable.service} value={request.serviceTitle} fullWidth />
-                         <DetailItem label={translations[language].dashboard.leadTable.notes} value={<p className="whitespace-pre-wrap">{request.customerNotes || '-'}</p>} fullWidth />
+                         <DetailItem label={translations[language].dashboard.leadTable.service} value={request.serviceTitle} layout="grid" />
+                         <DetailItem label={translations[language].dashboard.leadTable.notes} value={<p className="whitespace-pre-wrap">{request.customerNotes || '-'}</p>} layout="grid" />
                     </DetailSection>
                     
-                    <ConversationThread lead={request} onMessageSent={refetchLeads} language={language} />
+                    <ConversationThread lead={request} onMessageSent={refetchAll} language={language} />
 
                 </div>
 
@@ -111,12 +101,12 @@ const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ la
                                 ))}
                             </select>
                         </div>
-                        <div>
+                         <div>
                             <label htmlFor="assignedTo" className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{t_finishing.assignedTo}</label>
                             <select id="assignedTo" value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)} className={selectClasses}>
                                 <option value="internal-team">{t_finishing.internalTeam}</option>
-                                {finishingPartners.map(p => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                {finishingPartners.map(partner => (
+                                    <option key={partner.id} value={partner.id}>{partner.name}</option>
                                 ))}
                             </select>
                         </div>

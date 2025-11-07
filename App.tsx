@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
@@ -28,7 +29,7 @@ const PartnerDashboardLayout = React.lazy(() => import('./components/partner-das
 const DashboardHomePage = React.lazy(() => import('./components/partner-dashboard/DashboardHomePage'));
 const DashboardProfilePage = React.lazy(() => import('./components/partner-dashboard/DashboardProfilePage'));
 const DashboardPortfolioPage = React.lazy(() => import('./components/partner-dashboard/DashboardPortfolioPage'));
-const DashboardPropertiesPage = React.lazy(() => import('./components/dashboard/DashboardPropertiesPage'));
+const DashboardPropertiesPage = React.lazy(() => import('./components/partner-dashboard/DashboardPropertiesPage'));
 const DashboardProjectsPage = React.lazy(() => import('./components/partner-dashboard/DashboardProjectsPage'));
 const DashboardProjectDetailsPage = React.lazy(() => import('./components/partner-dashboard/DashboardProjectDetailsPage'));
 const DashboardLeadsPage = React.lazy(() => import('./components/partner-dashboard/DashboardLeadsPage'));
@@ -69,6 +70,7 @@ const AdminDecorationRequestsPage = React.lazy(() => import('./components/admin/
 const AdminRolesPage = React.lazy(() => import('./components/admin/AdminRolesPage'));
 const AdminFinishingServicesPage = React.lazy(() => import('./components/admin/AdminFinishingServicesPage'));
 const AdminAIEstimatorPage = React.lazy(() => import('./components/admin/AdminAIEstimatorPage'));
+const NotFoundPage = React.lazy(() => import('./components/NotFoundPage'));
 
 
 const LoadingFallback = () => (
@@ -215,6 +217,8 @@ const App: React.FC = () => {
                   <Route path="decoration-requests/:requestId" element={<AdminDecorationRequestDetailsPage language={language} />} />
                   <Route path="ai-estimator-settings" element={<AdminAIEstimatorPage language={language} />} />
               </Route>
+               {/* 404 Not Found Route */}
+              <Route path="*" element={<NotFoundPage language={language} />} />
             </Routes>
           </Suspense>
         </main>

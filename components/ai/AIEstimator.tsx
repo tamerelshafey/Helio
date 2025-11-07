@@ -1,4 +1,5 @@
 
+
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleGenAI, GenerateContentResponse, Type } from "@google/genai";
@@ -58,8 +59,20 @@ const AIEstimator: React.FC<AIEstimatorProps> = ({ language, serviceType, onClos
     const modalRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+    const contextStrings = useMemo(() => {
+        if (serviceType === 'finishing') {
+            return {
+                promptContext: 'a finishing project',
+                pdfTitle: 'تقدير تكلفة أعمال التشطيبات'
+            };
+        }
+        return {
+            promptContext: 'an interior decoration project',
+            pdfTitle: 'تقدير تكلفة أعمال الديكور'
+        };
+    }, [serviceType]);
     
-    // Set default finish options once config is loaded
     useEffect(() => {
         if (config) {
             setFormData(prev => ({
@@ -138,12 +151,12 @@ const AIEstimator: React.FC<AIEstimatorProps> = ({ language, serviceType, onClos
             return yPos + (lines.length * 7); // Approximate line height
         };
 
-        // Title
+        const reportTitle = contextStrings.pdfTitle;
+        
         doc.setFontSize(22);
-        writeRight('تقدير تكلفة أعمال التشطيبات', y);
+        writeRight(reportTitle, y);
         y += 15;
 
-        // Summary of Inputs
         doc.setFontSize(14);
         writeRight('ملخص المدخلات:', y);
         y += 8;
@@ -165,7 +178,6 @@ const AIEstimator: React.FC<AIEstimatorProps> = ({ language, serviceType, onClos
         });
         y += 5;
         
-        // Total Cost
         doc.setFontSize(14);
         writeRight('نطاق التكلفة الإجمالية:', y);
         y += 8;
@@ -175,7 +187,6 @@ const AIEstimator: React.FC<AIEstimatorProps> = ({ language, serviceType, onClos
         doc.setTextColor(0, 0, 0);
         y += 15;
 
-        // Breakdown Table
         doc.setFontSize(14);
         writeRight('مقايسة تقديرية:', y);
         y += 8;
@@ -200,7 +211,6 @@ const AIEstimator: React.FC<AIEstimatorProps> = ({ language, serviceType, onClos
 
         y = (doc as any).lastAutoTable.finalY + 15;
         
-        // AI Notes
         doc.setFontSize(14);
         writeRight('ملاحظات وتوصيات الذكاء الاصطناعي:', y);
         y += 8;
@@ -208,12 +218,12 @@ const AIEstimator: React.FC<AIEstimatorProps> = ({ language, serviceType, onClos
         y = writeWrappedRight(estimate.ai_notes, y);
         y += 10;
         
-        // Disclaimer
         doc.setFontSize(9);
         doc.setTextColor(100, 116, 139);
         writeWrappedRight(t.results.disclaimer, y);
 
-        doc.save(`Finishing-Estimate-${formData.area}m.pdf`);
+        const pdfFilename = `${serviceType.charAt(0).toUpperCase() + serviceType.slice(1)}-Estimate-${formData.area}m.pdf`;
+        doc.save(pdfFilename);
     };
 
     const handleSubmit = async () => {
@@ -222,7 +232,7 @@ const AIEstimator: React.FC<AIEstimatorProps> = ({ language, serviceType, onClos
         setStep(5); // Move to loading step
 
         const prompt = `
-            ${config.prompt}
+            ${config.prompt.replace('a finishing project', contextStrings.promptContext)}
 
             Property Type: ${formData.propertyType}
             Area: ${formData.area} square meters

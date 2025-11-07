@@ -1,20 +1,14 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Property, AdminPartner } from '../../types';
 import { translations } from '../../data/translations';
-import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import { isListingActive } from '../../utils/propertyUtils';
 import ExportDropdown from '../shared/ExportDropdown';
 import { getAllProperties, deleteProperty as apiDeleteProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
-import { getAllPartnersForAdmin } from '../../api/partners';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useDataContext } from '../shared/DataContext';
 import Pagination from '../shared/Pagination';
-
-type SortConfig = {
-    key: 'title' | 'partnerName' | 'status' | 'priceNumeric' | 'listingStartDate' | 'listingEndDate';
-    direction: 'ascending' | 'descending';
-} | null;
+import { useAdminTable } from './shared/useAdminTable';
 
 interface AdminPropertiesPageProps {
   language: Language;
@@ -30,19 +24,9 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
     const t_dash = translations[language].dashboard;
     const tp = translations[language].propertiesPage;
     
-    const { data: properties, isLoading: loadingProperties, refetch: refetchProperties } = useApiQuery('allPropertiesAdmin', getAllProperties);
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
-    const loading = loadingProperties || loadingPartners;
+    const { allProperties: properties, allPartners: partners, isLoading, refetchAll } = useDataContext();
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [typeFilter, setTypeFilter] = useState('all');
-    const [partnerFilter, setPartnerFilter] = useState('all');
-    const [startDateFilter, setStartDateFilter] = useState('');
-    const [endDateFilter, setEndDateFilter] = useState('');
-    const [sortConfig, setSortConfig] = useState<SortConfig>(null);
     const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
 
      const partnerOptions = useMemo(() => {
         return (partners || [])
@@ -50,103 +34,28 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
             .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     }, [partners]);
 
-    const sortedAndFilteredProperties = useMemo(() => {
-        let filteredProps = [...(properties || [])];
-        
-        if (filterOptions?.partnerId) {
-            filteredProps = filteredProps.filter(p => p.partnerId === filterOptions.partnerId);
+    const {
+        paginatedItems: paginatedProperties,
+        totalPages,
+        currentPage, setCurrentPage,
+        searchTerm, setSearchTerm,
+        filters, setFilter,
+        requestSort, getSortIcon
+    } = useAdminTable({
+        data: properties,
+        itemsPerPage: ITEMS_PER_PAGE,
+        initialSort: { key: 'listingStartDate', direction: 'descending' },
+        searchFn: (prop, term) => 
+            prop.title[language].toLowerCase().includes(term) ||
+            (prop.partnerName && prop.partnerName.toLowerCase().includes(term)),
+        filterFns: {
+            partner: (p, v) => p.partnerId === v,
+            status: (p, v) => p.status.en === v,
+            type: (p, v) => p.type.en === v,
+            startDate: (p, v) => p.listingStartDate && new Date(p.listingStartDate) >= new Date(v),
+            endDate: (p, v) => p.listingStartDate && new Date(p.listingStartDate) <= new Date(v),
         }
-
-        if (searchTerm) {
-            const lowercasedFilter = searchTerm.toLowerCase();
-            filteredProps = filteredProps.filter(prop =>
-                prop.title[language].toLowerCase().includes(lowercasedFilter) ||
-                (prop.partnerName && prop.partnerName.toLowerCase().includes(lowercasedFilter))
-            );
-        }
-        
-        if (partnerFilter !== 'all') {
-            filteredProps = filteredProps.filter(p => p.partnerId === partnerFilter);
-        }
-
-        if (statusFilter !== 'all') {
-            filteredProps = filteredProps.filter(p => p.status.en === statusFilter);
-        }
-        
-        if (typeFilter !== 'all') {
-            filteredProps = filteredProps.filter(p => p.type.en === typeFilter);
-        }
-        
-        if (startDateFilter) {
-            const start = new Date(startDateFilter);
-            start.setHours(0,0,0,0);
-            filteredProps = filteredProps.filter(p => p.listingStartDate && new Date(p.listingStartDate) >= start);
-        }
-        
-        if (endDateFilter) {
-            const end = new Date(endDateFilter);
-            end.setHours(23,59,59,999);
-            filteredProps = filteredProps.filter(p => p.listingStartDate && new Date(p.listingStartDate) <= end);
-        }
-
-
-        if (sortConfig !== null) {
-            filteredProps.sort((a, b) => {
-                let aValue: string | number;
-                let bValue: string | number;
-
-                if (sortConfig.key === 'title' || sortConfig.key === 'status') {
-                    aValue = a[sortConfig.key][language];
-                    bValue = b[sortConfig.key][language];
-                } else if (sortConfig.key === 'partnerName') {
-                    aValue = a.partnerName || '';
-                    bValue = b.partnerName || '';
-                } else if (sortConfig.key === 'listingStartDate' || sortConfig.key === 'listingEndDate') {
-                    aValue = a[sortConfig.key] || '0';
-                    bValue = b[sortConfig.key] || '0';
-                } else {
-                    aValue = a[sortConfig.key as 'priceNumeric'];
-                    bValue = b[sortConfig.key as 'priceNumeric'];
-                }
-
-                if (aValue < bValue) {
-                    return sortConfig.direction === 'ascending' ? -1 : 1;
-                }
-                if (aValue > bValue) {
-                    return sortConfig.direction === 'ascending' ? 1 : -1;
-                }
-                return 0;
-            });
-        }
-        return filteredProps;
-    }, [properties, searchTerm, partnerFilter, statusFilter, typeFilter, startDateFilter, endDateFilter, sortConfig, language, filterOptions]);
-
-    const totalPages = Math.ceil(sortedAndFilteredProperties.length / ITEMS_PER_PAGE);
-    const paginatedProperties = sortedAndFilteredProperties.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, partnerFilter, statusFilter, typeFilter, startDateFilter, endDateFilter]);
-
-    const requestSort = (key: 'title' | 'partnerName' | 'status' | 'priceNumeric' | 'listingStartDate' | 'listingEndDate') => {
-        let direction: 'ascending' | 'descending' = 'ascending';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    const getSortIcon = (key: 'title' | 'partnerName' | 'status' | 'priceNumeric' | 'listingStartDate' | 'listingEndDate') => {
-        if (!sortConfig || sortConfig.key !== key) {
-            return <span className="w-4 h-4 ml-1 inline-block"></span>;
-        }
-        return sortConfig.direction === 'ascending'
-            ? <ArrowUpIcon className="w-4 h-4 ml-1 inline-block" />
-            : <ArrowDownIcon className="w-4 h-4 ml-1 inline-block" />;
-    };
+    });
 
     const handleSelect = (propertyId: string) => {
         setSelectedProperties(prev => 
@@ -178,7 +87,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                 }
             });
             await Promise.all(promises);
-            refetchProperties();
+            refetchAll();
             setSelectedProperties([]);
         }
     };
@@ -186,10 +95,9 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
     const handleDelete = async (propertyId: string) => {
         if (window.confirm(t_dash.propertyTable.confirmDelete)) {
             await apiDeleteProperty(propertyId);
-            refetchProperties();
+            refetchAll();
         }
     }
-
 
     const exportColumns = {
         [`title.${language}`]: t_dash.propertyTable.title,
@@ -209,7 +117,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                 </div>
                  <div className="flex items-center gap-4">
                     <ExportDropdown
-                        data={sortedAndFilteredProperties}
+                        data={paginatedProperties}
                         columns={exportColumns}
                         filename="all-properties"
                         language={language}
@@ -223,18 +131,12 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
             <div className="my-8 p-6 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                      <div className="sm:col-span-2 md:col-span-3 lg:col-span-4">
-                        <input
-                            type="text"
-                            placeholder={t.filter.search}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className={inputClasses}
-                        />
+                        <input type="text" placeholder={t.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={inputClasses} />
                     </div>
                     {!filterOptions?.partnerId && (
                         <div>
                             <label htmlFor="partner-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.filterByPartner}</label>
-                            <select id="partner-filter" value={partnerFilter} onChange={e => setPartnerFilter(e.target.value)} className={selectClasses} disabled={loading}>
+                            <select id="partner-filter" value={filters.partner || 'all'} onChange={e => setFilter('partner', e.target.value)} className={selectClasses} disabled={isLoading}>
                                 <option value="all">{t.filter.allPartners}</option>
                                 {(partnerOptions || []).map(partner => (
                                     <option key={partner.id} value={partner.id}>{partner.name}</option>
@@ -244,7 +146,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                     )}
                     <div>
                         <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{tp.allStatuses}</label>
-                        <select id="status-filter" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className={selectClasses}>
+                        <select id="status-filter" value={filters.status || 'all'} onChange={e => setFilter('status', e.target.value)} className={selectClasses}>
                             <option value="all">{tp.allStatuses}</option>
                             <option value="For Sale">{tp.forSale}</option>
                             <option value="For Rent">{tp.forRent}</option>
@@ -252,7 +154,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                     </div>
                     <div>
                         <label htmlFor="type-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{tp.allTypes}</label>
-                        <select id="type-filter" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className={selectClasses}>
+                        <select id="type-filter" value={filters.type || 'all'} onChange={e => setFilter('type', e.target.value)} className={selectClasses}>
                             <option value="all">{tp.allTypes}</option>
                             <option value="Apartment">{tp.apartment}</option>
                             <option value="Villa">{tp.villa}</option>
@@ -263,9 +165,9 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                     <div className="lg:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.listingDateRange}</label>
                         <div className="flex items-center gap-2">
-                            <input type="date" value={startDateFilter} onChange={e => setStartDateFilter(e.target.value)} className={inputClasses} />
+                            <input type="date" value={filters.startDate || ''} onChange={e => setFilter('startDate', e.target.value)} className={inputClasses} />
                             <span className="text-gray-400 dark:text-gray-500">-</span>
-                            <input type="date" value={endDateFilter} onChange={e => setEndDateFilter(e.target.value)} className={inputClasses} />
+                            <input type="date" value={filters.endDate || ''} onChange={e => setFilter('endDate', e.target.value)} className={inputClasses} />
                         </div>
                     </div>
                 </div>
@@ -286,16 +188,11 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
                                 <th scope="col" className="p-4">
-                                    <input type="checkbox"
-                                        className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500"
-                                        onChange={handleSelectAll}
-                                        checked={paginatedProperties.length > 0 && selectedProperties.length === paginatedProperties.length}
-                                        ref={input => { if (input) input.indeterminate = selectedProperties.length > 0 && selectedProperties.length < paginatedProperties.length }}
-                                    />
+                                    <input type="checkbox" onChange={handleSelectAll} checked={paginatedProperties.length > 0 && selectedProperties.length === paginatedProperties.length} ref={input => { if (input) input.indeterminate = selectedProperties.length > 0 && selectedProperties.length < paginatedProperties.length }} />
                                 </th>
                                 <th scope="col" className="px-6 py-3">{t_dash.propertyTable.image}</th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('title')}>
-                                    <div className="flex items-center">{t_dash.propertyTable.title}{getSortIcon('title')}</div>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort(`title.${language}`)}>
+                                    <div className="flex items-center">{t_dash.propertyTable.title}{getSortIcon(`title.${language}`)}</div>
                                 </th>
                                 <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('partnerName')}>
                                     <div className="flex items-center">{t.propertyTable.partner}{getSortIcon('partnerName')}</div>
@@ -313,16 +210,13 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? (
+                            {isLoading ? (
                                 <tr><td colSpan={8} className="text-center p-8">Loading properties...</td></tr>
                             ) : paginatedProperties.length > 0 ? (
                                 paginatedProperties.map(prop => (
                                     <tr key={prop.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td className="w-4 p-4">
-                                            <input type="checkbox" className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500"
-                                                checked={selectedProperties.includes(prop.id)}
-                                                onChange={() => handleSelect(prop.id)}
-                                            />
+                                            <input type="checkbox" checked={selectedProperties.includes(prop.id)} onChange={() => handleSelect(prop.id)} />
                                         </td>
                                         <td className="px-6 py-4">
                                             <img src={prop.imageUrl} alt={prop.title[language]} className="w-16 h-16 object-cover rounded-md" />

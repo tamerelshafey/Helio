@@ -1,5 +1,3 @@
-
-
 export type Language = 'ar' | 'en';
 export type Theme = 'light' | 'dark';
 
@@ -378,17 +376,27 @@ export interface SubscriptionPlanDetails {
     commissionRate?: number;
 }
 
+export interface HeroImage {
+    src: string;
+    src_small: string;
+    src_medium: string;
+    src_large: string;
+}
+
 export interface SiteContent {
   logoUrl: string;
   locationPickerMapUrl: string;
   hero: {
     ar: { title: string; subtitle: string; };
     en: { title: string; subtitle: string; };
-    images: string[];
+    images: HeroImage[];
+    imageAlts?: {
+        ar: string[];
+        en: string[];
+    };
   };
   whyUs: { ar: { title: string; description: string; features: { title: string; description: string; }[]; }; en: { title: string; description: string; features: { title: string; description: string; }[]; }; };
   services: { ar: { title: string; description: string; features: { title: string; description: string; link: string; icon: string; }[]; }; en: { title: string; description: string; features: { title: string; description: string; link: string; icon: string; }[]; }; };
-  // FIX: Added missing partner category titles to the SiteContent interface.
   partners: {
     ar: {
       title: string;

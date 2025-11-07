@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Language, PortfolioItem } from '../../types';
 import { translations } from '../../data/translations';
@@ -41,7 +42,6 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
     });
 
     const [imageFile, setImageFile] = useState<File | null>(null);
-    // FIX: Changed itemToEdit?.src to itemToEdit?.imageUrl to match PortfolioItem type.
     const [imagePreview, setImagePreview] = useState<string | null>(itemToEdit?.imageUrl || null);
 
     useEffect(() => {
@@ -72,7 +72,6 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
         e.preventDefault();
         setLoading(true);
 
-        // FIX: Changed itemToEdit?.src to itemToEdit?.imageUrl to match PortfolioItem type.
         let imageSrc = itemToEdit?.imageUrl || '';
         if (imageFile) {
             imageSrc = await fileToBase64(imageFile);
@@ -89,7 +88,6 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
             title: formData.title,
             partnerId: 'admin-user', // All decoration items are managed internally
             category: selectedCategory.name,
-            // FIX: Changed src to imageUrl to match PortfolioItem type and fix the error.
             imageUrl: imageSrc,
             alt: formData.title.en || 'Decoration work',
             price: formData.price ? parseInt(String(formData.price), 10) : undefined,

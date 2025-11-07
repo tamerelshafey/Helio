@@ -2,10 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Language, Property, Lead } from '../../types';
 import { translations } from '../../data/translations';
-import { useApiQuery } from '../shared/useApiQuery';
-import { getAllProjects, deleteProject as apiDeleteProject } from '../../api/projects';
-import { getPropertiesByPartnerId, deleteProperty as apiDeleteProperty } from '../../api/properties';
-import { getLeadsByPartnerId } from '../../api/leads';
+import { useDataContext } from '../shared/DataContext';
+import { deleteProject as apiDeleteProject } from '../../api/projects';
+import { deleteProperty as apiDeleteProperty } from '../../api/properties';
 import { BuildingIcon, ChartBarIcon, InboxIcon } from '../icons/Icons';
 import { useAuth } from '../auth/AuthContext';
 import UpgradePlanModal from '../UpgradePlanModal';
@@ -21,21 +20,21 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
     const t_prop_table = t.dashboard.propertyTable;
     const t_analytics = t.dashboard.projectAnalytics;
 
-    const { data: projects, isLoading: loadingProjects, refetch: refetchProjects } = useApiQuery('allProjects', getAllProjects);
-    const { data: partnerProperties, isLoading: loadingProperties, refetch: refetchProperties } = useApiQuery(
-        `partner-properties-${currentUser?.id}`,
-        () => getPropertiesByPartnerId(currentUser!.id),
-        { enabled: !!currentUser }
-    );
-    const { data: leads, isLoading: loadingLeads } = useApiQuery(`leads-${currentUser?.id}`, () => getLeadsByPartnerId(currentUser!.id), { enabled: !!currentUser });
-    
+    const { 
+        allProjects, 
+        allProperties, 
+        allLeads, 
+        isLoading, 
+        refetchAll 
+    } = useDataContext();
+
     const { isLimitReached: isUnitsLimitReached } = useSubscriptionUsage('units');
     
     const [activeTab, setActiveTab] = useState('units');
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
-    const project = useMemo(() => (projects || []).find(p => p.id === projectId), [projects, projectId]);
-    const projectProperties = useMemo(() => (partnerProperties || []).filter(p => p.projectId === projectId), [partnerProperties, projectId]);
+    const project = useMemo(() => (allProjects || []).find(p => p.id === projectId), [allProjects, projectId]);
+    const projectProperties = useMemo(() => (allProperties || []).filter(p => p.projectId === projectId && p.partnerId === currentUser?.id), [allProperties, projectId, currentUser?.id]);
 
     const handleAddUnitClick = () => {
         if (!project) return;
@@ -51,6 +50,7 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
             const propertyDeletions = projectProperties.map(p => apiDeleteProperty(p.id));
             await Promise.all(propertyDeletions);
             await apiDeleteProject(project.id);
+            refetchAll();
             navigate('/dashboard/projects');
         }
     };
@@ -58,12 +58,12 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
     const handleDeleteProperty = async (propertyId: string) => {
         if (window.confirm(t_prop_table.confirmDelete)) {
             await apiDeleteProperty(propertyId);
-            refetchProperties();
+            refetchAll();
         }
     };
     
     const projectAnalytics = useMemo(() => {
-        if (!leads || !projectProperties) return { totalLeads: 0, topUnits: [] };
+        if (!allLeads || !projectProperties) return { totalLeads: 0, topUnits: [] };
         
         const propertyIdMap = new Map<string, string>();
         projectProperties.forEach(p => {
@@ -71,7 +71,7 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
             propertyIdMap.set(p.title.en, p.id);
         });
 
-        const projectLeads = leads.filter(lead => {
+        const projectLeads = allLeads.filter(lead => {
             const titleMatch = lead.serviceTitle.match(/"([^"]+)"/);
             if(titleMatch) {
                 const propertyId = propertyIdMap.get(titleMatch[1]);
@@ -102,12 +102,10 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
 
         return { totalLeads: projectLeads.length, topUnits };
 
-    }, [leads, projectProperties]);
+    }, [allLeads, projectProperties]);
 
 
-    const loading = loadingProjects || loadingProperties || loadingLeads;
-
-    if (loading) {
+    if (isLoading) {
         return <div className="text-center p-8">Loading project details...</div>;
     }
 

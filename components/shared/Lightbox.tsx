@@ -61,7 +61,7 @@ const Lightbox: React.FC<LightboxProps> = ({ images, startIndex, onClose, langua
             <button
                 className="absolute top-5 right-5 text-white p-2 bg-black/30 rounded-full hover:bg-black/50 transition-colors z-20"
                 onClick={onClose}
-                aria-label="Close image viewer"
+                aria-label={language === 'ar' ? 'إغلاق عارض الصور' : 'Close image viewer'}
             >
                 <CloseIcon className="h-7 w-7" />
             </button>
@@ -71,14 +71,14 @@ const Lightbox: React.FC<LightboxProps> = ({ images, startIndex, onClose, langua
                     <button
                         className={`absolute left-2 sm:left-5 top-1/2 -translate-y-1/2 text-white p-2 bg-black/30 rounded-full hover:bg-black/50 transition-colors z-20 ${language === 'ar' ? 'order-last' : ''}`}
                         onClick={language === 'ar' ? goToNext : goToPrev}
-                        aria-label="Previous image"
+                        aria-label={language === 'ar' ? 'الصورة السابقة' : 'Previous image'}
                     >
                         <ChevronLeftIcon className="h-8 w-8" />
                     </button>
                     <button
                         className={`absolute right-2 sm:right-5 top-1/2 -translate-y-1/2 text-white p-2 bg-black/30 rounded-full hover:bg-black/50 transition-colors z-20 ${language === 'ar' ? 'order-first' : ''}`}
                         onClick={language === 'ar' ? goToPrev : goToNext}
-                        aria-label="Next image"
+                        aria-label={language === 'ar' ? 'الصورة التالية' : 'Next image'}
                     >
                         <ChevronRightIcon className="h-8 w-8" />
                     </button>

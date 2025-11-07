@@ -1,12 +1,15 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Language, ContactRequest, RequestStatus } from '../../types';
 import { translations } from '../../data/translations';
-import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
-import { getAllContactRequests, updateContactRequestStatus, deleteContactRequest } from '../../api/contactRequests';
-import { useApiQuery } from '../shared/useApiQuery';
+import { updateContactRequestStatus, deleteContactRequest } from '../../api/contactRequests';
 import { useAuth } from '../auth/AuthContext';
 import Pagination from '../shared/Pagination';
+import TableSkeleton from '../shared/TableSkeleton';
+import EmptyState from '../shared/EmptyState';
+import { InboxIcon } from '../icons/Icons';
+import { useDataContext } from '../shared/DataContext';
+import { useAdminTable } from './shared/useAdminTable';
 
 const statusColors: { [key in RequestStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -17,89 +20,44 @@ const statusColors: { [key in RequestStatus]: string } = {
     rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
 
-type SortConfig = {
-    key: 'name' | 'createdAt' | 'message' | 'status';
-    direction: 'ascending' | 'descending';
-} | null;
-
 const ITEMS_PER_PAGE = 10;
 
 const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard.adminRequests;
     const { currentUser } = useAuth();
-    const { data: contactRequests, isLoading: loading, refetch } = useApiQuery('contactRequests', getAllContactRequests);
+    const { contactRequests, isLoading, refetchAll } = useDataContext();
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const sortedAndFilteredRequests = useMemo(() => {
-        let initialReqs = contactRequests || [];
-        if (currentUser && currentUser.type !== 'admin') {
-            initialReqs = initialReqs.filter(req => req.managerId === currentUser?.id);
-        }
-
-        let filteredReqs = [...initialReqs];
-        if (searchTerm) {
-            const lowercasedFilter = searchTerm.toLowerCase();
-            filteredReqs = filteredReqs.filter(req =>
-                req.name.toLowerCase().includes(lowercasedFilter) ||
-                req.phone.includes(lowercasedFilter) ||
-                (req.companyName && req.companyName.toLowerCase().includes(lowercasedFilter))
-            );
-        }
-
-        if (sortConfig) {
-            filteredReqs.sort((a, b) => {
-                if (a[sortConfig.key] < b[sortConfig.key]) {
-                    return sortConfig.direction === 'ascending' ? -1 : 1;
-                }
-                if (a[sortConfig.key] > b[sortConfig.key]) {
-                    return sortConfig.direction === 'ascending' ? 1 : -1;
-                }
-                return 0;
-            });
-        }
-        return filteredReqs;
-    }, [contactRequests, searchTerm, sortConfig, currentUser]);
-    
-    const totalPages = Math.ceil(sortedAndFilteredRequests.length / ITEMS_PER_PAGE);
-    const paginatedRequests = sortedAndFilteredRequests.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm]);
-
-    const requestSort = (key: 'name' | 'createdAt' | 'message' | 'status') => {
-        let direction: 'ascending' | 'descending' = 'ascending';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    const getSortIcon = (key: 'name' | 'createdAt' | 'message' | 'status') => {
-        if (!sortConfig || sortConfig.key !== key) {
-            return <span className="w-4 h-4 ml-1 inline-block"></span>;
-        }
-        return sortConfig.direction === 'ascending'
-            ? <ArrowUpIcon className="w-4 h-4 ml-1 inline-block" />
-            : <ArrowDownIcon className="w-4 h-4 ml-1 inline-block" />;
-    };
+    const {
+        paginatedItems: paginatedRequests,
+        totalPages,
+        currentPage, setCurrentPage,
+        searchTerm, setSearchTerm,
+        requestSort, getSortIcon
+    } = useAdminTable({
+        data: contactRequests,
+        itemsPerPage: ITEMS_PER_PAGE,
+        initialSort: { key: 'createdAt', direction: 'descending' },
+        searchFn: (req, term) => 
+            req.name.toLowerCase().includes(term) ||
+            req.phone.includes(term) ||
+            (req.companyName && req.companyName.toLowerCase().includes(term)),
+        filterFns: {}
+    });
 
     const handleStatusChange = async (id: string, status: RequestStatus) => {
         await updateContactRequestStatus(id, status);
-        refetch();
+        refetchAll();
     };
 
     const handleDelete = async (id: string) => {
         if (window.confirm(t.confirmDelete)) {
             await deleteContactRequest(id);
-            refetch();
+            refetchAll();
         }
+    }
+
+    if (isLoading && !contactRequests) {
+        return <TableSkeleton cols={5} rows={5} />;
     }
 
     return (
@@ -138,9 +96,7 @@ const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? (
-                                <tr><td colSpan={5} className="text-center p-8">Loading requests...</td></tr>
-                            ) : paginatedRequests.length > 0 ? (
+                            {paginatedRequests.length > 0 ? (
                                 paginatedRequests.map(req => (
                                     <tr key={req.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td className="px-6 py-4">
@@ -171,7 +127,15 @@ const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }
                                     </tr>
                                 ))
                             ) : (
-                                <tr><td colSpan={5} className="text-center p-8">{t.noContactRequests}</td></tr>
+                                <tr>
+                                    <td colSpan={5}>
+                                        <EmptyState
+                                            icon={<InboxIcon className="w-12 h-12" />}
+                                            title={t.noContactRequests}
+                                            subtitle="When new messages are sent through the contact form, they will appear here."
+                                        />
+                                    </td>
+                                </tr>
                             )}
                         </tbody>
                     </table>

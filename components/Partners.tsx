@@ -1,23 +1,18 @@
-
-
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, Partner, AdminPartner, SiteContent } from '../types';
+import type { Language, Partner, AdminPartner } from '../types';
 import { translations } from '../data/translations';
-import { getAllPartnersForAdmin } from '../api/partners';
-import { useApiQuery } from './shared/useApiQuery';
-import { getContent } from '../api/content';
+import { useDataContext } from './shared/DataContext';
 
 interface PartnersProps {
     language: Language;
 }
 
-const PartnerCard: React.FC<{ partner: Partner, language: Language }> = ({ partner, language }) => {
-    const t = translations[language];
-    // Find localized partner data robustly
+const PartnerCard: React.FC<{ partner: AdminPartner, language: Language }> = ({ partner, language }) => {
+    // Note: Localized partner info is now in translations.ts, not from the API object directly
     const localizedPartner = useMemo(() => {
-        return (t.partnerInfo as any)[partner.id];
-    }, [partner.id, t.partnerInfo]);
+        return (translations[language].partnerInfo as any)[partner.id];
+    }, [partner.id, language]);
     
     if (!localizedPartner) return null;
 
@@ -42,10 +37,7 @@ const PartnerCard: React.FC<{ partner: Partner, language: Language }> = ({ partn
 };
 
 const Partners: React.FC<PartnersProps> = ({ language }) => {
-    const { data: partners, isLoading: isLoadingPartners } = useApiQuery<AdminPartner[]>('allPartners', getAllPartnersForAdmin);
-    const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
-
-    const loading = isLoadingPartners || isLoadingContent;
+    const { allPartners: partners, siteContent, isLoading } = useDataContext();
 
     const content = useMemo(() => {
         if (!siteContent) return null;
@@ -57,13 +49,8 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
 
         const activePartners = (partners || []).filter(p => p.status === 'active');
         
-        // Group 1: Major Developers
         const majorDevelopers = activePartners.filter(p => p.type === 'developer' && p.displayType === 'mega_project');
-
-        // Group 2: City Developers
         const cityDevelopers = activePartners.filter(p => p.type === 'developer' && p.displayType !== 'mega_project');
-
-        // Other partners (finishing, agency)
         const otherPartners = activePartners.filter(p => p.type !== 'developer' && p.type !== 'admin' && p.id !== 'individual-listings');
         
         const sections = [
@@ -74,7 +61,7 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
         return { majorDevelopers, cityDevelopers, sections };
     }, [partners, content]);
     
-    if (loading || !content) {
+    if (isLoading || !content) {
         return <div className="py-20 bg-gray-50 dark:bg-gray-900 animate-pulse h-[500px]"></div>;
     }
 
@@ -90,13 +77,12 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
                     </p>
                 </div>
 
-                {/* Major Developers Section */}
                 {categorizedPartners.majorDevelopers.length > 0 && (
                      <div className="mb-16">
                         <div className="border-b-2 border-amber-500/20 pb-4 mb-12">
                             <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">{content.mega_projects_title}</h3>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                            {categorizedPartners.majorDevelopers.map(partner => (
                                <PartnerCard key={partner.id} partner={partner} language={language} />
                            ))}
@@ -104,13 +90,12 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
                     </div>
                 )}
                 
-                {/* City Developers Section */}
                 {categorizedPartners.cityDevelopers.length > 0 && (
                      <div className="mb-16">
                          <div className="border-b-2 border-amber-500/20 pb-4 mb-12">
                             <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">{content.developers_title}</h3>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                            {categorizedPartners.cityDevelopers.map(partner => (
                                <PartnerCard key={partner.id} partner={partner} language={language} />
                            ))}
@@ -119,13 +104,12 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
                 )}
 
 
-                {/* Other Partners */}
                 {categorizedPartners.sections.map(section => (
                     <div key={section.title} className="mb-16">
                         <div className="border-b-2 border-amber-500/20 pb-4 mb-12">
                             <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">{section.title}</h3>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                             {section.partners.map((partner) => (
                                <PartnerCard key={partner.id} partner={partner} language={language} />
                             ))}

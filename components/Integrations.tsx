@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { BuildingIcon, CheckCircleIcon, PriceIcon, LocationMarkerIcon } from './icons/Icons';
-import type { Language, SiteContent } from '../types';
-import { getContent } from '../api/content';
-import { useApiQuery } from './shared/useApiQuery';
+import type { Language } from '../types';
+import { useDataContext } from './shared/DataContext';
 
 interface IntegrationsProps {
   language: Language;
@@ -22,7 +21,7 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description:
 
 
 const Integrations: React.FC<IntegrationsProps> = ({ language }) => {
-    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
+    const { siteContent, isLoading } = useDataContext();
     
     if (isLoading || !siteContent) {
         return <section className="py-20 bg-white dark:bg-gray-900 animate-pulse h-96"></section>;

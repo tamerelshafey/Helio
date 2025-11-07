@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language } from '../types';
 import { translations } from '../data/translations';
-import { useApiQuery } from './shared/useApiQuery';
-import { getContent } from '../api/content';
+import { useDataContext } from './shared/DataContext';
 
 interface HeroProps {
   language: Language;
 }
 
 const Hero: React.FC<HeroProps> = ({ language }) => {
-  const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
+  const { siteContent, isLoading } = useDataContext();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const t = translations[language];
   const heroImages = siteContent?.hero?.images || [];
@@ -23,17 +22,35 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
     return () => clearTimeout(timer);
   }, [currentImageIndex, heroImages.length]);
 
+  const currentImageAlt = siteContent?.hero?.imageAlts?.[language]?.[currentImageIndex] || `${t.nav.properties} ${currentImageIndex + 1}`;
+
   return (
     <section className="relative h-[85vh] flex items-center justify-center text-center text-white">
-      {heroImages.map((src, index) => (
-        <div
-          key={src}
-          className={`slider-image bg-cover bg-center ${index === currentImageIndex ? 'active' : ''}`}
-          style={{ backgroundImage: `url('${src}')` }}
+      {heroImages.map((image, index) => (
+        <img
+          key={image.src_large}
+          src={image.src_large}
+          srcSet={`${image.src_small} 480w, ${image.src_medium} 800w, ${image.src_large} 1600w`}
+          sizes="100vw"
+          alt={siteContent?.hero?.imageAlts?.[language]?.[index] || ''}
+          className={`slider-image ${index === currentImageIndex ? 'active' : ''}`}
+          loading="lazy"
+          decoding="async"
           aria-hidden={index !== currentImageIndex}
+          role="img"
         />
       ))}
       <div className="absolute top-0 left-0 w-full h-full bg-black/60 z-10"></div>
+      
+      {/* Accessibility enhancement for screen readers */}
+      <div 
+        className="sr-only" 
+        aria-live="polite" 
+        aria-atomic="true"
+      >
+        {currentImageAlt}
+      </div>
+
       <div className="relative z-20 px-4 container mx-auto flex flex-col items-center">
         {isLoading || !siteContent ? (
             <div className="animate-pulse w-full max-w-4xl">

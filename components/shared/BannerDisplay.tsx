@@ -68,12 +68,17 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({ location, language }) => 
     }
     
     const wrapperClass = location === 'details' ? "my-8" : "py-12";
-    const paddingBottom = location === 'home' ? '33.33%' : (location === 'properties' || location === 'finishing' || location === 'decorations' ? '20%' : '56.25%');
+    const paddingBottom = location === 'home' ? '33.33%' : (location === 'properties' || location === 'finishing' || location === 'decorations' ? '25%' : '56.25%');
 
 
     return (
         <div className={wrapperClass}>
-            <div className="container mx-auto px-6">
+            <div
+                className="container mx-auto px-6"
+                role="region"
+                aria-roledescription="carousel"
+                aria-label={language === 'ar' ? 'إعلانات ترويجية' : 'Promotional Banners'}
+            >
                 <div className="relative group overflow-hidden rounded-lg shadow-lg" style={{paddingBottom}}>
                     {activeBanners.map((banner, index) => (
                         <div key={banner.id} className={`slider-image ${index === currentIndex ? 'active' : ''}`}>
@@ -86,14 +91,14 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({ location, language }) => 
                             <button
                                 onClick={goToPrev}
                                 className={`absolute top-1/2 -translate-y-1/2 p-2 bg-black/40 text-white rounded-full transition-opacity opacity-0 group-hover:opacity-100 z-10 ${language === 'ar' ? 'right-4' : 'left-4'}`}
-                                aria-label="Previous Ad"
+                                aria-label={language === 'ar' ? 'الإعلان السابق' : 'Previous Ad'}
                             >
                                 <ChevronLeftIcon className="w-6 h-6" />
                             </button>
                              <button
                                 onClick={goToNext}
                                 className={`absolute top-1/2 -translate-y-1/2 p-2 bg-black/40 text-white rounded-full transition-opacity opacity-0 group-hover:opacity-100 z-10 ${language === 'ar' ? 'left-4' : 'right-4'}`}
-                                aria-label="Next Ad"
+                                aria-label={language === 'ar' ? 'الإعلان التالي' : 'Next Ad'}
                             >
                                 <ChevronRightIcon className="w-6 h-6" />
                             </button>
@@ -103,7 +108,7 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({ location, language }) => 
                                         key={index}
                                         onClick={() => setCurrentIndex(index)}
                                         className={`w-3 h-3 rounded-full transition-colors ${index === currentIndex ? 'bg-white' : 'bg-white/50 hover:bg-white'}`}
-                                        aria-label={`Go to ad ${index + 1}`}
+                                        aria-label={`${language === 'ar' ? 'اذهب إلى الإعلان' : 'Go to ad'} ${index + 1}`}
                                     ></button>
                                 ))}
                             </div>

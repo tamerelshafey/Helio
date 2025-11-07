@@ -1,9 +1,9 @@
 import { Role, Permission, PartnerType } from '../types';
 
-export let rolePermissions: Map<Role, Permission[]> = new Map([
+export const rolePermissions: Map<Role, Permission[]> = new Map([
   [
     Role.SUPER_ADMIN,
-    Object.values(Permission), // Super admin gets all permissions
+    Object.values(Permission),
   ],
   [
     Role.DEVELOPER_PARTNER,
@@ -13,6 +13,7 @@ export let rolePermissions: Map<Role, Permission[]> = new Map([
       Permission.MANAGE_OWN_PROJECTS,
       Permission.VIEW_OWN_LEADS,
       Permission.MANAGE_OWN_SUBSCRIPTION,
+      Permission.MANAGE_OWN_PROPERTIES, // Developers manage properties within projects
     ],
   ],
   [
@@ -35,18 +36,17 @@ export let rolePermissions: Map<Role, Permission[]> = new Map([
       Permission.MANAGE_OWN_SUBSCRIPTION,
     ],
   ],
-  // New & Refined Admin Roles
   [
-    Role.SERVICE_MANAGER, // Combines Finishing & Decorations
+    Role.SERVICE_MANAGER,
     [
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_FINISHING_LEADS,
       Permission.MANAGE_DECORATIONS_LEADS,
-      Permission.MANAGE_DECORATIONS_CONTENT, // Manages portfolio items and categories
+      Permission.MANAGE_DECORATIONS_CONTENT,
     ],
   ],
   [
-    Role.CUSTOMER_RELATIONS_MANAGER, // Manages individual customer interactions
+    Role.CUSTOMER_RELATIONS_MANAGER,
     [
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_PROPERTY_REQUESTS,
@@ -55,7 +55,7 @@ export let rolePermissions: Map<Role, Permission[]> = new Map([
     ],
   ],
   [
-    Role.LISTINGS_MANAGER, // Focused on platform inventory
+    Role.LISTINGS_MANAGER,
     [
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_ALL_PROPERTIES,
@@ -63,7 +63,7 @@ export let rolePermissions: Map<Role, Permission[]> = new Map([
     ],
   ],
   [
-    Role.PARTNER_RELATIONS_MANAGER, // Focused on commercial partners
+    Role.PARTNER_RELATIONS_MANAGER,
     [
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_ALL_PARTNERS,
@@ -71,29 +71,28 @@ export let rolePermissions: Map<Role, Permission[]> = new Map([
     ],
   ],
    [
-    Role.CONTENT_MANAGER, // Focused on site-wide content
+    Role.CONTENT_MANAGER,
     [
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_BANNERS,
       Permission.MANAGE_SITE_CONTENT,
-      Permission.MANAGE_FILTERS, // Added filter management
+      Permission.MANAGE_FILTERS,
     ],
   ],
 ]);
 
-// Helper to map `type` to new `Role`
+
 export const mapPartnerTypeToRole = (type: PartnerType): Role => {
     switch (type) {
         case 'admin': return Role.SUPER_ADMIN;
         case 'developer': return Role.DEVELOPER_PARTNER;
         case 'finishing': return Role.FINISHING_PARTNER;
         case 'agency': return Role.AGENCY_PARTNER;
-        // Internal roles
         case 'service_manager': return Role.SERVICE_MANAGER;
         case 'customer_relations_manager': return Role.CUSTOMER_RELATIONS_MANAGER;
         case 'listings_manager': return Role.LISTINGS_MANAGER;
         case 'partner_relations_manager': return Role.PARTNER_RELATIONS_MANAGER;
         case 'content_manager': return Role.CONTENT_MANAGER;
-        default: return Role.AGENCY_PARTNER; // Fallback for safety
+        default: return Role.AGENCY_PARTNER; 
     }
 }

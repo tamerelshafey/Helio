@@ -1,4 +1,5 @@
 
+
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Language, AddPropertyRequest, Property } from '../../types';
@@ -8,6 +9,7 @@ import { getAllPropertyRequests, updatePropertyRequestStatus } from '../../api/p
 import { addProperty } from '../../api/properties';
 import { useApiQuery } from '../shared/useApiQuery';
 import DetailItem from '../shared/DetailItem';
+import DetailSection from '../shared/DetailSection';
 
 const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
     const { requestId } = useParams<{ requestId: string }>();
@@ -115,14 +117,14 @@ const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ lan
     const cooperationModelText = t.cooperation[request.cooperationType]?.title || request.cooperationType;
 
     return (
-        <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+        <div>
              <div className="pb-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center mb-6">
                  <div>
                      <Link to="/admin/property-requests" className="flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-amber-500 mb-2">
                         <ChevronLeftIcon className="w-5 h-5" />
                         {t_shared.backToRequests}
                     </Link>
-                    <h3 className="text-2xl font-bold text-amber-500">{t_admin.adminRequests.propertyDetailsTitle}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t_admin.adminRequests.propertyDetailsTitle}</h3>
                  </div>
                  {request.status === 'pending' && (
                     <div className="flex gap-3">
@@ -134,8 +136,7 @@ const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ lan
 
              <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                        <h4 className="font-semibold">{t.ownerInfo}</h4>
+                    <DetailSection title={t.ownerInfo}>
                         <DetailItem label={t.fullName} value={request.customerName} />
                         <DetailItem label={t.phone} value={request.customerPhone} />
                         <DetailItem label={t.contactTime} value={request.contactTime} />
@@ -143,47 +144,43 @@ const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ lan
                         {request.propertyDetails.contactMethod && (
                             <DetailItem label={t.contactPreference.title} value={t.contactPreference[request.propertyDetails.contactMethod]} />
                         )}
-                    </div>
-                    <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                        <h4 className="font-semibold">{t.propertyInfo}</h4>
+                    </DetailSection>
+                    <DetailSection title={t.propertyInfo}>
                         <DetailItem label={t.purpose} value={details.purpose[language]} />
                         <DetailItem label={t.propertyType} value={details.propertyType[language]} />
                         <DetailItem label={t.finishingStatus} value={details.finishingStatus?.[language]} />
                         <DetailItem label={t.area} value={`${details.area.toLocaleString(language)} m²`} />
                         <DetailItem label={t.price} value={`${details.price.toLocaleString(language)} EGP`} />
-                    </div>
+                    </DetailSection>
                 </div>
-                 <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                 <DetailSection title="Key Details">
                     <dl className="grid grid-cols-2 md:grid-cols-4 gap-4">
                        <DetailItem label={t.bedrooms} value={details.bedrooms} />
                        <DetailItem label={t.bathrooms} value={details.bathrooms} />
                        <DetailItem label={t.floor} value={details.floor} />
                        <DetailItem label={t.inCompound} value={details.isInCompound ? t.yes : t.no} />
                     </dl>
-                 </div>
-                 <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                 </DetailSection>
+                 <DetailSection title="Address & Description">
                      <DetailItem label={t.address} value={details.address} />
                      {details.description && <DetailItem label={t.description} value={details.description} />}
-                 </div>
-                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                    <h4 className="font-semibold mb-2">{t.deliveryDate}</h4>
+                 </DetailSection>
+                  <DetailSection title="Delivery & Listing">
                     <DetailItem label={t.deliveryDate} value={details.deliveryType === 'immediate' ? t.immediate : `${t.future}: ${details.deliveryMonth}/${details.deliveryYear}`} />
                     <DetailItem label={t_admin.editPropertyModal.listingStartDate} value={details.listingStartDate} />
                     <DetailItem label={t_admin.editPropertyModal.listingEndDate} value={details.listingEndDate} />
-                 </div>
+                 </DetailSection>
                   {details.hasInstallments && (
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                        <h4 className="font-semibold mb-2">{t.installments}</h4>
+                    <DetailSection title={t.installments}>
                         <dl className="grid grid-cols-3 gap-4">
                             <DetailItem label={t.downPayment} value={details.downPayment?.toLocaleString(language)} />
                             <DetailItem label={t.monthlyInstallment} value={details.monthlyInstallment?.toLocaleString(language)} />
                             <DetailItem label={t.years} value={details.years} />
                         </dl>
-                    </div>
+                    </DetailSection>
                  )}
                  {request.images && request.images.length > 0 && (
-                     <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                        <h4 className="font-semibold mb-2">{t.images}</h4>
+                     <DetailSection title={t.images}>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                             {request.images.map((imgSrc, index) => (
                                 <a key={index} href={imgSrc} target="_blank" rel="noopener noreferrer">
@@ -191,7 +188,7 @@ const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ lan
                                 </a>
                             ))}
                         </div>
-                    </div>
+                    </DetailSection>
                  )}
             </div>
         </div>

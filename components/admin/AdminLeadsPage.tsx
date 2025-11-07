@@ -3,13 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import type { Language, Lead, LeadStatus, AdminPartner } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
-import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
-import { getAllLeads, deleteLead as apiDeleteLead } from '../../api/leads';
-import { getAllPartnersForAdmin } from '../../api/partners';
-import { useApiQuery } from '../shared/useApiQuery';
+import { deleteLead as apiDeleteLead } from '../../api/leads';
+import { useDataContext } from '../shared/DataContext';
 import Pagination from '../shared/Pagination';
+import { useAdminTable } from './shared/useAdminTable';
+import ConversationThread from '../shared/ConversationThread';
 
 const statusColors: { [key in LeadStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -22,10 +22,11 @@ const statusColors: { [key in LeadStatus]: string } = {
 };
 
 type SortConfig = {
-    key: 'customerName' | 'partnerName' | 'serviceTitle' | 'createdAt' | 'customerPhone';
+    key: keyof Lead;
     direction: 'ascending' | 'descending';
 } | null;
 
+// FIX: Define missing ITEMS_PER_PAGE constant
 const ITEMS_PER_PAGE = 10;
 
 const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
@@ -34,17 +35,9 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t_dash = translations[language].dashboard;
     const [searchParams] = useSearchParams();
     
-    const { data: leads, isLoading: loadingLeads, refetch: refetchLeads } = useApiQuery('allLeadsAdmin', getAllLeads);
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
-    const loading = loadingLeads || loadingPartners;
+    const { allLeads: leads, allPartners: partners, isLoading, refetchAll } = useDataContext();
     
-    const [searchTerm, setSearchTerm] = useState('');
-    const [partnerFilter, setPartnerFilter] = useState('all');
-    const [startDateFilter, setStartDateFilter] = useState('');
-    const [endDateFilter, setEndDateFilter] = useState('');
     const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
-    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
-    const [currentPage, setCurrentPage] = useState(1);
     
     const initialTab = searchParams.get('tab') as 'all' | 'finishing' | 'decorations' | 'other' | null;
     const [activeTab, setActiveTab] = useState<'all' | 'finishing' | 'decorations' | 'other'>(initialTab || 'all');
@@ -55,130 +48,53 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
             .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     }, [partners]);
     
-    const managerIds = useMemo(() => {
-        const finishing = (partners || []).filter(p => p.type === 'finishing_manager').map(p => p.id);
-        const decorations = (partners || []).filter(p => p.type === 'decorations_manager').map(p => p.id);
-        return { finishing, decorations };
-    }, [partners]);
-
-    const sortedAndFilteredLeads = useMemo(() => {
-        let initialLeads = leads || [];
-        if (currentUser && currentUser.type !== 'admin') {
-            initialLeads = initialLeads.filter(lead => lead.managerId === currentUser.id);
-        }
-
-        let filteredLeads = [...initialLeads];
-        
-        // Tab filtering for admin
-        if (currentUser && currentUser.type === 'admin') {
-            switch(activeTab) {
-                case 'finishing':
-                    filteredLeads = filteredLeads.filter(l => l.managerId && managerIds.finishing.includes(l.managerId));
-                    break;
-                case 'decorations':
-                    filteredLeads = filteredLeads.filter(l => l.managerId && managerIds.decorations.includes(l.managerId));
-                    break;
-                case 'other':
-                    filteredLeads = filteredLeads.filter(l => !l.managerId || (!managerIds.finishing.includes(l.managerId) && !managerIds.decorations.includes(l.managerId)));
-                    break;
-                default: // 'all'
-                    // no change
-                    break;
+    const {
+        paginatedItems: paginatedLeads,
+        totalPages,
+        currentPage, setCurrentPage,
+        searchTerm, setSearchTerm,
+        filters, setFilter,
+        requestSort, getSortIcon,
+    } = useAdminTable({
+        data: leads,
+        itemsPerPage: ITEMS_PER_PAGE,
+        initialSort: { key: 'createdAt', direction: 'descending' },
+        // FIX: Add explicit type to lambda arguments for robustness.
+        searchFn: (lead: Lead, term) => 
+            lead.customerName.toLowerCase().includes(term) ||
+            (lead.partnerName && lead.partnerName.toLowerCase().includes(term)),
+        filterFns: {
+            partner: (l: Lead, v) => l.partnerId === v,
+            startDate: (l: Lead, v) => new Date(l.createdAt) >= new Date(v),
+            endDate: (l: Lead, v) => new Date(l.createdAt) <= new Date(v),
+            tab: (l: Lead, v) => {
+                 if (v === 'all') return true;
+                 if (v === 'finishing') return l.serviceType === 'finishing';
+                 if (v === 'decorations') return l.serviceType === 'decorations';
+                 if (v === 'other') return l.serviceType !== 'finishing' && l.serviceType !== 'decorations';
+                 return true;
             }
         }
-
-
-        if (searchTerm) {
-            const lowercasedFilter = searchTerm.toLowerCase();
-            filteredLeads = filteredLeads.filter(lead =>
-                lead.customerName.toLowerCase().includes(lowercasedFilter) ||
-                (lead.partnerName && lead.partnerName.toLowerCase().includes(lowercasedFilter))
-            );
-        }
-        
-        if (partnerFilter !== 'all') {
-            filteredLeads = filteredLeads.filter(lead => lead.partnerId === partnerFilter);
-        }
-
-        if (startDateFilter) {
-            const start = new Date(startDateFilter);
-            start.setHours(0,0,0,0);
-            filteredLeads = filteredLeads.filter(l => new Date(l.createdAt) >= start);
-        }
-
-        if (endDateFilter) {
-            const end = new Date(endDateFilter);
-            end.setHours(23,59,59,999);
-            filteredLeads = filteredLeads.filter(l => new Date(l.createdAt) <= end);
-        }
-
-
-        if (sortConfig !== null) {
-            filteredLeads.sort((a, b) => {
-                const aValue = a[sortConfig.key] || '';
-                const bValue = b[sortConfig.key] || '';
-
-                if (aValue < bValue) {
-                    return sortConfig.direction === 'ascending' ? -1 : 1;
-                }
-                if (aValue > bValue) {
-                    return sortConfig.direction === 'ascending' ? 1 : -1;
-                }
-                return 0;
-            });
-        }
-        return filteredLeads;
-    }, [leads, searchTerm, partnerFilter, startDateFilter, endDateFilter, sortConfig, currentUser, activeTab, managerIds]);
+    });
     
-    const totalPages = Math.ceil(sortedAndFilteredLeads.length / ITEMS_PER_PAGE);
-    const paginatedLeads = sortedAndFilteredLeads.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
-
     useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, partnerFilter, startDateFilter, endDateFilter, activeTab]);
+        setFilter('tab', activeTab);
+    }, [activeTab, setFilter]);
     
-    const requestSort = (key: 'customerName' | 'partnerName' | 'serviceTitle' | 'createdAt' | 'customerPhone') => {
-        let direction: 'ascending' | 'descending' = 'ascending';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    const getSortIcon = (key: 'customerName' | 'partnerName' | 'serviceTitle' | 'createdAt' | 'customerPhone') => {
-        if (!sortConfig || sortConfig.key !== key) {
-            return <span className="w-4 h-4 ml-1 inline-block"></span>;
-        }
-        return sortConfig.direction === 'ascending'
-            ? <ArrowUpIcon className="w-4 h-4 ml-1 inline-block" />
-            : <ArrowDownIcon className="w-4 h-4 ml-1 inline-block" />;
-    };
-
     const handleSelect = (leadId: string) => {
         setSelectedLeads(prev => 
-            prev.includes(leadId) 
-            ? prev.filter(id => id !== leadId)
-            : [...prev, leadId]
+            prev.includes(leadId) ? prev.filter(id => id !== leadId) : [...prev, leadId]
         );
     };
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.checked) {
-            setSelectedLeads(paginatedLeads.map(l => l.id));
-        } else {
-            setSelectedLeads([]);
-        }
+        setSelectedLeads(e.target.checked ? paginatedLeads.map(l => l.id) : []);
     };
 
     const handleBulkDelete = async () => {
         if (window.confirm(`${t.bulkActions.delete} ${selectedLeads.length} ${language === 'ar' ? 'طلب؟' : 'leads?'}`)) {
-            await Promise.all(
-                selectedLeads.map(id => apiDeleteLead(id))
-            );
-            refetchLeads();
+            await Promise.all(selectedLeads.map(id => apiDeleteLead(id)));
+            refetchAll();
             setSelectedLeads([]);
         }
     };
@@ -186,15 +102,15 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
     const handleDelete = async (leadId: string) => {
         if (window.confirm(t_dash.leadTable.confirmDelete)) {
             await apiDeleteLead(leadId);
-            refetchLeads();
+            refetchAll();
         }
     };
     
-    const exportData = useMemo(() => sortedAndFilteredLeads.map(lead => ({
+    const exportData = useMemo(() => paginatedLeads.map(lead => ({
         ...lead,
         status: t_dash.leadStatus[lead.status] || lead.status, // Translate status
         createdAt: new Date(lead.createdAt).toLocaleDateString(language)
-    })), [sortedAndFilteredLeads, t_dash.leadStatus, language]);
+    })), [paginatedLeads, t_dash.leadStatus, language]);
 
     const exportColumns = {
         customerName: t_dash.leadTable.customer,
@@ -219,7 +135,7 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
         <div>
             <div className="flex justify-between items-start mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{currentUser && currentUser.type === 'admin' ? t.nav.serviceLeads : t_dash.leadsTitle}</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.nav.allLeads}</h1>
                     <p className="text-gray-500 dark:text-gray-400">{t.manageLeadsSubtitle}</p>
                 </div>
                  <ExportDropdown
@@ -229,45 +145,33 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                     language={language}
                 />
             </div>
-
-            {currentUser && currentUser.type === 'admin' && (
-                <div className="mb-6 flex space-x-2 border-b border-gray-200 dark:border-gray-700 pb-4">
-                     <TabButton tabKey="all" label={t.filter.all} />
-                     <TabButton tabKey="finishing" label={t.nav.finishingRequests} />
-                     <TabButton tabKey="decorations" label={t.nav.decorationsRequests} />
-                     <TabButton tabKey="other" label={language === 'ar' ? 'أخرى' : 'Other'} />
-                </div>
-            )}
-
+            <div className="mb-6 flex space-x-2 border-b border-gray-200 dark:border-gray-700 pb-4">
+                 <TabButton tabKey="all" label={t.filter.all} />
+                 <TabButton tabKey="finishing" label={t.nav.finishingRequests} />
+                 <TabButton tabKey="decorations" label={t.nav.decorationsRequests} />
+                 <TabButton tabKey="other" label={language === 'ar' ? 'أخرى' : 'Other'} />
+            </div>
 
              <div className="my-8 p-6 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <div className="sm:col-span-2">
-                        <input
-                            type="text"
-                            placeholder={t.filter.search}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className={inputClasses}
-                        />
+                        <input type="text" placeholder={t.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={inputClasses} />
                     </div>
-                    {currentUser && currentUser.type === 'admin' && (
-                        <div>
-                            <label htmlFor="partner-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.filterByPartner}</label>
-                            <select id="partner-filter" value={partnerFilter} onChange={e => setPartnerFilter(e.target.value)} className={selectClasses} disabled={loading}>
-                                <option value="all">{t.filter.allPartners}</option>
-                                {(partnerOptions || []).map(partner => (
-                                    <option key={partner.id} value={partner.id}>{partner.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.filterByPartner}</label>
+                        <select value={filters.partner || 'all'} onChange={e => setFilter('partner', e.target.value)} className={selectClasses} disabled={isLoading}>
+                            <option value="all">{t.filter.allPartners}</option>
+                            {(partnerOptions || []).map(partner => (
+                                <option key={partner.id} value={partner.id}>{partner.name}</option>
+                            ))}
+                        </select>
+                    </div>
                     <div className="lg:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.leadDateRange}</label>
                         <div className="flex items-center gap-2">
-                            <input type="date" value={startDateFilter} onChange={e => setStartDateFilter(e.target.value)} className={inputClasses} />
+                            <input type="date" value={filters.startDate || ''} onChange={e => setFilter('startDate', e.target.value)} className={inputClasses} />
                             <span className="text-gray-400 dark:text-gray-500">-</span>
-                            <input type="date" value={endDateFilter} onChange={e => setEndDateFilter(e.target.value)} className={inputClasses} />
+                            <input type="date" value={filters.endDate || ''} onChange={e => setFilter('endDate', e.target.value)} className={inputClasses} />
                         </div>
                     </div>
                 </div>
@@ -286,22 +190,14 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
                                 <th scope="col" className="p-4">
-                                     <input
-                                        type="checkbox"
-                                        className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500"
-                                        onChange={handleSelectAll}
-                                        checked={paginatedLeads.length > 0 && selectedLeads.length === paginatedLeads.length}
-                                        ref={input => { if (input) input.indeterminate = selectedLeads.length > 0 && selectedLeads.length < paginatedLeads.length }}
-                                    />
+                                     <input type="checkbox" onChange={handleSelectAll} checked={paginatedLeads.length > 0 && selectedLeads.length === paginatedLeads.length} ref={input => { if (input) input.indeterminate = selectedLeads.length > 0 && selectedLeads.length < paginatedLeads.length }} />
                                 </th>
                                 <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerName')}>
                                 <div className="flex items-center">{t_dash.leadTable.customer}{getSortIcon('customerName')}</div>
                                 </th>
-                                {currentUser && currentUser.type === 'admin' && (
-                                    <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('partnerName')}>
-                                        <div className="flex items-center">{t.propertyTable.partner}{getSortIcon('partnerName')}</div>
-                                    </th>
-                                )}
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('partnerName')}>
+                                    <div className="flex items-center">{t.propertyTable.partner}{getSortIcon('partnerName')}</div>
+                                </th>
                                 <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerPhone')}>
                                     <div className="flex items-center">{t_dash.leadTable.phone}{getSortIcon('customerPhone')}</div>
                                 </th>
@@ -315,26 +211,19 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? (
+                            {isLoading ? (
                                 <tr><td colSpan={7} className="text-center p-8">Loading leads...</td></tr>
                             ) : paginatedLeads.length > 0 ? (
                                 paginatedLeads.map(lead => (
                                     <tr key={lead.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td className="w-4 p-4">
-                                             <input
-                                                type="checkbox"
-                                                className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500"
-                                                checked={selectedLeads.includes(lead.id)}
-                                                onChange={() => handleSelect(lead.id)}
-                                            />
+                                             <input type="checkbox" checked={selectedLeads.includes(lead.id)} onChange={() => handleSelect(lead.id)} />
                                         </td>
                                         <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                             {lead.customerName}
                                             {lead.customerNotes && <p className="font-normal text-gray-500 dark:text-gray-400 text-xs mt-1 max-w-xs truncate" title={lead.customerNotes}>{lead.customerNotes}</p>}
                                         </th>
-                                        {currentUser && currentUser.type === 'admin' && (
-                                            <td className="px-6 py-4">{lead.partnerName || lead.partnerId}</td>
-                                        )}
+                                        <td className="px-6 py-4">{lead.partnerName || lead.partnerId}</td>
                                         <td className="px-6 py-4" dir="ltr">{lead.customerPhone}</td>
                                         <td className="px-6 py-4 max-w-xs truncate" title={lead.serviceTitle}>{lead.serviceTitle}</td>
                                         <td className="px-6 py-4">{new Date(lead.createdAt).toLocaleDateString(language)}</td>
@@ -346,7 +235,7 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                                     </tr>
                                 ))
                             ) : (
-                                <tr><td colSpan={currentUser && currentUser.type === 'admin' ? 7 : 6} className="text-center p-8">{t_dash.leadTable.noLeads}</td></tr>
+                                <tr><td colSpan={7} className="text-center p-8">{t_dash.leadTable.noLeads}</td></tr>
                             )}
                         </tbody>
                     </table>

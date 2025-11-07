@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { TwitterIcon, LinkedInIcon, FacebookIcon, InstagramIcon } from './icons/Icons';
-import type { Language, SiteContent } from '../types';
+import type { Language } from '../types';
 import { translations } from '../data/translations';
 import { HelioLogo } from './HelioLogo';
-import { getContent } from '../api/content';
-import { useApiQuery } from './shared/useApiQuery';
+import { useDataContext } from './shared/DataContext';
 
 interface FooterProps {
     language: Language;
@@ -23,7 +22,7 @@ const SocialLink: React.FC<{ href: string; children: React.ReactNode }> = ({ hre
 
 const Footer: React.FC<FooterProps> = ({ language }) => {
     const t = translations[language];
-    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
+    const { siteContent, isLoading } = useDataContext();
 
     if (isLoading || !siteContent) {
         return <footer className="bg-gray-200 dark:bg-gray-900 pt-16 h-64 animate-pulse"></footer>;
@@ -91,10 +90,15 @@ const Footer: React.FC<FooterProps> = ({ language }) => {
 
                 {/* Bottom Bar */}
                 <div className="mt-12 pt-8 border-t border-gray-300 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center">
-                    <p className="text-gray-500 dark:text-gray-500 text-sm mb-4 sm:mb-0">
-                        &copy; {new Date().getFullYear()} ONLY HELIO. {t.footer.rightsReserved}
-                    </p>
-                    <div className={`flex space-x-6 ${language === 'ar' ? 'space-x-reverse' : ''}`}>
+                    <div className="flex flex-col sm:flex-row items-center gap-x-4 gap-y-2 text-sm">
+                        <p className="text-gray-500 dark:text-gray-500">
+                            &copy; {new Date().getFullYear()} ONLY HELIO. {t.footer.rightsReserved}
+                        </p>
+                        <a href={`mailto:${content.email}?subject=Beta Feedback`} className="text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200">
+                            {t.footer.sendFeedback}
+                        </a>
+                    </div>
+                    <div className={`flex space-x-6 ${language === 'ar' ? 'space-x-reverse' : ''} mt-4 sm:mt-0`}>
                        <SocialLink href={content.social.facebook}><FacebookIcon className="h-6 w-6" /></SocialLink>
                        <SocialLink href={content.social.twitter}><TwitterIcon className="h-6 w-6" /></SocialLink>
                        <SocialLink href={content.social.instagram}><InstagramIcon className="h-6 w-6" /></SocialLink>

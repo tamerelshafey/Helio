@@ -1,4 +1,5 @@
 
+
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import type { Language, SubscriptionPlan, SubscriptionPlanDetails } from '../../types';
 import { translations } from '../../data/translations';
@@ -79,7 +80,6 @@ const DashboardSubscriptionPage: React.FC<{ language: Language }> = ({ language 
         }
     }, [currentUser, language, t.propertiesListed]);
 
-    // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
     if (!currentUser || isLoading || !('type' in currentUser)) {
         return <div>Loading...</div>;
     }

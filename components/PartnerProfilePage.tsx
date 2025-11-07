@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import type { Language, Partner, PortfolioItem, Property, AdminPartner, Project } from '../types';
+import type { Language, PortfolioItem, Property, AdminPartner, Project } from '../types';
 import { translations } from '../data/translations';
 import Lightbox from './shared/Lightbox';
 import PropertyCard from './shared/PropertyCard';
-import { getAllPartnersForAdmin } from '../api/partners';
 import { getPortfolioByPartnerId } from '../api/portfolio';
 import { getPropertiesByPartnerId } from '../api/properties';
-import { getAllProjects } from '../api/projects';
 import { useApiQuery } from './shared/useApiQuery';
+import { useDataContext } from './shared/DataContext';
 
 interface PartnerProfilePageProps {
     language: Language;
@@ -43,16 +42,14 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
     const t = translations[language];
     const navigate = useNavigate();
 
-    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartners', getAllPartnersForAdmin);
+    const { allPartners: partners, allProjects, isLoading: isLoadingContext } = useDataContext();
     const { data: partnerPortfolio, isLoading: isLoadingPortfolio } = useApiQuery(`partnerPortfolio-${partnerId}`, () => getPortfolioByPartnerId(partnerId!), { enabled: !!partnerId });
     const { data: partnerProperties, isLoading: isLoadingProperties } = useApiQuery(`partnerProperties-${partnerId}`, () => getPropertiesByPartnerId(partnerId!), { enabled: !!partnerId });
-    const { data: allProjects, isLoading: isLoadingProjects } = useApiQuery('allProjects', getAllProjects);
 
-    const loading = isLoadingPartners || isLoadingPortfolio || isLoadingProperties || isLoadingProjects;
+    const loading = isLoadingContext || isLoadingPortfolio || isLoadingProperties;
 
     const partnerInfo = useMemo(() => partners?.find(p => p.id === partnerId), [partners, partnerId]);
     
-    // Create a memoized map for efficient localized partner lookup
     const localizedPartner = useMemo(() => {
         if (!partnerInfo) return null;
         return (translations[language].partnerInfo as any)[partnerInfo.id] || null;
@@ -110,7 +107,6 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
                 />
             )}
             
-            {/* Hero Section */}
             <section className="py-20 bg-gray-50 dark:bg-gray-800">
                 <div className="container mx-auto px-6 text-center">
                     <img src={partnerInfo.imageUrl} alt={localizedPartner.name} className="w-32 h-32 rounded-full object-cover mx-auto mb-6 border-4 border-white dark:border-gray-700 shadow-lg"/>
@@ -125,7 +121,6 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
                 </div>
             </section>
             
-            {/* Content Section */}
             {partnerInfo.type === 'finishing' && (
                 <section className="py-20">
                     <div className="container mx-auto px-6">

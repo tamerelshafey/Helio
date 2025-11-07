@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { Language, SiteContent } from '../types';
-import { getContent } from '../api/content';
-import { useApiQuery } from './shared/useApiQuery';
+import React, { useState, useEffect, useRef } from 'react';
+import type { Language } from '../types';
+import { useDataContext } from './shared/DataContext';
 
 interface AboutCityProps {
   language: Language;
 }
 
 const AboutCity: React.FC<AboutCityProps> = ({ language }) => {
-    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
+    const { siteContent, isLoading } = useDataContext();
     const [currentSlide, setCurrentSlide] = useState(0);
     const timeoutRef = useRef<number | null>(null);
 
@@ -25,7 +24,6 @@ const AboutCity: React.FC<AboutCityProps> = ({ language }) => {
     const goToSlide = (slideIndex: number) => setCurrentSlide(slideIndex);
 
     if (isLoading || !siteContent) {
-        // Render a skeleton or loading state while siteContent is being fetched
         return (
             <section className="py-20 bg-gray-50 dark:bg-gray-800 animate-pulse">
                 <div className="container mx-auto px-6">
@@ -59,7 +57,6 @@ const AboutCity: React.FC<AboutCityProps> = ({ language }) => {
                     </h2>
                 </div>
 
-                {/* Location Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div className="space-y-6">
                         <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{t.location.title}</h3>
@@ -81,7 +78,7 @@ const AboutCity: React.FC<AboutCityProps> = ({ language }) => {
                         ))}
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex space-x-2">
                              {images.map((_, index) => (
-                                <button key={index} onClick={() => goToSlide(index)} className={`w-3 h-3 rounded-full transition-colors ${currentSlide === index ? 'bg-amber-500' : 'bg-gray-400/50 hover:bg-gray-400'}`} aria-label={`Go to slide ${index + 1}`}></button>
+                                <button key={index} onClick={() => goToSlide(index)} className={`w-3 h-3 rounded-full transition-colors ${currentSlide === index ? 'bg-amber-500' : 'bg-gray-400/50 hover:bg-gray-400'}`} aria-label={`${language === 'ar' ? 'اذهب إلى الشريحة' : 'Go to slide'} ${index + 1}`}></button>
                             ))}
                         </div>
                     </div>

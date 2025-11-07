@@ -5,8 +5,7 @@ import { Role } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { BuildingIcon } from '../icons/Icons';
 import { translations } from '../../data/translations';
-import { getProperties } from '../../api/properties';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useDataContext } from '../shared/DataContext';
 import UpgradePlanModal from '../UpgradePlanModal';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 
@@ -22,11 +21,7 @@ const DashboardProjectsPage: React.FC<{ language: Language }> = ({ language }) =
         refetch: refetchProjects 
     } = useSubscriptionUsage('projects');
 
-    const { data: properties, isLoading: isLoadingProperties } = useApiQuery(
-        'all-dashboard-properties',
-        getProperties,
-        { enabled: !!currentUser && currentUser.role === Role.DEVELOPER_PARTNER }
-    );
+    const { allProperties: properties, isLoading: isLoadingProperties } = useDataContext();
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const loading = isLoadingProjects || isLoadingProperties;
 

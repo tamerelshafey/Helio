@@ -1,38 +1,31 @@
 import { useMemo } from 'react';
 import type { PartnerType, SubscriptionPlan, Property, Project, PortfolioItem } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import { useApiQuery } from './useApiQuery';
+import { useDataContext } from './DataContext';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
-import { getPropertiesByPartnerId } from '../../api/properties';
-import { getProjectsByPartnerId } from '../../api/projects';
-import { getPortfolioByPartnerId } from '../../api/portfolio';
 
 type UsageType = 'properties' | 'projects' | 'units' | 'portfolio';
 
-export const useSubscriptionUsage = (usageType: UsageType, options?: { enabled?: boolean }) => {
+export const useSubscriptionUsage = (usageType: UsageType) => {
     const { currentUser } = useAuth();
-    const { enabled: optionEnabled = true } = options || {};
+    const { allProperties, allProjects, allPortfolioItems, isLoading, refetchAll } = useDataContext();
 
-    const { data, isLoading, refetch } = useApiQuery(
-        `${usageType}-${currentUser?.id}`,
-        () => {
-            if (!currentUser) return Promise.resolve([]);
-            switch (usageType) {
-                case 'properties':
-                case 'units': // units are properties for a developer
-                    return getPropertiesByPartnerId(currentUser.id);
-                case 'projects':
-                    return getProjectsByPartnerId(currentUser.id);
-                case 'portfolio':
-                    return getPortfolioByPartnerId(currentUser.id);
-                default:
-                    return Promise.resolve([]);
-            }
-        },
-        { enabled: !!currentUser && optionEnabled }
-    );
+    const data = useMemo(() => {
+        if (!currentUser || isLoading) return [];
+        switch (usageType) {
+            case 'properties':
+            case 'units': // units are properties for a developer
+                return (allProperties || []).filter(p => p.partnerId === currentUser.id);
+            case 'projects':
+                return (allProjects || []).filter(p => p.partnerId === currentUser.id);
+            case 'portfolio':
+                return (allPortfolioItems || []).filter(p => p.partnerId === currentUser.id);
+            default:
+                return [];
+        }
+    }, [allProperties, allProjects, allPortfolioItems, currentUser, usageType, isLoading]);
 
-    const usageCount = useMemo(() => (data || []).length, [data]);
+    const usageCount = useMemo(() => data.length, [data]);
 
     const limit = useMemo(() => {
         if (!currentUser || !('type' in currentUser)) return Infinity;
@@ -50,6 +43,6 @@ export const useSubscriptionUsage = (usageType: UsageType, options?: { enabled?:
         usageCount,
         limit,
         isLimitReached,
-        refetch
+        refetch: refetchAll,
     };
 };

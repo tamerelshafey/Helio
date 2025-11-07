@@ -67,12 +67,4 @@ export let bannersData: Banner[] = [
         locations: ['decorations'],
         status: 'active',
     },
-    {
-        id: 'banner-4',
-        title: 'Inactive Test Banner',
-        imageUrl: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=2074&auto=format&fit=crop',
-        link: '#',
-        locations: ['home'],
-        status: 'inactive',
-    },
 ];

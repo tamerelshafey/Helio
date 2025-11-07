@@ -1,21 +1,20 @@
-
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon } from './icons/Icons';
-import type { Property, Language, Project, AdminPartner } from '../types';
+import type { Property, Language } from '../types';
 import { translations } from '../data/translations';
 import { useFavorites } from './shared/FavoritesContext';
 import Lightbox from './shared/Lightbox';
 import { isCommercial } from '../utils/propertyUtils';
 import BannerDisplay from './shared/BannerDisplay';
 import { getPropertyById } from '../api/properties';
-import { getAllProjects } from '../api/projects';
-import { getAllAmenities } from '../api/filters';
 import { useApiQuery } from './shared/useApiQuery';
 import DetailItem from './shared/DetailItem';
-import { getAllPartnersForAdmin } from '../api/partners';
 import ContactOptionsModal from './shared/ContactOptionsModal';
+import { useToast } from './shared/ToastContext';
+import { useDataContext } from './shared/DataContext';
+import SEO from './shared/SEO';
+import DetailSection from './shared/DetailSection';
 
 interface PropertyDetailsPageProps {
     language: Language;
@@ -25,6 +24,7 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
     const { propertyId } = useParams<{ propertyId: string }>();
     const t = translations[language];
     const navigate = useNavigate();
+    const { showToast } = useToast();
     
     const fetchProperty = useCallback(() => {
         if (!propertyId) return Promise.resolve(undefined);
@@ -32,11 +32,9 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
     }, [propertyId]);
 
     const { data: property, isLoading: isLoadingProperty } = useApiQuery(`property-${propertyId}`, fetchProperty, { enabled: !!propertyId });
-    const { data: projects, isLoading: isLoadingProjects } = useApiQuery('allProjects', getAllProjects);
-    const { data: amenities, isLoading: isLoadingAmenities } = useApiQuery('allAmenities', getAllAmenities);
-    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartners', getAllPartnersForAdmin);
+    const { allProjects: projects, amenities, allPartners: partners, isLoading: isLoadingContext } = useDataContext();
 
-    const isLoading = isLoadingProperty || isLoadingProjects || isLoadingAmenities || isLoadingPartners;
+    const isLoading = isLoadingProperty || isLoadingContext;
     
     const [mainImage, setMainImage] = useState<string | undefined>(undefined);
     const [lightboxState, setLightboxState] = useState({ isOpen: false, startIndex: 0 });
@@ -69,6 +67,11 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
     const handleFavoriteClick = () => {
         if (property) {
             toggleFavorite(property.id);
+            if (!isFav) {
+                showToast(t.favoritesPage.addedToFavorites, 'success');
+            } else {
+                showToast(t.favoritesPage.removedFromFavorites, 'success');
+            }
         }
     };
     
@@ -96,10 +99,10 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
         } else {
             try {
                 await navigator.clipboard.writeText(propertyUrl);
-                alert(t.sharing.linkCopied);
+                showToast(t.sharing.linkCopied, 'success');
             } catch (err) {
                 console.error('Failed to copy link:', err);
-                alert(t.sharing.shareFailed);
+                showToast(t.sharing.shareFailed, 'error');
             }
         }
     };
@@ -107,19 +110,17 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
     const handleContactClick = () => {
         if (!property) return;
 
-        // Priority 1: Direct contact for individual listings
         if (property.contactMethod === 'direct' && property.ownerPhone) {
             const directContactMethods = {
                 whatsapp: { enabled: true, number: property.ownerPhone },
                 phone: { enabled: true, number: property.ownerPhone },
-                form: { enabled: false } // No internal form for direct contact
+                form: { enabled: false }
             };
             setActiveContactMethods(directContactMethods);
             setIsContactModalOpen(true);
             return;
         }
 
-        // Priority 2: Partner's contact methods (the default)
         if (partner?.contactMethods) {
             const { contactMethods } = partner;
             const enabledMethods = Object.entries(contactMethods)
@@ -144,7 +145,6 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
             return;
         }
         
-        // Fallback: If no specific method is defined, use the internal form.
         navigateToServiceRequest();
     };
 
@@ -176,6 +176,7 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
     if (!property) {
         return (
             <div className="py-20 text-center">
+                <SEO title={t.propertyDetailsPage.notFoundTitle} description={t.propertyDetailsPage.notFoundText} />
                 <h1 className="text-4xl font-bold text-gray-900 dark:text-white">{t.propertyDetailsPage.notFoundTitle}</h1>
                 <p className="text-gray-500 dark:text-gray-400 mt-4">{t.propertyDetailsPage.notFoundText}</p>
                 <Link to="/properties" className="mt-8 inline-block bg-amber-500 text-gray-900 font-semibold px-6 py-3 rounded-lg hover:bg-amber-600">
@@ -185,6 +186,11 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
         );
     }
     
+    const pageTitle = `${property.title[language]} | ONLY HELIO`;
+    const pageDescription = property.description[language].substring(0, 160);
+    const pageUrl = window.location.href;
+    const imageUrl = property.imageUrl_large || property.imageUrl;
+
     const isForSale = property.status.en === 'For Sale';
     const isCommercialProp = isCommercial(property);
     const currentGallery = [property.imageUrl, ...property.gallery].filter((url, index, self) => url && self.indexOf(url) === index);
@@ -206,6 +212,8 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
 
 
     return (
+        <>
+        <SEO title={pageTitle} description={pageDescription} url={pageUrl} imageUrl={imageUrl} />
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white py-12">
             {lightboxState.isOpen && (
                 <Lightbox 
@@ -233,13 +241,14 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Left Column: Images and Details */}
-                    <div className="lg:col-span-2">
+                    <div className="lg:col-span-2 space-y-8">
                         {/* Image Gallery */}
-                        <div className="mb-8">
+                        <div>
                             <div className="relative mb-4">
                                <button 
                                     onClick={() => openLightbox(currentGallery.indexOf(mainImage ?? currentGallery[0]))}
                                     className="w-full block"
+                                    aria-label={language === 'ar' ? `عرض صورة مكبرة لـ ${property.title[language]}` : `View larger image of ${property.title[language]}`}
                                 >
                                     <img 
                                         src={mainImage}
@@ -254,12 +263,13 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                                   {property.status[language]}
                                 </span>
                             </div>
-                            <div className="grid grid-cols-5 gap-2">
+                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                                 {currentGallery.map((img, index) => (
                                     <button
                                         key={index}
                                         onClick={() => setMainImage(img)}
                                         className="block"
+                                        aria-label={language === 'ar' ? `عرض الصورة المصغرة ${index + 1}` : `View thumbnail ${index + 1}`}
                                     >
                                         <img 
                                             src={img}
@@ -272,8 +282,7 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                         </div>
 
                         {/* Overview */}
-                        <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
-                            <h2 className="text-2xl font-bold text-amber-500 mb-6">{language === 'ar' ? 'نظرة عامة' : 'Overview'}</h2>
+                        <DetailSection title={language === 'ar' ? 'نظرة عامة' : 'Overview'}>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-6">
                                 <DetailItem icon={<BuildingIcon className="w-6 h-6" />} label={t.propertiesPage.typeLabel} value={property.type[language]} />
                                 {!isCommercialProp && <DetailItem icon={<BedIcon className="w-6 h-6" />} label={t.propertyDetailsPage.bedrooms} value={property.beds} />}
@@ -282,17 +291,15 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                                 {property.finishingStatus && <DetailItem icon={<WrenchScrewdriverIcon className="w-6 h-6" />} label={t.propertiesPage.finishing} value={property.finishingStatus[language]} />}
                                 {property.floor !== undefined && <DetailItem icon={<FloorIcon className="w-6 h-6" />} label={t.propertiesPage.floor} value={property.floor} />}
                             </div>
-                        </div>
+                        </DetailSection>
                         
                         {/* Description */}
-                        <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
-                            <h2 className="text-2xl font-bold text-amber-500 mb-4">{t.propertyDetailsPage.description}</h2>
+                        <DetailSection title={t.propertyDetailsPage.description}>
                             <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line">{property.description[language]}</p>
-                        </div>
+                        </DetailSection>
                         
                         {/* Details */}
-                        <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
-                            <h2 className="text-2xl font-bold text-amber-500 mb-6">{language === 'ar' ? 'التفاصيل' : 'Details'}</h2>
+                        <DetailSection title={language === 'ar' ? 'التفاصيل' : 'Details'}>
                             <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
                                 <DetailItem icon={<CompoundIcon className="w-5 h-5" />} label={t.propertyDetailsPage.inCompound} value={property.isInCompound ? t.propertyDetailsPage.yes : t.propertyDetailsPage.no} />
                                 {isForSale && (
@@ -313,12 +320,11 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                                     </div>
                                 )}
                             </dl>
-                        </div>
+                        </DetailSection>
 
                         {/* Amenities */}
                          {displayedAmenities.length > 0 && (
-                            <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
-                                <h2 className="text-2xl font-bold text-amber-500 mb-6">{t.propertyDetailsPage.amenities}</h2>
+                            <DetailSection title={t.propertyDetailsPage.amenities}>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                     {displayedAmenities.map((amenity, index) => (
                                         <div key={index} className="flex items-center gap-3">
@@ -327,23 +333,24 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                                         </div>
                                     ))}
                                 </div>
-                            </div>
+                            </DetailSection>
                         )}
 
                         {/* Location Map */}
-                        <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 mb-8">
-                            <h2 className="text-2xl font-bold text-amber-500 mb-4">{t.propertyDetailsPage.location}</h2>
-                            <div className="relative rounded-lg overflow-hidden border dark:border-gray-700" style={{ paddingTop: '56.25%' }}>
-                                <a href={`https://www.google.com/maps/search/?api=1&query=${property.location.lat},${property.location.lng}`} target="_blank" rel="noopener noreferrer" title="View on Google Maps" className="absolute inset-0">
-                                    <img 
-                                        src={`https://maps.googleapis.com/maps/api/staticmap?center=${property.location.lat},${property.location.lng}&zoom=15&size=800x450&markers=color:0xf59e0b%7C${property.location.lat},${property.location.lng}&maptype=roadmap&style=feature:poi|visibility:off&style=feature:transit|visibility:off`}
-                                        alt={`${t.propertyDetailsPage.mapOf} ${property.title[language]}`}
-                                        className="w-full h-full object-cover"
-                                        loading="lazy"
-                                    />
-                                </a>
-                            </div>
-                        </div>
+                        {property.location && typeof property.location.lat === 'number' && typeof property.location.lng === 'number' && (
+                            <DetailSection title={t.propertyDetailsPage.location}>
+                                <div className="relative rounded-lg overflow-hidden border dark:border-gray-700" style={{ paddingTop: '56.25%' }}>
+                                    <a href={`https://www.google.com/maps/search/?api=1&query=${property.location.lat},${property.location.lng}`} target="_blank" rel="noopener noreferrer" title="View on Google Maps" className="absolute inset-0">
+                                        <img 
+                                            src={`https://maps.googleapis.com/maps/api/staticmap?center=${property.location.lat},${property.location.lng}&zoom=15&size=800x450&markers=color:0xf59e0b%7C${property.location.lat},${property.location.lng}&maptype=roadmap&style=feature:poi|visibility:off&style=feature:transit|visibility:off`}
+                                            alt={`${t.propertyDetailsPage.mapOf} ${property.title[language]}`}
+                                            className="w-full h-full object-cover"
+                                            loading="lazy"
+                                        />
+                                    </a>
+                                </div>
+                            </DetailSection>
+                        )}
 
                         {project && (
                             <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-6 rounded-r-lg">
@@ -412,6 +419,7 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
             </div>
              <BannerDisplay location="details" language={language} />
         </div>
+        </>
     );
 };
 

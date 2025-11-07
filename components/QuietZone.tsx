@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Language } from '../types';
 import { CloseIcon } from './icons/Icons';
-import { useApiQuery } from './shared/useApiQuery';
-import { getContent } from '../api/content';
+import { useDataContext } from './shared/DataContext';
 
 interface QuietZoneProps {
   onClose: () => void;
@@ -10,7 +9,7 @@ interface QuietZoneProps {
 }
 
 const QuietZone: React.FC<QuietZoneProps> = ({ onClose, language }) => {
-  const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
+  const { siteContent, isLoading } = useDataContext();
   const [currentQuote, setCurrentQuote] = useState({ quote: '', author: '' });
   const modalRef = useRef<HTMLDivElement>(null);
 

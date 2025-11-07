@@ -1,7 +1,3 @@
-
-
-
-
 export const translations = {
     ar: {
         addProperty: 'أضف عقارك',
@@ -137,6 +133,7 @@ export const translations = {
             forPartners: 'للشركاء',
             contactUs: 'تواصل معنا',
             rightsReserved: 'جميع الحقوق محفوظة.',
+            sendFeedback: 'إرسال ملاحظات',
         },
         propertyCard: {
             beds: 'غرف',
@@ -207,6 +204,7 @@ export const translations = {
             project: 'المشروع',
             allProjects: 'كل المشاريع',
             additionalOptions: 'خيارات إضافية',
+            resultsFound: 'تم العثور على {count} نتيجة.',
         },
         propertyInquiryModal: {
             title: 'طلب بحث عن عقار',
@@ -512,6 +510,7 @@ export const translations = {
             messagePlaceholder: "اكتب رسالتك هنا...",
             sendButton: "إرسال",
             successMessage: "تم استلام رسالتك بنجاح! سنتواصل معك قريباً.",
+            errorMessage: "حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقًا.",
             contactInfoTitle: "معلومات الاتصال",
             addressTitle: "العنوان",
             phoneTitle: "الهاتف",
@@ -544,6 +543,8 @@ export const translations = {
             browseButton: "تصفح العقارات",
             addToFavorites: "أضف إلى المفضلة",
             removeFromFavorites: "إزالة من المفضلة",
+            addedToFavorites: "تمت الإضافة إلى المفضلة بنجاح!",
+            removedFromFavorites: "تمت الإزالة من المفضلة."
         },
         auth: {
             login: 'تسجيل الدخول',
@@ -563,6 +564,11 @@ export const translations = {
             loginAsFinishing: 'دخول كشركة تشطيب',
             loginAsAgency: 'دخول كمكتب عقاري',
             loginAsAdmin: 'دخول كمسؤول',
+        },
+        notFoundPage: {
+            title: "404 - الصفحة غير موجودة",
+            subtitle: "عفواً، الصفحة التي تبحث عنها غير موجودة أو تم حذفها.",
+            backButton: "العودة إلى الصفحة الرئيسية",
         },
         partnerRequestForm: {
             companyInfo: "معلومات الشركة",
@@ -1555,6 +1561,7 @@ export const translations = {
             forPartners: 'For Partners',
             contactUs: 'Contact Us',
             rightsReserved: 'All rights reserved.',
+            sendFeedback: 'Send Feedback',
         },
         propertyCard: {
             beds: 'Beds',
@@ -1625,6 +1632,7 @@ export const translations = {
             project: 'Project',
             allProjects: 'All Projects',
             additionalOptions: 'Additional Options',
+            resultsFound: '{count} results found.',
         },
         propertyInquiryModal: {
             title: 'Property Search Request',
@@ -1930,6 +1938,7 @@ export const translations = {
             messagePlaceholder: "Write your message here...",
             sendButton: "Send",
             successMessage: "Your message has been received successfully! We will contact you soon.",
+            errorMessage: "Something went wrong. Please try again later.",
             contactInfoTitle: "Contact Information",
             addressTitle: "Address",
             phoneTitle: "Phone",
@@ -1962,6 +1971,8 @@ export const translations = {
             browseButton: "Browse Properties",
             addToFavorites: "Add to favorites",
             removeFromFavorites: "Remove from favorites",
+            addedToFavorites: "Added to favorites!",
+            removedFromFavorites: "Removed from favorites."
         },
         auth: {
             login: 'Login',
@@ -1981,6 +1992,11 @@ export const translations = {
             loginAsFinishing: 'Login as Finishing Co.',
             loginAsAgency: 'Login as Agency',
             loginAsAdmin: 'Login as Admin',
+        },
+        notFoundPage: {
+            title: "404 - Page Not Found",
+            subtitle: "Oops! The page you're looking for doesn't exist or has been moved.",
+            backButton: "Back to Homepage",
         },
         partnerRequestForm: {
             companyInfo: "Company Information",

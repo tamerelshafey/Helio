@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { BuildingIcon, DecorationIcon, FinishingIcon, SparklesIcon } from './icons/Icons';
-import type { Language, SiteContent } from '../types';
-import { getContent } from '../api/content';
-import { useApiQuery } from './shared/useApiQuery';
+import type { Language } from '../types';
+import { useDataContext } from './shared/DataContext';
 
 interface ServicesProps {
     language: Language;
@@ -30,7 +29,7 @@ const ServiceCard: React.FC<{ icon: React.ReactNode; title: string; description:
 
 
 const Services: React.FC<ServicesProps> = ({ language }) => {
-    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
+    const { siteContent, isLoading } = useDataContext();
 
     if (isLoading || !siteContent) {
         return <section className="py-20 bg-gray-50 dark:bg-gray-800 animate-pulse h-96"></section>;

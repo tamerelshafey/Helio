@@ -1,5 +1,3 @@
-
-
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon, HeartIcon, HeartIconSolid, FloorIcon, CompoundIcon, TagIcon, BanknotesIcon } from '../icons/Icons';
@@ -7,6 +5,7 @@ import type { Property, Language, Project } from '../../types';
 import { translations } from '../../data/translations';
 import { useFavorites } from './FavoritesContext';
 import { isCommercial } from '../../utils/propertyUtils';
+import { useToast } from './ToastContext';
 
 interface PropertyCardProps extends Property {
   language: Language;
@@ -40,6 +39,7 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
   } = props;
   const t = translations[language];
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { showToast } = useToast();
   const isForSale = status.en === 'For Sale';
   const isFav = isFavorite(id);
   const isCommercialProp = isCommercial(props);
@@ -48,6 +48,11 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
     e.preventDefault();
     e.stopPropagation();
     toggleFavorite(id);
+    if (!isFav) {
+        showToast(t.favoritesPage.addedToFavorites, 'success');
+    } else {
+        showToast(t.favoritesPage.removedFromFavorites, 'success');
+    }
   };
 
 

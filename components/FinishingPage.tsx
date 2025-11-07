@@ -1,13 +1,11 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import type { Language, PortfolioItem, AdminPartner, SiteContent } from '../types';
+import type { Language, PortfolioItem } from '../types';
 import { translations } from '../data/translations';
 import BannerDisplay from './shared/BannerDisplay';
-import { getAllPortfolioItems } from '../api/portfolio';
-import { getAllPartnersForAdmin } from '../api/partners';
-import { getContent } from '../api/content';
-import { useApiQuery } from './shared/useApiQuery';
+import { useDataContext } from './shared/DataContext';
 import AIEstimator from './ai/AIEstimator';
+import SEO from './shared/SEO';
 
 interface FinishingPageProps {
   language: Language;
@@ -18,11 +16,7 @@ const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
     const navigate = useNavigate();
     const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
 
-    const { data: portfolio, isLoading: isLoadingPortfolio } = useApiQuery('portfolio', getAllPortfolioItems);
-    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartners', getAllPartnersForAdmin);
-    const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
-
-    const loading = isLoadingPortfolio || isLoadingPartners || isLoadingContent;
+    const { allPortfolioItems: portfolio, allPartners: partners, siteContent, isLoading } = useDataContext();
 
     const handleRequestService = (serviceTitle: string) => {
         navigate('/request-service', { 
@@ -50,12 +44,16 @@ const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
         ).values()
     );
     
-    if (loading) {
+    if (isLoading) {
         return <div className="animate-pulse h-screen bg-gray-50 dark:bg-gray-800"></div>
     }
 
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
+            <SEO 
+                title={`${translations[language].nav.finishing} | ONLY HELIO`}
+                description={t.heroSubtitle}
+            />
             {isEstimatorOpen && <AIEstimator language={language} serviceType="finishing" onClose={() => setIsEstimatorOpen(false)} />}
             {/* Hero Section */}
             <section className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=1600&auto=format&fit=crop')" }}>

@@ -1,21 +1,18 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import PropertyCard from './shared/PropertyCard';
-import type { Language, Property, Project, FilterOption } from '../types';
+import type { Language, Project } from '../types';
 import { translations } from '../data/translations';
-import { SearchIcon, ArrowDownIcon, ListIcon, MapIcon, ChevronRightIcon } from './icons/Icons';
+import { ListIcon, GridIcon } from './icons/Icons';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
-import { inputClasses, selectClasses } from './shared/FormField';
+import PropertyListItem from './shared/PropertyListItem';
+import PropertyListItemSkeleton from './shared/PropertyListItemSkeleton';
 import { isListingActive } from '../utils/propertyUtils';
 import BannerDisplay from './shared/BannerDisplay';
 import PropertyInquiryModal from './shared/PropertyInquiryModal';
-import PropertiesMapView from './PropertiesMapView';
-import { getProperties } from '../api/properties';
-import { getAllProjects } from '../api/projects';
-import { getAllPartnersForAdmin } from '../api/partners';
-import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../api/filters';
-import { useApiQuery } from './shared/useApiQuery';
 import { usePropertyFilters } from './shared/usePropertyFilters';
+import { useDataContext } from './shared/DataContext';
+import SEO from './shared/SEO';
+import PropertyFilters from './PropertyFilters';
 
 interface PropertiesPageProps {
   language: Language;
@@ -24,32 +21,26 @@ interface PropertiesPageProps {
 const PropertiesPage: React.FC<PropertiesPageProps> = ({ language }) => {
     const t = translations[language].propertiesPage;
     
+    const filters = usePropertyFilters();
+
     const { 
-        status: statusFilter, type: typeFilter, query: queryFilter, 
-        minPrice: minPriceFilter, maxPrice: maxPriceFilter, project: projectFilter, 
-        finishing: finishingFilter, installments: installmentsFilter, floor: floorFilter, 
-        compound: compoundFilter, delivery: deliveryFilter, amenities: amenitiesFilter,
-        beds: bedsFilter, baths: bathsFilter, realEstateFinance: realEstateFinanceFilter,
-        setFilter 
-    } = usePropertyFilters();
-
-    // On-demand data fetching
-    const { data: properties, isLoading: isLoadingProperties } = useApiQuery('properties', getProperties);
-    const { data: projects, isLoading: isLoadingProjects } = useApiQuery('allProjects', getAllProjects);
-    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartners', getAllPartnersForAdmin);
-    const { data: propertyTypes, isLoading: isLoadingPropTypes } = useApiQuery('propertyTypes', getAllPropertyTypes);
-    const { data: finishingStatuses, isLoading: isLoadingFinishing } = useApiQuery('finishingStatuses', getAllFinishingStatuses);
-    const { data: amenities, isLoading: isLoadingAmenities } = useApiQuery('amenities', getAllAmenities);
-
-    const isLoading = isLoadingProperties || isLoadingProjects || isLoadingPartners || isLoadingPropTypes || isLoadingFinishing || isLoadingAmenities;
+        allProperties: properties, 
+        allProjects: projects, 
+        allPartners: partners, 
+        propertyTypes, 
+        finishingStatuses, 
+        amenities, 
+        isLoading 
+    } = useDataContext();
     
+    const [view, setView] = useState<'grid' | 'list'>('grid');
     const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
-    const [showAdvanced, setShowAdvanced] = useState(false);
-    const [view, setView] = useState<'list' | 'map'>('list');
     const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
 
+    const [announcement, setAnnouncement] = useState('');
+    const isInitialMount = useRef(true);
+
     const activeProperties = useMemo(() => (properties || []).filter(isListingActive), [properties]);
-    const megaProjects = useMemo(() => (projects || []).filter(p => (partners || []).find(partner => partner.id === p.partnerId)?.displayType === 'mega_project'), [projects, partners]);
     
     const projectsMap = useMemo(() => {
         if (!projects) return new Map<string, Project>();
@@ -57,332 +48,147 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ language }) => {
     }, [projects]);
     
     useEffect(() => {
-        if (typeFilter === 'Land' && finishingFilter !== 'all') {
-            setFilter('finishing', 'all');
+        if (filters.type === 'Land' && filters.finishing !== 'all') {
+            filters.setFilter('finishing', 'all');
         }
-    }, [typeFilter, finishingFilter, setFilter]);
-
-    const handleAmenitiesChange = (amenityEn: string) => {
-        const newAmenities = amenitiesFilter.includes(amenityEn)
-            ? amenitiesFilter.filter(a => a !== amenityEn)
-            : [...amenitiesFilter, amenityEn];
-        setFilter('amenities', newAmenities);
-    };
-    
-    const advancedFilterCount = [
-        projectFilter !== 'all',
-        finishingFilter !== 'all',
-        installmentsFilter !== 'all',
-        realEstateFinanceFilter !== 'all',
-        compoundFilter !== 'all',
-        deliveryFilter !== 'all',
-        !!floorFilter,
-        amenitiesFilter.length > 0
-    ].filter(Boolean).length;
-
-    const availableAmenities = useMemo(() => {
-        const allAmenities = amenities || [];
-        if (typeFilter === 'all') return allAmenities;
-        return allAmenities.filter(amenity => 
-            !amenity.applicableTo || amenity.applicableTo.length === 0 || amenity.applicableTo.includes(typeFilter)
-        );
-    }, [amenities, typeFilter]);
-
-    const availableFinishingStatuses = useMemo(() => {
-        const allFinishingStatuses = finishingStatuses || [];
-        if (typeFilter === 'all') return allFinishingStatuses;
-        if (typeFilter === 'Land') return [];
-        return allFinishingStatuses.filter(status => 
-            !status.applicableTo || status.applicableTo.length === 0 || status.applicableTo.includes(typeFilter)
-        );
-    }, [finishingStatuses, typeFilter]);
+    }, [filters.type, filters.finishing, filters.setFilter]);
 
     const filteredProperties = useMemo(() => {
+        if (!activeProperties) return [];
         return activeProperties.filter(p => {
-            const statusMatch = statusFilter === 'all' || p.status.en === statusFilter;
-            const typeMatch = typeFilter === 'all' || p.type.en === typeFilter;
-            const projectMatch = projectFilter === 'all' || p.projectId === projectFilter;
+            const statusMatch = filters.status === 'all' || p.status.en === filters.status;
+            const typeMatch = filters.type === 'all' || p.type.en === filters.type;
+            const projectMatch = filters.project === 'all' || p.projectId === filters.project;
             
-            const queryMatch = !queryFilter || 
-              p.title.ar.toLowerCase().includes(queryFilter.toLowerCase()) ||
-              p.title.en.toLowerCase().includes(queryFilter.toLowerCase()) ||
-              p.address.ar.toLowerCase().includes(queryFilter.toLowerCase()) ||
-              p.address.en.toLowerCase().includes(queryFilter.toLowerCase()) ||
-              p.partnerName?.toLowerCase().includes(queryFilter.toLowerCase());
+            const queryMatch = !filters.query || 
+              p.title.ar.toLowerCase().includes(filters.query.toLowerCase()) ||
+              p.title.en.toLowerCase().includes(filters.query.toLowerCase()) ||
+              p.address.ar.toLowerCase().includes(filters.query.toLowerCase()) ||
+              p.address.en.toLowerCase().includes(filters.query.toLowerCase()) ||
+              p.partnerName?.toLowerCase().includes(filters.query.toLowerCase());
 
-            const minPrice = parseInt(minPriceFilter, 10);
-            const maxPrice = parseInt(maxPriceFilter, 10);
+            const minPrice = parseInt(filters.minPrice, 10);
+            const maxPrice = parseInt(filters.maxPrice, 10);
             const priceMatch = (!minPrice || p.priceNumeric >= minPrice) && (!maxPrice || p.priceNumeric <= maxPrice);
 
-            const finishingMatch = finishingFilter === 'all' || p.finishingStatus?.en === finishingFilter;
+            const finishingMatch = filters.finishing === 'all' || p.finishingStatus?.en === filters.finishing;
 
-            const installmentsMatch = installmentsFilter === 'all' ||
-                (installmentsFilter === 'yes' && p.installmentsAvailable) ||
-                (installmentsFilter === 'no' && !p.installmentsAvailable);
+            const installmentsMatch = filters.installments === 'all' ||
+                (filters.installments === 'yes' && p.installmentsAvailable) ||
+                (filters.installments === 'no' && !p.installmentsAvailable);
             
-            const realEstateFinanceMatch = realEstateFinanceFilter === 'all' ||
-                (realEstateFinanceFilter === 'yes' && p.realEstateFinanceAvailable) ||
-                (realEstateFinanceFilter === 'no' && !p.realEstateFinanceAvailable);
+            const realEstateFinanceMatch = filters.realEstateFinance === 'all' ||
+                (filters.realEstateFinance === 'yes' && p.realEstateFinanceAvailable) ||
+                (filters.realEstateFinance === 'no' && !p.realEstateFinanceAvailable);
 
-            const floorMatch = !floorFilter || (p.floor !== undefined && p.floor === parseInt(floorFilter, 10));
+            const floorMatch = !filters.floor || (p.floor !== undefined && p.floor === parseInt(filters.floor, 10));
 
-            const compoundMatch = compoundFilter === 'all' || 
-                (compoundFilter === 'yes' && p.isInCompound) ||
-                (compoundFilter === 'no' && !p.isInCompound);
+            const compoundMatch = filters.compound === 'all' || 
+                (filters.compound === 'yes' && p.isInCompound) ||
+                (filters.compound === 'no' && !p.isInCompound);
 
-            const deliveryMatch = deliveryFilter === 'all' ||
-                (deliveryFilter === 'immediate' && p.delivery?.isImmediate);
+            const deliveryMatch = filters.delivery === 'all' ||
+                (filters.delivery === 'immediate' && p.delivery?.isImmediate);
             
-            const amenitiesMatch = amenitiesFilter.length === 0 || amenitiesFilter.every(amenity => p.amenities.en.includes(amenity));
+            const amenitiesMatch = filters.amenities.length === 0 || filters.amenities.every(amenity => p.amenities.en.includes(amenity));
 
-            const bedsMatch = !bedsFilter || p.beds >= parseInt(bedsFilter, 10);
-            const bathsMatch = !bathsFilter || p.baths >= parseInt(bathsFilter, 10);
+            const bedsMatch = !filters.beds || p.beds >= parseInt(filters.beds, 10);
+            const bathsMatch = !filters.baths || p.baths >= parseInt(filters.baths, 10);
 
             return statusMatch && typeMatch && queryMatch && priceMatch && finishingMatch && installmentsMatch && realEstateFinanceMatch && floorMatch && compoundMatch && deliveryMatch && amenitiesMatch && projectMatch && bedsMatch && bathsMatch;
         });
-    }, [activeProperties, statusFilter, typeFilter, queryFilter, minPriceFilter, maxPriceFilter, finishingFilter, installmentsFilter, realEstateFinanceFilter, floorFilter, compoundFilter, deliveryFilter, amenitiesFilter, projectFilter, bedsFilter, bathsFilter]);
+    }, [activeProperties, filters]);
     
-    const isForRent = statusFilter === 'For Rent';
-    const isFinishingDisabled = typeFilter === 'Land' || availableFinishingStatuses.length === 0;
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+        } else {
+            if (!isLoading) {
+                setAnnouncement(t.resultsFound.replace('{count}', filteredProperties.length.toString()));
+            }
+        }
+    }, [filteredProperties.length, isLoading, t.resultsFound]);
 
-    const filterControls = (
-        <>
-            <div className="text-center mb-12">
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">{t.title}</h1>
-                <p className="text-lg text-gray-500 dark:text-gray-400 mt-4 max-w-2xl mx-auto">{t.subtitle}</p>
-            </div>
-            
-            <div className="mb-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4">
-                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                    <div className="sm:col-span-2 lg:col-span-4 xl:col-span-5">
-                        <label htmlFor="search-query" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.searchLabel}</label>
-                        <div className="relative">
-                            <input 
-                                type="text" 
-                                id="search-query"
-                                value={queryFilter} 
-                                onChange={e => setFilter('q', e.target.value)} 
-                                placeholder={t.searchPlaceholder}
-                                className={`${inputClasses} ${language === 'ar' ? 'pr-10' : 'pl-10'}`}
-                            />
-                             <SearchIcon className={`absolute top-1/2 -translate-y-1/2 ${language === 'ar' ? 'right-3' : 'left-3'} h-5 w-5 text-gray-400 dark:text-gray-400`} />
-                        </div>
-                    </div>
-                    <div>
-                        <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.statusLabel}</label>
-                        <select id="status-filter" value={statusFilter} onChange={e => setFilter('status', e.target.value)} className={selectClasses}>
-                            <option value="all">{t.allStatuses}</option>
-                            <option value="For Sale">{t.forSale}</option>
-                            <option value="For Rent">{t.forRent}</option>
-                        </select>
-                    </div>
-                    <div>
-                         <label htmlFor="type-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.typeLabel}</label>
-                        <select id="type-filter" value={typeFilter} onChange={e => setFilter('type', e.target.value)} className={selectClasses}>
-                            <option value="all">{t.allTypes}</option>
-                            {(propertyTypes || []).map(opt => (
-                                <option key={opt.id} value={opt.en}>{opt[language]}</option>
-                            ))}
-                        </select>
-                    </div>
-                     <div className="lg:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.priceRange}</label>
-                        <div className="flex items-center gap-2">
-                            <input 
-                                type="number" 
-                                placeholder={t.minPricePlaceholder} 
-                                value={minPriceFilter} 
-                                onChange={e => setFilter('minPrice', e.target.value)} 
-                                className={inputClasses} 
-                                min="0"
-                            />
-                            <span className="text-gray-400 dark:text-gray-500">-</span>
-                            <input 
-                                type="number" 
-                                placeholder={t.maxPricePlaceholder} 
-                                value={maxPriceFilter} 
-                                onChange={e => setFilter('maxPrice', e.target.value)} 
-                                className={inputClasses} 
-                                min="0"
-                            />
-                        </div>
-                    </div>
-                </div>
-                
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                     <button onClick={() => setShowAdvanced(!showAdvanced)} className="flex items-center gap-2 font-semibold text-amber-600 dark:text-amber-500">
-                        <span>{showAdvanced ? t.hideFilters : t.advancedFilters}</span>
-                        <ArrowDownIcon className={`w-4 h-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
-                        {advancedFilterCount > 0 && (
-                             <span className="bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-bold px-2 py-0.5 rounded-full">
-                                {advancedFilterCount} {t.filtersApplied}
-                             </span>
-                        )}
-                    </button>
-                </div>
-
-                {showAdvanced && (
-                    <div className="pt-4 space-y-4 animate-fadeIn">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            <div>
-                                <label htmlFor="project-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.project}</label>
-                                <select id="project-filter" value={projectFilter} onChange={e => setFilter('project', e.target.value)} className={selectClasses}>
-                                    <option value="all">{t.allProjects}</option>
-                                    {megaProjects.map(p => <option key={p.id} value={p.id}>{p.name[language]}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label htmlFor="finishing-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.finishing}</label>
-                                <select id="finishing-filter" value={finishingFilter} onChange={e => setFilter('finishing', e.target.value)} className={selectClasses} disabled={isFinishingDisabled}>
-                                    <option value="all">{t.allFinishes}</option>
-                                    {availableFinishingStatuses.map(opt => (
-                                        <option key={opt.id} value={opt.en}>{opt[language]}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            {(typeFilter !== 'Villa' && typeFilter !== 'Land') && (
-                                <div>
-                                    <label htmlFor="floor-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.floor}</label>
-                                    <input
-                                        type="number"
-                                        id="floor-filter"
-                                        placeholder={t.floor}
-                                        value={floorFilter}
-                                        onChange={e => setFilter('floor', e.target.value)}
-                                        className={inputClasses}
-                                        min="0"
-                                    />
-                                </div>
-                            )}
-                        </div>
-
-                        <details className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                            <summary className="font-semibold text-gray-800 dark:text-gray-300 cursor-pointer list-none flex items-center gap-2">
-                                <ChevronRightIcon className="w-4 h-4 transition-transform duration-200 rotate-on-open" />
-                                {t.additionalOptions}
-                            </summary>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
-                                <div>
-                                    <label htmlFor="installments-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.installments}</label>
-                                    <select id="installments-filter" value={installmentsFilter} onChange={e => setFilter('installments', e.target.value)} className={selectClasses} disabled={isForRent}>
-                                        <option value="all">{t.allInstallments}</option>
-                                        <option value="yes">{t.installmentsYes}</option>
-                                        <option value="no">{t.installmentsNo}</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label htmlFor="real-estate-finance-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.realEstateFinance}</label>
-                                    <select id="real-estate-finance-filter" value={realEstateFinanceFilter} onChange={e => setFilter('realEstateFinance', e.target.value)} className={selectClasses} disabled={isForRent}>
-                                        <option value="all">{t.allRealEstateFinance}</option>
-                                        <option value="yes">{t.realEstateFinanceYes}</option>
-                                        <option value="no">{t.realEstateFinanceNo}</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label htmlFor="compound-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.inCompound}</label>
-                                    <select id="compound-filter" value={compoundFilter} onChange={e => setFilter('compound', e.target.value)} className={selectClasses}>
-                                        <option value="all">{t.allCompound}</option>
-                                        <option value="yes">{t.compoundYes}</option>
-                                        <option value="no">{t.compoundNo}</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label htmlFor="delivery-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.delivery}</label>
-                                    <select id="delivery-filter" value={deliveryFilter} onChange={e => setFilter('delivery', e.target.value)} className={selectClasses}>
-                                        <option value="all">{t.allDelivery}</option>
-                                        <option value="immediate">{t.immediateDelivery}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </details>
-
-                        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                             <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-4">{t.amenities}</h4>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-3">
-                                {availableAmenities.map(amenity => (
-                                    <label key={amenity.id} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={amenitiesFilter.includes(amenity.en)}
-                                            onChange={() => handleAmenitiesChange(amenity.en)}
-                                            className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
-                                        />
-                                        {amenity[language]}
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            <div className="flex justify-end items-center mb-8 gap-2">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{language === 'ar' ? 'عرض:' : 'View:'}</span>
-                <button 
-                    onClick={() => setView('list')} 
-                    className={`p-2 rounded-md transition-colors ${view === 'list' ? 'bg-amber-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
-                    aria-label={t.listView}
-                >
-                    <ListIcon className="w-5 h-5" />
-                </button>
-                 <button 
-                    onClick={() => setView('map')} 
-                    className={`p-2 rounded-md transition-colors ${view === 'map' ? 'bg-amber-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
-                    aria-label={t.mapView}
-                >
-                    <MapIcon className="w-5 h-5" />
-                </button>
-            </div>
-            
-            <BannerDisplay location="properties" language={language} />
-        </>
-    );
-
-    if (view === 'map') {
-        return (
-            <div className="bg-white dark:bg-gray-900 flex flex-col" style={{ height: `calc(100vh - 80px)` }}>
-                {isRequestModalOpen && <PropertyInquiryModal onClose={() => setIsRequestModalOpen(false)} language={language} />}
-                <div className="container mx-auto px-6 pt-8 pb-4 shrink-0 overflow-y-auto">
-                    {filterControls}
-                </div>
-                <div className="flex-grow min-h-0">
-                    <PropertiesMapView 
-                        properties={filteredProperties}
-                        loading={isLoading}
-                        language={language}
-                        activePropertyId={activePropertyId}
-                        setActivePropertyId={setActivePropertyId}
-                    />
-                </div>
-            </div>
-        );
-    }
-    
     return (
         <div className="bg-white dark:bg-gray-900">
+             <div className="sr-only" aria-live="polite" aria-atomic="true">
+                {announcement}
+            </div>
+            <SEO 
+                title={`${translations[language].nav.properties} | ONLY HELIO`}
+                description={t.subtitle}
+            />
             {isRequestModalOpen && <PropertyInquiryModal onClose={() => setIsRequestModalOpen(false)} language={language} />}
           <div className="container mx-auto px-6 pt-20">
-            {filterControls}
+            {isLoading ? <div className="animate-pulse h-[400px] bg-gray-200 dark:bg-gray-700 rounded-lg"></div> : (
+              <PropertyFilters 
+                language={language}
+                filters={filters}
+                projects={projects || []}
+                partners={partners || []}
+                propertyTypes={propertyTypes || []}
+                finishingStatuses={finishingStatuses || []}
+                amenities={amenities || []}
+              />
+            )}
+            <BannerDisplay location="properties" language={language} />
           </div>
 
           <div className="pb-8">
             <div className="container mx-auto px-6">
-            {filteredProperties.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-                {filteredProperties.map((prop) => {
-                    const project = prop.projectId ? projectsMap.get(prop.projectId) : undefined;
-                    return (
-                        <div
-                            key={prop.id}
-                            onMouseEnter={() => setActivePropertyId(prop.id)}
-                            onMouseLeave={() => setActivePropertyId(null)}
-                            className={`rounded-lg transition-all duration-300 ${activePropertyId === prop.id ? 'shadow-2xl ring-2 ring-amber-500' : ''}`}
+                 <div className="flex justify-end items-center mb-6">
+                    <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 dark:bg-gray-800">
+                        <button
+                            onClick={() => setView('grid')}
+                            className={`p-2 rounded-md transition-colors ${view === 'grid' ? 'bg-white dark:bg-gray-700 text-amber-500 shadow' : 'text-gray-500 hover:text-amber-500'}`}
+                            aria-label="Grid View"
                         >
-                            <PropertyCard {...prop} language={language} project={project} />
-                        </div>
-                    )
-                })}
+                            <GridIcon className="w-5 h-5" />
+                        </button>
+                        <button
+                            onClick={() => setView('list')}
+                            className={`p-2 rounded-md transition-colors ${view === 'list' ? 'bg-white dark:bg-gray-700 text-amber-500 shadow' : 'text-gray-500 hover:text-amber-500'}`}
+                            aria-label="List View"
+                        >
+                            <ListIcon className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
+            {isLoading ? (
+                 view === 'grid' ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+                        {Array.from({ length: 6 }).map((_, index) => <PropertyCardSkeleton key={index} />)}
+                    </div>
+                ) : (
+                    <div className="space-y-4 max-w-4xl mx-auto">
+                        {Array.from({ length: 6 }).map((_, index) => <PropertyListItemSkeleton key={index} />)}
+                    </div>
+                )
+            ) : filteredProperties.length > 0 ? (
+                view === 'grid' ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+                    {filteredProperties.map((prop) => {
+                        const project = prop.projectId ? projectsMap.get(prop.projectId) : undefined;
+                        return (
+                            <div
+                                key={prop.id}
+                                onMouseEnter={() => setActivePropertyId(prop.id)}
+                                onMouseLeave={() => setActivePropertyId(null)}
+                                className={`rounded-lg transition-all duration-300 ${activePropertyId === prop.id ? 'shadow-2xl ring-2 ring-amber-500' : ''}`}
+                            >
+                                <PropertyCard {...prop} language={language} project={project} />
+                            </div>
+                        )
+                    })}
+                    </div>
+                ) : (
+                     <div className="space-y-4 max-w-4xl mx-auto">
+                        {filteredProperties.map((prop) => {
+                            const project = prop.projectId ? projectsMap.get(prop.projectId) : undefined;
+                            return <PropertyListItem key={prop.id} {...prop} language={language} project={project} />;
+                        })}
+                    </div>
+                )
               ) : (
                 <div className="col-span-full text-center py-16 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <p className="text-xl text-gray-600 dark:text-gray-400">{t.noResults}</p>

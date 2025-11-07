@@ -75,6 +75,7 @@ const DashboardProfilePage: React.FC<{ language: Language }> = ({ language }) =>
 
         if (result) {
             showToast(t.profileUpdateSuccess, 'success');
+            // Reload to reflect changes globally (e.g., in Header)
             setTimeout(() => window.location.reload(), 1500);
         } else {
             showToast('Failed to update profile.', 'error');

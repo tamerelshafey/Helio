@@ -5,9 +5,10 @@ import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses } from '../shared/FormField';
 import { addProject, updateProject } from '../../api/projects';
-import { getAllProjects } from '../../api/projects';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useDataContext } from '../shared/DataContext';
 import { Role, Permission } from '../../types';
+import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import UpgradeNotice from '../shared/UpgradeNotice';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -22,8 +23,10 @@ const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
     const { projectId } = useParams();
     const navigate = useNavigate();
     const { currentUser, hasPermission } = useAuth();
-    const { data: projects, isLoading: projectsLoading } = useApiQuery('allProjects', getAllProjects, { enabled: !!projectId });
+    const { allProjects: projects, isLoading: projectsLoading } = useDataContext();
     const t_form = translations[language].projectDashboard.projectForm;
+
+    const { isLimitReached } = useSubscriptionUsage('projects');
 
     const [formData, setFormData] = useState({
         name: { ar: '', en: '' },
@@ -44,7 +47,7 @@ const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
                 });
                 setImage(project.imageUrl);
             } else if (projectId && !projectsLoading) { // If an edit was attempted but failed
-                const redirectPath = hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
+                 const redirectPath = hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
                 navigate(redirectPath);
             }
         }
@@ -90,6 +93,12 @@ const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
     };
     
      if (projectsLoading && projectId) return <div>Loading project...</div>
+
+    const isAdmin = currentUser && 'type' in currentUser && hasPermission(Permission.MANAGE_ALL_PROJECTS);
+
+    if (isLimitReached && !projectId && !isAdmin) {
+        return <UpgradeNotice language={language} />;
+    }
 
     return (
         <div>

@@ -3,16 +3,13 @@ import { Link } from 'react-router-dom';
 import type { Language, PartnerRequest } from '../../types';
 import { translations } from '../../data/translations';
 import { inputClasses } from '../shared/FormField';
-import { ArrowDownIcon, ArrowUpIcon } from '../icons/Icons';
-import { getAllPartnerRequests } from '../../api/partnerRequests';
-import { useApiQuery } from '../shared/useApiQuery';
+import { UserPlusIcon } from '../icons/Icons';
 import { useAuth } from '../auth/AuthContext';
 import Pagination from '../shared/Pagination';
-
-type SortConfig = {
-    key: 'companyName' | 'companyType' | 'createdAt' | 'status';
-    direction: 'ascending' | 'descending';
-} | null;
+import TableSkeleton from '../shared/TableSkeleton';
+import EmptyState from '../shared/EmptyState';
+import { useDataContext } from '../shared/DataContext';
+import { useAdminTable } from './shared/useAdminTable';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -20,64 +17,27 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
     const t = translations[language].adminDashboard;
     const t_req = t.adminRequests;
     const { currentUser } = useAuth();
-    const { data: partnerRequests, isLoading: loading } = useApiQuery('partnerRequests', getAllPartnerRequests);
+    const { partnerRequests, isLoading } = useDataContext();
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('pending');
-    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
-    const [currentPage, setCurrentPage] = useState(1);
-
-
-    const sortedAndFilteredRequests = useMemo(() => {
-        let initialReqs = partnerRequests || [];
-        if (currentUser && currentUser.type !== 'admin') {
-            initialReqs = initialReqs.filter(req => req.managerId === currentUser.id);
+    const {
+        paginatedItems: paginatedRequests,
+        totalPages,
+        currentPage, setCurrentPage,
+        searchTerm, setSearchTerm,
+        filters, setFilter,
+        requestSort, getSortIcon
+    } = useAdminTable({
+        data: partnerRequests,
+        itemsPerPage: ITEMS_PER_PAGE,
+        initialSort: { key: 'createdAt', direction: 'descending' },
+        searchFn: (req, term) => 
+            req.companyName.toLowerCase().includes(term) ||
+            req.contactName.toLowerCase().includes(term) ||
+            req.contactEmail.toLowerCase().includes(term),
+        filterFns: {
+            status: (req, v) => req.status === v,
         }
-
-        let filteredReqs = initialReqs.filter(req =>
-            (statusFilter === 'all' || req.status === statusFilter) &&
-            (req.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             req.contactName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             req.contactEmail.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
-
-        if (sortConfig) {
-            filteredReqs.sort((a, b) => {
-                const aValue = a[sortConfig.key];
-                const bValue = b[sortConfig.key];
-                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
-                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
-                return 0;
-            });
-        }
-
-        return filteredReqs;
-    }, [partnerRequests, statusFilter, searchTerm, sortConfig, currentUser]);
-    
-    const totalPages = Math.ceil(sortedAndFilteredRequests.length / ITEMS_PER_PAGE);
-    const paginatedRequests = sortedAndFilteredRequests.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, statusFilter]);
-
-    const requestSort = (key: 'companyName' | 'companyType' | 'createdAt' | 'status') => {
-        let direction: 'ascending' | 'descending' = 'ascending';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    const getSortIcon = (key: 'companyName' | 'companyType' | 'createdAt' | 'status') => {
-        if (!sortConfig || sortConfig.key !== key) {
-            return <span className="w-4 h-4 ml-1 inline-block"></span>;
-        }
-        return sortConfig.direction === 'ascending' ? <ArrowUpIcon className="w-4 h-4 ml-1" /> : <ArrowDownIcon className="w-4 h-4 ml-1" />;
-    };
+    });
 
     const getPartnerTypeName = (type: PartnerRequest['companyType']) => {
         return t.partnerTypes[type as keyof typeof t.partnerTypes] || type;
@@ -85,6 +45,10 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
     
     const getStatusName = (status: PartnerRequest['status']) => {
         return t_req.requestStatus[status as keyof typeof t_req.requestStatus] || status;
+    }
+
+    if (isLoading && !partnerRequests) {
+        return <TableSkeleton cols={5} rows={5} />;
     }
 
     return (
@@ -100,7 +64,7 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={inputClasses + " max-w-xs"}
                 />
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={inputClasses + " max-w-xs"}>
+                <select value={filters.status || 'pending'} onChange={(e) => setFilter('status', e.target.value)} className={inputClasses + " max-w-xs"}>
                     <option value="all">{t.filter.all}</option>
                     <option value="pending">{t_req.requestStatus.pending}</option>
                     <option value="approved">{t_req.requestStatus.approved}</option>
@@ -129,9 +93,7 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? (
-                                <tr><td colSpan={5} className="text-center p-8">Loading requests...</td></tr>
-                            ) : paginatedRequests.length > 0 ? (
+                            {paginatedRequests.length > 0 ? (
                                 paginatedRequests.map(req => (
                                 <tr key={req.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <td className="px-6 py-4">
@@ -152,7 +114,15 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
                                 </tr>
                             ))
                         ) : (
-                            <tr><td colSpan={5} className="text-center p-8">{t_req.noPartnerRequests}</td></tr>
+                            <tr>
+                                <td colSpan={5}>
+                                    <EmptyState
+                                        icon={<UserPlusIcon className="w-12 h-12" />}
+                                        title={t_req.noPartnerRequests}
+                                        subtitle="New applications from potential partners will be displayed here for your review."
+                                    />
+                                </td>
+                            </tr>
                         )}
                     </tbody>
                 </table>

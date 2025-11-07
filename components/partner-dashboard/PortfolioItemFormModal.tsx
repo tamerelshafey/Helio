@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { Language, PortfolioItem } from '../../types';
 import { translations } from '../../data/translations';
@@ -37,7 +36,6 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
     });
 
     const [imageFile, setImageFile] = useState<File | null>(null);
-    // FIX: Changed itemToEdit?.src to itemToEdit?.imageUrl to match PortfolioItem type.
     const [imagePreview, setImagePreview] = useState<string | null>(itemToEdit?.imageUrl || null);
 
     useEffect(() => {
@@ -71,16 +69,14 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
         if (!currentUser) return;
         setLoading(true);
 
-        // FIX: Changed itemToEdit?.src to itemToEdit?.imageUrl to match PortfolioItem type.
         let imageSrc = itemToEdit?.imageUrl || '';
         if (imageFile) {
             imageSrc = await fileToBase64(imageFile);
         }
 
-        const dataToSave = {
+        const dataToSave: Omit<PortfolioItem, 'id'> = {
             ...formData,
             partnerId: currentUser.id,
-            // FIX: Changed src to imageUrl to match PortfolioItem type.
             imageUrl: imageSrc,
             alt: formData.title.en || 'Portfolio work',
         };

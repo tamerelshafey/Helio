@@ -1,11 +1,14 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Language, PropertyInquiryRequest, RequestStatus } from '../../types';
 import { translations } from '../../data/translations';
-import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
+import { SearchIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
-import { getAllPropertyInquiries, updatePropertyInquiryStatus, deletePropertyInquiry } from '../../api/propertyInquiries';
-import { useApiQuery } from '../shared/useApiQuery';
+import { updatePropertyInquiryStatus, deletePropertyInquiry } from '../../api/propertyInquiries';
 import Pagination from '../shared/Pagination';
+import TableSkeleton from '../shared/TableSkeleton';
+import EmptyState from '../shared/EmptyState';
+import { useDataContext } from '../shared/DataContext';
+import { useAdminTable } from './shared/useAdminTable';
 
 const statusColors: { [key in RequestStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -16,84 +19,44 @@ const statusColors: { [key in RequestStatus]: string } = {
     rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
 
-type SortConfig = {
-    key: 'customerName' | 'createdAt' | 'details' | 'status';
-    direction: 'ascending' | 'descending';
-} | null;
-
 const ITEMS_PER_PAGE = 10;
 
 const AdminPropertyInquiriesPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard.propertyInquiries;
     const t_req = translations[language].adminDashboard.adminRequests;
-    const { data: propertyInquiries, isLoading: loading, refetch } = useApiQuery('propertyInquiries', getAllPropertyInquiries);
+    const { propertyInquiries, isLoading, refetchAll } = useDataContext();
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const sortedAndFilteredRequests = useMemo(() => {
-        let filteredReqs = [...(propertyInquiries || [])];
-        if (searchTerm) {
-            const lowercasedFilter = searchTerm.toLowerCase();
-            filteredReqs = filteredReqs.filter(req =>
-                req.customerName.toLowerCase().includes(lowercasedFilter) ||
-                req.customerPhone.includes(lowercasedFilter) ||
-                req.details.toLowerCase().includes(lowercasedFilter)
-            );
-        }
-
-        if (sortConfig) {
-            filteredReqs.sort((a, b) => {
-                if (a[sortConfig.key] < b[sortConfig.key]) {
-                    return sortConfig.direction === 'ascending' ? -1 : 1;
-                }
-                if (a[sortConfig.key] > b[sortConfig.key]) {
-                    return sortConfig.direction === 'ascending' ? 1 : -1;
-                }
-                return 0;
-            });
-        }
-        return filteredReqs;
-    }, [propertyInquiries, searchTerm, sortConfig]);
-
-    const totalPages = Math.ceil(sortedAndFilteredRequests.length / ITEMS_PER_PAGE);
-    const paginatedRequests = sortedAndFilteredRequests.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm]);
-    
-    const requestSort = (key: 'customerName' | 'createdAt' | 'details' | 'status') => {
-        let direction: 'ascending' | 'descending' = 'ascending';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    const getSortIcon = (key: 'customerName' | 'createdAt' | 'details' | 'status') => {
-        if (!sortConfig || sortConfig.key !== key) {
-            return <span className="w-4 h-4 ml-1 inline-block"></span>;
-        }
-        return sortConfig.direction === 'ascending'
-            ? <ArrowUpIcon className="w-4 h-4 ml-1 inline-block" />
-            : <ArrowDownIcon className="w-4 h-4 ml-1 inline-block" />;
-    };
+    const {
+        paginatedItems: paginatedRequests,
+        totalPages,
+        currentPage, setCurrentPage,
+        searchTerm, setSearchTerm,
+        requestSort, getSortIcon
+    } = useAdminTable({
+        data: propertyInquiries,
+        itemsPerPage: ITEMS_PER_PAGE,
+        initialSort: { key: 'createdAt', direction: 'descending' },
+        searchFn: (req, term) => 
+            req.customerName.toLowerCase().includes(term) ||
+            req.customerPhone.includes(term) ||
+            req.details.toLowerCase().includes(term),
+        filterFns: {}
+    });
 
     const handleStatusChange = async (id: string, status: RequestStatus) => {
         await updatePropertyInquiryStatus(id, status);
-        refetch();
+        refetchAll();
     };
 
     const handleDelete = async (id: string) => {
         if (window.confirm(t_req.confirmDelete)) {
             await deletePropertyInquiry(id);
-            refetch();
+            refetchAll();
         }
+    }
+
+    if (isLoading && !propertyInquiries) {
+        return <TableSkeleton cols={5} rows={5} />;
     }
 
     return (
@@ -132,9 +95,7 @@ const AdminPropertyInquiriesPage: React.FC<{ language: Language }> = ({ language
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? (
-                                <tr><td colSpan={5} className="text-center p-8">Loading requests...</td></tr>
-                            ) : paginatedRequests.length > 0 ? (
+                            {paginatedRequests.length > 0 ? (
                                 paginatedRequests.map(req => (
                                     <tr key={req.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td className="px-6 py-4">
@@ -165,7 +126,15 @@ const AdminPropertyInquiriesPage: React.FC<{ language: Language }> = ({ language
                                     </tr>
                                 ))
                             ) : (
-                                <tr><td colSpan={5} className="text-center p-8">{t.noRequests}</td></tr>
+                                <tr>
+                                    <td colSpan={5}>
+                                         <EmptyState
+                                            icon={<SearchIcon className="w-12 h-12" />}
+                                            title={t.noRequests}
+                                            subtitle="When users request a search for a specific property, their inquiry will appear here."
+                                        />
+                                    </td>
+                                </tr>
                             )}
                         </tbody>
                     </table>

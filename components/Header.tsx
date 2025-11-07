@@ -57,7 +57,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleQuietZone, language, onL
                         <span className="text-2xl hidden sm:block">ONLY HELIO</span>
                     </Link>
                     
-                    <nav className="hidden lg:flex items-center gap-8 text-lg">
+                    <nav className="hidden xl:flex items-center gap-8 text-lg">
                         {navLinks.map((link) => (
                           <NavLink
                             key={link.name}
@@ -72,10 +72,10 @@ export const Header: React.FC<HeaderProps> = ({ onToggleQuietZone, language, onL
 
                     <div className="flex items-center gap-5">
                          {currentUser && <NotificationBell language={language} />}
-                        <Link to="/favorites" className="hidden lg:block text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors" aria-label="Favorites">
+                        <Link to="/favorites" className="hidden xl:block text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors" aria-label="Favorites">
                             <HeartIcon className="h-6 w-6" />
                         </Link>
-                        <button onClick={onToggleQuietZone} className="hidden lg:block text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors" aria-label="Quiet Zone">
+                        <button onClick={onToggleQuietZone} className="hidden xl:block text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors" aria-label="Quiet Zone">
                             <QuoteIcon className="h-6 w-6" />
                         </button>
                         <button
@@ -85,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleQuietZone, language, onL
                         >
                             {theme === 'light' ? <MoonIcon className="h-6 w-6" /> : <SunIcon className="h-6 w-6" />}
                         </button>
-                         <div className="hidden lg:flex items-center gap-2 text-sm">
+                         <div className="hidden xl:flex items-center gap-2 text-sm">
                             <button 
                               onClick={() => onLanguageChange('en')}
                               className={`transition-colors ${language === 'en' ? "text-amber-500 font-semibold" : "text-gray-500 dark:text-gray-400 hover:text-amber-500"}`}
@@ -100,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleQuietZone, language, onL
                               AR
                             </button>
                         </div>
-                        <div className="hidden lg:flex items-center gap-2 border-l border-gray-200 dark:border-gray-700 pl-5">
+                        <div className="hidden xl:flex items-center gap-2 border-l border-gray-200 dark:border-gray-700 pl-5">
                             {currentUser ? (
                                 <>
                                     <Link to={dashboardPath} className="text-gray-700 dark:text-gray-200 font-semibold hover:text-amber-500 transition-colors">{dashboardText}</Link>
@@ -113,15 +113,21 @@ export const Header: React.FC<HeaderProps> = ({ onToggleQuietZone, language, onL
                                 </>
                             )}
                         </div>
-                        <div className="lg:hidden">
-                            <button onClick={() => setIsMobileNavOpen(!isMobileNavOpen)} className="text-gray-600 dark:text-gray-300">
-                                {isMobileNavOpen ? <CloseIcon className="h-7 w-7" /> : <MenuIcon className="h-7 w-7" />}
+                        <div className="xl:hidden">
+                            <button 
+                                onClick={() => setIsMobileNavOpen(true)} 
+                                className="text-gray-600 dark:text-gray-300"
+                                aria-label="Open menu"
+                                aria-controls="mobile-nav-menu"
+                            >
+                                <MenuIcon className="h-7 w-7" />
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <MobileNav
+                    id="mobile-nav-menu"
                     isOpen={isMobileNavOpen}
                     onClose={() => setIsMobileNavOpen(false)}
                     language={language}

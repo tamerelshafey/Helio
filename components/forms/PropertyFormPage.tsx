@@ -6,13 +6,14 @@ import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CloseIcon, SparklesIcon } from '../icons/Icons';
-import { getAllProperties, addProperty as apiAddProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
-import { getAllProjects } from '../../api/projects';
-import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../api/filters';
-import { useApiQuery } from '../shared/useApiQuery';
+import { addProperty as apiAddProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
+import { useDataContext } from '../shared/DataContext';
 import LocationPickerModal from '../shared/LocationPickerModal';
 import { Role, Permission } from '../../types';
 import AIContentHelper from '../ai/AIContentHelper';
+import { useToast } from '../shared/ToastContext';
+import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import UpgradeNotice from '../shared/UpgradeNotice';
 
 
 const fileToBase64 = (file: File): Promise<string> => {
@@ -29,12 +30,20 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { currentUser, hasPermission } = useAuth();
+    const { showToast } = useToast();
+    
+    // Subscription check
+    const usageType = currentUser?.type === 'developer' ? 'units' : 'properties';
+    const { isLimitReached } = useSubscriptionUsage(usageType);
 
-    const { data: properties, isLoading: isLoadingProps } = useApiQuery('allProperties', getAllProperties, { enabled: !!propertyId });
-    const { data: projects, isLoading: isLoadingProjs } = useApiQuery('allProjects', getAllProjects);
-    const { data: propertyTypes, isLoading: isLoadingPropTypes } = useApiQuery('propertyTypes', getAllPropertyTypes);
-    const { data: finishingStatuses, isLoading: isLoadingFinishing } = useApiQuery('finishingStatuses', getAllFinishingStatuses);
-    const { data: amenities, isLoading: isLoadingAmenities } = useApiQuery('amenities', getAllAmenities);
+    const { 
+        allProperties: properties,
+        allProjects: projects,
+        propertyTypes,
+        finishingStatuses,
+        amenities,
+        isLoading: isLoadingContext
+    } = useDataContext();
 
     const t = translations[language];
     const td = t.dashboard.propertyForm;
@@ -42,8 +51,8 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
     
     const { register, handleSubmit, control, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<Partial<Property>>();
     
-    const [mainImage, setMainImage] = useState<string>(''); // Can be URL or dataURL
-    const [galleryImages, setGalleryImages] = useState<string[]>([]); // Can be URLs or dataURLs
+    const [mainImage, setMainImage] = useState<string>('');
+    const [galleryImages, setGalleryImages] = useState<string[]>([]);
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
     const [aiHelperState, setAiHelperState] = useState<{
         isOpen: boolean;
@@ -82,7 +91,7 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                 });
                 setMainImage(prop.imageUrl);
                 setGalleryImages(prop.gallery);
-            } else if (propertyId && !isLoadingProps) {
+            } else if (propertyId && !isLoadingContext) {
                 const redirectPath = hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/properties' : '/dashboard/properties';
                 navigate(redirectPath);
             }
@@ -105,7 +114,7 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                 ownerPhone: '',
             });
         }
-    }, [propertyId, currentUser, navigate, properties, reset, searchParams, hasPermission, isLoadingProps]);
+    }, [propertyId, currentUser, navigate, properties, reset, searchParams, hasPermission, isLoadingContext]);
 
     const handleMainImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -215,10 +224,10 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
 
         if (propertyId) {
             await apiUpdateProperty(propertyId, propertyData);
-            alert(td.updateSuccess);
+            showToast(td.updateSuccess, 'success');
         } else {
             await apiAddProperty(propertyData);
-            alert(td.addSuccess);
+            showToast(td.addSuccess, 'success');
         }
         const projectId = propertyData.projectId;
         if (hasPermission(Permission.VIEW_ADMIN_DASHBOARD)) {
@@ -232,8 +241,13 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
         }
     };
 
-    const loading = isLoadingProps || isLoadingProjs || isLoadingPropTypes || isLoadingFinishing || isLoadingAmenities;
-    if (loading && !projects) return <div>Loading options...</div>;
+    if (isLoadingContext && !projects) return <div>Loading options...</div>;
+
+    const isAdmin = currentUser && 'type' in currentUser && hasPermission(Permission.MANAGE_ALL_PROPERTIES);
+
+    if (isLimitReached && !propertyId && !isAdmin) {
+        return <UpgradeNotice language={language} />;
+    }
 
     return (
         <div>
@@ -264,7 +278,7 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                     <FormField label="Project" id="projectId">
                         <select {...register("projectId")} className={selectClasses} >
                             <option value="">Select a project (optional)</option>
-                            { (currentUser.role === Role.SUPER_ADMIN ? projects : partnerProjects)?.map(proj => (
+                            { (hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? projects : partnerProjects)?.map(proj => (
                                 <option key={proj.id} value={proj.id}>{proj.name[language]}</option>
                             ))}
                         </select>

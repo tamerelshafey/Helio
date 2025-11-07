@@ -46,7 +46,7 @@ const DashboardPropertiesPage: React.FC<{ language: Language }> = ({ language })
         return filteredProps;
     }, [partnerProperties, searchTerm, statusFilter, language]);
 
-    if (currentUser?.role !== Role.AGENCY_PARTNER) {
+    if (currentUser?.role !== Role.AGENCY_PARTNER && currentUser?.role !== Role.DEVELOPER_PARTNER) {
         return null;
     }
 

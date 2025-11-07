@@ -3,17 +3,10 @@ import { Link } from 'react-router-dom';
 import type { Language, Project, AdminPartner, Property } from '../../types';
 import { translations } from '../../data/translations';
 import { inputClasses, selectClasses } from '../shared/FormField';
-import { ArrowDownIcon, ArrowUpIcon } from '../icons/Icons';
-import { getAllProjects, deleteProject as apiDeleteProject } from '../../api/projects';
-import { getAllPartnersForAdmin } from '../../api/partners';
-import { getAllProperties } from '../../api/properties';
-import { useApiQuery } from '../shared/useApiQuery';
+import { deleteProject as apiDeleteProject } from '../../api/projects';
+import { useDataContext } from '../shared/DataContext';
 import Pagination from '../shared/Pagination';
-
-type SortConfig = {
-    key: 'name' | 'partnerName';
-    direction: 'ascending' | 'descending';
-} | null;
+import { useAdminTable } from './shared/useAdminTable';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -21,15 +14,7 @@ const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard.projects;
     const t_filter = translations[language].adminDashboard.filter;
     
-    const { data: projects, isLoading: loadingProjects, refetch: refetchProjects } = useApiQuery('allProjectsAdmin', getAllProjects);
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
-    const { data: properties, isLoading: loadingProperties } = useApiQuery('allPropertiesAdmin', getAllProperties);
-    const loading = loadingProjects || loadingPartners || loadingProperties;
-
-    const [searchTerm, setSearchTerm] = useState('');
-    const [partnerFilter, setPartnerFilter] = useState('all');
-    const [sortConfig, setSortConfig] = useState<SortConfig>(null);
-    const [currentPage, setCurrentPage] = useState(1);
+    const { allProjects: projects, allPartners: partners, allProperties: properties, isLoading, refetchAll } = useDataContext();
 
     const partnerOptions = useMemo(() => {
         return (partners || [])
@@ -45,61 +30,31 @@ const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
         });
     }, [projects, partners, properties]);
 
-    const sortedAndFilteredProjects = useMemo(() => {
-        let filteredProjects = [...projectsWithDetails];
-
-        if (searchTerm) {
-            const lowercasedFilter = searchTerm.toLowerCase();
-            filteredProjects = filteredProjects.filter(p =>
-                p.name[language].toLowerCase().includes(lowercasedFilter) ||
-                p.partnerName.toLowerCase().includes(lowercasedFilter)
-            );
+    const {
+        paginatedItems: paginatedProjects,
+        totalPages,
+        currentPage, setCurrentPage,
+        searchTerm, setSearchTerm,
+        filters, setFilter,
+        requestSort, getSortIcon
+    } = useAdminTable({
+        data: projectsWithDetails,
+        itemsPerPage: ITEMS_PER_PAGE,
+        initialSort: { key: `name.${language}`, direction: 'ascending' },
+        // FIX: Add explicit type to lambda argument to resolve type inference issue.
+        searchFn: (p: Project & { partnerName: string; unitsCount: number; }, term) => 
+            p.name[language].toLowerCase().includes(term) ||
+            p.partnerName.toLowerCase().includes(term),
+        filterFns: {
+            // FIX: Add explicit type for robustness.
+            partner: (p: Project & { partnerName: string; unitsCount: number; }, v) => p.partnerId === v,
         }
-
-        if (partnerFilter !== 'all') {
-            filteredProjects = filteredProjects.filter(p => p.partnerId === partnerFilter);
-        }
-
-        if (sortConfig) {
-            filteredProjects.sort((a, b) => {
-                const aValue = sortConfig.key === 'name' ? a.name[language] : a.partnerName;
-                const bValue = sortConfig.key === 'name' ? b.name[language] : b.partnerName;
-                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
-                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
-                return 0;
-            });
-        }
-
-        return filteredProjects;
-    }, [projectsWithDetails, searchTerm, partnerFilter, sortConfig, language]);
-
-    const totalPages = Math.ceil(sortedAndFilteredProjects.length / ITEMS_PER_PAGE);
-    const paginatedProjects = sortedAndFilteredProjects.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, partnerFilter]);
-    
-    const requestSort = (key: 'name' | 'partnerName') => {
-        let direction: 'ascending' | 'descending' = 'ascending';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    const getSortIcon = (key: 'name' | 'partnerName') => {
-        if (!sortConfig || sortConfig.key !== key) return <span className="w-4 h-4 ml-1"></span>;
-        return sortConfig.direction === 'ascending' ? <ArrowUpIcon className="w-4 h-4 ml-1" /> : <ArrowDownIcon className="w-4 h-4 ml-1" />;
-    };
+    });
     
     const handleDelete = async (projectId: string) => {
         if (window.confirm(t.confirmDelete)) {
             await apiDeleteProject(projectId);
-            refetchProjects();
+            refetchAll();
         }
     };
 
@@ -116,7 +71,7 @@ const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={`${inputClasses} md:col-span-2`}
                 />
-                 <select value={partnerFilter} onChange={(e) => setPartnerFilter(e.target.value)} className={selectClasses}>
+                 <select value={filters.partner || 'all'} onChange={(e) => setFilter('partner', e.target.value)} className={selectClasses}>
                     <option value="all">{t_filter.allPartners}</option>
                     {partnerOptions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
@@ -127,8 +82,8 @@ const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
                      <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('name')}>
-                                    <div className="flex items-center">{t.table.project}{getSortIcon('name')}</div>
+                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort(`name.${language}`)}>
+                                    <div className="flex items-center">{t.table.project}{getSortIcon(`name.${language}`)}</div>
                                 </th>
                                 <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('partnerName')}>
                                     <div className="flex items-center">{t.table.partner}{getSortIcon('partnerName')}</div>
@@ -138,7 +93,7 @@ const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? (
+                            {isLoading ? (
                                 <tr><td colSpan={4} className="text-center p-8">Loading projects...</td></tr>
                             ) : paginatedProjects.length > 0 ? (
                                 paginatedProjects.map(project => (

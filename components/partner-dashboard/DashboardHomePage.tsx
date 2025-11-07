@@ -1,14 +1,9 @@
-
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Language, Role, Project, Property, Lead, PortfolioItem } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { translations } from '../../data/translations';
-import { useApiQuery } from '../shared/useApiQuery';
-import { getProjectsByPartnerId } from '../../api/projects';
-import { getPropertiesByPartnerId } from '../../api/properties';
-import { getLeadsByPartnerId } from '../../api/leads';
-import { getPortfolioByPartnerId } from '../../api/portfolio';
+import { useDataContext } from '../shared/DataContext';
 import StatCard from '../shared/StatCard';
 import { CubeIcon, BuildingIcon, InboxIcon, ClipboardDocumentListIcon, PhotoIcon } from '../icons/Icons';
 
@@ -61,24 +56,24 @@ const RecentLeads: React.FC<{ leads: Lead[] | undefined; language: Language }> =
 const DashboardHomePage: React.FC<{ language: Language }> = ({ language }) => {
     const { currentUser } = useAuth();
     const t = translations[language].dashboardHome;
+    
+    const { allProperties, allProjects, allLeads, allPortfolioItems, isLoading } = useDataContext();
 
-    const { data: projects, isLoading: loadingProjs } = useApiQuery(`projs-${currentUser?.id}`, () => getProjectsByPartnerId(currentUser!.id), { enabled: !!currentUser && currentUser.role === Role.DEVELOPER_PARTNER });
-    const { data: properties, isLoading: loadingProps } = useApiQuery(`props-${currentUser?.id}`, () => getPropertiesByPartnerId(currentUser!.id), { enabled: !!currentUser && (currentUser.role === Role.DEVELOPER_PARTNER || currentUser.role === Role.AGENCY_PARTNER) });
-    const { data: portfolio, isLoading: loadingPortfolio } = useApiQuery(`portfolio-${currentUser?.id}`, () => getPortfolioByPartnerId(currentUser!.id), { enabled: !!currentUser && currentUser.role === Role.FINISHING_PARTNER });
-    const { data: leads, isLoading: loadingLeads } = useApiQuery(`leads-${currentUser?.id}`, () => getLeadsByPartnerId(currentUser!.id), { enabled: !!currentUser });
-
-    const loading = loadingProjs || loadingProps || loadingLeads || loadingPortfolio;
+    const properties = useMemo(() => (allProperties || []).filter(p => p.partnerId === currentUser?.id), [allProperties, currentUser?.id]);
+    const projects = useMemo(() => (allProjects || []).filter(p => p.partnerId === currentUser?.id), [allProjects, currentUser?.id]);
+    const leads = useMemo(() => (allLeads || []).filter(l => l.partnerId === currentUser?.id), [allLeads, currentUser?.id]);
+    const portfolio = useMemo(() => (allPortfolioItems || []).filter(p => p.partnerId === currentUser?.id), [allPortfolioItems, currentUser?.id]);
 
     const projectsWithUnitCount = useMemo(() => {
         if (!projects || !properties) return [];
         return projects.map(project => ({
             ...project,
-            unitCount: (properties as Property[]).filter(p => p.projectId === project.id).length
+            unitCount: properties.filter(p => p.projectId === project.id).length
         }));
     }, [projects, properties]);
 
     const stats = useMemo(() => {
-        if (loading || !currentUser || !('type' in currentUser)) {
+        if (isLoading || !currentUser || !('type' in currentUser)) {
             return { items: [], planName: '' };
         }
 
@@ -104,9 +99,9 @@ const DashboardHomePage: React.FC<{ language: Language }> = ({ language }) => {
         items.push({ title: t.currentPlan, value: planName, icon: ClipboardDocumentListIcon, linkTo: "/dashboard/subscription" });
         return { items, planName };
 
-    }, [loading, projects, properties, portfolio, leads, currentUser, language, t]);
+    }, [isLoading, projects, properties, portfolio, leads, currentUser, language, t]);
 
-    if (loading || !currentUser || !('type' in currentUser)) {
+    if (isLoading || !currentUser || !('type' in currentUser)) {
         return <div className="text-center p-8">Loading Dashboard...</div>;
     }
 

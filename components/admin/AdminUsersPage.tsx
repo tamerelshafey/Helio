@@ -1,25 +1,20 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Language, PartnerStatus, AdminPartner, PartnerType } from '../../types';
 import { translations } from '../../data/translations';
-import { ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
 import { inputClasses, selectClasses } from '../shared/FormField';
-import { getAllPartnersForAdmin, deletePartner as apiDeletePartner } from '../../api/partners';
-import { useApiQuery } from '../shared/useApiQuery';
+import { deletePartner as apiDeletePartner } from '../../api/partners';
+import { useDataContext } from '../shared/DataContext';
 import AdminUserFormModal from './AdminUserFormModal';
 import { useToast } from '../shared/ToastContext';
 import ConfirmationModal from '../shared/ConfirmationModal';
 import Pagination from '../shared/Pagination';
+import { useAdminTable } from './shared/useAdminTable';
 
 const statusColors: { [key in PartnerStatus]: string } = {
     active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     disabled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
-
-type SortConfig = {
-    key: 'name' | 'type' | 'status';
-    direction: 'ascending' | 'descending';
-} | null;
 
 const ITEMS_PER_PAGE = 10;
 
@@ -28,67 +23,34 @@ const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
     const t_shared = translations[language].adminShared;
     const t_um = t_admin.userManagement;
     
-    const { data: partners, isLoading: loading, refetch } = useApiQuery('allUsers', getAllPartnersForAdmin);
-    
+    const { allPartners: partners, isLoading, refetchAll } = useDataContext();
     const { showToast } = useToast();
-    const [searchTerm, setSearchTerm] = useState('');
-    const [typeFilter, setTypeFilter] = useState('all');
-    const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+    
     const [modalState, setModalState] = useState<{ isOpen: boolean; userToEdit?: AdminPartner }>({ isOpen: false });
     const [userToDelete, setUserToDelete] = useState<AdminPartner | null>(null);
-    const [currentPage, setCurrentPage] = useState(1);
 
-    const sortedAndFilteredUsers = useMemo(() => {
-        let filteredUsers = (partners || []).filter(p => p.id !== 'admin-user');
+    const users = useMemo(() => (partners || []).filter(p => p.id !== 'admin-user'), [partners]);
 
-        if (searchTerm) {
-            const lowercasedFilter = searchTerm.toLowerCase();
-            filteredUsers = filteredUsers.filter(user =>
-                user.name.toLowerCase().includes(lowercasedFilter) ||
-                (user.nameAr && user.nameAr.toLowerCase().includes(lowercasedFilter)) ||
-                user.email.toLowerCase().includes(lowercasedFilter)
-            );
+    const {
+        paginatedItems: paginatedUsers,
+        totalPages,
+        currentPage, setCurrentPage,
+        searchTerm, setSearchTerm,
+        filters, setFilter,
+        requestSort, getSortIcon
+    } = useAdminTable({
+        data: users,
+        itemsPerPage: ITEMS_PER_PAGE,
+        initialSort: { key: 'name', direction: 'ascending' },
+        // FIX: Add explicit types to lambda arguments to fix type inference issues.
+        searchFn: (user: AdminPartner, term) => 
+            user.name.toLowerCase().includes(term) ||
+            (user.nameAr && user.nameAr.toLowerCase().includes(term)) ||
+            user.email.toLowerCase().includes(term),
+        filterFns: {
+            type: (p: AdminPartner, v) => p.type === v,
         }
-
-        if (typeFilter !== 'all') {
-            filteredUsers = filteredUsers.filter(p => p.type === typeFilter);
-        }
-
-        if (sortConfig !== null) {
-            filteredUsers.sort((a, b) => {
-                let aValue = a[sortConfig.key] as string;
-                let bValue = b[sortConfig.key] as string;
-
-                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
-                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
-                return 0;
-            });
-        }
-        return filteredUsers;
-    }, [partners, searchTerm, typeFilter, sortConfig, language]);
-
-    const totalPages = Math.ceil(sortedAndFilteredUsers.length / ITEMS_PER_PAGE);
-    const paginatedUsers = sortedAndFilteredUsers.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, typeFilter]);
-
-    const requestSort = (key: 'name' | 'type' | 'status') => {
-        let direction: 'ascending' | 'descending' = 'ascending';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    const getSortIcon = (key: 'name' | 'type' | 'status') => {
-        if (!sortConfig || sortConfig.key !== key) return <span className="w-4 h-4 ml-1"></span>;
-        return sortConfig.direction === 'ascending' ? <ArrowUpIcon className="w-4 h-4 ml-1" /> : <ArrowDownIcon className="w-4 h-4 ml-1" />;
-    };
+    });
 
     const handleConfirmDelete = async () => {
         if (!userToDelete) return;
@@ -96,7 +58,7 @@ const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
             const success = await apiDeletePartner(userToDelete.id);
             if (success) {
                 showToast('User deleted successfully.', 'success');
-                refetch();
+                refetchAll();
             } else {
                 showToast('User not found. Could not delete.', 'error');
             }
@@ -111,7 +73,7 @@ const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
     const handleSave = () => {
         showToast(modalState.userToEdit ? 'User updated successfully' : 'User added successfully', 'success');
         setModalState({ isOpen: false });
-        refetch();
+        refetchAll();
     };
 
     const partnerTypes = t_admin.partnerTypes;
@@ -156,7 +118,7 @@ const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={inputClasses + " max-w-sm"}
                 />
-                <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className={selectClasses + " max-w-xs"}>
+                <select value={filters.type || 'all'} onChange={(e) => setFilter('type', e.target.value)} className={selectClasses + " max-w-xs"}>
                     <option value="all">{t_admin.filter.filterByType} ({t_admin.filter.all})</option>
                     {Object.entries(partnerTypes).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
                 </select>
@@ -167,14 +129,14 @@ const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
                     <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
-                                <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('name')}>{t_um.user}</th>
-                                <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('type')}>{t_um.role}</th>
-                                <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>{t_um.status}</th>
+                                <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('name')}>{t_um.user}{getSortIcon('name')}</th>
+                                <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('type')}>{t_um.role}{getSortIcon('type')}</th>
+                                <th className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>{t_um.status}{getSortIcon('status')}</th>
                                 <th className="px-6 py-3">{t_um.actions}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? (
+                            {isLoading ? (
                                 <tr><td colSpan={4} className="text-center p-8">Loading users...</td></tr>
                             ) : paginatedUsers.length > 0 ? (
                                 paginatedUsers.map(user => (

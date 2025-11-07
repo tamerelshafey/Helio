@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Role } from '../../types';
+import { Role, Permission } from '../../types';
 import type { Language, Partner } from '../../types';
 import { translations } from '../../data/translations';
 import { getPartnerByEmail } from '../../api/partners';
 import { inputClasses } from '../shared/FormField';
 import { HelioLogo } from '../HelioLogo';
 import { partnersData } from '../../data/partners';
+import { rolePermissions } from '../../data/permissions';
 
 interface LoginPageProps {
   language: Language;
@@ -19,37 +20,25 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login, currentUser } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleLoginAndRedirect = async (emailToLogin: string) => {
         setError('');
         setLoading(true);
 
-        const success = await login(emailToLogin, 'password');
+        const user = await login(emailToLogin, 'password');
         setLoading(false);
         
-        if (success) {
-            const partner = getPartnerByEmail(emailToLogin);
-            if (partner) {
-                switch (partner.role) {
-                    // FIX: Use correct Role enum values for admin roles.
-                    case Role.SUPER_ADMIN:
-                    case Role.SERVICE_MANAGER:
-                    case Role.CUSTOMER_RELATIONS_MANAGER:
-                    case Role.LISTINGS_MANAGER:
-                    case Role.PARTNER_RELATIONS_MANAGER:
-                    case Role.CONTENT_MANAGER:
-                        navigate('/admin', { replace: true });
-                        break;
-                    default:
-                        navigate('/dashboard', { replace: true });
-                }
-                return;
-            }
-            
-            navigate('/', { replace: true });
+        if (user) {
+            const permissions = rolePermissions.get(user.role) || [];
+            const isAdmin = permissions.includes(Permission.VIEW_ADMIN_DASHBOARD);
 
+            if (isAdmin) {
+                navigate('/admin', { replace: true });
+            } else {
+                navigate('/dashboard', { replace: true });
+            }
         } else {
             setError(t.loginError);
         }
@@ -150,7 +139,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
                     </Link>
                 </div>
 
-                {/* Quick Login Section */}
+                {/* Quick Login Section for Demo/Testing Purposes */}
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
                     <p className="text-center text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">
                         {language === 'ar' ? 'للتجربة: تسجيل دخول سريع' : 'For Demo: Quick Logins'}

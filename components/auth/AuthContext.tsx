@@ -9,7 +9,7 @@ interface AuthContextType {
     currentUser: Partner | null;
     permissions: Permission[];
     hasPermission: (permission: Permission) => boolean;
-    login: (email: string, pass: string) => Promise<boolean>;
+    login: (email: string, pass: string) => Promise<Partner | null>;
     logout: () => void;
     loading: boolean;
 }
@@ -50,16 +50,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         initializeAuth();
     }, []);
 
-    const login = async (email: string, pass: string): Promise<boolean> => {
+    const login = async (email: string, pass: string): Promise<Partner | null> => {
         let user: Partner | undefined = getPartnerByEmail(email);
 
         if (user) {
             localStorage.setItem('onlyhelio-auth-id', user.id);
             localStorage.setItem('onlyhelio-auth-role', user.role);
             setUserAndPermissions(user);
-            return true;
+            return user;
         }
-        return false;
+        return null;
     };
 
     const logout = () => {

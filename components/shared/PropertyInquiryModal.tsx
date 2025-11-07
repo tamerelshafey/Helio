@@ -3,7 +3,7 @@ import type { Language } from '../../types';
 import { translations } from '../../data/translations';
 import FormField, { inputClasses, selectClasses } from './FormField';
 import { addPropertyInquiry } from '../../api/propertyInquiries';
-import { CheckCircleIcon } from '../icons/Icons';
+import { useToast } from './ToastContext';
 
 interface PropertyInquiryModalProps {
     onClose: () => void;
@@ -15,7 +15,7 @@ const PropertyInquiryModal: React.FC<PropertyInquiryModalProps> = ({ onClose, la
     const t_contact = translations[language].contactPage;
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
+    const { showToast } = useToast();
 
     const [formData, setFormData] = useState({
         customerName: '',
@@ -47,7 +47,8 @@ const PropertyInquiryModal: React.FC<PropertyInquiryModalProps> = ({ onClose, la
         setLoading(true);
         await addPropertyInquiry(formData);
         setLoading(false);
-        setSubmitted(true);
+        showToast(t.successMessage, 'success');
+        onClose();
     };
 
     return (
@@ -69,47 +70,38 @@ const PropertyInquiryModal: React.FC<PropertyInquiryModalProps> = ({ onClose, la
                         </svg>
                     </button>
                     
-                    {submitted ? (
-                        <div className="text-center py-10">
-                            <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t.successMessage}</h2>
+                    <h2 className="text-3xl font-bold text-amber-500 mb-2 text-center">{t.title}</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-center mb-6">{t.subtitle}</p>
+                    
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField label={t.fullName} id="customerName">
+                                <input type="text" id="customerName" name="customerName" value={formData.customerName} onChange={handleChange} className={inputClasses} required />
+                            </FormField>
+                            <FormField label={t.phone} id="customerPhone">
+                                <input type="tel" id="customerPhone" name="customerPhone" value={formData.customerPhone} onChange={handleChange} className={inputClasses} required dir="ltr" />
+                            </FormField>
                         </div>
-                    ) : (
-                        <>
-                            <h2 className="text-3xl font-bold text-amber-500 mb-2 text-center">{t.title}</h2>
-                            <p className="text-gray-500 dark:text-gray-400 text-center mb-6">{t.subtitle}</p>
-                            
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormField label={t.fullName} id="customerName">
-                                        <input type="text" id="customerName" name="customerName" value={formData.customerName} onChange={handleChange} className={inputClasses} required />
-                                    </FormField>
-                                    <FormField label={t.phone} id="customerPhone">
-                                        <input type="tel" id="customerPhone" name="customerPhone" value={formData.customerPhone} onChange={handleChange} className={inputClasses} required dir="ltr" />
-                                    </FormField>
-                                </div>
 
-                                <FormField label={t.contactTime} id="contactTime">
-                                    <select id="contactTime" name="contactTime" value={formData.contactTime} onChange={handleChange} className={`${selectClasses} ${!formData.contactTime ? 'text-gray-500 dark:text-gray-400' : ''}`} required>
-                                        <option value="" disabled>{t_contact.contactTimeDefault}</option>
-                                        <option value="morning" className="text-gray-900 dark:text-white">{t_contact.contactTimeMorning}</option>
-                                        <option value="afternoon" className="text-gray-900 dark:text-white">{t_contact.contactTimeAfternoon}</option>
-                                        <option value="evening" className="text-gray-900 dark:text-white">{t_contact.contactTimeEvening}</option>
-                                    </select>
-                                </FormField>
-                                
-                                <FormField label={t.propertyDetails} id="details">
-                                    <textarea id="details" name="details" rows={4} value={formData.details} onChange={handleChange} placeholder={t.detailsPlaceholder} className={inputClasses} required></textarea>
-                                </FormField>
+                        <FormField label={t.contactTime} id="contactTime">
+                            <select id="contactTime" name="contactTime" value={formData.contactTime} onChange={handleChange} className={`${selectClasses} ${!formData.contactTime ? 'text-gray-500 dark:text-gray-400' : ''}`} required>
+                                <option value="" disabled>{t_contact.contactTimeDefault}</option>
+                                <option value="morning" className="text-gray-900 dark:text-white">{t_contact.contactTimeMorning}</option>
+                                <option value="afternoon" className="text-gray-900 dark:text-white">{t_contact.contactTimeAfternoon}</option>
+                                <option value="evening" className="text-gray-900 dark:text-white">{t_contact.contactTimeEvening}</option>
+                            </select>
+                        </FormField>
+                        
+                        <FormField label={t.propertyDetails} id="details">
+                            <textarea id="details" name="details" rows={4} value={formData.details} onChange={handleChange} placeholder={t.detailsPlaceholder} className={inputClasses} required></textarea>
+                        </FormField>
 
-                                <div className="pt-2 flex justify-end">
-                                    <button type="submit" disabled={loading} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
-                                        {loading ? '...' : t.submitButton}
-                                    </button>
-                                </div>
-                            </form>
-                        </>
-                    )}
+                        <div className="pt-2 flex justify-end">
+                            <button type="submit" disabled={loading} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
+                                {loading ? '...' : t.submitButton}
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

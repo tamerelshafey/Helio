@@ -376,11 +376,45 @@ export let siteContentData: SiteContent = {
       subtitle: 'At ONLY HELIO, we specialize in delivering architectural masterpieces and integrated services tailored to meet the ambitions of New Heliopolis residents.',
     },
     images: [
-        "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=1600&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1600&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1600&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=1600&auto=format&fit=crop",
-    ]
+        {
+            src: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=1600&auto=format&fit=crop",
+            src_small: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=480&auto=format&fit=crop",
+            src_medium: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=800&auto=format&fit=crop",
+            src_large: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=1600&auto=format&fit=crop",
+        },
+        {
+            src: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1600&auto=format&fit=crop",
+            src_small: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=480&auto=format&fit=crop",
+            src_medium: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800&auto=format&fit=crop",
+            src_large: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1600&auto=format&fit=crop",
+        },
+        {
+            src: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1600&auto=format&fit=crop",
+            src_small: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=480&auto=format&fit=crop",
+            src_medium: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=800&auto=format&fit=crop",
+            src_large: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1600&auto=format&fit=crop",
+        },
+        {
+            src: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=1600&auto=format&fit=crop",
+            src_small: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=480&auto=format&fit=crop",
+            src_medium: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=800&auto=format&fit=crop",
+            src_large: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=1600&auto=format&fit=crop",
+        }
+    ],
+    imageAlts: {
+        ar: [
+            "فيلا حديثة مع مسبح عند الغسق",
+            "فيلا فاخرة بتصميم مستقبلي",
+            "منزل عائلي أنيق بواجهة بيضاء",
+            "مبنى سكني حديث بواجهات زجاجية"
+        ],
+        en: [
+            "Modern villa with a pool at dusk",
+            "Luxury villa with a futuristic design",
+            "Elegant family house with a white facade",
+            "Modern apartment building with glass facades"
+        ]
+    }
   },
   whyUs: {
     ar: {

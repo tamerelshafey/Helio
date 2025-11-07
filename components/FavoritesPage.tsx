@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import PropertyCard from './shared/PropertyCard';
 import type { Language, Project } from '../types';
 import { translations } from '../data/translations';
 import { useFavorites } from './shared/FavoritesContext';
 import { HeartIcon } from './icons/Icons';
-import { getProperties } from '../api/properties';
-import { getAllProjects } from '../api/projects';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
-import { useApiQuery } from './shared/useApiQuery';
+import { useDataContext } from './shared/DataContext';
 
 interface FavoritesPageProps {
   language: Language;
@@ -17,10 +15,7 @@ interface FavoritesPageProps {
 const FavoritesPage: React.FC<FavoritesPageProps> = ({ language }) => {
     const t = translations[language].favoritesPage;
     const { favorites } = useFavorites();
-    const { data: properties, isLoading: isLoadingProperties } = useApiQuery('properties', getProperties);
-    const { data: projects, isLoading: isLoadingProjects } = useApiQuery('allProjects', getAllProjects);
-
-    const loading = isLoadingProperties || isLoadingProjects;
+    const { allProperties: properties, allProjects: projects, isLoading } = useDataContext();
 
     const favoriteProperties = (properties || []).filter(p => favorites.includes(p.id));
 
@@ -37,7 +32,7 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ language }) => {
                 <p className="text-lg text-gray-500 dark:text-gray-400 mt-4 max-w-2xl mx-auto">{t.subtitle}</p>
             </div>
             
-            {loading ? (
+            {isLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
                     {Array.from({ length: favorites.length || 3 }).map((_, index) => <PropertyCardSkeleton key={index} />)}
                 </div>

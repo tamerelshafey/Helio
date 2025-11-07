@@ -1,3 +1,5 @@
+
+
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import type { Language, LeadStatus, Lead } from '../../types';
@@ -8,6 +10,8 @@ import { getAllLeads, updateLead } from '../../api/leads';
 import { useApiQuery } from '../shared/useApiQuery';
 import { useToast } from '../shared/ToastContext';
 import ConversationThread from '../shared/ConversationThread';
+import DetailSection from '../shared/DetailSection';
+import DetailItem from '../shared/DetailItem';
 
 const statusColors: { [key in LeadStatus]?: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -18,22 +22,6 @@ const statusColors: { [key in LeadStatus]?: string } = {
     completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
     cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
-
-const DetailSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-        <h3 className="text-xl font-bold text-amber-500 mb-4">{title}</h3>
-        <div className="space-y-4">{children}</div>
-    </div>
-);
-
-const DetailItem: React.FC<{ label: string; value?: string | React.ReactNode; fullWidth?: boolean }> = ({ label, value, fullWidth = false }) => (
-    value ? (
-        <div className={fullWidth ? '' : 'sm:grid sm:grid-cols-3 sm:gap-4'}>
-            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</dt>
-            <dd className="mt-1 text-md text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">{value}</dd>
-        </div>
-    ) : null
-);
 
 const AdminDecorationRequestDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
     const { requestId } = useParams<{ requestId: string }>();
@@ -89,8 +77,8 @@ const AdminDecorationRequestDetailsPage: React.FC<{ language: Language }> = ({ l
                     </DetailSection>
 
                     <DetailSection title={t.requestInformation}>
-                         <DetailItem label={translations[language].dashboard.leadTable.service} value={request.serviceTitle} fullWidth />
-                         <DetailItem label={translations[language].dashboard.leadTable.notes} value={<p className="whitespace-pre-wrap">{request.customerNotes || '-'}</p>} fullWidth />
+                         <DetailItem label={translations[language].dashboard.leadTable.service} value={request.serviceTitle} layout="grid" />
+                         <DetailItem label={translations[language].dashboard.leadTable.notes} value={<p className="whitespace-pre-wrap">{request.customerNotes || '-'}</p>} layout="grid" />
                     </DetailSection>
 
                     <ConversationThread lead={request} onMessageSent={refetchLeads} language={language} />

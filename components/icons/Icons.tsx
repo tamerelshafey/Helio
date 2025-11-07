@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 
 interface IconProps {
@@ -193,6 +191,12 @@ export const ListIcon: React.FC<IconProps> = ({ className }) => (
     </svg>
 );
 
+export const GridIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <path fillRule="evenodd" d="M3 6a3 3 0 013-3h2a3 3 0 013 3v2a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm12 0a3 3 0 013-3h2a3 3 0 013 3v2a3 3 0 01-3 3h-2a3 3 0 01-3-3V6zM3 16a3 3 0 013-3h2a3 3 0 013 3v2a3 3 0 01-3 3H6a3 3 0 01-3-3v-2zm12 0a3 3 0 013-3h2a3 3 0 013 3v2a3 3 0 01-3 3h-2a3 3 0 01-3-3v-2z" clipRule="evenodd" />
+    </svg>
+);
+
 export const MapIcon: React.FC<IconProps> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className}>
         <path fillRule="evenodd" d="M8.25 3.75a.75.75 0 0 1 .75.75v14.04l6-3.75a.75.75 0 0 1 .75 0l6 3.75a.75.75 0 0 1 0 1.34l-6 3.75a.75.75 0 0 1-.75 0l-6-3.75a.75.75 0 0 1 0-1.34l6-3.75a.75.75 0 0 1 .75 0l6 3.75V4.5a.75.75 0 0 1-1.5 0v11.04l-4.5-2.812a.75.75 0 0 1-.75 0L9 15.54V4.5a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
@@ -273,7 +277,7 @@ export const ChartBarIcon: React.FC<IconProps> = ({ className }) => (
 
 export const ParkIcon: React.FC<IconProps> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.75m-1.5-1.5-1.5.75M3 12.75l1.5-.75m1.5.75V21m6-8.25V21m0 0h-3m-1.5 0h-3.75m3.75 0V11.25m3-3.75V11.25" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m-4-4h8m-4 4v4m-4-4h-2m14 0h-2" />
     </svg>
 );
 
@@ -366,5 +370,17 @@ export const TagIcon: React.FC<IconProps> = ({ className }) => (
 export const HomeIcon: React.FC<IconProps> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" />
+    </svg>
+);
+
+export const ChevronDoubleLeftIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+    </svg>
+);
+
+export const ChevronDoubleRightIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" />
     </svg>
 );

@@ -1,18 +1,14 @@
-
-
-import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import type { Language, SubscriptionPlanDetails, PlanCategory, FilterOption, SubscriptionPlan, AddPropertyRequest } from '../types';
+import type { Language, AddPropertyRequest } from '../types';
 import { translations } from '../data/translations';
 import { addPropertyRequest } from '../api/propertyRequests';
 import FormField, { inputClasses, selectClasses } from './shared/FormField';
-import { CheckCircleIcon, CloseIcon } from './icons/Icons';
-import { getAllPropertyTypes, getAllFinishingStatuses } from '../api/filters';
-import { getPlans } from '../../api/plans';
-import { useApiQuery } from './shared/useApiQuery';
+import { CloseIcon } from './icons/Icons';
+import { useDataContext } from './shared/DataContext';
 import CooperationCard from './shared/CooperationCard';
 import LocationPickerModal from './shared/LocationPickerModal';
+import { useToast } from './shared/ToastContext';
 
 interface AddPropertyPageProps {
   language: Language;
@@ -26,11 +22,10 @@ const purposeOptions = [
 
 const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
     const t = translations[language].addPropertyPage;
-    const { data: propertyTypes, isLoading: isLoadingPropTypes } = useApiQuery('propertyTypes', getAllPropertyTypes);
-    const { data: finishingStatuses, isLoading: isLoadingFinishing } = useApiQuery('finishingStatuses', getAllFinishingStatuses);
-    const { data: plans, isLoading: isLoadingPlans } = useApiQuery('plans', getPlans);
+    const { propertyTypes, finishingStatuses, plans, isLoading: isLoadingContext } = useDataContext();
+    const { showToast } = useToast();
 
-    const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm({
+    const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting }, reset } = useForm({
         defaultValues: {
             customerName: '',
             customerPhone: '',
@@ -67,7 +62,6 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
     const [cooperationType, setCooperationType] = useState<'paid_listing' | 'commission' | null>(null);
     const [images, setImages] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-    const [submitted, setSubmitted] = useState(false);
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
     const watchPropertyType = watch("propertyType");
@@ -157,23 +151,12 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
             images: imageBase64Strings,
         });
 
-        setSubmitted(true);
+        showToast(t.successTitle, 'success');
+        reset();
+        setImages([]);
+        setImagePreviews([]);
+        setCooperationType(null);
     };
-
-    if (submitted) {
-        return (
-            <div className="py-20 bg-white dark:bg-gray-900 text-center flex flex-col items-center justify-center min-h-[60vh]">
-                <div className="max-w-2xl mx-auto px-6">
-                    <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{t.successTitle}</h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">{t.successMessage}</p>
-                    <Link to="/" className="bg-amber-500 text-gray-900 font-semibold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors">
-                        {t.backToHome}
-                    </Link>
-                </div>
-            </div>
-        );
-    }
     
     return (
         <div className="py-20 bg-gray-50 dark:bg-gray-800">
@@ -227,8 +210,8 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
                                     <legend className="text-lg font-semibold text-amber-500 mb-2">{t.cooperation.title}</legend>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 -mt-2 mb-4">{t.cooperation.subtitle}</p>
                                     <div className="grid sm:grid-cols-2 gap-6">
-                                        <CooperationCard type="paid_listing" isSelected={cooperationType === 'paid_listing'} onSelect={() => setCooperationType('paid_listing')} language={language} plans={plans} isLoadingPlans={isLoadingPlans} />
-                                        <CooperationCard type="commission" isSelected={cooperationType === 'commission'} onSelect={() => setCooperationType('commission')} language={language} plans={plans} isLoadingPlans={isLoadingPlans} />
+                                        <CooperationCard type="paid_listing" isSelected={cooperationType === 'paid_listing'} onSelect={() => setCooperationType('paid_listing')} language={language} plans={plans} isLoadingPlans={isLoadingContext} />
+                                        <CooperationCard type="commission" isSelected={cooperationType === 'commission'} onSelect={() => setCooperationType('commission')} language={language} plans={plans} isLoadingPlans={isLoadingContext} />
                                     </div>
                                     {!cooperationType && <p className="text-red-500 text-sm mt-2">{t.errors.cooperationType}</p>}
                                 </fieldset>
@@ -288,8 +271,8 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
                                             </select>
                                         </FormField>
                                         <FormField label={t.propertyType} id="propertyType" error={errors.propertyType?.message}>
-                                             <select {...register("propertyType", { required: t.errors.required })} className={`${selectClasses} ${!watch("propertyType") ? 'text-gray-500 dark:text-gray-400' : ''}`} disabled={isLoadingPropTypes}>
-                                                <option value="" disabled>{isLoadingPropTypes ? 'Loading...' : t.selectType}</option>
+                                             <select {...register("propertyType", { required: t.errors.required })} className={`${selectClasses} ${!watch("propertyType") ? 'text-gray-500 dark:text-gray-400' : ''}`} disabled={isLoadingContext}>
+                                                <option value="" disabled>{isLoadingContext ? 'Loading...' : t.selectType}</option>
                                                 {(propertyTypes || []).map(opt => <option key={opt.id} value={opt.en} className="text-gray-900 dark:text-white">{opt[language]}</option>)}
                                             </select>
                                         </FormField>
@@ -297,8 +280,8 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
                                       <div className="grid sm:grid-cols-2 gap-4">
                                         {watchPropertyType !== 'Land' && (
                                             <FormField label={t.finishingStatus} id="finishingStatus" error={errors.finishingStatus?.message}>
-                                                <select {...register("finishingStatus", { required: watchPropertyType !== 'Land' ? t.errors.required : false })} className={`${selectClasses} ${!watch("finishingStatus") ? 'text-gray-500 dark:text-gray-400' : ''}`} disabled={isLoadingFinishing}>
-                                                    <option value="" disabled>{isLoadingFinishing ? 'Loading...' : t.selectFinishing}</option>
+                                                <select {...register("finishingStatus", { required: watchPropertyType !== 'Land' ? t.errors.required : false })} className={`${selectClasses} ${!watch("finishingStatus") ? 'text-gray-500 dark:text-gray-400' : ''}`} disabled={isLoadingContext}>
+                                                    <option value="" disabled>{isLoadingContext ? 'Loading...' : t.selectFinishing}</option>
                                                     {(finishingStatuses || []).map(opt => <option key={opt.id} value={opt.en} className="text-gray-900 dark:text-white">{opt[language]}</option>)}
                                                 </select>
                                             </FormField>
@@ -331,7 +314,7 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
                                         <input type="text" {...register("address", { required: t.errors.required })} className={inputClasses}  />
                                     </FormField>
 
-                                     {/* Location Section */}
+                                    {/* Location Section */}
                                     <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                                         <legend className="text-base font-medium text-gray-900 dark:text-white">Location</legend>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

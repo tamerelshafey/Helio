@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import PropertyCard from './shared/PropertyCard';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 import type { Language, Project } from '../types';
 import { translations } from '../data/translations';
+import { useDataContext } from './shared/DataContext';
 import { isListingActive } from '../utils/propertyUtils';
-import { getProperties } from '../api/properties';
-import { getAllProjects } from '../api/projects';
-import { useApiQuery } from './shared/useApiQuery';
-
 
 interface LatestPropertiesProps {
   language: Language;
@@ -16,15 +13,15 @@ interface LatestPropertiesProps {
 
 const LatestProperties: React.FC<LatestPropertiesProps> = ({ language }) => {
   const t = translations[language];
-  const { data: properties, isLoading: isLoadingProperties } = useApiQuery('properties', getProperties);
-  const { data: projects, isLoading: isLoadingProjects } = useApiQuery('allProjects', getAllProjects);
+  const { allProperties: properties, allProjects: projects, isLoading } = useDataContext();
 
-  const loading = isLoadingProperties || isLoadingProjects;
-
-  const featuredProperties = (properties || [])
-    .filter(isListingActive)
-    .sort((a, b) => new Date(b.listingStartDate || 0).getTime() - new Date(a.listingStartDate || 0).getTime())
-    .slice(0, 4);
+  const featuredProperties = useMemo(() => {
+    if (!properties) return [];
+    return properties
+      .filter(isListingActive)
+      .sort((a, b) => new Date(b.listingStartDate || 0).getTime() - new Date(a.listingStartDate || 0).getTime())
+      .slice(0, 4);
+  }, [properties]);
 
   const projectsMap = useMemo(() => {
     if (!projects) return new Map<string, Project>();
@@ -42,8 +39,8 @@ const LatestProperties: React.FC<LatestPropertiesProps> = ({ language }) => {
                 {t.viewAll}
             </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {isLoading ? (
             Array.from({ length: 4 }).map((_, index) => <PropertyCardSkeleton key={index} />)
           ) : (
             featuredProperties.map((prop) => {

@@ -2,9 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus, AdminPartner } from '../../../types';
 import { translations } from '../../../data/translations';
-import { useApiQuery } from '../../shared/useApiQuery';
-import { getAllLeads } from '../../../api/leads';
-import { getAllPartnersForAdmin } from '../../../api/partners';
+import { useDataContext } from '../../shared/DataContext';
 import { inputClasses } from '../../shared/FormField';
 import Pagination from '../../shared/Pagination';
 
@@ -32,18 +30,16 @@ const ServiceRequestsManagement: React.FC<ServiceRequestsManagementProps> = ({ l
     const t_admin = translations[language].adminDashboard;
     const t_dash = translations[language].dashboard;
 
-    const { data: allLeads, isLoading: loadingLeads } = useApiQuery('allLeads', getAllLeads);
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
-    const loading = loadingLeads || loadingPartners;
+    const { allLeads, allPartners, isLoading } = useDataContext();
 
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     
     const partnersMap = useMemo(() => {
-        if (!partners) return new Map<string, AdminPartner>();
-        return new Map(partners.map(p => [p.id, p]));
-    }, [partners]);
+        if (!allPartners) return new Map<string, AdminPartner>();
+        return new Map(allPartners.map(p => [p.id, p]));
+    }, [allPartners]);
 
     const serviceLeads = useMemo(() => {
         let leads = (allLeads || []).filter(lead => lead.serviceType === serviceType);
@@ -109,7 +105,7 @@ const ServiceRequestsManagement: React.FC<ServiceRequestsManagementProps> = ({ l
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? (
+                            {isLoading ? (
                                 <tr><td colSpan={6} className="text-center p-8">Loading...</td></tr>
                             ) : paginatedLeads.length > 0 ? (
                                 paginatedLeads.map(lead => (

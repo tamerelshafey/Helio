@@ -1,3 +1,5 @@
+
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Language, PartnerRequest } from '../../types';
@@ -7,13 +9,7 @@ import { getAllPartnerRequests, updatePartnerRequestStatus } from '../../api/par
 import { addPartner } from '../../api/partners';
 import { useApiQuery } from '../shared/useApiQuery';
 import DetailItem from '../shared/DetailItem';
-
-const DetailSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-    <div className="mb-6">
-        <h4 className="text-lg font-semibold text-amber-500 mb-3">{title}</h4>
-        <div className="space-y-2 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">{children}</div>
-    </div>
-);
+import DetailSection from '../shared/DetailSection';
 
 const AdminPartnerRequestDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
     const { requestId } = useParams<{ requestId: string }>();

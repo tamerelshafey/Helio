@@ -1,6 +1,6 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { Language, Project } from '../types';
+import type { Language } from '../types';
 import { translations } from '../data/translations';
 import PropertyCard from './shared/PropertyCard';
 import BannerDisplay from './shared/BannerDisplay';
@@ -13,10 +13,9 @@ import {
     ParkingIcon, 
     ElevatorIcon 
 } from './icons/Icons';
-import { getAllProjects } from '../api/projects';
-import { getAllProperties } from '../api/properties';
-import { getAllPartnersForAdmin } from '../api/partners';
-import { useApiQuery } from './shared/useApiQuery';
+import { useDataContext } from './shared/DataContext';
+import SEO from './shared/SEO';
+import ProjectDetailsSkeleton from './shared/ProjectDetailsSkeleton';
 
 const iconMap: { [key: string]: React.FC<{className?: string}> } = {
     ParkIcon,
@@ -39,11 +38,7 @@ const ProjectDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language];
     const t_page = translations[language].propertyDetailsPage;
 
-    const { data: projects, isLoading: isLoadingProjects } = useApiQuery('allProjects', getAllProjects);
-    const { data: properties, isLoading: isLoadingProperties } = useApiQuery('allProperties', getAllProperties);
-    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartners', getAllPartnersForAdmin);
-
-    const loading = isLoadingProjects || isLoadingProperties || isLoadingPartners;
+    const { allProjects: projects, allProperties: properties, allPartners: partners, isLoading } = useDataContext();
 
     const [activeType, setActiveType] = useState('all');
 
@@ -62,21 +57,29 @@ const ProjectDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
     }, [projectProperties, activeType]);
 
 
-    if (loading) {
-        return <div className="text-center py-20">Loading project details...</div>;
+    if (isLoading) {
+        return <ProjectDetailsSkeleton />;
     }
 
     if (!project) {
         return (
             <div className="text-center py-20 container mx-auto">
+                <SEO title="Project Not Found | ONLY HELIO" description="Sorry, we couldn't find the project you're looking for." />
                 <h1 className="text-4xl font-bold">Project Not Found</h1>
                 <p className="mt-4 text-gray-500">Sorry, we couldn't find the project you're looking for.</p>
                 <Link to="/" className="mt-8 inline-block bg-amber-500 text-gray-900 font-semibold px-6 py-3 rounded-lg">Back to Home</Link>
             </div>
         );
     }
+
+    const pageTitle = `${project.name[language]} | ONLY HELIO`;
+    const pageDescription = project.description[language].substring(0, 160);
+    const pageUrl = window.location.href;
+    const imageUrl = project.imageUrl_large || project.imageUrl;
     
     return (
+        <>
+        <SEO title={pageTitle} description={pageDescription} url={pageUrl} imageUrl={imageUrl} />
         <div className="bg-gray-50 dark:bg-gray-900">
             {/* Project Hero */}
             <section className="relative h-[60vh] bg-cover bg-center" style={{ backgroundImage: `url(${project.imageUrl})` }}>
@@ -165,6 +168,7 @@ const ProjectDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
 
             </div>
         </div>
+        </>
     );
 };
 

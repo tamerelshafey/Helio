@@ -1,12 +1,11 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Language, PortfolioItem, DecorationCategory } from '../types';
+import type { Language, PortfolioItem } from '../types';
 import { translations } from '../data/translations';
 import BannerDisplay from './shared/BannerDisplay';
-import { getAllPortfolioItems } from '../api/portfolio';
-import { getDecorationCategories } from '../api/decorations';
-import { useApiQuery } from './shared/useApiQuery';
+import { useDataContext } from './shared/DataContext';
 import AIEstimator from './ai/AIEstimator';
+import SEO from './shared/SEO';
 
 interface DecorationsPageProps {
   language: Language;
@@ -19,11 +18,8 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
     const navigate = useNavigate();
     const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
 
-    const { data: allWorks, isLoading: isLoadingWorks } = useApiQuery('portfolio', getAllPortfolioItems);
-    const { data: decorationCategories, isLoading: isLoadingCategories } = useApiQuery('decorationCategories', getDecorationCategories);
+    const { allPortfolioItems: allWorks, decorationCategories, isLoading } = useDataContext();
 
-    const loading = isLoadingWorks || isLoadingCategories;
-    
     const tabs = useMemo(() => (decorationCategories || []).map(cat => ({
         key: cat.id,
         name: cat.name[language],
@@ -32,7 +28,6 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
     
     const [activeTab, setActiveTab] = useState('');
 
-    // Set initial active tab once data is loaded
     useEffect(() => {
         if (tabs.length > 0 && !activeTab) {
             setActiveTab(tabs[0].name);
@@ -71,6 +66,10 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
     
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
+            <SEO 
+                title={`${translations[language].nav.decorations} | ONLY HELIO`}
+                description={t.sculptures_desc}
+            />
              {isEstimatorOpen && <AIEstimator language={language} serviceType="decorations" onClose={() => setIsEstimatorOpen(false)} />}
             <div className="py-20">
                 <div className="container mx-auto px-6">
@@ -121,7 +120,7 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
                     <BannerDisplay location="decorations" language={language} />
                    
                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 animate-fadeIn mt-12">
-                       {loading && !activeTab ? (
+                       {isLoading && !activeTab ? (
                            Array.from({ length: 3 }).map((_, i) => (
                                 <div key={i} className="bg-gray-200 dark:bg-gray-800 rounded-lg aspect-[4/5] animate-pulse"></div>
                            ))
@@ -154,7 +153,7 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
                        ))}
                    </div>
 
-                   { !loading && filteredWorks.length === 0 && (
+                   { !isLoading && filteredWorks.length === 0 && (
                         <div className="text-center py-16">
                             <p className="text-xl text-gray-500 dark:text-gray-400">
                                 {language === 'ar' ? 'لا توجد أعمال في هذا القسم حاليًا.' : 'No works in this section currently.'}

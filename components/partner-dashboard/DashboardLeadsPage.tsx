@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Language, Lead, LeadStatus } from '../../types';
 import { translations } from '../../data/translations';
@@ -6,8 +5,8 @@ import { useAuth } from '../auth/AuthContext';
 import { ArrowUpIcon, ArrowDownIcon, ChevronRightIcon } from '../icons/Icons';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
-import { getLeadsByPartnerId, updateLead, deleteLead as apiDeleteLead } from '../../api/leads';
-import { useApiQuery } from '../shared/useApiQuery';
+import { updateLead } from '../../api/leads';
+import { useDataContext } from '../shared/DataContext';
 import ConversationThread from '../shared/ConversationThread';
 
 const statusColors: { [key in LeadStatus]: string } = {
@@ -28,11 +27,9 @@ type SortConfig = {
 const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].dashboard;
     const { currentUser } = useAuth();
-    const { data: partnerLeads, isLoading: loading, refetch } = useApiQuery(
-        `partner-leads-${currentUser?.id}`,
-        () => getLeadsByPartnerId(currentUser!.id),
-        { enabled: !!currentUser }
-    );
+    const { allLeads, isLoading: loading, refetchAll } = useDataContext();
+
+    const partnerLeads = useMemo(() => (allLeads || []).filter(l => l.partnerId === currentUser?.id), [allLeads, currentUser?.id]);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -74,9 +71,9 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
 
     const handleStatusChange = async (leadId: string, status: LeadStatus) => {
         await updateLead(leadId, { status });
-        refetch();
+        refetchAll();
     };
-
+    
     const toggleExpand = (leadId: string) => {
         setExpandedLeadId(prevId => (prevId === leadId ? null : leadId));
     };
@@ -152,7 +149,7 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                                         {expandedLeadId === lead.id && (
                                             <tr className="bg-gray-50 dark:bg-gray-800/50">
                                                 <td colSpan={5} className="p-0">
-                                                    <ConversationThread lead={lead} onMessageSent={refetch} language={language} />
+                                                    <ConversationThread lead={lead} onMessageSent={refetchAll} language={language} />
                                                 </td>
                                             </tr>
                                         )}
