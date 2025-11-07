@@ -1,6 +1,8 @@
+
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { BedIcon, BathIcon, AreaIcon, HeartIcon, FloorIcon, CompoundIcon, TagIcon, BanknotesIcon } from '../icons/Icons';
+import { BedIcon, BathIcon, AreaIcon, HeartIcon, HeartIconSolid, FloorIcon, CompoundIcon, TagIcon, BanknotesIcon } from '../icons/Icons';
 import type { Property, Language, Project } from '../../types';
 import { translations } from '../../data/translations';
 import { useFavorites } from './FavoritesContext';
@@ -75,7 +77,11 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
               className="p-2 rounded-full bg-black/50 hover:bg-black/75 transition-colors"
               aria-label={isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}
             >
-              <HeartIcon className={`w-6 h-6 transition-colors ${isFav ? 'text-red-500 fill-current' : 'text-white'}`} />
+              {isFav ? (
+                <HeartIconSolid className="w-6 h-6 text-red-500" />
+              ) : (
+                <HeartIcon className="w-6 h-6 text-white" />
+              )}
             </button>
             {installmentsAvailable && isForSale && (
                 <div className="p-2 rounded-full bg-black/50" title={t.propertiesPage.installments}>

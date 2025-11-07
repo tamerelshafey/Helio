@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import type { Language, Property } from '../types';
 import { translations } from '../data/translations';
-import PropertyCard from './FeatureSection';
+import PropertyCard from './shared/PropertyCard';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 import { LocationMarkerIcon } from './icons/Icons';
+import { useApiQuery } from './shared/useApiQuery';
+import { getContent } from '../api/content';
 
 interface PropertiesMapViewProps {
     properties: Property[];
@@ -25,40 +27,28 @@ const MapTooltip: React.FC<{ property: Property, language: Language }> = ({ prop
     );
 };
 
+// Fixed geographical boundaries for the static map image
+const MAP_BOUNDS = {
+    maxLat: 30.17,
+    minLat: 30.09,
+    minLng: 31.58,
+    maxLng: 31.68,
+};
+
 const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loading, language, activePropertyId, setActivePropertyId }) => {
     const listRef = useRef<HTMLDivElement>(null);
+    const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
     
-    // 1. Define Map Boundaries from data
-    const mapBounds = useMemo(() => {
-        if (properties.length === 0) {
-            return { minLat: 30.11, maxLat: 30.14, minLng: 31.59, maxLng: 31.64 }; // Default bounds for New Heliopolis
-        }
-        const lats = properties.map(p => p.location.lat);
-        const lngs = properties.map(p => p.location.lng);
-        return {
-            minLat: Math.min(...lats),
-            maxLat: Math.max(...lats),
-            minLng: Math.min(...lngs),
-            maxLng: Math.max(...lngs),
-        };
-    }, [properties]);
-
-    // 2. Function to convert geo-coords to pixel coords
+    // Function to convert geo-coords to pixel coords based on fixed bounds
     const convertToPixel = useCallback((lat: number, lng: number) => {
-        const latRange = mapBounds.maxLat - mapBounds.minLat;
-        const lngRange = mapBounds.maxLng - mapBounds.minLng;
-        
-        // Add some padding to prevent markers from being on the edge
-        const paddedLatRange = latRange === 0 ? 0.01 : latRange * 1.2;
-        const paddedLngRange = lngRange === 0 ? 0.01 : lngRange * 1.2;
-        const latOffset = (paddedLatRange - latRange) / 2;
-        const lngOffset = (paddedLngRange - lngRange) / 2;
+        const latRange = MAP_BOUNDS.maxLat - MAP_BOUNDS.minLat;
+        const lngRange = MAP_BOUNDS.maxLng - MAP_BOUNDS.minLng;
 
-        const x = ((lng - (mapBounds.minLng - lngOffset)) / paddedLngRange) * 100;
-        const y = (((mapBounds.maxLat + latOffset) - lat) / paddedLatRange) * 100;
+        const x = ((lng - MAP_BOUNDS.minLng) / lngRange) * 100;
+        const y = ((MAP_BOUNDS.maxLat - lat) / latRange) * 100;
 
         return { x: isNaN(x) ? 50 : x, y: isNaN(y) ? 50 : y };
-    }, [mapBounds]);
+    }, []);
 
     const markers = useMemo(() => {
         return properties.map(p => ({
@@ -106,7 +96,15 @@ const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loadi
 
             {/* Map */}
             <div className="flex-1 h-1/2 md:h-full bg-gray-200 dark:bg-gray-700 relative overflow-hidden">
-                <div className="absolute inset-0 bg-repeat bg-center opacity-40 dark:opacity-20" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
+                 {isLoadingContent ? (
+                    <div className="absolute inset-0 bg-gray-300 dark:bg-gray-600 animate-pulse"></div>
+                 ) : (
+                    <div 
+                        className="absolute inset-0 bg-cover bg-center"
+                        style={{ backgroundImage: `url('${siteContent?.locationPickerMapUrl}')` }}
+                        title={language === 'ar' ? 'خريطة مدينة هليوبوليس الجديدة وما حولها' : 'Map of New Heliopolis and surrounding areas'}
+                    ></div>
+                 )}
                 <div className="relative w-full h-full">
                     {markers.map(marker => (
                         <button

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon } from './icons/Icons';
+import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon } from './icons/Icons';
 import type { Property, Language, Project, AdminPartner } from '../types';
 import { translations } from '../data/translations';
 import { useFavorites } from './shared/FavoritesContext';
@@ -374,7 +374,11 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                                             <ShareIcon className="w-6 h-6" />
                                         </button>
                                         <button onClick={handleFavoriteClick} className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label={isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}>
-                                            <HeartIcon className={`w-6 h-6 transition-colors ${isFav ? 'text-red-500 fill-current' : ''}`} />
+                                            {isFav ? (
+                                                <HeartIconSolid className="w-6 h-6 text-red-500" />
+                                            ) : (
+                                                <HeartIcon className="w-6 h-6" />
+                                            )}
                                         </button>
                                     </div>
                                 </div>
