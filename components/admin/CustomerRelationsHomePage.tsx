@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, PartnerRequest, PropertyInquiryRequest, AddPropertyRequest, ContactRequest } from '../../types';
+import type { PartnerRequest, PropertyInquiryRequest, AddPropertyRequest, ContactRequest } from '../../types';
 import { useApiQuery } from '../shared/useApiQuery';
 import { getAllPropertyRequests } from '../../api/propertyRequests';
 import { getAllPropertyInquiries } from '../../api/propertyInquiries';
@@ -8,6 +8,7 @@ import { getAllContactRequests } from '../../api/contactRequests';
 import { InboxIcon, ClipboardDocumentListIcon, SearchIcon } from '../icons/Icons';
 import { translations } from '../../data/translations';
 import RequestList from './shared/RequestList';
+import { useLanguage } from '../shared/LanguageContext';
 
 const StatCard: React.FC<{ title: string; value: number | string; icon: React.FC<{ className?: string }>; linkTo: string; }> = ({ title, value, icon: Icon, linkTo }) => (
     <Link to={linkTo} className="block bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
@@ -24,9 +25,9 @@ const StatCard: React.FC<{ title: string; value: number | string; icon: React.FC
 );
 
 
-const CustomerRelationsHomePage: React.FC<{ language: Language }> = ({ language }) => {
+const CustomerRelationsHomePage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.customerRelationsHome;
-    const t_req = translations[language].adminDashboard.adminRequests;
 
     const { data: propertyRequests, isLoading: loadingPropReqs } = useApiQuery('propertyRequests', getAllPropertyRequests);
     const { data: propertyInquiries, isLoading: loadingInquiries } = useApiQuery('propertyInquiries', getAllPropertyInquiries);
@@ -78,7 +79,6 @@ const CustomerRelationsHomePage: React.FC<{ language: Language }> = ({ language 
                     title={t.recentPropertyRequests}
                     requests={propertyRequests}
                     linkTo="/admin/property-requests"
-                    language={language}
                     itemRenderer={(item, lang) => (
                         <li key={item.id} className="py-3">
                             <Link to={`/admin/property-requests/${item.id}`} className="flex justify-between items-center group">
@@ -96,7 +96,6 @@ const CustomerRelationsHomePage: React.FC<{ language: Language }> = ({ language 
                     title={t.recentInquiries}
                     requests={propertyInquiries}
                     linkTo="/admin/property-inquiries"
-                    language={language}
                     itemRenderer={(item, lang) => (
                          <li key={item.id} className="py-3">
                             <div className="flex justify-between items-center">
@@ -114,7 +113,6 @@ const CustomerRelationsHomePage: React.FC<{ language: Language }> = ({ language 
                 title={t.recentContacts}
                 requests={contactRequests}
                 linkTo="/admin/contact-requests"
-                language={language}
                 itemRenderer={(item, lang) => (
                     <li key={item.id} className="py-3">
                         <div className="flex justify-between items-center">

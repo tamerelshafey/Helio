@@ -4,13 +4,11 @@ import type { Language, PartnerType } from '../types';
 import { translations } from '../data/translations';
 import { inputClasses, selectClasses } from './shared/FormField';
 import { addContactRequest } from '../api/contactRequests';
-import { useDataContext } from './shared/DataContext';
 import { useToast } from './shared/ToastContext';
 import SEO from './shared/SEO';
-
-interface ContactPageProps {
-  language: Language;
-}
+import { useApiQuery } from './shared/useApiQuery';
+import { getContent } from '../api/content';
+import { useLanguage } from './shared/LanguageContext';
 
 type FormData = {
     name: string;
@@ -22,9 +20,10 @@ type FormData = {
     businessType: PartnerType | '';
 };
 
-const ContactPage: React.FC<ContactPageProps> = ({ language }) => {
+const ContactPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].contactPage;
-    const { siteContent, isLoading: isLoadingContent } = useDataContext();
+    const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
     const { showToast } = useToast();
     
     const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting }, reset } = useForm<FormData>({

@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { Language, FilterOption } from '../../types';
+
+import React, { useState, useEffect, useRef } from 'react';
+import type { FilterOption } from '../../types';
 import { translations } from '../../data/translations';
 import FormField, { inputClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { addFilterOption, updateFilterOption, getAllPropertyTypes } from '../../api/filters';
 import { useApiQuery } from '../shared/useApiQuery';
+import { useLanguage } from '../shared/LanguageContext';
 
 type DataType = 'propertyType' | 'finishingStatus' | 'amenity';
 
@@ -13,10 +15,10 @@ interface FilterItemFormModalProps {
     itemToEdit?: FilterOption;
     onClose: () => void;
     onSave: () => void;
-    language: Language;
 }
 
-const FilterItemFormModal: React.FC<FilterItemFormModalProps> = ({ dataType, itemToEdit, onClose, onSave, language }) => {
+const FilterItemFormModal: React.FC<FilterItemFormModalProps> = ({ dataType, itemToEdit, onClose, onSave }) => {
+    const { language } = useLanguage();
     const { data: propertyTypes, refetch: refetchOptions } = useApiQuery('propertyTypes', getAllPropertyTypes);
     const t_shared = translations[language].adminShared;
     const modalRef = useRef<HTMLDivElement>(null);

@@ -2,16 +2,17 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language } from '../../../types';
 import { translations } from '../../../data/translations';
+import { useLanguage } from '../../shared/LanguageContext';
 
 interface RequestListProps<T extends { id: string }> {
   title: string;
   requests: T[] | undefined;
   linkTo: string;
-  language: Language;
   itemRenderer: (item: T, language: Language) => React.ReactNode;
 }
 
-const RequestList = <T extends { id: string }>({ title, requests, linkTo, language, itemRenderer }: RequestListProps<T>) => {
+const RequestList = <T extends { id: string }>({ title, requests, linkTo, itemRenderer }: RequestListProps<T>) => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.customerRelationsHome;
     const recentRequests = useMemo(() => (requests || []).slice(0, 5), [requests]);
 

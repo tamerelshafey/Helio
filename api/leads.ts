@@ -8,8 +8,9 @@ import { addNotification } from './notifications';
 
 const SIMULATED_DELAY = 300;
 
-const populateLeadWithPartnerInfo = (lead: Lead): Lead & { partnerName?: string } => {
-    const partner = getPartnerById(lead.partnerId);
+// FIX: `getPartnerById` is async, so this function must be async and await the result.
+const populateLeadWithPartnerInfo = async (lead: Lead): Promise<Lead & { partnerName?: string }> => {
+    const partner = await getPartnerById(lead.partnerId);
     return { ...lead, partnerName: partner?.name };
 };
 
@@ -23,10 +24,13 @@ export const getLeadsByPartnerId = (partnerId: string): Promise<Lead[]> => {
     });
 };
 
+// FIX: This function now handles the async nature of `populateLeadWithPartnerInfo` using Promise.all.
 export const getAllLeads = (): Promise<(Lead & { partnerName?: string })[]> => {
     return new Promise((resolve) => {
-        setTimeout(() => {
-            const allLeads = leadsData.map(populateLeadWithPartnerInfo)
+        setTimeout(async () => {
+            const populatedLeadsPromises = leadsData.map(populateLeadWithPartnerInfo);
+            const populatedLeads = await Promise.all(populatedLeadsPromises);
+            const allLeads = populatedLeads
                                       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             resolve(allLeads);
         }, SIMULATED_DELAY);

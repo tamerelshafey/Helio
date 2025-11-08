@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Language } from '../types';
-import { useDataContext } from './shared/DataContext';
+import { useApiQuery } from './shared/useApiQuery';
+import { getContent } from '../api/content';
+import { useLanguage } from './shared/LanguageContext';
 
-interface AboutCityProps {
-  language: Language;
-}
-
-const AboutCity: React.FC<AboutCityProps> = ({ language }) => {
-    const { siteContent, isLoading } = useDataContext();
+const AboutCity: React.FC = () => {
+    const { language } = useLanguage();
+    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
     const [currentSlide, setCurrentSlide] = useState(0);
     const timeoutRef = useRef<number | null>(null);
 

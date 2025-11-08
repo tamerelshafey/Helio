@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Language } from '../../types';
 import { CloseIcon, ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons';
+import { useLanguage } from './LanguageContext';
 
 interface LightboxProps {
     images: string[];
     startIndex: number;
     onClose: () => void;
-    language: Language;
 }
 
-const Lightbox: React.FC<LightboxProps> = ({ images, startIndex, onClose, language }) => {
+const Lightbox: React.FC<LightboxProps> = ({ images, startIndex, onClose }) => {
+    const { language } = useLanguage();
     const [currentIndex, setCurrentIndex] = useState(startIndex);
     const modalRef = useRef<HTMLDivElement>(null);
     const watermarkText = "ONLY HELIO";

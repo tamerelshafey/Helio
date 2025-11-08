@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import type { Language, FilterOption } from '../../types';
+
+import React, { useState } from 'react';
+import type { FilterOption } from '../../types';
 import { translations } from '../../data/translations';
 import FilterItemFormModal from './FilterItemFormModal';
 import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities, deleteFilterOption as apiDeleteFilterOption } from '../../api/filters';
 import { useApiQuery } from '../shared/useApiQuery';
+import { useLanguage } from '../shared/LanguageContext';
 
 type DataType = 'propertyType' | 'finishingStatus' | 'amenity';
 
@@ -13,8 +15,8 @@ const FilterManagerSection: React.FC<{
     onAdd: () => void;
     onEdit: (item: FilterOption) => void;
     onDelete: (id: string) => void;
-    language: Language;
-}> = ({ title, items, onAdd, onEdit, onDelete, language }) => {
+}> = ({ title, items, onAdd, onEdit, onDelete }) => {
+    const { language } = useLanguage();
     return (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-center mb-4">
@@ -42,7 +44,8 @@ const FilterManagerSection: React.FC<{
 };
 
 
-const AdminFilterManagementPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminFilterManagementPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard;
     
     const { data: propertyTypes, isLoading: loadingPT, refetch: refetchPT } = useApiQuery('propertyTypes', getAllPropertyTypes);
@@ -91,10 +94,9 @@ const AdminFilterManagementPage: React.FC<{ language: Language }> = ({ language 
                     itemToEdit={modalState.itemToEdit}
                     onClose={closeModal}
                     onSave={handleSave}
-                    language={language}
                 />
             )}
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.nav.manageFilters}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.nav.propertyFilters}</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-8">Manage the options available in property forms and search filters.</p>
             
             <div className="space-y-8">
@@ -104,7 +106,6 @@ const AdminFilterManagementPage: React.FC<{ language: Language }> = ({ language 
                     onAdd={() => openModal('propertyType')}
                     onEdit={(item) => openModal('propertyType', item)}
                     onDelete={(id) => handleDelete('propertyType', id)}
-                    language={language}
                 />
 
                 <FilterManagerSection
@@ -113,7 +114,6 @@ const AdminFilterManagementPage: React.FC<{ language: Language }> = ({ language 
                     onAdd={() => openModal('finishingStatus')}
                     onEdit={(item) => openModal('finishingStatus', item)}
                     onDelete={(id) => handleDelete('finishingStatus', id)}
-                    language={language}
                 />
 
                 <FilterManagerSection
@@ -122,7 +122,6 @@ const AdminFilterManagementPage: React.FC<{ language: Language }> = ({ language 
                     onAdd={() => openModal('amenity')}
                     onEdit={(item) => openModal('amenity', item)}
                     onDelete={(id) => handleDelete('amenity', id)}
-                    language={language}
                 />
             </div>
         </div>

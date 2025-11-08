@@ -1,6 +1,6 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import type { Language } from '../../types';
 import { useApiQuery } from '../shared/useApiQuery';
 import { getAllProperties } from '../../api/properties';
 import { getAllProjects } from '../../api/projects';
@@ -8,8 +8,10 @@ import { ClipboardDocumentListIcon, BuildingIcon, CubeIcon } from '../icons/Icon
 import StatCard from '../shared/StatCard';
 import { isListingActive } from '../../utils/propertyUtils';
 import { translations } from '../../data/translations';
+import { useLanguage } from '../shared/LanguageContext';
 
-const ListingsManagerHomePage: React.FC<{ language: Language }> = ({ language }) => {
+const ListingsManagerHomePage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.listingsManagerHome;
     const { data: properties, isLoading: loadingProps } = useApiQuery('allProperties', getAllProperties);
     const { data: projects, isLoading: loadingProjs } = useApiQuery('allProjects', getAllProjects);

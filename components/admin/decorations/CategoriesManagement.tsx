@@ -4,8 +4,10 @@ import { translations } from '../../../data/translations';
 import { useApiQuery } from '../../shared/useApiQuery';
 import { getDecorationCategories, deleteDecorationCategory as apiDeleteDecorationCategory } from '../../../api/decorations';
 import AdminDecorationCategoryFormModal from '../AdminDecorationCategoryFormModal';
+import { useLanguage } from '../../shared/LanguageContext';
 
-const CategoriesManagement: React.FC<{ language: Language }> = ({ language }) => {
+const CategoriesManagement: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.decorationsManagement;
     const { data: categories, refetch: refetchCategories, isLoading: loading } = useApiQuery('decorationCategories', getDecorationCategories);
     const [modalState, setModalState] = useState<{ isOpen: boolean; categoryToEdit?: DecorationCategory }>({ isOpen: false });
@@ -24,7 +26,7 @@ const CategoriesManagement: React.FC<{ language: Language }> = ({ language }) =>
 
     return (
         <div className="animate-fadeIn">
-            {modalState.isOpen && <AdminDecorationCategoryFormModal categoryToEdit={modalState.categoryToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} language={language} />}
+            {modalState.isOpen && <AdminDecorationCategoryFormModal categoryToEdit={modalState.categoryToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} />}
             <div className="flex justify-end mb-4">
                 <button onClick={() => setModalState({ isOpen: true })} className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600">{t.addNewCategory}</button>
             </div>

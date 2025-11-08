@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext';
 import { CheckCircleIcon } from '../icons/Icons';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import { useLanguage } from '../shared/LanguageContext';
 
 const PlanCard: React.FC<{
     planKey: SubscriptionPlan,
@@ -51,7 +52,8 @@ const PlanCard: React.FC<{
     );
 };
 
-const DashboardSubscriptionPage: React.FC<{ language: Language }> = ({ language }) => {
+const DashboardSubscriptionPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].dashboardSubscription;
     const { currentUser } = useAuth();
     
@@ -78,7 +80,6 @@ const DashboardSubscriptionPage: React.FC<{ language: Language }> = ({ language 
         }
     }, [currentUser, language, t.propertiesListed]);
 
-    // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
     if (!currentUser || isLoading || !('type' in currentUser)) {
         return <div>Loading...</div>;
     }

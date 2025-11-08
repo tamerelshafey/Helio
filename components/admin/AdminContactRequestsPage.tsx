@@ -1,15 +1,17 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { Language, ContactRequest, RequestStatus } from '../../types';
+
+import React from 'react';
+import type { ContactRequest, RequestStatus } from '../../types';
 import { translations } from '../../data/translations';
 import { inputClasses } from '../shared/FormField';
 import { updateContactRequestStatus, deleteContactRequest } from '../../api/contactRequests';
-import { useAuth } from '../auth/AuthContext';
 import Pagination from '../shared/Pagination';
 import TableSkeleton from '../shared/TableSkeleton';
 import EmptyState from '../shared/EmptyState';
 import { InboxIcon } from '../icons/Icons';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllContactRequests } from '../../api/contactRequests';
 import { useAdminTable } from './shared/useAdminTable';
+import { useLanguage } from '../shared/LanguageContext';
 
 const statusColors: { [key in RequestStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -22,10 +24,10 @@ const statusColors: { [key in RequestStatus]: string } = {
 
 const ITEMS_PER_PAGE = 10;
 
-const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminContactRequestsPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.adminRequests;
-    const { currentUser } = useAuth();
-    const { contactRequests, isLoading, refetchAll } = useDataContext();
+    const { data: contactRequests, isLoading, refetch: refetchAll } = useApiQuery('contactRequests', getAllContactRequests);
 
     const {
         paginatedItems: paginatedRequests,
@@ -37,7 +39,7 @@ const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }
         data: contactRequests,
         itemsPerPage: ITEMS_PER_PAGE,
         initialSort: { key: 'createdAt', direction: 'descending' },
-        searchFn: (req, term) => 
+        searchFn: (req: ContactRequest, term: string) => 
             req.name.toLowerCase().includes(term) ||
             req.phone.includes(term) ||
             (req.companyName && req.companyName.toLowerCase().includes(term)),
@@ -140,7 +142,7 @@ const AdminContactRequestsPage: React.FC<{ language: Language }> = ({ language }
                         </tbody>
                     </table>
                 </div>
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

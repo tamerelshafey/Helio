@@ -1,3 +1,5 @@
+import type { PartnerTranslations } from '../types';
+
 export const translations = {
     ar: {
         addProperty: 'أضف عقارك',
@@ -61,7 +63,7 @@ export const translations = {
             'partner-relations-manager-1': { name: 'مدير علاقات الشركاء', description: 'مسؤول عن مراجعة طلبات الشركاء وإدارة حساباتهم.' },
             'content-manager-1': { name: 'مدير المحتوى', description: 'مسؤول عن محتوى الموقع والإعلانات والفلاتر.' },
             'individual-listings': { name: 'عقارات الأفراد', description: 'عقارات معروضة مباشرة من الملاك.' },
-        },
+        } as PartnerTranslations,
         wisdomQuotes: {
             title: 'كلمات من الحكمة',
             description: 'اقتباسات ملهمة في الهندسة المعمارية والتصميم والمنزل.'
@@ -1489,7 +1491,7 @@ export const translations = {
             'partner-relations-manager-1': { name: 'Partner Relations Manager', description: 'Responsible for reviewing partner requests and managing their accounts.' },
             'content-manager-1': { name: 'Content Manager', description: 'Responsible for website content, banners, and filters.' },
             'individual-listings': { name: 'Individual Listings', description: 'Properties listed directly by owners.' },
-        },
+        } as PartnerTranslations,
         wisdomQuotes: {
             title: 'Words of Wisdom',
             description: 'Inspirational quotes on architecture, design, and home.'

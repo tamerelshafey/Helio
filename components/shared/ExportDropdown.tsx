@@ -1,16 +1,17 @@
+
 import React, { useState } from 'react';
-import type { Language } from '../../types';
 import { FileDownloadIcon } from '../icons/Icons';
 import { exportToCsv, exportToPdf } from '../../utils/exportUtils';
+import { useLanguage } from './LanguageContext';
 
 interface ExportDropdownProps<T> {
   data: T[];
   columns: Record<keyof T, string>;
   filename: string;
-  language: Language;
 }
 
-const ExportDropdown = <T extends Record<string, any>>({ data, columns, filename, language }: ExportDropdownProps<T>) => {
+const ExportDropdown = <T extends Record<string, any>>({ data, columns, filename }: ExportDropdownProps<T>) => {
+    const { language } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
 
     const handleExportCsv = () => {

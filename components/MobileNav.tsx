@@ -1,22 +1,23 @@
+
+
+
 import React, { useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { 
   QuoteIcon, HeartIcon, MoonIcon, SunIcon, HomeIcon, BuildingIcon, 
-  CubeIcon, WrenchScrewdriverIcon, SparklesIcon, PhoneIcon, CloseIcon, UserPlusIcon, CogIcon
+  CubeIcon, WrenchScrewdriverIcon, SparklesIcon, PhoneIcon, CloseIcon, UserPlusIcon, CogIcon, GlobeAltIcon
 } from './icons/Icons';
-import type { Language, Theme, Partner } from '../types';
-import { Role, Permission } from '../types';
+import type { Partner } from '../types';
+import { Permission } from '../types';
 import { translations } from '../data/translations';
 import { HelioLogo } from './HelioLogo';
+import { useLanguage } from './shared/LanguageContext';
+import { useTheme } from './shared/ThemeContext';
 
 interface MobileNavProps {
   id: string;
   isOpen: boolean;
   onClose: () => void;
-  language: Language;
-  onLanguageChange: (lang: Language) => void;
-  theme: Theme;
-  onThemeChange: () => void;
   onToggleQuietZone: () => void;
   currentUser: Partner | null;
   dashboardPath: string;
@@ -48,9 +49,10 @@ const NavItem: React.FC<{ to: string; icon: React.FC<{className?: string}>; labe
 const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, ...props }) => {
     const navRef = useRef<HTMLDivElement>(null);
     const { 
-      id, language, onLanguageChange, theme, onThemeChange, onToggleQuietZone, 
-      currentUser, dashboardPath, logout, hasPermission 
+      id, onToggleQuietZone, currentUser, dashboardPath, logout, hasPermission 
     } = props;
+    const { language, setLanguage: onLanguageChange } = useLanguage();
+    const { theme, toggleTheme: onThemeChange } = useTheme();
     const isRTL = language === 'ar';
     
     useEffect(() => {
@@ -86,14 +88,14 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, ...props }) => {
     return (
         <>
             <div
-                className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 xl:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 lg:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 onClick={onClose}
                 aria-hidden="true"
             />
             <aside
                 id={id}
                 ref={navRef}
-                className={`fixed top-0 bottom-0 ${isRTL ? 'right-0' : 'left-0'} w-80 flex flex-col bg-white dark:bg-gray-900 shadow-xl transition-transform duration-300 ease-in-out z-50 xl:hidden
+                className={`fixed top-0 bottom-0 ${isRTL ? 'right-0' : 'left-0'} w-80 flex flex-col bg-white dark:bg-gray-900 shadow-xl transition-transform duration-300 ease-in-out z-50 lg:hidden
                     ${isOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}`
                 }
                 role="dialog"
@@ -113,12 +115,20 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, ...props }) => {
                 
                 {/* Main Content */}
                 <div className="flex-grow overflow-y-auto p-4">
-                    <div className="flex items-center gap-2 text-sm mb-6">
-                        <button onClick={() => { onLanguageChange('en'); }} className={`flex-1 py-2 rounded-md transition-colors ${language === 'en' ? "bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 font-semibold shadow-sm" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300"}`}>
-                          English
+                    <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg mb-6 space-y-3">
+                        <button onClick={() => { onLanguageChange(language === 'en' ? 'ar' : 'en'); }} className="w-full flex items-center justify-between p-3 rounded-lg bg-gray-200 dark:bg-gray-900/50 text-gray-600 dark:text-gray-300">
+                            <div className="flex items-center gap-3">
+                                <GlobeAltIcon className="w-5 h-5" />
+                                <span className="font-semibold">{language === 'ar' ? 'اللغة' : 'Language'}</span>
+                            </div>
+                            <span className="font-semibold">{language === 'en' ? 'العربية' : 'English'}</span>
                         </button>
-                        <button onClick={() => { onLanguageChange('ar'); }} className={`flex-1 py-2 rounded-md transition-colors ${language === 'ar' ? "bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 font-semibold shadow-sm" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300"}`}>
-                          العربية
+                        <button onClick={onThemeChange} className="w-full flex items-center justify-between p-3 rounded-lg bg-gray-200 dark:bg-gray-900/50 text-gray-600 dark:text-gray-300">
+                            <div className="flex items-center gap-3">
+                                {theme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
+                                <span className="font-semibold">{language === 'ar' ? 'الوضع' : 'Theme'}</span>
+                            </div>
+                            <span className="font-semibold">{theme === 'light' ? (language === 'ar' ? 'فاتح' : 'Light') : (language === 'ar' ? 'داكن' : 'Dark')}</span>
                         </button>
                     </div>
 
@@ -164,17 +174,6 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, ...props }) => {
                             </Link>
                         </div>
                     )}
-                </div>
-
-                {/* Footer */}
-                <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
-                    <button onClick={onThemeChange} className="w-full flex items-center justify-between p-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
-                        <div className="flex items-center gap-3">
-                            {theme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
-                            <span className="font-semibold">{language === 'ar' ? 'الوضع' : 'Theme'}</span>
-                        </div>
-                        <span className="font-semibold">{theme === 'light' ? (language === 'ar' ? 'فاتح' : 'Light') : (language === 'ar' ? 'داكن' : 'Dark')}</span>
-                    </button>
                 </div>
             </aside>
         </>

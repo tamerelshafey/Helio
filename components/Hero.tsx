@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language } from '../types';
 import { translations } from '../data/translations';
-import { useDataContext } from './shared/DataContext';
+import { useApiQuery } from './shared/useApiQuery';
+import { getContent } from '../api/content';
+import { useLanguage } from './shared/LanguageContext';
 
-interface HeroProps {
-  language: Language;
-}
-
-const Hero: React.FC<HeroProps> = ({ language }) => {
-  const { siteContent, isLoading } = useDataContext();
+const Hero: React.FC = () => {
+  const { language } = useLanguage();
+  const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const t = translations[language];
   const heroImages = siteContent?.hero?.images || [];

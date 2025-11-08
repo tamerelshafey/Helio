@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import type { Language, Property } from '../types';
 import { translations } from '../data/translations';
@@ -8,18 +7,18 @@ import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 import { LocationMarkerIcon } from './icons/Icons';
 import { useApiQuery } from './shared/useApiQuery';
 import { getContent } from '../api/content';
+import { useLanguage } from './shared/LanguageContext';
 
 interface PropertiesMapViewProps {
     properties: Property[];
     loading: boolean;
-    language: Language;
     activePropertyId: string | null;
     setActivePropertyId: (id: string | null) => void;
 }
 
 const MapTooltip: React.FC<{ property: Property, language: Language }> = ({ property, language }) => {
     return (
-        <div className="w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div className="w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
             <img src={property.imageUrl} alt={property.title[language]} className="w-full h-32 object-cover" />
             <div className="p-3">
                 <h3 className="font-bold text-sm truncate text-gray-900 dark:text-white">{property.title[language]}</h3>
@@ -37,7 +36,8 @@ const MAP_BOUNDS = {
     maxLng: 31.68,
 };
 
-const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loading, language, activePropertyId, setActivePropertyId }) => {
+const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loading, activePropertyId, setActivePropertyId }) => {
+    const { language } = useLanguage();
     const listRef = useRef<HTMLDivElement>(null);
     const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
     
@@ -86,7 +86,7 @@ const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loadi
                             onMouseLeave={() => setActivePropertyId(null)}
                             className={`rounded-lg transition-all duration-300 ${activePropertyId === prop.id ? 'shadow-2xl ring-2 ring-amber-500' : ''}`}
                         >
-                           <PropertyCard {...prop} language={language} />
+                           <PropertyCard {...prop} />
                         </div>
                     ))
                 ) : (
@@ -127,13 +127,11 @@ const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loadi
                     ))}
                     {activeProperty && (
                         <div
-                            className="absolute transform -translate-x-1/2 -translate-y-[calc(100%+20px)] transition-opacity z-20"
+                            className="absolute transform -translate-x-1/2 -translate-y-[calc(100%+20px)] transition-opacity z-20 pointer-events-none"
                             style={{
                                 left: `${convertToPixel(activeProperty.location.lat, activeProperty.location.lng).x}%`,
                                 top: `${convertToPixel(activeProperty.location.lat, activeProperty.location.lng).y}%`,
                             }}
-                            onMouseEnter={() => setActivePropertyId(activeProperty.id)}
-                            onMouseLeave={() => setActivePropertyId(null)}
                         >
                             <MapTooltip property={activeProperty} language={language} />
                         </div>

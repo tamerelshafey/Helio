@@ -1,16 +1,18 @@
+
+
 import React, { useState, useEffect, useRef } from 'react';
-import type { Language, PortfolioItem } from '../../types';
+import type { PortfolioItem } from '../../types';
 import { translations } from '../../data/translations';
 import FormField, { inputClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { useAuth } from '../auth/AuthContext';
 import { addPortfolioItem, updatePortfolioItem } from '../../api/portfolio';
+import { useLanguage } from '../shared/LanguageContext';
 
 interface PortfolioItemFormModalProps {
     itemToEdit?: PortfolioItem;
     onClose: () => void;
     onSave: () => void;
-    language: Language;
 }
 
 const fileToBase64 = (file: File): Promise<string> => {
@@ -22,7 +24,8 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToEdit, onClose, onSave, language }) => {
+const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToEdit, onClose, onSave }) => {
+    const { language } = useLanguage();
     const { currentUser } = useAuth();
     const t = translations[language].dashboard;
     const t_form = translations[language].portfolioForm;
@@ -36,6 +39,7 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
     });
 
     const [imageFile, setImageFile] = useState<File | null>(null);
+    // FIX: Changed itemToEdit?.src to itemToEdit?.imageUrl to match PortfolioItem type.
     const [imagePreview, setImagePreview] = useState<string | null>(itemToEdit?.imageUrl || null);
 
     useEffect(() => {
@@ -69,14 +73,16 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
         if (!currentUser) return;
         setLoading(true);
 
+        // FIX: Changed itemToEdit?.src to itemToEdit?.imageUrl to match PortfolioItem type.
         let imageSrc = itemToEdit?.imageUrl || '';
         if (imageFile) {
             imageSrc = await fileToBase64(imageFile);
         }
 
-        const dataToSave: Omit<PortfolioItem, 'id'> = {
+        const dataToSave = {
             ...formData,
             partnerId: currentUser.id,
+            // FIX: Changed src to imageUrl to match PortfolioItem type.
             imageUrl: imageSrc,
             alt: formData.title.en || 'Portfolio work',
         };
@@ -100,11 +106,13 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
                         <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
                     </div>
                     <div className="flex-grow overflow-y-auto p-6 space-y-4">
+                        {/* FIX: Changed id from 'src' to 'imageUrl' for consistency. */}
                         <FormField label={t.workImageURL} id="imageUrl">
                             <div className="flex items-center gap-4">
                                 {imagePreview && <img src={imagePreview} alt="Preview" className="w-20 h-20 rounded-md object-cover border" />}
                                 <input
                                     type="file"
+                                    // FIX: Changed id from 'src' to 'imageUrl' for consistency.
                                     id="imageUrl"
                                     accept="image/*"
                                     onChange={handleFileChange}

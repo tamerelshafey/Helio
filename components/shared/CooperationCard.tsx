@@ -2,17 +2,18 @@ import React from 'react';
 import type { Language, SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../../types';
 import { translations } from '../../data/translations';
 import { CheckCircleIcon } from '../icons/Icons';
+import { useLanguage } from './LanguageContext';
 
 interface CooperationCardProps {
     type: 'paid_listing' | 'commission';
     isSelected: boolean;
     onSelect: () => void;
-    language: Language;
     plans?: Record<PlanCategory, any>;
     isLoadingPlans: boolean;
 }
 
-const CooperationCard: React.FC<CooperationCardProps> = ({ type, isSelected, onSelect, language, plans, isLoadingPlans }) => {
+const CooperationCard: React.FC<CooperationCardProps> = ({ type, isSelected, onSelect, plans, isLoadingPlans }) => {
+    const { language } = useLanguage();
     const t = translations[language].addPropertyPage;
     const planDetails: SubscriptionPlanDetails | undefined = plans?.individual?.[type]?.[language];
     const defaultContent = t.cooperation[type];

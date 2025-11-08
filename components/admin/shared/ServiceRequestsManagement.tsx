@@ -2,9 +2,12 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus, AdminPartner } from '../../../types';
 import { translations } from '../../../data/translations';
-import { useDataContext } from '../../shared/DataContext';
 import { inputClasses } from '../../shared/FormField';
 import Pagination from '../../shared/Pagination';
+import { useApiQuery } from '../../shared/useApiQuery';
+import { getAllLeads } from '../../../api/leads';
+import { getAllPartnersForAdmin } from '../../../api/partners';
+import { useLanguage } from '../../shared/LanguageContext';
 
 const statusColors: { [key in LeadStatus]?: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -19,18 +22,20 @@ const statusColors: { [key in LeadStatus]?: string } = {
 const ITEMS_PER_PAGE = 10;
 
 interface ServiceRequestsManagementProps {
-  language: Language;
   serviceType: 'finishing' | 'decorations';
   title: string;
   subtitle: string;
   detailsUrlPrefix: string;
 }
 
-const ServiceRequestsManagement: React.FC<ServiceRequestsManagementProps> = ({ language, serviceType, title, subtitle, detailsUrlPrefix }) => {
+const ServiceRequestsManagement: React.FC<ServiceRequestsManagementProps> = ({ serviceType, title, subtitle, detailsUrlPrefix }) => {
+    const { language } = useLanguage();
     const t_admin = translations[language].adminDashboard;
     const t_dash = translations[language].dashboard;
 
-    const { allLeads, allPartners, isLoading } = useDataContext();
+    const { data: allLeads, isLoading: isLoadingLeads } = useApiQuery('allLeadsAdmin', getAllLeads);
+    const { data: allPartners, isLoading: isLoadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const isLoading = isLoadingLeads || isLoadingPartners;
 
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');

@@ -1,3 +1,4 @@
+
 import type { Property } from '../types';
 
 // Data is now mutable to simulate a database
@@ -51,7 +52,7 @@ export let propertiesData: Property[] = [
       partnerId: 'modern-construction-group',
       projectId: 'proj-2',
       imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop",
-      imageUrl_small: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=480&auto=format=fit=crop",
+      imageUrl_small: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=480&auto=format=fit-crop",
       imageUrl_medium: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=800&auto=format&fit=crop",
       imageUrl_large: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&auto=format&fit=crop",
       gallery: [
@@ -165,5 +166,7 @@ export let propertiesData: Property[] = [
       listingStartDate: '2024-07-10',
       contactMethod: 'direct',
       ownerPhone: '01012345678',
+      // FIX: Added missing required property 'isInCompound'.
+      isInCompound: false,
     }
 ];

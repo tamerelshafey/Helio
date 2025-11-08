@@ -1,20 +1,19 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { BellIcon } from '../icons/Icons';
-import type { Language, Notification } from '../../types';
+import type { Notification } from '../../types';
 import { useApiQuery } from './useApiQuery';
 import { getNotificationsByUserId, markNotificationsAsRead } from '../../api/notifications';
 import { translations } from '../../data/translations';
+import { useLanguage } from './LanguageContext';
 
-interface NotificationBellProps {
-  language: Language;
-}
-
-const NotificationBell: React.FC<NotificationBellProps> = ({ language }) => {
+const NotificationBell: React.FC = () => {
     const { currentUser } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
+    const { language } = useLanguage();
     const t = translations[language];
 
     const { data: notifications, refetch } = useApiQuery(

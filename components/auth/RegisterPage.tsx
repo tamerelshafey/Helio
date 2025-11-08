@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import type { Language, ManagementContact, OfficialDocument, PartnerRequest, SubscriptionPlan, PartnerType } from '../../types';
 import { translations } from '../../data/translations';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
-import { CheckCircleIcon, CloseIcon } from '../icons/Icons';
+import { CheckCircleIcon, CloseIcon, ClipboardDocumentListIcon } from '../icons/Icons';
 import { addPartnerRequest } from '../../api/partnerRequests';
 import SubscriptionPlanSelector from '../SubscriptionPlanSelector';
 import { HelioLogo } from '../HelioLogo';
-
-interface RegisterPageProps {
-  language: Language;
-}
+import { useLanguage } from '../shared/LanguageContext';
+import { useToast } from '../shared/ToastContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getPlans } from '../../api/plans';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -52,15 +52,18 @@ const Stepper: React.FC<{ steps: string[], currentStep: number }> = ({ steps, cu
 };
 
 
-const RegisterPage: React.FC<RegisterPageProps> = ({ language }) => {
+const RegisterPage: React.FC = () => {
+    const { language } = useLanguage();
+    const { showToast } = useToast();
     const t = translations[language];
     const t_form = t.partnerRequestForm;
     const t_auth = t.auth;
+    const { data: allPlans } = useApiQuery('plans', getPlans);
 
     const [step, setStep] = useState(1);
     const [submitted, setSubmitted] = useState(false);
     
-    const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting, isValid, trigger } } = useForm({
+    const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting }, trigger } = useForm({
         mode: 'onChange',
         defaultValues: {
             companyName: '',
@@ -72,7 +75,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ language }) => {
             contactEmail: '',
             contactPhone: '',
             managementContacts: [] as ManagementContact[],
-            subscriptionPlan: 'basic' as SubscriptionPlan,
+            subscriptionPlan: '' as SubscriptionPlan | '',
         }
     });
     
@@ -87,21 +90,30 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ language }) => {
     
     const steps = [t_form.step1_title, t_form.step2_title, t_form.step3_title];
     
-    const nextStep = async () => {
-        let fieldsToValidate: any[] = [];
-        if (step === 2) {
-            fieldsToValidate = ['companyName', 'companyAddress', 'description', 'contactName', 'contactEmail', 'contactPhone'];
+    const watchCompanyType = watch("companyType");
+    const watchSubscriptionPlan = watch("subscriptionPlan");
+
+    useEffect(() => {
+        if (watchCompanyType && allPlans && allPlans[watchCompanyType]) {
+            const plansForType = allPlans[watchCompanyType];
+            const firstPlanKey = Object.keys(plansForType)[0] as SubscriptionPlan;
+            setValue('subscriptionPlan', firstPlanKey, { shouldValidate: true });
         }
-        const isValid = await trigger(fieldsToValidate);
-        if (isValid) {
+    }, [watchCompanyType, allPlans, setValue]);
+
+    const nextStep = async () => {
+        const fieldsToValidate: Record<number, (keyof typeof control._defaultValues)[]> = {
+            1: ['companyType', 'subscriptionPlan'],
+            2: ['companyName', 'companyAddress', 'description', 'contactName', 'contactEmail', 'contactPhone']
+        };
+        
+        const isValidStep = await trigger(fieldsToValidate[step]);
+        if (isValidStep) {
             setStep(s => s < steps.length ? s + 1 : s);
         }
     };
 
     const prevStep = () => setStep(s => s > 1 ? s - 1 : s);
-
-    const watchCompanyType = watch("companyType");
-    const watchSubscriptionPlan = watch("subscriptionPlan");
 
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -118,14 +130,12 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ language }) => {
     };
     
     const removeDocument = (index: number) => {
-        const list = [...documents];
-        list.splice(index, 1);
-        setDocuments(list);
+        setDocuments(prev => prev.filter((_, i) => i !== index));
     };
 
     const onSubmit = async (data: any) => {
         if (!logo) {
-             alert('Please upload a company logo.');
+             showToast('Please upload a company logo.', 'error');
              return;
         }
 
@@ -150,9 +160,13 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ language }) => {
         return (
             <div className="py-20 bg-white dark:bg-gray-900 text-center flex flex-col items-center justify-center min-h-[60vh]">
                 <div className="max-w-2xl mx-auto px-6">
+                    {logoPreview && <img src={logoPreview} alt="Company Logo" className="w-24 h-24 rounded-full mx-auto mb-6 border-4 border-white dark:border-gray-700 shadow-lg"/>}
                     <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
                     <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{t_auth.registerSuccessTitle}</h1>
                     <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">{t_auth.registerSuccessMessage}</p>
+                    <Link to="/" className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors">
+                        {translations[language].addPropertyPage.backToHome}
+                    </Link>
                 </div>
             </div>
         );
@@ -194,8 +208,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ language }) => {
                                     {watchCompanyType && (
                                         <div className="animate-fadeIn">
                                             <SubscriptionPlanSelector 
-                                                language={language} 
-                                                selectedPlan={watchSubscriptionPlan || 'basic'}
+                                                selectedPlan={watchSubscriptionPlan || ''}
                                                 onSelectPlan={(plan) => setValue('subscriptionPlan', plan, { shouldValidate: true })}
                                                 partnerType={watchCompanyType as PartnerType}
                                             />
@@ -277,11 +290,17 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ language }) => {
                                             <input type="file" id="documents" onChange={handleDocumentChange} multiple className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`} />
                                         </FormField>
                                         {documents.length > 0 && (
-                                            <ul className="space-y-2">
+                                            <ul className="mt-4 space-y-2">
                                                 {documents.map((doc, index) => (
-                                                    <li key={index} className="flex items-center justify-between text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                                                        <span>{doc.name}</span>
-                                                        <button type="button" onClick={() => removeDocument(index)} className="text-red-500"><CloseIcon className="w-4 h-4" /></button>
+                                                    <li key={index} className="flex items-center justify-between text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded-lg border dark:border-gray-700">
+                                                        <div className="flex items-center gap-2 overflow-hidden">
+                                                            <ClipboardDocumentListIcon className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                                                            <span className="truncate" title={doc.name}>{doc.name}</span>
+                                                            <span className="text-gray-400 text-xs flex-shrink-0">({(doc.size / 1024).toFixed(1)} KB)</span>
+                                                        </div>
+                                                        <button type="button" onClick={() => removeDocument(index)} className="text-red-500 flex-shrink-0 p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50">
+                                                            <CloseIcon className="w-4 h-4" />
+                                                        </button>
                                                     </li>
                                                 ))}
                                             </ul>

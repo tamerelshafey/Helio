@@ -1,5 +1,4 @@
 import React from 'react';
-import type { Language } from '../../types';
 import { Role } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import SuperAdminHomePage from './SuperAdminHomePage';
@@ -9,7 +8,7 @@ import ListingsManagerHomePage from './ListingsManagerHomePage';
 import PartnerRelationsHomePage from './PartnersManagerHomePage';
 import ContentManagerHomePage from './ContentManagerHomePage';
 
-const AdminHomePage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminHomePage: React.FC = () => {
     const { currentUser } = useAuth();
     
     if (!currentUser) {
@@ -18,17 +17,17 @@ const AdminHomePage: React.FC<{ language: Language }> = ({ language }) => {
 
     switch (currentUser.role) {
         case Role.SUPER_ADMIN:
-            return <SuperAdminHomePage language={language} />;
+            return <SuperAdminHomePage />;
         case Role.SERVICE_MANAGER:
-            return <ServiceManagerHomePage language={language} />;
+            return <ServiceManagerHomePage />;
         case Role.CUSTOMER_RELATIONS_MANAGER:
-            return <CustomerRelationsHomePage language={language} />;
+            return <CustomerRelationsHomePage />;
         case Role.LISTINGS_MANAGER:
-            return <ListingsManagerHomePage language={language} />;
+            return <ListingsManagerHomePage />;
         case Role.PARTNER_RELATIONS_MANAGER:
-            return <PartnerRelationsHomePage language={language} />;
+            return <PartnerRelationsHomePage />;
         case Role.CONTENT_MANAGER:
-            return <ContentManagerHomePage language={language} />;
+            return <ContentManagerHomePage />;
         default:
             return <div className="text-center p-8">Dashboard for this role is not available yet.</div>
     }

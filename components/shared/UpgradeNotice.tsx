@@ -3,12 +3,10 @@ import { Link } from 'react-router-dom';
 import type { Language } from '../../types';
 import { translations } from '../../data/translations';
 import { SparklesIcon } from '../icons/Icons';
+import { useLanguage } from './LanguageContext';
 
-interface UpgradeNoticeProps {
-    language: Language;
-}
-
-const UpgradeNotice: React.FC<UpgradeNoticeProps> = ({ language }) => {
+const UpgradeNotice: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].upgradePlanModal;
 
     return (

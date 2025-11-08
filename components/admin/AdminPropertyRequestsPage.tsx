@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, AddPropertyRequest, RequestStatus } from '../../types';
@@ -9,9 +10,10 @@ import { useAuth } from '../auth/AuthContext';
 import Pagination from '../shared/Pagination';
 import TableSkeleton from '../shared/TableSkeleton';
 import EmptyState from '../shared/EmptyState';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllPropertyRequests, updatePropertyRequestStatus } from '../../api/propertyRequests';
 import { useAdminTable } from './shared/useAdminTable';
-import { updatePropertyRequestStatus } from '../../api/propertyRequests';
+import { useLanguage } from '../shared/LanguageContext';
 
 const statusColors: { [key in RequestStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -24,10 +26,11 @@ const statusColors: { [key in RequestStatus]: string } = {
 
 const ITEMS_PER_PAGE = 10;
 
-const AdminPropertyRequestsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminPropertyRequestsPage: React.FC = () => {
+    const { language } = useLanguage();
     const t_req = translations[language].adminDashboard.adminRequests;
     const { currentUser } = useAuth();
-    const { propertyRequests, isLoading, refetchAll } = useDataContext();
+    const { data: propertyRequests, isLoading, refetch: refetchAll } = useApiQuery('propertyRequests', getAllPropertyRequests);
 
     const {
         paginatedItems: paginatedRequests,
@@ -39,7 +42,7 @@ const AdminPropertyRequestsPage: React.FC<{ language: Language }> = ({ language 
         data: propertyRequests,
         itemsPerPage: ITEMS_PER_PAGE,
         initialSort: { key: 'createdAt', direction: 'descending' },
-        searchFn: (req, term) => 
+        searchFn: (req: AddPropertyRequest, term: string) => 
             req.customerName.toLowerCase().includes(term) ||
             req.customerPhone.includes(term),
         filterFns: {}
@@ -135,7 +138,7 @@ const AdminPropertyRequestsPage: React.FC<{ language: Language }> = ({ language 
                         </tbody>
                     </table>
                 </div>
-                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

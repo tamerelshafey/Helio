@@ -1,3 +1,4 @@
+
 import { translations } from '../data/translations';
 import type { SubscriptionPlan, SubscriptionPlanDetails, PlanCategory } from '../types';
 
@@ -6,44 +7,29 @@ const SIMULATED_DELAY = 300;
 export const getPlans = (): Promise<Record<PlanCategory, Record<SubscriptionPlan, { ar: SubscriptionPlanDetails, en: SubscriptionPlanDetails }>>> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-        const plansData = {
-            developer: {
-                ar: (translations.ar as any).subscriptionPlans.developer,
-                en: (translations.en as any).subscriptionPlans.developer,
-            },
-            agency: {
-                ar: (translations.ar as any).subscriptionPlans.agency,
-                en: (translations.en as any).subscriptionPlans.agency,
-            },
-            finishing: {
-                ar: (translations.ar as any).subscriptionPlans.finishing,
-                en: (translations.en as any).subscriptionPlans.finishing,
-            },
-            individual: {
-                ar: (translations.ar as any).subscriptionPlans.individual,
-                en: (translations.en as any).subscriptionPlans.individual,
-            }
-        };
+        // Fully robust implementation using optional chaining to prevent any crashes from missing translation data.
+        const arPlans = translations?.ar?.subscriptionPlans;
+        const enPlans = translations?.en?.subscriptionPlans;
       
         const structuredData = {
             developer: {
-                basic: { ar: plansData.developer.ar.basic, en: plansData.developer.en.basic },
-                professional: { ar: plansData.developer.ar.professional, en: plansData.developer.en.professional },
-                elite: { ar: plansData.developer.ar.elite, en: plansData.developer.en.elite },
+                basic: { ar: arPlans?.developer?.basic, en: enPlans?.developer?.basic },
+                professional: { ar: arPlans?.developer?.professional, en: enPlans?.developer?.professional },
+                elite: { ar: arPlans?.developer?.elite, en: enPlans?.developer?.elite },
             },
             agency: {
-                basic: { ar: plansData.agency.ar.basic, en: plansData.agency.en.basic },
-                professional: { ar: plansData.agency.ar.professional, en: plansData.agency.en.professional },
-                elite: { ar: plansData.agency.ar.elite, en: plansData.agency.en.elite },
+                 basic: { ar: arPlans?.agency?.basic, en: enPlans?.agency?.basic },
+                professional: { ar: arPlans?.agency?.professional, en: enPlans?.agency?.professional },
+                elite: { ar: arPlans?.agency?.elite, en: enPlans?.agency?.elite },
             },
             finishing: {
-                commission: { ar: plansData.finishing.ar.commission, en: plansData.finishing.en.commission },
-                professional: { ar: plansData.finishing.ar.professional, en: plansData.finishing.en.professional },
-                elite: { ar: plansData.finishing.ar.elite, en: plansData.finishing.en.elite },
+                commission: { ar: arPlans?.finishing?.commission, en: enPlans?.finishing?.commission },
+                professional: { ar: arPlans?.finishing?.professional, en: enPlans?.finishing?.professional },
+                elite: { ar: arPlans?.finishing?.elite, en: enPlans?.finishing?.elite },
             },
             individual: {
-                paid_listing: { ar: plansData.individual.ar.paid_listing, en: plansData.individual.en.paid_listing },
-                commission: { ar: plansData.individual.ar.commission, en: plansData.individual.en.commission },
+                paid_listing: { ar: arPlans?.individual?.paid_listing, en: enPlans?.individual?.paid_listing },
+                commission: { ar: arPlans?.individual?.commission, en: enPlans?.individual?.commission },
             }
         };
 

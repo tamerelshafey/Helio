@@ -14,6 +14,14 @@ export const getAllProjects = (): Promise<Project[]> => {
     });
 };
 
+export const getProjectById = (id: string): Promise<Project | undefined> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(projectsData.find(p => p.id === id));
+        }, SIMULATED_DELAY);
+    });
+};
+
 export const getProjectsByPartnerId = (partnerId: string): Promise<Project[]> => {
     return new Promise((resolve) => {
         setTimeout(() => {

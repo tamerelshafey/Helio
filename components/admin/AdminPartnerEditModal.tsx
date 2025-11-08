@@ -6,15 +6,16 @@ import FormField, { selectClasses, inputClasses } from '../shared/FormField';
 import { getPlans } from '../../api/plans';
 import { updatePartnerAdmin } from '../../api/partners';
 import { useApiQuery } from '../shared/useApiQuery';
+import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminPartnerEditModalProps {
     partner: AdminPartner;
     onClose: () => void;
     onSave: () => void;
-    language: Language;
 }
 
-const AdminPartnerEditModal: React.FC<AdminPartnerEditModalProps> = ({ partner, onClose, onSave, language }) => {
+const AdminPartnerEditModal: React.FC<AdminPartnerEditModalProps> = ({ partner, onClose, onSave }) => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard;
     const t_shared = translations[language].adminShared;
     const { data: plans, isLoading: plansLoading } = useApiQuery('plans', getPlans);

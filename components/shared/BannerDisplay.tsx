@@ -1,16 +1,18 @@
+
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import type { Banner, Language } from '../../types';
+import type { Banner } from '../../types';
 import { getAllBanners } from '../../api/banners';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons';
 import { useApiQuery } from './useApiQuery';
+import { useLanguage } from './LanguageContext';
 
 interface BannerDisplayProps {
     location: 'home' | 'properties' | 'details' | 'finishing' | 'decorations';
-    language: Language;
 }
 
-const BannerDisplay: React.FC<BannerDisplayProps> = ({ location, language }) => {
+const BannerDisplay: React.FC<BannerDisplayProps> = ({ location }) => {
+    const { language } = useLanguage();
     const { data: banners, isLoading: loading } = useApiQuery('banners', getAllBanners);
     const [currentIndex, setCurrentIndex] = useState(0);
 

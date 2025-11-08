@@ -1,15 +1,16 @@
+
 import React, { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Language } from '../types';
 import { translations } from '../data/translations';
 import { CloseIcon } from './icons/Icons';
+import { useLanguage } from './shared/LanguageContext';
 
 interface UpgradePlanModalProps {
     onClose: () => void;
-    language: Language;
 }
 
-const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ onClose, language }) => {
+const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ onClose }) => {
+    const { language } = useLanguage();
     const t = translations[language].upgradePlanModal;
     const modalRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();

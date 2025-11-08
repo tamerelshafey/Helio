@@ -1,19 +1,19 @@
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import PropertyCard from './shared/PropertyCard';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
-import type { Language, Project } from '../types';
+import type { Project } from '../types';
 import { translations } from '../data/translations';
-import { useDataContext } from './shared/DataContext';
 import { isListingActive } from '../utils/propertyUtils';
+import { useApiQuery } from './shared/useApiQuery';
+import { getAllProperties } from '../api/properties';
+import { useLanguage } from './shared/LanguageContext';
 
-interface LatestPropertiesProps {
-  language: Language;
-}
-
-const LatestProperties: React.FC<LatestPropertiesProps> = ({ language }) => {
+const LatestProperties: React.FC = () => {
+  const { language } = useLanguage();
   const t = translations[language];
-  const { allProperties: properties, allProjects: projects, isLoading } = useDataContext();
+  const { data: properties, isLoading } = useApiQuery('allProperties', getAllProperties);
 
   const featuredProperties = useMemo(() => {
     if (!properties) return [];
@@ -22,11 +22,6 @@ const LatestProperties: React.FC<LatestPropertiesProps> = ({ language }) => {
       .sort((a, b) => new Date(b.listingStartDate || 0).getTime() - new Date(a.listingStartDate || 0).getTime())
       .slice(0, 4);
   }, [properties]);
-
-  const projectsMap = useMemo(() => {
-    if (!projects) return new Map<string, Project>();
-    return new Map(projects.map(p => [p.id, p]));
-  }, [projects]);
 
   return (
     <div className="py-20 bg-gray-50 dark:bg-gray-800">
@@ -43,10 +38,9 @@ const LatestProperties: React.FC<LatestPropertiesProps> = ({ language }) => {
           {isLoading ? (
             Array.from({ length: 4 }).map((_, index) => <PropertyCardSkeleton key={index} />)
           ) : (
-            featuredProperties.map((prop) => {
-              const project = prop.projectId ? projectsMap.get(prop.projectId) : undefined;
-              return <PropertyCard key={prop.id} {...prop} language={language} project={project} />;
-            })
+            featuredProperties.map((prop) => (
+              <PropertyCard key={prop.id} {...prop} />
+            ))
           )}
         </div>
       </div>

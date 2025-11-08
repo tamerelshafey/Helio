@@ -1,57 +1,70 @@
-import React, { useMemo, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import type { Language } from '../types';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon, SwimmingPoolIcon, ParkIcon, ShieldCheckIcon, ShoppingCartIcon, BuildingStorefrontIcon, ElevatorIcon } from './icons/Icons';
+import type { Property, Language } from '../types';
 import { translations } from '../data/translations';
-import PropertyCard from './shared/PropertyCard';
+import { useFavorites } from './shared/FavoritesContext';
+import Lightbox from './shared/Lightbox';
+import { isCommercial } from '../utils/propertyUtils';
 import BannerDisplay from './shared/BannerDisplay';
-import { 
-    ParkIcon, 
-    ShieldCheckIcon, 
-    ShoppingCartIcon, 
-    SwimmingPoolIcon, 
-    BuildingStorefrontIcon, 
-    ParkingIcon, 
-    ElevatorIcon 
-} from './icons/Icons';
-import { useDataContext } from './shared/DataContext';
+import { getPropertiesByProjectId } from '../api/properties';
+import { useApiQuery } from './shared/useApiQuery';
+import DetailItem from './shared/DetailItem';
+import ContactOptionsModal from './shared/ContactOptionsModal';
+import { useToast } from './shared/ToastContext';
 import SEO from './shared/SEO';
+import DetailSection from './shared/DetailSection';
+import { getProjectById } from '../api/projects';
+import { getAllAmenities } from '../api/filters';
+import { getPartnerById } from '../api/partners';
+import { useLanguage } from './shared/LanguageContext';
+import PropertyCard from './shared/PropertyCard';
 import ProjectDetailsSkeleton from './shared/ProjectDetailsSkeleton';
 
-const iconMap: { [key: string]: React.FC<{className?: string}> } = {
+
+const iconMap: { [key: string]: React.FC<{ className?: string }> } = {
+    SwimmingPoolIcon,
     ParkIcon,
     ShieldCheckIcon,
     ShoppingCartIcon,
-    SwimmingPoolIcon,
     BuildingStorefrontIcon,
-    ParkingIcon,
-    ElevatorIcon,
-};
-
-const FeatureIcon: React.FC<{ name: string, className?: string }> = ({ name, className }) => {
-    const IconComponent = iconMap[name];
-    return IconComponent ? <IconComponent className={className} /> : null;
+    ElevatorIcon
 };
 
 
-const ProjectDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
+const ProjectDetailsPage: React.FC = () => {
     const { projectId } = useParams<{ projectId: string }>();
+    const { language } = useLanguage();
     const t = translations[language];
     const t_page = translations[language].propertyDetailsPage;
 
-    const { allProjects: projects, allProperties: properties, allPartners: partners, isLoading } = useDataContext();
+    const fetchProject = useCallback(() => getProjectById(projectId!), [projectId]);
+    const { data: project, isLoading: isLoadingProjs } = useApiQuery(`project-${projectId}`, fetchProject, { enabled: !!projectId });
+    
+    const { data: projectProperties, isLoading: isLoadingProps } = useApiQuery(
+        `project-properties-${projectId}`,
+        () => getPropertiesByProjectId(projectId!),
+        { enabled: !!projectId }
+    );
+
+    const { data: developer, isLoading: isLoadingPartner } = useApiQuery(
+        `partner-${project?.partnerId}`,
+        () => getPartnerById(project!.partnerId),
+        { enabled: !!project?.partnerId }
+    );
+
+    const isLoading = isLoadingProjs || isLoadingProps || isLoadingPartner;
 
     const [activeType, setActiveType] = useState('all');
 
-    const project = useMemo(() => (projects || []).find(p => p.id === projectId), [projects, projectId]);
-    const developer = useMemo(() => project ? (partners || []).find(p => p.id === project.partnerId) : undefined, [partners, project]);
-    const projectProperties = useMemo(() => (properties || []).filter(prop => prop.projectId === projectId), [properties, projectId]);
-
     const unitTypes = useMemo(() => {
+        if (!projectProperties) return [];
         const types = new Set(projectProperties.map(p => p.type.en));
         return ['all', ...Array.from(types)];
     }, [projectProperties]);
     
     const filteredProperties = useMemo(() => {
+        if (!projectProperties) return [];
         if (activeType === 'all') return projectProperties;
         return projectProperties.filter(p => p.type.en === activeType);
     }, [projectProperties, activeType]);
@@ -108,20 +121,22 @@ const ProjectDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
                     <div className="mb-20">
                         <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 dark:text-white mb-12">{t_page.projectFeatures}</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
-                            {project.features.map((feature, index) => (
+                            {project.features.map((feature, index) => {
+                                const IconComponent = iconMap[feature.icon] || BuildingIcon;
+                                return (
                                 <div key={index} className="text-center flex flex-col items-center">
                                     <div className="bg-amber-100 dark:bg-amber-900/50 p-4 rounded-full mb-4">
-                                        <FeatureIcon name={feature.icon} className="w-8 h-8 text-amber-500" />
+                                        <IconComponent className="w-8 h-8 text-amber-500" />
                                     </div>
                                     <p className="font-semibold text-gray-700 dark:text-gray-200">{feature.text[language]}</p>
                                 </div>
-                            ))}
+                            )})}
                         </div>
                     </div>
                 )}
 
 
-                <BannerDisplay location="details" language={language} />
+                <BannerDisplay location="details" />
 
                 {/* Project Properties */}
                 <div className="mt-20">
@@ -133,7 +148,7 @@ const ProjectDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
                             {unitTypes.map(type => {
                                 const typeName = type === 'all' 
                                     ? t_page.allUnits 
-                                    : (properties || []).find(p => p.type.en === type)?.type[language] || type;
+                                    : (projectProperties || []).find(p => p.type.en === type)?.type[language] || type;
 
                                 return (
                                     <button
@@ -154,7 +169,7 @@ const ProjectDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
                     {filteredProperties.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                             {filteredProperties.map(prop => (
-                                <PropertyCard key={prop.id} {...prop} project={project} language={language} />
+                                <PropertyCard key={prop.id} {...prop} />
                             ))}
                         </div>
                     ) : (

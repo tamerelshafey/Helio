@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import type { Language, Property, Lead } from '../../types';
+import type { Property, Lead } from '../../types';
 import { translations } from '../../data/translations';
 import { useApiQuery } from '../shared/useApiQuery';
 import { getAllProjects, deleteProject as apiDeleteProject } from '../../api/projects';
@@ -11,23 +11,25 @@ import { useAuth } from '../auth/AuthContext';
 import UpgradePlanModal from '../UpgradePlanModal';
 import StatCard from '../shared/StatCard';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import { useLanguage } from '../shared/LanguageContext';
 
-const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
+const DashboardProjectDetailsPage: React.FC = () => {
     const { projectId } = useParams<{ projectId: string }>();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
+    const { language } = useLanguage();
     const t = translations[language];
     const t_proj = t.projectDashboard;
     const t_prop_table = t.dashboard.propertyTable;
     const t_analytics = t.dashboard.projectAnalytics;
 
-    const { data: projects, isLoading: loadingProjects } = useApiQuery('allProjects', getAllProjects);
+    const { data: projects, isLoading: loadingProjects, refetch: refetchProjects } = useApiQuery('allProjects', getAllProjects);
     const { data: partnerProperties, isLoading: loadingProperties, refetch: refetchProperties } = useApiQuery(
         `partner-properties-${currentUser?.id}`,
         () => getPropertiesByPartnerId(currentUser!.id),
         { enabled: !!currentUser }
     );
-    const { data: leads, isLoading: loadingLeads } = useApiQuery(`leads-${currentUser?.id}`, () => getLeadsByPartnerId(currentUser!.id), { enabled: !!currentUser });
+    const { data: leads, isLoading: loadingLeads, refetch: refetchLeads } = useApiQuery(`leads-${currentUser?.id}`, () => getLeadsByPartnerId(currentUser!.id), { enabled: !!currentUser });
     
     const { isLimitReached: isUnitsLimitReached } = useSubscriptionUsage('units');
     
@@ -45,12 +47,20 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
             navigate(`/dashboard/properties/new?projectId=${project.id}`);
         }
     };
+    
+    const refetchAll = useCallback(() => {
+        refetchProjects();
+        refetchProperties();
+        refetchLeads();
+    }, [refetchProjects, refetchProperties, refetchLeads]);
+
 
     const handleDeleteProject = async () => {
         if (project && window.confirm(t_proj.confirmDelete)) {
             const propertyDeletions = projectProperties.map(p => apiDeleteProperty(p.id));
             await Promise.all(propertyDeletions);
             await apiDeleteProject(project.id);
+            refetchAll();
             navigate('/dashboard/projects');
         }
     };
@@ -118,7 +128,7 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
 
     return (
         <div>
-            {isUpgradeModalOpen && <UpgradePlanModal language={language} onClose={() => setIsUpgradeModalOpen(false)} />}
+            {isUpgradeModalOpen && <UpgradePlanModal onClose={() => setIsUpgradeModalOpen(false)} />}
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
                 <div className="flex flex-col sm:flex-row gap-6">
                     <img src={project.imageUrl} alt={project.name[language]} className="w-full sm:w-48 h-48 object-cover rounded-lg flex-shrink-0" />
@@ -192,8 +202,8 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
             {activeTab === 'analytics' && (
                 <div className="animate-fadeIn space-y-8">
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <StatCard title={t.dashboardHome.totalUnits} value={projectProperties.length} icon={<BuildingIcon className="w-6 h-6"/>} linkTo="#"/>
-                        <StatCard title={t_analytics.totalLeads} value={projectAnalytics.totalLeads} icon={<InboxIcon className="w-6 h-6"/>} linkTo="#"/>
+                        <StatCard title={t.dashboardHome.totalUnits} value={projectProperties.length} icon={BuildingIcon} linkTo="#"/>
+                        <StatCard title={t_analytics.totalLeads} value={projectAnalytics.totalLeads} icon={InboxIcon} linkTo="#"/>
                      </div>
                      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t_analytics.topPerformingUnits}</h3>

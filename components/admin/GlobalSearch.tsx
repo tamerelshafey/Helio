@@ -1,6 +1,7 @@
+
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Language, AdminPartner, Property, Project } from '../../types';
+import type { AdminPartner, Property, Project } from '../../types';
 import { translations } from '../../data/translations';
 import { useApiQuery } from '../shared/useApiQuery';
 import { getAllPartnersForAdmin } from '../../api/partners';
@@ -8,8 +9,10 @@ import { getAllProperties } from '../../api/properties';
 import { getAllProjects } from '../../api/projects';
 import { SearchIcon, CloseIcon } from '../icons/Icons';
 import { useDebounce } from '../hooks/useDebounce';
+import { useLanguage } from '../shared/LanguageContext';
 
-const GlobalSearch: React.FC<{ language: Language }> = ({ language }) => {
+const GlobalSearch: React.FC = () => {
+    const { language } = useLanguage();
     const [query, setQuery] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const debouncedQuery = useDebounce(query, 300);
@@ -101,7 +104,7 @@ const GlobalSearch: React.FC<{ language: Language }> = ({ language }) => {
                             <ul>
                                 {searchResults.partners.map(p => (
                                     <li key={p.id}>
-                                        <button onClick={() => handleNavigation(`/admin/partners?edit=${p.id}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3">
+                                        <button onClick={() => handleNavigation(`/admin/partners?edit=${p.id}&highlight=${p.id}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3">
                                             <img src={p.imageUrl} className="w-8 h-8 rounded-full object-cover"/>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-800 dark:text-white">{language === 'ar' ? p.nameAr : p.name}</p>

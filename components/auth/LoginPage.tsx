@@ -9,12 +9,10 @@ import { inputClasses } from '../shared/FormField';
 import { HelioLogo } from '../HelioLogo';
 import { partnersData } from '../../data/partners';
 import { rolePermissions } from '../../data/permissions';
+import { useLanguage } from '../shared/LanguageContext';
 
-interface LoginPageProps {
-  language: Language;
-}
-
-const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
+const LoginPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].auth;
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

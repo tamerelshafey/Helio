@@ -1,17 +1,20 @@
+
+
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, Partner, AdminPartner } from '../types';
+import type { AdminPartner } from '../types';
 import { translations } from '../data/translations';
-import { useDataContext } from './shared/DataContext';
+import { useApiQuery } from './shared/useApiQuery';
+import { getAllPartnersForAdmin } from '../api/partners';
+import { getContent } from '../api/content';
+import { useLanguage } from './shared/LanguageContext';
 
-interface PartnersProps {
-    language: Language;
-}
-
-const PartnerCard: React.FC<{ partner: AdminPartner, language: Language }> = ({ partner, language }) => {
+const PartnerCard: React.FC<{ partner: AdminPartner }> = ({ partner }) => {
+    const { language } = useLanguage();
     // Note: Localized partner info is now in translations.ts, not from the API object directly
     const localizedPartner = useMemo(() => {
-        return (translations[language].partnerInfo as any)[partner.id];
+        return translations[language].partnerInfo[partner.id];
     }, [partner.id, language]);
     
     if (!localizedPartner) return null;
@@ -36,8 +39,11 @@ const PartnerCard: React.FC<{ partner: AdminPartner, language: Language }> = ({ 
     );
 };
 
-const Partners: React.FC<PartnersProps> = ({ language }) => {
-    const { allPartners: partners, siteContent, isLoading } = useDataContext();
+const Partners: React.FC = () => {
+    const { language } = useLanguage();
+    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
+    const isLoading = isLoadingPartners || isLoadingContent;
 
     const content = useMemo(() => {
         if (!siteContent) return null;
@@ -66,7 +72,7 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
     }
 
     return (
-        <div className="py-20 bg-gray-50 dark:bg-gray-900">
+        <div className="py-20 bg-gray-50 dark:bg-gray-900 subtle-bg">
             <div className="container mx-auto px-6">
                 <div className="text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -84,7 +90,7 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                            {categorizedPartners.majorDevelopers.map(partner => (
-                               <PartnerCard key={partner.id} partner={partner} language={language} />
+                               <PartnerCard key={partner.id} partner={partner} />
                            ))}
                         </div>
                     </div>
@@ -97,7 +103,7 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                            {categorizedPartners.cityDevelopers.map(partner => (
-                               <PartnerCard key={partner.id} partner={partner} language={language} />
+                               <PartnerCard key={partner.id} partner={partner} />
                            ))}
                         </div>
                     </div>
@@ -111,7 +117,7 @@ const Partners: React.FC<PartnersProps> = ({ language }) => {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                             {section.partners.map((partner) => (
-                               <PartnerCard key={partner.id} partner={partner} language={language} />
+                               <PartnerCard key={partner.id} partner={partner} />
                             ))}
                         </div>
                     </div>

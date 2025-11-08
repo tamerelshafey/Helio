@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import type { Language, SubscriptionPlan } from '../../types';
+import type { SubscriptionPlan } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import { inputClasses } from '../shared/FormField';
 import { updatePartner } from '../../api/partners';
 import { useToast } from '../shared/ToastContext';
+import { useLanguage } from '../shared/LanguageContext';
 
 const textareaClasses = `${inputClasses} min-h-[120px]`;
 
@@ -21,7 +22,8 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-const DashboardProfilePage: React.FC<{ language: Language }> = ({ language }) => {
+const DashboardProfilePage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].dashboard;
     const t_plans_base = translations[language].subscriptionPlans;
     const { currentUser, loading: authLoading } = useAuth();
@@ -33,8 +35,9 @@ const DashboardProfilePage: React.FC<{ language: Language }> = ({ language }) =>
     
     useEffect(() => {
         if (currentUser && 'type' in currentUser) {
-            const arPartnerInfo = translations.ar.partnerInfo[currentUser.id as keyof typeof translations.ar.partnerInfo];
-            const enPartnerInfo = translations.en.partnerInfo[currentUser.id as keyof typeof translations.en.partnerInfo];
+            // FIX: Ensure partnerInfo lookups are safe
+            const arPartnerInfo = (translations.ar.partnerInfo as any)[currentUser.id];
+            const enPartnerInfo = (translations.en.partnerInfo as any)[currentUser.id];
 
             reset({
                 nameAr: arPartnerInfo?.name || '',
@@ -75,7 +78,6 @@ const DashboardProfilePage: React.FC<{ language: Language }> = ({ language }) =>
 
         if (result) {
             showToast(t.profileUpdateSuccess, 'success');
-            // Reload to reflect changes globally (e.g., in Header)
             setTimeout(() => window.location.reload(), 1500);
         } else {
             showToast('Failed to update profile.', 'error');

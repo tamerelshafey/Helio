@@ -1,18 +1,21 @@
+
+
 import React, { useState, useEffect, useRef } from 'react';
-import type { Language, PartnerStatus, AdminPartner, PartnerType } from '../../types';
+import type { PartnerStatus, AdminPartner, PartnerType } from '../../types';
 import { translations } from '../../data/translations';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { addInternalUser, updateUser } from '../../api/partners';
+import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminUserFormModalProps {
     userToEdit?: AdminPartner;
     onClose: () => void;
     onSave: () => void;
-    language: Language;
 }
 
-const AdminUserFormModal: React.FC<AdminUserFormModalProps> = ({ userToEdit, onClose, onSave, language }) => {
+const AdminUserFormModal: React.FC<AdminUserFormModalProps> = ({ userToEdit, onClose, onSave }) => {
+    const { language } = useLanguage();
     const t_admin = translations[language].adminDashboard;
     const t_um = t_admin.userManagement;
     const t_shared = translations[language].adminShared;
@@ -70,23 +73,18 @@ const AdminUserFormModal: React.FC<AdminUserFormModalProps> = ({ userToEdit, onC
                         <FormField label={t_um.form.email} id="email"><input type="email" name="email" value={formData.email} onChange={handleChange} className={inputClasses} required /></FormField>
                         {!userToEdit && (
                             <FormField label={t_um.form.password} id="password">
-                                <input type="password" name="password" value={formData.password} onChange={handleChange} className={inputClasses} placeholder="Leave blank for default" />
-                                <p className="text-xs text-gray-500 mt-1">{t_um.form.passwordHelp}</p>
+                                <input type="password" name="password" value={formData.password} onChange={handleChange} className={inputClasses} placeholder={t_um.form.passwordHelp} />
                             </FormField>
                         )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField label={t_um.role} id="type">
-                                <select name="type" value={formData.type} onChange={handleChange} className={selectClasses} required>
-                                    {allPartnerTypes.map(([key, value]) => (
-                                        <option key={key} value={key}>{value}</option>
-                                    ))}
+                                <select name="type" value={formData.type} onChange={handleChange} className={selectClasses}>
+                                    {allPartnerTypes.map(([key, value]) => <option key={key} value={key}>{value}</option>)}
                                 </select>
                             </FormField>
-                             <FormField label={t_um.status} id="status">
-                                <select name="status" value={formData.status} onChange={handleChange} className={selectClasses} required>
-                                    <option value="active">{t_admin.partnerStatuses.active}</option>
-                                    <option value="disabled">{t_admin.partnerStatuses.disabled}</option>
-                                    <option value="pending">{t_admin.partnerStatuses.pending}</option>
+                            <FormField label={t_um.status} id="status">
+                                <select name="status" value={formData.status} onChange={handleChange} className={selectClasses}>
+                                    {Object.entries(t_admin.partnerStatuses).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
                                 </select>
                             </FormField>
                         </div>
@@ -103,4 +101,5 @@ const AdminUserFormModal: React.FC<AdminUserFormModalProps> = ({ userToEdit, onC
     );
 };
 
+// FIX: Added default export to resolve module import error.
 export default AdminUserFormModal;

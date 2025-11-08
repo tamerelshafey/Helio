@@ -3,6 +3,7 @@ import type { AdminPartner, Language } from '../../types';
 import { translations } from '../../data/translations';
 import { CloseIcon, WhatsAppIcon, PhoneIcon } from '../icons/Icons';
 import { ClipboardDocumentListIcon } from '../icons/Icons';
+import { useLanguage } from './LanguageContext';
 
 interface ContactOptionsModalProps {
     isOpen: boolean;
@@ -13,10 +14,10 @@ interface ContactOptionsModalProps {
         form: { enabled: boolean; };
     };
     onSelectForm: () => void;
-    language: Language;
 }
 
-const ContactOptionsModal: React.FC<ContactOptionsModalProps> = ({ isOpen, onClose, contactMethods, onSelectForm, language }) => {
+const ContactOptionsModal: React.FC<ContactOptionsModalProps> = ({ isOpen, onClose, contactMethods, onSelectForm }) => {
+    const { language } = useLanguage();
     const t = translations[language].contactOptionsModal;
     const modalRef = useRef<HTMLDivElement>(null);
 

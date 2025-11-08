@@ -1,3 +1,5 @@
+
+
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPartnerByEmail, getPartnerById } from '../../api/partners';
@@ -36,7 +38,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             try {
                 const userId = localStorage.getItem('onlyhelio-auth-id');
                 if (userId) {
-                    let user: Partner | undefined = getPartnerById(userId);
+                    // FIX: The `getPartnerById` function is async and must be awaited.
+                    const user = await getPartnerById(userId);
                     if (user) {
                         setUserAndPermissions(user);
                     }

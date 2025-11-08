@@ -1,14 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import type { Language, Project } from '../../types';
+import type { Project } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses } from '../shared/FormField';
 import { addProject, updateProject } from '../../api/projects';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllProjects } from '../../api/projects';
 import { Role, Permission } from '../../types';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 import UpgradeNotice from '../shared/UpgradeNotice';
+import { useLanguage } from '../shared/LanguageContext';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -19,11 +23,12 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
+const ProjectFormPage: React.FC = () => {
+    const { language } = useLanguage();
     const { projectId } = useParams();
     const navigate = useNavigate();
     const { currentUser, hasPermission } = useAuth();
-    const { allProjects: projects, isLoading: projectsLoading } = useDataContext();
+    const { data: projects, isLoading: projectsLoading } = useApiQuery('allProjects', getAllProjects);
     const t_form = translations[language].projectDashboard.projectForm;
 
     const { isLimitReached } = useSubscriptionUsage('projects');
@@ -38,16 +43,15 @@ const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
     useEffect(() => {
         if (projectId && projects) {
             const project = projects.find(p => p.id === projectId);
-            const userCanEdit = currentUser && 'type' in currentUser && (project?.partnerId === currentUser.id || hasPermission(Permission.MANAGE_ALL_PROJECTS));
-
-            if (project && userCanEdit) {
+            // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
+            if (project && currentUser && 'type' in currentUser && (project.partnerId === currentUser.id || hasPermission(Permission.MANAGE_ALL_PROJECTS))) {
                 setFormData({
                     name: project.name,
                     description: project.description,
                 });
                 setImage(project.imageUrl);
-            } else if (projectId && !projectsLoading) { // If an edit was attempted but failed
-                 const redirectPath = hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
+            } else if (!projectsLoading) { // check if projects have been loaded
+                 const redirectPath = currentUser && 'type' in currentUser && hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
                 navigate(redirectPath);
             }
         }
@@ -88,7 +92,8 @@ const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
         }
         
         setFormLoading(false);
-        const redirectPath = hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
+        // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
+        const redirectPath = currentUser && 'type' in currentUser && hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
         navigate(redirectPath);
     };
     
@@ -97,7 +102,7 @@ const ProjectFormPage: React.FC<{ language: Language }> = ({ language }) => {
     const isAdmin = currentUser && 'type' in currentUser && hasPermission(Permission.MANAGE_ALL_PROJECTS);
 
     if (isLimitReached && !projectId && !isAdmin) {
-        return <UpgradeNotice language={language} />;
+        return <UpgradeNotice />;
     }
 
     return (

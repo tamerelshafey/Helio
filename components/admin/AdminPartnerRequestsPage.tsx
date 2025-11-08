@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, PartnerRequest } from '../../types';
@@ -8,16 +9,19 @@ import { useAuth } from '../auth/AuthContext';
 import Pagination from '../shared/Pagination';
 import TableSkeleton from '../shared/TableSkeleton';
 import EmptyState from '../shared/EmptyState';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllPartnerRequests } from '../../api/partnerRequests';
 import { useAdminTable } from './shared/useAdminTable';
+import { useLanguage } from '../shared/LanguageContext';
 
 const ITEMS_PER_PAGE = 10;
 
-const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminPartnerRequestsPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard;
     const t_req = t.adminRequests;
     const { currentUser } = useAuth();
-    const { partnerRequests, isLoading } = useDataContext();
+    const { data: partnerRequests, isLoading } = useApiQuery('partnerRequests', getAllPartnerRequests);
 
     const {
         paginatedItems: paginatedRequests,
@@ -30,12 +34,12 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
         data: partnerRequests,
         itemsPerPage: ITEMS_PER_PAGE,
         initialSort: { key: 'createdAt', direction: 'descending' },
-        searchFn: (req, term) => 
+        searchFn: (req: PartnerRequest, term: string) => 
             req.companyName.toLowerCase().includes(term) ||
             req.contactName.toLowerCase().includes(term) ||
             req.contactEmail.toLowerCase().includes(term),
         filterFns: {
-            status: (req, v) => req.status === v,
+            status: (req: PartnerRequest, v: string) => req.status === v,
         }
     });
 
@@ -127,7 +131,7 @@ const AdminPartnerRequestsPage: React.FC<{ language: Language }> = ({ language }
                     </tbody>
                 </table>
                 </div>
-                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

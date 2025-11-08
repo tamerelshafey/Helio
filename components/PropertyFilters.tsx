@@ -4,9 +4,9 @@ import { translations } from '../data/translations';
 import { SearchIcon, ArrowDownIcon, ChevronRightIcon } from './icons/Icons';
 import { inputClasses, selectClasses } from './shared/FormField';
 import type { usePropertyFilters } from './shared/usePropertyFilters';
+import { useLanguage } from './shared/LanguageContext';
 
 interface PropertyFiltersProps {
-  language: Language;
   filters: ReturnType<typeof usePropertyFilters>;
   projects: Project[];
   partners: AdminPartner[];
@@ -16,7 +16,6 @@ interface PropertyFiltersProps {
 }
 
 const PropertyFilters: React.FC<PropertyFiltersProps> = ({
-  language,
   filters,
   projects,
   partners,
@@ -24,6 +23,7 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
   finishingStatuses,
   amenities,
 }) => {
+    const { language } = useLanguage();
     const t = translations[language].propertiesPage;
     const [showAdvanced, setShowAdvanced] = useState(false);
     

@@ -1,18 +1,20 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { Language, DecorationCategory } from '../../types';
 import { translations } from '../../data/translations';
 import FormField, { inputClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { addDecorationCategory, updateDecorationCategory } from '../../api/decorations';
+import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminDecorationCategoryFormModalProps {
     categoryToEdit?: DecorationCategory;
     onClose: () => void;
     onSave: () => void;
-    language: Language;
 }
 
-const AdminDecorationCategoryFormModal: React.FC<AdminDecorationCategoryFormModalProps> = ({ categoryToEdit, onClose, onSave, language }) => {
+const AdminDecorationCategoryFormModal: React.FC<AdminDecorationCategoryFormModalProps> = ({ categoryToEdit, onClose, onSave }) => {
+    const { language } = useLanguage();
     const t_shared = translations[language].adminShared;
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);

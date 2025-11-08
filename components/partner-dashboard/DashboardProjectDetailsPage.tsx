@@ -1,40 +1,44 @@
-import React, { useState, useMemo } from 'react';
+
+import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import type { Language, Property, Lead } from '../../types';
+import type { Property, Lead } from '../../types';
 import { translations } from '../../data/translations';
-import { useDataContext } from '../shared/DataContext';
-import { deleteProject as apiDeleteProject } from '../../api/projects';
-import { deleteProperty as apiDeleteProperty } from '../../api/properties';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllProjects, deleteProject as apiDeleteProject } from '../../api/projects';
+import { getPropertiesByPartnerId, deleteProperty as apiDeleteProperty } from '../../api/properties';
+import { getLeadsByPartnerId } from '../../api/leads';
 import { BuildingIcon, ChartBarIcon, InboxIcon } from '../icons/Icons';
 import { useAuth } from '../auth/AuthContext';
 import UpgradePlanModal from '../UpgradePlanModal';
 import StatCard from '../shared/StatCard';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import { useLanguage } from '../shared/LanguageContext';
 
-const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
+const DashboardProjectDetailsPage: React.FC = () => {
     const { projectId } = useParams<{ projectId: string }>();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
+    const { language } = useLanguage();
     const t = translations[language];
     const t_proj = t.projectDashboard;
     const t_prop_table = t.dashboard.propertyTable;
     const t_analytics = t.dashboard.projectAnalytics;
 
-    const { 
-        allProjects, 
-        allProperties, 
-        allLeads, 
-        isLoading, 
-        refetchAll 
-    } = useDataContext();
-
+    const { data: projects, isLoading: loadingProjects, refetch: refetchProjects } = useApiQuery('allProjects', getAllProjects);
+    const { data: partnerProperties, isLoading: loadingProperties, refetch: refetchProperties } = useApiQuery(
+        `partner-properties-${currentUser?.id}`,
+        () => getPropertiesByPartnerId(currentUser!.id),
+        { enabled: !!currentUser }
+    );
+    const { data: leads, isLoading: loadingLeads, refetch: refetchLeads } = useApiQuery(`leads-${currentUser?.id}`, () => getLeadsByPartnerId(currentUser!.id), { enabled: !!currentUser });
+    
     const { isLimitReached: isUnitsLimitReached } = useSubscriptionUsage('units');
     
     const [activeTab, setActiveTab] = useState('units');
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
-    const project = useMemo(() => (allProjects || []).find(p => p.id === projectId), [allProjects, projectId]);
-    const projectProperties = useMemo(() => (allProperties || []).filter(p => p.projectId === projectId && p.partnerId === currentUser?.id), [allProperties, projectId, currentUser?.id]);
+    const project = useMemo(() => (projects || []).find(p => p.id === projectId), [projects, projectId]);
+    const projectProperties = useMemo(() => (partnerProperties || []).filter(p => p.projectId === projectId), [partnerProperties, projectId]);
 
     const handleAddUnitClick = () => {
         if (!project) return;
@@ -44,6 +48,13 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
             navigate(`/dashboard/properties/new?projectId=${project.id}`);
         }
     };
+    
+    const refetchAll = useCallback(() => {
+        refetchProjects();
+        refetchProperties();
+        refetchLeads();
+    }, [refetchProjects, refetchProperties, refetchLeads]);
+
 
     const handleDeleteProject = async () => {
         if (project && window.confirm(t_proj.confirmDelete)) {
@@ -58,20 +69,21 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
     const handleDeleteProperty = async (propertyId: string) => {
         if (window.confirm(t_prop_table.confirmDelete)) {
             await apiDeleteProperty(propertyId);
-            refetchAll();
+            refetchProperties();
         }
     };
     
+    // Analytics Data Memoization
     const projectAnalytics = useMemo(() => {
-        if (!allLeads || !projectProperties) return { totalLeads: 0, topUnits: [] };
+        if (!leads || !projectProperties) return { totalLeads: 0, topUnits: [] };
         
-        const propertyIdMap = new Map<string, string>();
+        const propertyIdMap = new Map<string, string>(); // Map title -> propertyId
         projectProperties.forEach(p => {
             propertyIdMap.set(p.title.ar, p.id);
             propertyIdMap.set(p.title.en, p.id);
         });
 
-        const projectLeads = allLeads.filter(lead => {
+        const projectLeads = leads.filter(lead => {
             const titleMatch = lead.serviceTitle.match(/"([^"]+)"/);
             if(titleMatch) {
                 const propertyId = propertyIdMap.get(titleMatch[1]);
@@ -102,10 +114,12 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
 
         return { totalLeads: projectLeads.length, topUnits };
 
-    }, [allLeads, projectProperties]);
+    }, [leads, projectProperties]);
 
 
-    if (isLoading) {
+    const loading = loadingProjects || loadingProperties || loadingLeads;
+
+    if (loading) {
         return <div className="text-center p-8">Loading project details...</div>;
     }
 
@@ -115,7 +129,7 @@ const DashboardProjectDetailsPage: React.FC<{ language: Language }> = ({ languag
 
     return (
         <div>
-            {isUpgradeModalOpen && <UpgradePlanModal language={language} onClose={() => setIsUpgradeModalOpen(false)} />}
+            {isUpgradeModalOpen && <UpgradePlanModal onClose={() => setIsUpgradeModalOpen(false)} />}
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
                 <div className="flex flex-col sm:flex-row gap-6">
                     <img src={project.imageUrl} alt={project.name[language]} className="w-full sm:w-48 h-48 object-cover rounded-lg flex-shrink-0" />

@@ -5,10 +5,13 @@ import { translations } from '../data/translations';
 import FormField, { inputClasses, selectClasses } from './shared/FormField';
 import { addLead } from '../api/leads';
 import { HelioLogo } from './HelioLogo';
-import { useDataContext } from './shared/DataContext';
 import { useToast } from './shared/ToastContext';
+import { useApiQuery } from './shared/useApiQuery';
+import { getAllPartnersForAdmin } from '../api/partners';
+import { useLanguage } from './shared/LanguageContext';
 
-const ServiceRequestPage: React.FC<{ language: Language }> = ({ language }) => {
+const ServiceRequestPage: React.FC = () => {
+    const { language } = useLanguage();
     const location = useLocation();
     const navigate = useNavigate();
     const t_modal = translations[language].serviceRequestModal;
@@ -17,7 +20,7 @@ const ServiceRequestPage: React.FC<{ language: Language }> = ({ language }) => {
     const t_decor = translations[language].decorationsPage;
 
     const { serviceTitle, partnerId, propertyId, workItem, isCustom, serviceType } = location.state || {};
-    const { allPartners: allPartners } = useDataContext();
+    const { data: allPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
     const { showToast } = useToast();
     
     const [formData, setFormData] = useState({

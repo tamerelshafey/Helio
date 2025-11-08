@@ -6,23 +6,17 @@ import { translations } from '../data/translations';
 import { useFavorites } from './shared/FavoritesContext';
 import { HeartIcon } from './icons/Icons';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
-import { useDataContext } from './shared/DataContext';
+import { useApiQuery } from './shared/useApiQuery';
+import { getAllProperties } from '../api/properties';
+import { useLanguage } from './shared/LanguageContext';
 
-interface FavoritesPageProps {
-  language: Language;
-}
-
-const FavoritesPage: React.FC<FavoritesPageProps> = ({ language }) => {
+const FavoritesPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].favoritesPage;
     const { favorites } = useFavorites();
-    const { allProperties: properties, allProjects: projects, isLoading } = useDataContext();
+    const { data: properties, isLoading } = useApiQuery('allProperties', getAllProperties);
 
     const favoriteProperties = (properties || []).filter(p => favorites.includes(p.id));
-
-    const projectsMap = useMemo(() => {
-        if (!projects) return new Map<string, Project>();
-        return new Map(projects.map(p => [p.id, p]));
-    }, [projects]);
 
     return (
         <div className="py-20 bg-white dark:bg-gray-900 min-h-[60vh]">
@@ -38,10 +32,9 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ language }) => {
                 </div>
             ) : favoriteProperties.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-                    {favoriteProperties.map((prop) => {
-                        const project = prop.projectId ? projectsMap.get(prop.projectId) : undefined;
-                        return <PropertyCard key={prop.id} {...prop} language={language} project={project} />;
-                    })}
+                    {favoriteProperties.map((prop) => (
+                        <PropertyCard key={prop.id} {...prop} />
+                    ))}
                 </div>
             ) : (
                 <div className="text-center py-16 flex flex-col items-center">

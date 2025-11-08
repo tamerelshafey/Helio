@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useApiQuery } from '../shared/useApiQuery';
 import { getRolePermissions, updateRolePermissions } from '../../api/permissions';
@@ -5,6 +7,7 @@ import { Role, Permission } from '../../types';
 import type { Language } from '../../types';
 import { useToast } from '../shared/ToastContext';
 import { translations } from '../../data/translations';
+import { useLanguage } from '../shared/LanguageContext';
 
 const permissionGroups = {
   adminAccess: {
@@ -44,8 +47,8 @@ const RolePermissions: React.FC<{
     roleDescription: string;
     permissions: Permission[];
     onPermissionChange: (role: Role, permission: Permission, checked: boolean) => void;
-    language: Language;
-}> = ({ role, roleName, roleDescription, permissions, onPermissionChange, language }) => {
+}> = ({ role, roleName, roleDescription, permissions, onPermissionChange }) => {
+    const { language } = useLanguage();
     return (
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50">
@@ -77,7 +80,8 @@ const RolePermissions: React.FC<{
 };
 
 
-const AdminRolesPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminRolesPage: React.FC = () => {
+    const { language } = useLanguage();
     const { data, isLoading, refetch } = useApiQuery('rolePermissions', getRolePermissions);
     const { showToast } = useToast();
     const t_admin = translations[language].adminDashboard;
@@ -134,17 +138,20 @@ const AdminRolesPage: React.FC<{ language: Language }> = ({ language }) => {
             <p className="text-gray-500 dark:text-gray-400 mb-8">Manage what each user role can see and do on the platform.</p>
 
             <div className="space-y-6">
-                {rolesToManage.map(role => (
-                    <RolePermissions
-                        key={role}
-                        role={role}
-                        roleName={getRoleName(role)}
-                        roleDescription={t_admin.roleDescriptions[role as keyof typeof t_admin.roleDescriptions] || ''}
-                        permissions={permissionsMap.get(role) || []}
-                        onPermissionChange={handlePermissionChange}
-                        language={language}
-                    />
-                ))}
+                {rolesToManage.map(role => {
+                    // FIX: Find the uppercase key of the Role enum from its lowercase value to correctly access the translation object.
+                    const roleKey = Object.keys(Role).find(key => (Role as any)[key] === role) as keyof typeof t_admin.roleDescriptions;
+                    return (
+                        <RolePermissions
+                            key={role}
+                            role={role}
+                            roleName={getRoleName(role)}
+                            roleDescription={t_admin.roleDescriptions[roleKey] || ''}
+                            permissions={permissionsMap.get(role) || []}
+                            onPermissionChange={handlePermissionChange}
+                        />
+                    );
+                })}
             </div>
 
             <div className="mt-8 flex justify-end">

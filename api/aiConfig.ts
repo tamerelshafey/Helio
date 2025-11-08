@@ -15,7 +15,16 @@ export const getAIEstimatorConfig = (): Promise<AIEstimatorConfig> => {
 export const updateAIEstimatorConfig = (updates: Partial<AIEstimatorConfig>): Promise<AIEstimatorConfig> => {
     return new Promise((resolve) => {
         setTimeout(() => {
-            Object.assign(aiEstimatorConfigData, updates);
+            // Deep merge for stages array
+            if (updates.stages) {
+                aiEstimatorConfigData.stages = updates.stages;
+            }
+            if (updates.prompt) {
+                aiEstimatorConfigData.prompt = updates.prompt;
+            }
+            if (updates.model) {
+                aiEstimatorConfigData.model = updates.model;
+            }
             resolve(JSON.parse(JSON.stringify(aiEstimatorConfigData)));
         }, SIMULATED_DELAY);
     });

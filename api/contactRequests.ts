@@ -1,3 +1,4 @@
+
 import { contactRequestsData } from '../data/contactRequests';
 import type { ContactRequest, RequestStatus, PartnerType } from '../types';
 import { addNotification } from './notifications';
@@ -12,7 +13,8 @@ export const getAllContactRequests = (): Promise<ContactRequest[]> => {
   });
 };
 
-export const addContactRequest = (data: Omit<ContactRequest, 'id' | 'status' | 'createdAt'>): Promise<ContactRequest> => {
+// FIX: The managerId is assigned internally, so it should not be part of the input type.
+export const addContactRequest = (data: Omit<ContactRequest, 'id' | 'status' | 'createdAt' | 'managerId'>): Promise<ContactRequest> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       const newRequest: ContactRequest = {

@@ -3,12 +3,10 @@ import { Link } from 'react-router-dom';
 import type { Language } from '../types';
 import { translations } from '../data/translations';
 import { SearchIcon } from './icons/Icons'; // Using a relevant icon
+import { useLanguage } from './shared/LanguageContext';
 
-interface NotFoundPageProps {
-  language: Language;
-}
-
-const NotFoundPage: React.FC<NotFoundPageProps> = ({ language }) => {
+const NotFoundPage: React.FC = () => {
+  const { language } = useLanguage();
   const t = translations[language].notFoundPage;
 
   return (

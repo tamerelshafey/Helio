@@ -10,9 +10,11 @@ import UpgradePlanModal from '../UpgradePlanModal';
 import ExportDropdown from '../shared/ExportDropdown';
 import { deleteProperty as apiDeleteProperty } from '../../api/properties';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import { useLanguage } from '../shared/LanguageContext';
 
 
-const DashboardPropertiesPage: React.FC<{ language: Language }> = ({ language }) => {
+const DashboardPropertiesPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].dashboard;
     const { currentUser } = useAuth();
     const navigate = useNavigate();
@@ -75,7 +77,7 @@ const DashboardPropertiesPage: React.FC<{ language: Language }> = ({ language })
 
     return (
         <div>
-            {isUpgradeModalOpen && <UpgradePlanModal language={language} onClose={() => setIsUpgradeModalOpen(false)} />}
+            {isUpgradeModalOpen && <UpgradePlanModal onClose={() => setIsUpgradeModalOpen(false)} />}
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t.propertiesTitle}</h1>
                  <div className="flex items-center gap-4">
@@ -83,7 +85,6 @@ const DashboardPropertiesPage: React.FC<{ language: Language }> = ({ language })
                         data={filteredProperties}
                         columns={exportColumns}
                         filename="my-properties"
-                        language={language}
                     />
                     <button 
                         onClick={handleAddPropertyClick}

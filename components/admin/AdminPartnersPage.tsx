@@ -1,13 +1,19 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+
+
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { Language, Partner, PartnerStatus, SubscriptionPlan, AdminPartner, PartnerType } from '../../types';
+import type { PartnerStatus, SubscriptionPlan, AdminPartner, PartnerType } from '../../types';
 import { translations } from '../../data/translations';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import AdminPartnerEditModal from './AdminPartnerEditModal';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllPartnersForAdmin } from '../../api/partners';
+import { getAllProperties } from '../../api/properties';
+import { getAllPortfolioItems } from '../../api/portfolio';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';
+import { useLanguage } from '../shared/LanguageContext';
 
 const statusColors: { [key in PartnerStatus]: string } = {
     active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
@@ -16,7 +22,6 @@ const statusColors: { [key in PartnerStatus]: string } = {
 };
 
 interface AdminPartnersPageProps {
-  language: Language;
   filterOptions?: {
     type?: PartnerType;
   };
@@ -24,12 +29,22 @@ interface AdminPartnersPageProps {
 
 const ITEMS_PER_PAGE = 10;
 
-const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterOptions }) => {
+const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ filterOptions }) => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard;
     const t_shared = translations[language].adminShared;
     const [searchParams, setSearchParams] = useSearchParams();
+    const tableRef = useRef<HTMLTableElement>(null);
     
-    const { allPartners: partners, allProperties: properties, allPortfolioItems: portfolio, isLoading, refetchAll } = useDataContext();
+    const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { data: properties, isLoading: isLoadingProperties, refetch: refetchProperties } = useApiQuery('allProperties', getAllProperties);
+    const { data: portfolio, isLoading: isLoadingPortfolio, refetch: refetchPortfolio } = useApiQuery('allPortfolioItems', getAllPortfolioItems);
+    const isLoading = isLoadingPartners || isLoadingProperties || isLoadingPortfolio;
+    const refetchAll = useCallback(() => {
+        refetchPartners();
+        refetchProperties();
+        refetchPortfolio();
+    }, [refetchPartners, refetchProperties, refetchPortfolio]);
     
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedPartner, setSelectedPartner] = useState<AdminPartner | null>(null);
@@ -58,16 +73,6 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
         setIsEditModalOpen(true);
     }, []);
 
-    useEffect(() => {
-        const partnerToEditId = searchParams.get('edit');
-        if (partnerToEditId && partners) {
-            const partnerToEdit = partners.find(p => p.id === partnerToEditId);
-            if (partnerToEdit) {
-                handleEditClick(partnerToEdit);
-            }
-        }
-    }, [searchParams, partners, handleEditClick]);
-
     const {
         paginatedItems: paginatedPartners,
         totalPages,
@@ -83,18 +88,46 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
         data: partnersWithUsage,
         itemsPerPage: ITEMS_PER_PAGE,
         initialSort: { key: 'name', direction: 'ascending' },
-        // FIX: Add explicit types to lambda function arguments in useAdminTable to fix type inference issues.
-        searchFn: (partner: AdminPartner & { usageCount: number }, term) => 
+        searchFn: (partner: AdminPartner & { usageCount: number }, term: string) => 
             partner.name.toLowerCase().includes(term) ||
             (partner.nameAr && partner.nameAr.toLowerCase().includes(term)) ||
             partner.email.toLowerCase().includes(term),
         filterFns: {
-            type: (p: AdminPartner & { usageCount: number }, v) => p.type === v,
-            status: (p: AdminPartner & { usageCount: number }, v) => p.status === v,
-            plan: (p: AdminPartner & { usageCount: number }, v) => p.subscriptionPlan === v,
-            displayType: (p: AdminPartner & { usageCount: number }, v) => p.displayType === v,
+            type: (p: AdminPartner & { usageCount: number }, v: string) => p.type === v,
+            status: (p: AdminPartner & { usageCount: number }, v: string) => p.status === v,
+            plan: (p: AdminPartner & { usageCount: number }, v: string) => p.subscriptionPlan === v,
+            displayType: (p: AdminPartner & { usageCount: number }, v: string) => p.displayType === v,
         }
     });
+
+    useEffect(() => {
+        const partnerToEditId = searchParams.get('edit');
+        if (partnerToEditId && partners) {
+            const partnerToEdit = partners.find(p => p.id === partnerToEditId);
+            if (partnerToEdit) {
+                handleEditClick(partnerToEdit);
+            }
+        }
+    }, [searchParams, partners, handleEditClick]);
+
+    useEffect(() => {
+        const highlightedPartnerId = searchParams.get('highlight');
+        if (highlightedPartnerId && tableRef.current) {
+            const element = tableRef.current.querySelector(`[data-partner-id="${highlightedPartnerId}"]`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.classList.add('highlight-item');
+                setTimeout(() => {
+                    element.classList.remove('highlight-item');
+                    // Clean up URL
+                    const newParams = new URLSearchParams(searchParams.toString());
+                    newParams.delete('highlight');
+                    setSearchParams(newParams, { replace: true });
+                }, 2000);
+            }
+        }
+    }, [searchParams, setSearchParams, paginatedPartners]);
+
 
     const handleCloseModal = () => {
         setIsEditModalOpen(false);
@@ -122,7 +155,6 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
                     partner={selectedPartner}
                     onClose={handleCloseModal}
                     onSave={refetchAll}
-                    language={language}
                 />
             )}
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.partnersTitle}</h1>
@@ -158,7 +190,7 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
             
              <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <table ref={tableRef} className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0">
                             <tr>
                                 <th scope="col" className="p-4">
@@ -186,7 +218,7 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
                                 paginatedPartners.map(partner => {
                                     const limit = getPlanLimit(partner.type, partner.subscriptionPlan, 'properties'); // simplified
                                     return (
-                                    <tr key={partner.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <tr key={partner.id} data-partner-id={partner.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td className="w-4 p-4">
                                             <input type="checkbox" checked={selectedPartners.includes(partner.id)} onChange={() => handleSelect(partner.id)} />
                                         </td>
@@ -222,7 +254,7 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ language, filterO
                         </tbody>
                     </table>
                 </div>
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
 
         </div>

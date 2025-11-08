@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Language, Lead, LeadStatus } from '../../types';
 import { translations } from '../../data/translations';
@@ -102,7 +103,8 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.leadsTitle}</h1>
                     <p className="text-gray-500 dark:text-gray-400">{t.leadsSubtitle}</p>
                 </div>
-                <ExportDropdown data={exportData} columns={exportColumns} filename="my-leads" language={language} />
+                {/* FIX: Remove language prop as it's handled by context within ExportDropdown */}
+                <ExportDropdown data={exportData} columns={exportColumns} filename="my-leads" />
             </div>
 
             <div className="mb-4 flex flex-wrap items-center gap-4">
@@ -153,7 +155,7 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                                             <tr className="bg-gray-50 dark:bg-gray-800/50">
                                                 <td colSpan={5} className="p-0">
                                                     <div className="p-4 animate-fadeIn">
-                                                        <ConversationThread lead={lead} onMessageSent={refetch} language={language} />
+                                                        <ConversationThread lead={lead} onMessageSent={refetch} />
                                                     </div>
                                                 </td>
                                             </tr>

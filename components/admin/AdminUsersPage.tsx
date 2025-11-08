@@ -1,14 +1,17 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { Language, PartnerStatus, AdminPartner, PartnerType } from '../../types';
+
+import React, { useState, useMemo } from 'react';
+import type { PartnerStatus, AdminPartner, PartnerType } from '../../types';
 import { translations } from '../../data/translations';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import { deletePartner as apiDeletePartner } from '../../api/partners';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllPartnersForAdmin } from '../../api/partners';
 import AdminUserFormModal from './AdminUserFormModal';
 import { useToast } from '../shared/ToastContext';
 import ConfirmationModal from '../shared/ConfirmationModal';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';
+import { useLanguage } from '../shared/LanguageContext';
 
 const statusColors: { [key in PartnerStatus]: string } = {
     active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
@@ -18,12 +21,13 @@ const statusColors: { [key in PartnerStatus]: string } = {
 
 const ITEMS_PER_PAGE = 10;
 
-const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminUsersPage: React.FC = () => {
+    const { language } = useLanguage();
     const t_admin = translations[language].adminDashboard;
     const t_shared = translations[language].adminShared;
     const t_um = t_admin.userManagement;
     
-    const { allPartners: partners, isLoading, refetchAll } = useDataContext();
+    const { data: partners, isLoading, refetch: refetchAll } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
     const { showToast } = useToast();
     
     const [modalState, setModalState] = useState<{ isOpen: boolean; userToEdit?: AdminPartner }>({ isOpen: false });
@@ -42,13 +46,12 @@ const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
         data: users,
         itemsPerPage: ITEMS_PER_PAGE,
         initialSort: { key: 'name', direction: 'ascending' },
-        // FIX: Add explicit types to lambda arguments to fix type inference issues.
-        searchFn: (user: AdminPartner, term) => 
+        searchFn: (user: AdminPartner, term: string) => 
             user.name.toLowerCase().includes(term) ||
             (user.nameAr && user.nameAr.toLowerCase().includes(term)) ||
             user.email.toLowerCase().includes(term),
         filterFns: {
-            type: (p: AdminPartner, v) => p.type === v,
+            type: (p: AdminPartner, v: string) => p.type === v,
         }
     });
 
@@ -86,7 +89,6 @@ const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
                     userToEdit={modalState.userToEdit}
                     onClose={() => setModalState({ isOpen: false })}
                     onSave={handleSave}
-                    language={language}
                 />
             )}
             {userToDelete && (
@@ -168,7 +170,7 @@ const AdminUsersPage: React.FC<{ language: Language }> = ({ language }) => {
                         </tbody>
                     </table>
                 </div>
-                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

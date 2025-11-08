@@ -1,12 +1,10 @@
 import React from 'react';
 import type { Language } from '../types';
 import { translations } from '../data/translations';
+import { useLanguage } from './shared/LanguageContext';
 
-interface TermsOfUsePageProps {
-  language: Language;
-}
-
-const TermsOfUsePage: React.FC<TermsOfUsePageProps> = ({ language }) => {
+const TermsOfUsePage: React.FC = () => {
+  const { language } = useLanguage();
   const t = translations[language].termsOfUsePage;
 
   const sections = [

@@ -1,14 +1,16 @@
+
 import React, { useMemo, useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Role } from '../../types';
-import type { Language } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import { adminNavLinks } from '../../data/navigation';
 import GlobalSearch from './GlobalSearch';
 import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '../icons/Icons';
+import { useLanguage } from '../shared/LanguageContext';
 
-const AdminDashboardLayout: React.FC<{ language: Language }> = ({ language }) => {
+const AdminDashboardLayout: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard;
     const { currentUser, logout, hasPermission } = useAuth();
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -116,7 +118,7 @@ const AdminDashboardLayout: React.FC<{ language: Language }> = ({ language }) =>
 
             <div className="flex-1 flex flex-col min-w-0">
                 <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700/50 p-4 flex items-center justify-center sticky top-20 z-20">
-                    <GlobalSearch language={language} />
+                    <GlobalSearch />
                 </header>
                 <main className="flex-1 p-6 lg:p-10 overflow-y-auto bg-gray-50 dark:bg-gray-800">
                     <Outlet />

@@ -4,7 +4,8 @@ import { HashRouter } from 'react-router-dom';
 import App from './App';
 import { AuthProvider } from './components/auth/AuthContext';
 import { ToastProvider } from './components/shared/ToastContext';
-import { DataProvider } from './components/shared/DataContext';
+import { LanguageProvider } from './components/shared/LanguageContext';
+import { ThemeProvider } from './components/shared/ThemeContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -17,9 +18,11 @@ root.render(
     <HashRouter>
       <ToastProvider>
         <AuthProvider>
-          <DataProvider>
-            <App />
-          </DataProvider>
+          <LanguageProvider>
+            <ThemeProvider>
+              <App />
+            </ThemeProvider>
+          </LanguageProvider>
         </AuthProvider>
       </ToastProvider>
     </HashRouter>

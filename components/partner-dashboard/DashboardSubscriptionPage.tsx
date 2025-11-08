@@ -1,5 +1,4 @@
 
-
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import type { Language, SubscriptionPlan, SubscriptionPlanDetails } from '../../types';
 import { translations } from '../../data/translations';
@@ -7,6 +6,7 @@ import { useAuth } from '../auth/AuthContext';
 import { CheckCircleIcon } from '../icons/Icons';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import { useLanguage } from '../shared/LanguageContext';
 
 const PlanCard: React.FC<{
     planKey: SubscriptionPlan,
@@ -53,7 +53,8 @@ const PlanCard: React.FC<{
     );
 };
 
-const DashboardSubscriptionPage: React.FC<{ language: Language }> = ({ language }) => {
+const DashboardSubscriptionPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].dashboardSubscription;
     const { currentUser } = useAuth();
     

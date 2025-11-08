@@ -1,14 +1,12 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { TwitterIcon, LinkedInIcon, FacebookIcon, InstagramIcon } from './icons/Icons';
-import type { Language } from '../types';
 import { translations } from '../data/translations';
 import { HelioLogo } from './HelioLogo';
-import { useDataContext } from './shared/DataContext';
-
-interface FooterProps {
-    language: Language;
-}
+import { useApiQuery } from './shared/useApiQuery';
+import { getContent } from '../api/content';
+import { useLanguage } from './shared/LanguageContext';
 
 const FooterLink: React.FC<{ to: string; children: React.ReactNode }> = ({ to, children }) => (
     <li>
@@ -20,9 +18,10 @@ const SocialLink: React.FC<{ href: string; children: React.ReactNode }> = ({ hre
      <a href={href} target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200">{children}</a>
 );
 
-const Footer: React.FC<FooterProps> = ({ language }) => {
+const Footer: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language];
-    const { siteContent, isLoading } = useDataContext();
+    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
 
     if (isLoading || !siteContent) {
         return <footer className="bg-gray-200 dark:bg-gray-900 pt-16 h-64 animate-pulse"></footer>;

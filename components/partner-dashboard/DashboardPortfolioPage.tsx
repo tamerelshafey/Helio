@@ -1,7 +1,7 @@
 
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { Language, PortfolioItem } from '../../types';
+import type { PortfolioItem } from '../../types';
 import { Role } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
@@ -11,13 +11,15 @@ import PortfolioItemFormModal from './PortfolioItemFormModal';
 import UpgradePlanModal from '../UpgradePlanModal';
 import { deletePortfolioItem as apiDeletePortfolioItem } from '../../api/portfolio';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import { useLanguage } from '../shared/LanguageContext';
 
 type SortConfig = {
     key: 'title' | 'category';
     direction: 'ascending' | 'descending';
 } | null;
 
-const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) => {
+const DashboardPortfolioPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].dashboard;
     const { currentUser } = useAuth();
     const t_shared = translations[language].adminShared;
@@ -107,10 +109,9 @@ const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) 
                     itemToEdit={modalState.itemToEdit}
                     onClose={() => setModalState({ isOpen: false })}
                     onSave={handleSave}
-                    language={language}
                 />
             )}
-            {isUpgradeModalOpen && <UpgradePlanModal language={language} onClose={() => setIsUpgradeModalOpen(false)} />}
+            {isUpgradeModalOpen && <UpgradePlanModal onClose={() => setIsUpgradeModalOpen(false)} />}
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t.portfolioTitle}</h1>
                 <button 
@@ -138,6 +139,7 @@ const DashboardPortfolioPage: React.FC<{ language: Language }> = ({ language }) 
                     {sortedAndFilteredPortfolio.map(item => (
                         <div key={item.id} className="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden group flex flex-col">
                             <div className="relative aspect-square bg-gray-100 dark:bg-gray-700">
+                                {/* FIX: Changed item.src to item.imageUrl to match PortfolioItem type. */}
                                 <img src={item.imageUrl} alt={item.alt} className="w-full h-full object-cover" />
                             </div>
                             <div className="p-4 flex-grow">

@@ -1,18 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import type { Language, SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../types';
+
+import React from 'react';
+import type { SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../types';
 import { translations } from '../data/translations';
 import { CheckCircleIcon } from './icons/Icons';
 import { getPlans } from '../api/plans';
 import { useApiQuery } from './shared/useApiQuery';
+import { useLanguage } from './shared/LanguageContext';
 
 interface SubscriptionPlanSelectorProps {
-    language: Language;
     selectedPlan: string;
     onSelectPlan: (plan: SubscriptionPlan) => void;
     partnerType: PlanCategory;
 }
 
-const SubscriptionPlanSelector: React.FC<SubscriptionPlanSelectorProps> = ({ language, selectedPlan, onSelectPlan, partnerType }) => {
+const SubscriptionPlanSelector: React.FC<SubscriptionPlanSelectorProps> = ({ selectedPlan, onSelectPlan, partnerType }) => {
+    const { language } = useLanguage();
     const t = translations[language].subscriptionPlans;
     const { data: allPlans, isLoading: loading } = useApiQuery('plans', getPlans);
 
@@ -25,15 +27,16 @@ const SubscriptionPlanSelector: React.FC<SubscriptionPlanSelectorProps> = ({ lan
     return (
         <div>
             <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-10">{t.title}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {(Object.keys(plansForType) as SubscriptionPlan[]).map(planKey => {
-                    const plan = plansForType[planKey][language];
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {(Object.keys(plansForType) as (keyof typeof plansForType)[]).map(planKey => {
+                    const plan = (plansForType as any)[planKey][language];
+                    if (!plan) return null; // Defensive check
                     const isSelected = selectedPlan === planKey;
 
                     return (
                         <div 
                             key={planKey}
-                            onClick={() => onSelectPlan(planKey)}
+                            onClick={() => onSelectPlan(planKey as SubscriptionPlan)}
                             className={`border-2 rounded-lg p-6 cursor-pointer transition-all duration-300 transform hover:scale-105 h-full flex flex-col ${
                                 isSelected 
                                 ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-900/20 shadow-xl' 
@@ -45,7 +48,7 @@ const SubscriptionPlanSelector: React.FC<SubscriptionPlanSelectorProps> = ({ lan
                             <p className="text-gray-500 dark:text-gray-400 mb-6 flex-grow">{plan.description}</p>
                             
                             <ul className="space-y-4 mb-8">
-                                {plan.features.map((feature, index) => (
+                                {plan.features.map((feature: string, index: number) => (
                                     <li key={index} className="flex items-center">
                                         <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
                                         <span className={`text-gray-700 dark:text-gray-300 ${language === 'ar' ? 'mr-3' : 'ml-3'}`}>{feature}</span>

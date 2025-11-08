@@ -6,6 +6,7 @@ import { useApiQuery } from '../../shared/useApiQuery';
 import { getAllLeads, deleteLead as apiDeleteLead } from '../../../api/leads';
 import { inputClasses } from '../../shared/FormField';
 import Pagination from '../../shared/Pagination';
+import { useLanguage } from '../../shared/LanguageContext';
 
 const statusColors: { [key in LeadStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -19,7 +20,8 @@ const statusColors: { [key in LeadStatus]: string } = {
 
 const ITEMS_PER_PAGE = 10;
 
-const RequestsManagement: React.FC<{ language: Language }> = ({ language }) => {
+const RequestsManagement: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.decorationsManagement;
     const { data: allLeads, refetch: refetchLeads, isLoading: loadingLeads } = useApiQuery('allLeads', getAllLeads);
     const loading = loadingLeads;
@@ -110,7 +112,7 @@ const RequestsManagement: React.FC<{ language: Language }> = ({ language }) => {
                         </tbody>
                     </table>
                 </div>
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

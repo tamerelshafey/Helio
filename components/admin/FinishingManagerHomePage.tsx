@@ -1,15 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, Lead, AdminPartner } from '../../types';
+import type { Language, Lead } from '../../types';
 import { useApiQuery } from '../shared/useApiQuery';
 import { getAllLeads } from '../../api/leads';
-import { getAllPartnersForAdmin } from '../../api/partners';
 import { WrenchScrewdriverIcon, InboxIcon, CheckCircleIcon, ClipboardDocumentListIcon } from '../icons/Icons';
 import { translations } from '../../data/translations';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Doughnut } from 'react-chartjs-2';
-
-ChartJS.register(ArcElement, Tooltip, Legend);
+import { useLanguage } from '../shared/LanguageContext';
+import { useAuth } from '../auth/AuthContext';
 
 interface StatCardProps {
     title: string;
@@ -31,41 +28,40 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon }) => (
     </div>
 );
 
-const FinishingManagerHomePage: React.FC<{ language: Language }> = ({ language }) => {
-    const t = translations[language].adminDashboard.finishingRequests;
+const ServiceManagerHomePage: React.FC = () => {
+    const { language } = useLanguage();
+    const { currentUser } = useAuth();
+    const t = translations[language].adminDashboard.serviceManagerHome;
     const t_leads = translations[language].dashboard.leadTable;
 
     const { data: allLeads, isLoading: loadingLeads } = useApiQuery('allLeads', getAllLeads);
-    const { data: allPartners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
 
-    const isLoading = loadingLeads || loadingPartners;
+    const isLoading = loadingLeads;
     
-    const finishingManagerId = 'finishing-manager-1';
+    const serviceData = useMemo(() => {
+        if (!allLeads || !currentUser) return null;
 
-    const finishingData = useMemo(() => {
-        if (!allLeads || !allPartners) return null;
-
-        const finishingLeads = allLeads.filter(lead => lead.managerId === finishingManagerId);
+        const serviceLeads = allLeads.filter(lead => lead.managerId === currentUser.id && (lead.serviceType === 'finishing' || lead.serviceType === 'decorations'));
 
         const now = new Date();
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
         const stats = {
-            new: finishingLeads.filter(l => l.status === 'new').length,
-            inProgress: finishingLeads.filter(l => ['contacted', 'site-visit', 'quoted', 'in-progress'].includes(l.status)).length,
-            completedThisMonth: finishingLeads.filter(l => l.status === 'completed' && new Date(l.updatedAt) >= firstDayOfMonth).length,
-            total: finishingLeads.length,
+            new: serviceLeads.filter(l => l.status === 'new').length,
+            inProgress: serviceLeads.filter(l => ['contacted', 'site-visit', 'quoted', 'in-progress'].includes(l.status)).length,
+            completedThisMonth: serviceLeads.filter(l => l.status === 'completed' && new Date(l.updatedAt) >= firstDayOfMonth).length,
+            total: serviceLeads.length,
         };
 
-        const recentRequests = [...finishingLeads]
+        const recentRequests = [...serviceLeads]
             .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
             .slice(0, 5);
         
         return { stats, recentRequests };
 
-    }, [allLeads, allPartners]);
+    }, [allLeads, currentUser]);
 
-    if (isLoading || !finishingData) {
+    if (isLoading || !serviceData) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
                 {Array.from({length: 4}).map((_, i) => <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>)}
@@ -73,13 +69,13 @@ const FinishingManagerHomePage: React.FC<{ language: Language }> = ({ language }
         );
     }
     
-    const { stats, recentRequests } = finishingData;
+    const { stats, recentRequests } = serviceData;
     
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Finishing Requests Dashboard</h1>
-                <p className="text-gray-500 dark:text-gray-400">Overview of finishing service requests.</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.title}</h1>
+                <p className="text-gray-500 dark:text-gray-400">{t.subtitle}</p>
             </div>
             
             <div className="space-y-8 animate-fadeIn">
@@ -108,7 +104,7 @@ const FinishingManagerHomePage: React.FC<{ language: Language }> = ({ language }
                                         <td className="py-3 text-gray-600 dark:text-gray-300 truncate max-w-xs" title={lead.serviceTitle}>{lead.serviceTitle}</td>
                                         <td className="py-3 text-gray-500 dark:text-gray-400">{new Date(lead.updatedAt).toLocaleDateString(language, { day: 'numeric', month: 'short' })}</td>
                                         <td className="py-3">
-                                            <Link to={`/admin/finishing-requests/${lead.id}`} className="font-medium text-amber-600 hover:underline">
+                                            <Link to={`/admin/${lead.serviceType}-requests/${lead.id}`} className="font-medium text-amber-600 hover:underline">
                                                 {t.manage}
                                             </Link>
                                         </td>
@@ -123,4 +119,4 @@ const FinishingManagerHomePage: React.FC<{ language: Language }> = ({ language }
     );
 };
 
-export default FinishingManagerHomePage;
+export default ServiceManagerHomePage;

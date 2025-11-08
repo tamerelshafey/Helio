@@ -1,14 +1,15 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import type { Language, Banner } from '../../types';
+import type { Banner } from '../../types';
 import { translations } from '../../data/translations';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { addBanner, updateBanner } from '../../api/banners';
+import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminBannerFormModalProps {
     bannerToEdit?: Banner;
     onClose: () => void;
-    language: Language;
 }
 
 const fileToBase64 = (file: File): Promise<string> => {
@@ -20,7 +21,8 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-const AdminBannerFormModal: React.FC<AdminBannerFormModalProps> = ({ bannerToEdit, onClose, language }) => {
+const AdminBannerFormModal: React.FC<AdminBannerFormModalProps> = ({ bannerToEdit, onClose }) => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.manageBanners;
     const t_shared = translations[language].adminShared;
     const modalRef = useRef<HTMLDivElement>(null);

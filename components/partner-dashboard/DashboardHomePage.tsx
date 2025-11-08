@@ -1,14 +1,22 @@
-import React, { useMemo } from 'react';
+
+
+import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Language, Role, Project, Property, Lead, PortfolioItem } from '../../types';
+import { Role, Project, Property, Lead, PortfolioItem } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { translations } from '../../data/translations';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllProperties } from '../../api/properties';
+import { getAllProjects } from '../../api/projects';
+import { getAllLeads } from '../../api/leads';
+import { getAllPortfolioItems } from '../../api/portfolio';
 import StatCard from '../shared/StatCard';
 import { CubeIcon, BuildingIcon, InboxIcon, ClipboardDocumentListIcon, PhotoIcon } from '../icons/Icons';
+import { useLanguage } from '../shared/LanguageContext';
 
 // --- Reusable Recent Leads Component ---
-const RecentLeads: React.FC<{ leads: Lead[] | undefined; language: Language }> = ({ leads, language }) => {
+const RecentLeads: React.FC<{ leads: Lead[] | undefined }> = ({ leads }) => {
+    const { language } = useLanguage();
     const t = translations[language].dashboardHome;
     const recentLeads = useMemo(() => {
         return (leads || [])
@@ -53,11 +61,18 @@ const RecentLeads: React.FC<{ leads: Lead[] | undefined; language: Language }> =
 };
 
 
-const DashboardHomePage: React.FC<{ language: Language }> = ({ language }) => {
+const DashboardHomePage: React.FC = () => {
+    const { language } = useLanguage();
     const { currentUser } = useAuth();
     const t = translations[language].dashboardHome;
     
-    const { allProperties, allProjects, allLeads, allPortfolioItems, isLoading } = useDataContext();
+    // Fetch all necessary data on demand, enabled only if there's a current user
+    const { data: allProperties, isLoading: loadingProps } = useApiQuery('allProperties', getAllProperties, { enabled: !!currentUser });
+    const { data: allProjects, isLoading: loadingProjs } = useApiQuery('allProjects', getAllProjects, { enabled: !!currentUser });
+    const { data: allLeads, isLoading: loadingLeads } = useApiQuery('allLeadsAdmin', getAllLeads, { enabled: !!currentUser });
+    const { data: allPortfolioItems, isLoading: loadingPortfolio } = useApiQuery('allPortfolioItems', getAllPortfolioItems, { enabled: !!currentUser });
+
+    const isLoading = loadingProps || loadingProjs || loadingLeads || loadingPortfolio;
 
     const properties = useMemo(() => (allProperties || []).filter(p => p.partnerId === currentUser?.id), [allProperties, currentUser?.id]);
     const projects = useMemo(() => (allProjects || []).filter(p => p.partnerId === currentUser?.id), [allProjects, currentUser?.id]);
@@ -77,7 +92,8 @@ const DashboardHomePage: React.FC<{ language: Language }> = ({ language }) => {
             return { items: [], planName: '' };
         }
 
-        const planCategory = currentUser.type as 'developer' | 'agency' | 'finishing';
+        const planCategory = ['developer', 'agency', 'finishing'].includes(currentUser.type) ? currentUser.type : 'agency';
+        // @ts-ignore
         const planName = (translations[language].subscriptionPlans as any)[planCategory]?.[currentUser.subscriptionPlan]?.name || currentUser.subscriptionPlan;
         
         const newLeadsCount = (leads || []).filter(l => l.status === 'new').length;
@@ -117,7 +133,7 @@ const DashboardHomePage: React.FC<{ language: Language }> = ({ language }) => {
             </div>
 
             <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <RecentLeads leads={leads as Lead[]} language={language} />
+                <RecentLeads leads={leads as Lead[]} />
 
                 {currentUser.role === Role.DEVELOPER_PARTNER && (
                     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">

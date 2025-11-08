@@ -1,16 +1,14 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import type { Language } from '../types';
 import { translations } from '../data/translations';
+import { useLanguage } from './shared/LanguageContext';
 
-interface CTAProps {
-  language: Language;
-}
-
-const CTA: React.FC<CTAProps> = ({ language }) => {
+const CTA: React.FC = () => {
+  const { language } = useLanguage();
   const t = translations[language].cta;
   return (
-    <section className="py-20 md:py-32 bg-white dark:bg-gray-900">
+    <section className="py-20 md:py-32 bg-white dark:bg-gray-900 subtle-bg">
       <div className="container mx-auto px-6 text-center">
         <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-gray-900 dark:text-white">
           {t.title}

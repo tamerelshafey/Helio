@@ -1,6 +1,7 @@
+
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, PortfolioItem, DecorationCategory } from '../../types';
+import type { PortfolioItem, DecorationCategory } from '../../types';
 import { translations } from '../../data/translations';
 import { useApiQuery } from '../shared/useApiQuery';
 import { getAllPortfolioItems, deletePortfolioItem as apiDeletePortfolioItem } from '../../api/portfolio';
@@ -8,10 +9,12 @@ import { getAllPartnersForAdmin } from '../../api/partners';
 import { getDecorationCategories } from '../../api/decorations';
 import AdminPortfolioItemFormModal from './AdminPortfolioItemFormModal';
 import Pagination from '../shared/Pagination';
+import { useLanguage } from '../shared/LanguageContext';
 
 const ITEMS_PER_PAGE = 8;
 
-const AdminDecorationsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminDecorationsPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.decorationsManagement;
     const { data: portfolio, refetch: refetchPortfolio, isLoading: loadingPortfolio } = useApiQuery('portfolio', getAllPortfolioItems);
     const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
@@ -64,7 +67,7 @@ const AdminDecorationsPage: React.FC<{ language: Language }> = ({ language }) =>
 
     return (
         <div>
-             {modalState.isOpen && <AdminPortfolioItemFormModal itemToEdit={modalState.itemToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} language={language} />}
+             {modalState.isOpen && <AdminPortfolioItemFormModal itemToEdit={modalState.itemToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} />}
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.portfolioTab}</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-8">{t.subtitle}</p>
 
@@ -113,7 +116,7 @@ const AdminDecorationsPage: React.FC<{ language: Language }> = ({ language }) =>
                                 </div>
                             ))}
                         </div>
-                        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                     </>
                 ) : (
                     <div className="p-8 text-center">{t.noItems}</div>

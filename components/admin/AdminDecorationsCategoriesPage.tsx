@@ -1,11 +1,14 @@
+
 import React, { useState } from 'react';
-import type { Language, DecorationCategory } from '../../types';
+import type { DecorationCategory } from '../../types';
 import { translations } from '../../data/translations';
 import { useApiQuery } from '../shared/useApiQuery';
 import { getDecorationCategories, deleteDecorationCategory as apiDeleteDecorationCategory } from '../../api/decorations';
 import AdminDecorationCategoryFormModal from './AdminDecorationCategoryFormModal';
+import { useLanguage } from '../shared/LanguageContext';
 
-const AdminDecorationsCategoriesPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminDecorationsCategoriesPage: React.FC = () => {
+    const { language } = useLanguage();
     const t_nav = translations[language].adminDashboard.nav;
     const t_decor = translations[language].adminDashboard.decorationsManagement;
     const { data: categories, refetch: refetchCategories, isLoading: loading } = useApiQuery('decorationCategories', getDecorationCategories);
@@ -25,7 +28,7 @@ const AdminDecorationsCategoriesPage: React.FC<{ language: Language }> = ({ lang
 
     return (
         <div className="animate-fadeIn">
-            {modalState.isOpen && <AdminDecorationCategoryFormModal categoryToEdit={modalState.categoryToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} language={language} />}
+            {modalState.isOpen && <AdminDecorationCategoryFormModal categoryToEdit={modalState.categoryToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} />}
             
             <div className="flex justify-between items-center mb-8">
                  <div>

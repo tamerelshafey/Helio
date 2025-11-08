@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Language, PartnerRequest } from '../../types';
@@ -10,8 +9,10 @@ import { addPartner } from '../../api/partners';
 import { useApiQuery } from '../shared/useApiQuery';
 import DetailItem from '../shared/DetailItem';
 import DetailSection from '../shared/DetailSection';
+import { useLanguage } from '../shared/LanguageContext';
 
-const AdminPartnerRequestDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminPartnerRequestDetailsPage: React.FC = () => {
+    const { language } = useLanguage();
     const { requestId } = useParams<{ requestId: string }>();
     const navigate = useNavigate();
     const { data: partnerRequests, isLoading: dataLoading, refetch } = useApiQuery('partnerRequests', getAllPartnerRequests);

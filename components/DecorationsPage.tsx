@@ -1,24 +1,26 @@
+
+
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem } from '../types';
 import { translations } from '../data/translations';
 import BannerDisplay from './shared/BannerDisplay';
-import { useDataContext } from './shared/DataContext';
-import AIEstimator from './ai/AIEstimator';
 import SEO from './shared/SEO';
+import { useApiQuery } from './shared/useApiQuery';
+import { getAllPortfolioItems } from '../api/portfolio';
+import { getDecorationCategories } from '../api/decorations';
+import { useLanguage } from './shared/LanguageContext';
 
-interface DecorationsPageProps {
-  language: Language;
-}
-
-const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
+const DecorationsPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].decorationsPage;
     const t_decor_modal = translations[language].decorationRequestModal;
     const t_custom_decor_modal = translations[language].customDecorationRequestModal;
     const navigate = useNavigate();
-    const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
 
-    const { allPortfolioItems: allWorks, decorationCategories, isLoading } = useDataContext();
+    const { data: allWorks, isLoading: isLoadingWorks } = useApiQuery('allPortfolioItems', getAllPortfolioItems);
+    const { data: decorationCategories, isLoading: isLoadingCats } = useApiQuery('decorationCategories', getDecorationCategories);
+    const isLoading = isLoadingWorks || isLoadingCats;
 
     const tabs = useMemo(() => (decorationCategories || []).map(cat => ({
         key: cat.id,
@@ -68,9 +70,18 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
             <SEO 
                 title={`${translations[language].nav.decorations} | ONLY HELIO`}
-                description={t.sculptures_desc}
+                description={t.heroSubtitle}
             />
-             {isEstimatorOpen && <AIEstimator language={language} serviceType="decorations" onClose={() => setIsEstimatorOpen(false)} />}
+            
+            {/* Hero Section */}
+            <section className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1616046229478-9901c5536a45?q=80&w=1600&auto=format&fit=crop')" }}>
+                <div className="absolute top-0 left-0 w-full h-full bg-black/70 z-10"></div>
+                <div className="relative z-20 px-4 container mx-auto text-white">
+                    <h1 className="text-4xl md:text-6xl font-extrabold">{t.heroTitle}</h1>
+                    <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-200 mt-4">{t.heroSubtitle}</p>
+                </div>
+            </section>
+
             <div className="py-20">
                 <div className="container mx-auto px-6">
                     <div className="flex justify-center mb-8 border-b border-gray-200 dark:border-gray-700">
@@ -108,16 +119,16 @@ const DecorationsPage: React.FC<DecorationsPageProps> = ({ language }) => {
                         <div className="container mx-auto px-6 text-center">
                             <h2 className="text-3xl font-bold text-amber-600 dark:text-amber-400">{translations[language].aiEstimator.ctaTitle}</h2>
                             <p className="text-lg text-gray-600 dark:text-gray-300 mt-3 max-w-2xl mx-auto">{translations[language].aiEstimator.ctaSubtitle}</p>
-                            <button
-                                onClick={() => setIsEstimatorOpen(true)}
-                                className="mt-6 bg-amber-500 text-gray-900 font-bold px-8 py-4 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20 transform hover:scale-105"
+                            <Link
+                                to="/cost-estimator"
+                                className="mt-6 inline-block bg-amber-500 text-gray-900 font-bold px-8 py-4 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20 transform hover:scale-105"
                             >
                                 {translations[language].aiEstimator.ctaButton}
-                            </button>
+                            </Link>
                         </div>
                     </section>
 
-                    <BannerDisplay location="decorations" language={language} />
+                    <BannerDisplay location="decorations" />
                    
                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 animate-fadeIn mt-12">
                        {isLoading && !activeTab ? (

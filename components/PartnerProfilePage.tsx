@@ -7,11 +7,9 @@ import PropertyCard from './shared/PropertyCard';
 import { getPortfolioByPartnerId } from '../api/portfolio';
 import { getPropertiesByPartnerId } from '../api/properties';
 import { useApiQuery } from './shared/useApiQuery';
-import { useDataContext } from './shared/DataContext';
+import { getPartnerById } from '../api/partners';
+import { useLanguage } from './shared/LanguageContext';
 
-interface PartnerProfilePageProps {
-    language: Language;
-}
 
 const PartnerProfileSkeleton: React.FC = () => (
     <div className="animate-pulse">
@@ -37,22 +35,21 @@ const PartnerProfileSkeleton: React.FC = () => (
 );
 
 
-const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => {
+const PartnerProfilePage: React.FC = () => {
     const { partnerId } = useParams<{ partnerId: string }>();
+    const { language } = useLanguage();
     const t = translations[language];
     const navigate = useNavigate();
 
-    const { allPartners: partners, allProjects, isLoading: isLoadingContext } = useDataContext();
+    const { data: partnerInfo, isLoading: isLoadingPartner } = useApiQuery(`partner-${partnerId}`, () => getPartnerById(partnerId!), { enabled: !!partnerId });
     const { data: partnerPortfolio, isLoading: isLoadingPortfolio } = useApiQuery(`partnerPortfolio-${partnerId}`, () => getPortfolioByPartnerId(partnerId!), { enabled: !!partnerId });
     const { data: partnerProperties, isLoading: isLoadingProperties } = useApiQuery(`partnerProperties-${partnerId}`, () => getPropertiesByPartnerId(partnerId!), { enabled: !!partnerId });
 
-    const loading = isLoadingContext || isLoadingPortfolio || isLoadingProperties;
+    const loading = isLoadingPartner || isLoadingPortfolio || isLoadingProperties;
 
-    const partnerInfo = useMemo(() => partners?.find(p => p.id === partnerId), [partners, partnerId]);
-    
     const localizedPartner = useMemo(() => {
         if (!partnerInfo) return null;
-        return (translations[language].partnerInfo as any)[partnerInfo.id] || null;
+        return translations[language].partnerInfo[partnerInfo.id] || null;
     }, [partnerInfo, language]);
 
 
@@ -103,7 +100,6 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
                     images={lightboxState.images}
                     startIndex={lightboxState.startIndex}
                     onClose={() => setLightboxState({ isOpen: false, images: [], startIndex: 0 })}
-                    language={language}
                 />
             )}
             
@@ -162,10 +158,9 @@ const PartnerProfilePage: React.FC<PartnerProfilePageProps> = ({ language }) => 
                         </div>
                          {(partnerProperties && partnerProperties.length > 0) ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                                {partnerProperties.map((prop) => {
-                                    const project = (allProjects || []).find(p => p.id === prop.projectId);
-                                    return <PropertyCard key={prop.id} {...prop} project={project} language={language} />;
-                                })}
+                                {partnerProperties.map((prop) => (
+                                    <PropertyCard key={prop.id} {...prop} />
+                                ))}
                             </div>
                         ) : (
                             <p className="text-center text-gray-500 dark:text-gray-400">This partner has not listed any properties yet.</p>

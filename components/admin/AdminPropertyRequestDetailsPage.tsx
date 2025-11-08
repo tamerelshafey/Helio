@@ -1,5 +1,4 @@
 
-
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Language, AddPropertyRequest, Property } from '../../types';
@@ -10,8 +9,10 @@ import { addProperty } from '../../api/properties';
 import { useApiQuery } from '../shared/useApiQuery';
 import DetailItem from '../shared/DetailItem';
 import DetailSection from '../shared/DetailSection';
+import { useLanguage } from '../shared/LanguageContext';
 
-const AdminPropertyRequestDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminPropertyRequestDetailsPage: React.FC = () => {
+    const { language } = useLanguage();
     const { requestId } = useParams<{ requestId: string }>();
     const navigate = useNavigate();
     const { data: propertyRequests, isLoading: loading, refetch } = useApiQuery('propertyRequests', getAllPropertyRequests);

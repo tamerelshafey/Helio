@@ -1,12 +1,10 @@
 import React from 'react';
 import type { Language } from '../types';
 import { translations } from '../data/translations';
+import { useLanguage } from './shared/LanguageContext';
 
-interface PrivacyPolicyPageProps {
-  language: Language;
-}
-
-const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ language }) => {
+const PrivacyPolicyPage: React.FC = () => {
+  const { language } = useLanguage();
   const t = translations[language].privacyPolicyPage;
 
   const sections = [

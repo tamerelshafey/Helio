@@ -1,5 +1,6 @@
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { Language, PropertyInquiryRequest, RequestStatus } from '../../types';
+import type { PropertyInquiryRequest, RequestStatus } from '../../types';
 import { translations } from '../../data/translations';
 import { SearchIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
@@ -7,8 +8,10 @@ import { updatePropertyInquiryStatus, deletePropertyInquiry } from '../../api/pr
 import Pagination from '../shared/Pagination';
 import TableSkeleton from '../shared/TableSkeleton';
 import EmptyState from '../shared/EmptyState';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllPropertyInquiries } from '../../api/propertyInquiries';
 import { useAdminTable } from './shared/useAdminTable';
+import { useLanguage } from '../shared/LanguageContext';
 
 const statusColors: { [key in RequestStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -21,10 +24,11 @@ const statusColors: { [key in RequestStatus]: string } = {
 
 const ITEMS_PER_PAGE = 10;
 
-const AdminPropertyInquiriesPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminPropertyInquiriesPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.propertyInquiries;
     const t_req = translations[language].adminDashboard.adminRequests;
-    const { propertyInquiries, isLoading, refetchAll } = useDataContext();
+    const { data: propertyInquiries, isLoading, refetch: refetchAll } = useApiQuery('propertyInquiries', getAllPropertyInquiries);
 
     const {
         paginatedItems: paginatedRequests,
@@ -36,7 +40,7 @@ const AdminPropertyInquiriesPage: React.FC<{ language: Language }> = ({ language
         data: propertyInquiries,
         itemsPerPage: ITEMS_PER_PAGE,
         initialSort: { key: 'createdAt', direction: 'descending' },
-        searchFn: (req, term) => 
+        searchFn: (req: PropertyInquiryRequest, term: string) => 
             req.customerName.toLowerCase().includes(term) ||
             req.customerPhone.includes(term) ||
             req.details.toLowerCase().includes(term),
@@ -139,7 +143,7 @@ const AdminPropertyInquiriesPage: React.FC<{ language: Language }> = ({ language
                         </tbody>
                     </table>
                 </div>
-                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

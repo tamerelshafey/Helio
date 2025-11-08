@@ -3,11 +3,11 @@ import type { Language } from '../../types';
 import { LocationMarkerIcon, CloseIcon } from '../icons/Icons';
 import { useApiQuery } from './useApiQuery';
 import { getContent } from '../../api/content';
+import { useLanguage } from './LanguageContext';
 
 interface LocationPickerModalProps {
     onClose: () => void;
     onLocationSelect: (location: { lat: number, lng: number }) => void;
-    language: Language;
     initialLocation?: { lat: number, lng: number };
 }
 
@@ -19,7 +19,8 @@ const MAP_BOUNDS = {
     maxLng: 31.68,
 };
 
-const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ onClose, onLocationSelect, language, initialLocation }) => {
+const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ onClose, onLocationSelect, initialLocation }) => {
+    const { language } = useLanguage();
     const defaultCenter = { lat: 30.139407, lng: 31.678342 }; // Center of New Heliopolis
     const [pin, setPin] = useState<{ lat: number, lng: number } | null>(initialLocation || defaultCenter);
     const modalRef = useRef<HTMLDivElement>(null);

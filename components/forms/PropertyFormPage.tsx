@@ -1,19 +1,23 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
-import type { Language, Property, FilterOption } from '../../types';
+import type { Property, FilterOption } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CloseIcon, SparklesIcon } from '../icons/Icons';
-import { addProperty as apiAddProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
-import { useDataContext } from '../shared/DataContext';
+import { addProperty as apiAddProperty, updateProperty as apiUpdateProperty, getAllProperties } from '../../api/properties';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllProjects } from '../../api/projects';
+import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../api/filters';
 import LocationPickerModal from '../shared/LocationPickerModal';
 import { Role, Permission } from '../../types';
 import AIContentHelper from '../ai/AIContentHelper';
 import { useToast } from '../shared/ToastContext';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 import UpgradeNotice from '../shared/UpgradeNotice';
+import { useLanguage } from '../shared/LanguageContext';
 
 
 const fileToBase64 = (file: File): Promise<string> => {
@@ -25,25 +29,26 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
+type TranslatableField = 'title' | 'address' | 'description';
+
+const PropertyFormPage: React.FC = () => {
     const { propertyId } = useParams();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { currentUser, hasPermission } = useAuth();
+    const { language } = useLanguage();
     const { showToast } = useToast();
     
     // Subscription check
     const usageType = currentUser?.type === 'developer' ? 'units' : 'properties';
     const { isLimitReached } = useSubscriptionUsage(usageType);
 
-    const { 
-        allProperties: properties,
-        allProjects: projects,
-        propertyTypes,
-        finishingStatuses,
-        amenities,
-        isLoading: isLoadingContext
-    } = useDataContext();
+    const { data: properties, isLoading: isLoadingProps } = useApiQuery('allProperties', getAllProperties);
+    const { data: projects, isLoading: isLoadingProjs } = useApiQuery('allProjects', getAllProjects);
+    const { data: propertyTypes, isLoading: isLoadingPropTypes } = useApiQuery('propertyTypes', getAllPropertyTypes);
+    const { data: finishingStatuses, isLoading: isLoadingFinishing } = useApiQuery('finishingStatuses', getAllFinishingStatuses);
+    const { data: amenities, isLoading: isLoadingAmenities } = useApiQuery('amenities', getAllAmenities);
+    const isLoadingContext = isLoadingProps || isLoadingProjs || isLoadingPropTypes || isLoadingFinishing || isLoadingAmenities;
 
     const t = translations[language];
     const td = t.dashboard.propertyForm;
@@ -246,7 +251,7 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
     const isAdmin = currentUser && 'type' in currentUser && hasPermission(Permission.MANAGE_ALL_PROPERTIES);
 
     if (isLimitReached && !propertyId && !isAdmin) {
-        return <UpgradeNotice language={language} />;
+        return <UpgradeNotice />;
     }
 
     return (
@@ -255,7 +260,6 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                 <LocationPickerModal
                     onClose={() => setIsLocationModalOpen(false)}
                     onLocationSelect={handleLocationSelect}
-                    language={language}
                     initialLocation={watchLocation}
                 />
             )}
@@ -264,7 +268,6 @@ const PropertyFormPage: React.FC<{ language: Language }> = ({ language }) => {
                     isOpen={aiHelperState.isOpen}
                     onClose={() => setAiHelperState({ isOpen: false, field: null })}
                     onApply={handleApplyAiText}
-                    language={language}
                     originalText={watch(aiHelperState.field) || ''}
                     propertyData={watch()}
                     context={{ field: aiHelperState.field }}

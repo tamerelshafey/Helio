@@ -1,15 +1,19 @@
+
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import type { Language, Project } from '../../types';
+import type { Project } from '../../types';
 import { Role } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { BuildingIcon } from '../icons/Icons';
 import { translations } from '../../data/translations';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getProperties } from '../../api/properties';
 import UpgradePlanModal from '../UpgradePlanModal';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import { useLanguage } from '../shared/LanguageContext';
 
-const DashboardProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
+const DashboardProjectsPage: React.FC = () => {
+    const { language } = useLanguage();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
     const t_proj = translations[language].projectDashboard;
@@ -21,7 +25,11 @@ const DashboardProjectsPage: React.FC<{ language: Language }> = ({ language }) =
         refetch: refetchProjects 
     } = useSubscriptionUsage('projects');
 
-    const { allProperties: properties, isLoading: isLoadingProperties } = useDataContext();
+    const { data: properties, isLoading: isLoadingProperties } = useApiQuery(
+        'all-dashboard-properties',
+        getProperties,
+        { enabled: !!currentUser && currentUser.role === Role.DEVELOPER_PARTNER }
+    );
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const loading = isLoadingProjects || isLoadingProperties;
 
@@ -39,7 +47,7 @@ const DashboardProjectsPage: React.FC<{ language: Language }> = ({ language }) =
 
     return (
         <div>
-            {isUpgradeModalOpen && <UpgradePlanModal language={language} onClose={() => setIsUpgradeModalOpen(false)} />}
+            {isUpgradeModalOpen && <UpgradePlanModal onClose={() => setIsUpgradeModalOpen(false)} />}
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t_proj.title}</h1>
                 <button 

@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import type { Language, SubscriptionPlan, SubscriptionPlanDetails, PlanCategory } from '../../types';
+
+import React, { useState } from 'react';
+import type { SubscriptionPlan, SubscriptionPlanDetails, PlanCategory } from '../../types';
 import { translations } from '../../data/translations';
 import AdminPlanEditModal from './AdminPlanEditModal';
 import { CheckCircleIcon } from '../icons/Icons';
 import { getPlans } from '../../api/plans';
 import { useApiQuery } from '../shared/useApiQuery';
+import { useLanguage } from '../shared/LanguageContext';
 
 const PlanCard: React.FC<{ 
     plan: SubscriptionPlanDetails, 
     onEdit: () => void,
-    language: Language 
+    language: 'ar' | 'en'
 }> = ({ plan, onEdit, language }) => {
     return (
         <div className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-6 flex flex-col">
@@ -44,7 +46,8 @@ const PlanCard: React.FC<{
 };
 
 
-const AdminPlansPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminPlansPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.plans;
     const { data: plans, isLoading: loading, refetch } = useApiQuery('plans', getPlans);
     
@@ -71,7 +74,6 @@ const AdminPlansPage: React.FC<{ language: Language }> = ({ language }) => {
                     planKey={editingPlan.planKey}
                     onClose={() => setEditingPlan(null)}
                     onSave={handleSave}
-                    language={language}
                 />
             )}
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.title}</h1>

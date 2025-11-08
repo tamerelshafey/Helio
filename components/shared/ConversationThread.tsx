@@ -1,19 +1,22 @@
 
+
 import React, { useState, useRef, useEffect } from 'react';
-import type { Language, Lead, LeadMessage } from '../../types';
+import type { Lead, LeadMessage } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { translations } from '../../data/translations';
 import { inputClasses } from './FormField';
 import { useToast } from './ToastContext';
 import { addMessageToLead } from '../../api/leads';
+import { useLanguage } from './LanguageContext';
+import { Role } from '../../types';
 
 interface ConversationThreadProps {
   lead: Lead;
   onMessageSent: () => void; // Callback to trigger refetch
-  language: Language;
 }
 
-const ConversationThread: React.FC<ConversationThreadProps> = ({ lead, onMessageSent, language }) => {
+const ConversationThread: React.FC<ConversationThreadProps> = ({ lead, onMessageSent }) => {
+    const { language } = useLanguage();
     const { currentUser } = useAuth();
     const { showToast } = useToast();
     const t = translations[language];
@@ -33,7 +36,8 @@ const ConversationThread: React.FC<ConversationThreadProps> = ({ lead, onMessage
         
         setIsSending(true);
         try {
-            const senderType = currentUser.role === 'SUPER_ADMIN' || currentUser.role.includes('MANAGER') ? 'admin' : 'partner';
+            // FIX: Use Role enum for comparison and correct logic for checking manager roles.
+            const senderType = currentUser.role === Role.SUPER_ADMIN || currentUser.role.includes('_manager') ? 'admin' : 'partner';
 
             await addMessageToLead(lead.id, {
                 sender: senderType,

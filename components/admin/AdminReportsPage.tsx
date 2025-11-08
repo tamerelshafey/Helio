@@ -1,6 +1,7 @@
+
 import React from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import type { Language, Lead, Property, AdminPartner } from '../../types';
+import { useForm } from 'react-hook-form';
+import type { Lead, Property, AdminPartner } from '../../types';
 import { translations } from '../../data/translations';
 import { useApiQuery } from '../shared/useApiQuery';
 import { getAllLeads } from '../../api/leads';
@@ -8,8 +9,10 @@ import { getAllProperties } from '../../api/properties';
 import { getAllPartnersForAdmin } from '../../api/partners';
 import { exportToCsv, exportToPdf } from '../../utils/exportUtils';
 import { inputClasses, selectClasses } from '../shared/FormField';
+import { useLanguage } from '../shared/LanguageContext';
 
-const AdminReportsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminReportsPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminReports;
     const { register, handleSubmit, control, watch, formState: { errors } } = useForm({
         defaultValues: {

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, SiteContent, Quote } from '../../types';
@@ -7,6 +8,7 @@ import { useApiQuery } from '../shared/useApiQuery';
 import { useToast } from '../shared/ToastContext';
 import { translations } from '../../data/translations';
 import { TrashIcon, ArrowUpIcon, ArrowDownIcon, PhotoIcon } from '../icons/Icons';
+import { useLanguage } from '../shared/LanguageContext';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -63,10 +65,10 @@ const SectionEditor: React.FC<{
     title: string;
     initialData: any;
     sectionKey: SectionKey;
-    language: Language;
     onSaveSuccess: () => void;
     children: (data: any, handleDataChange: (field: string, value: any) => void) => React.ReactNode;
-}> = ({ title, initialData, sectionKey, language, onSaveSuccess, children }) => {
+}> = ({ title, initialData, sectionKey, onSaveSuccess, children }) => {
+    const { language } = useLanguage();
     const [data, setData] = useState(initialData);
     const [isSaving, setIsSaving] = useState(false);
     const { showToast } = useToast();
@@ -126,7 +128,8 @@ const SectionEditor: React.FC<{
     );
 };
 
-const AdminContentManagementPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminContentManagementPage: React.FC = () => {
+    const { language } = useLanguage();
     const { data: siteContent, isLoading: dataLoading, refetch } = useApiQuery('siteContent', getContent);
     const [activeTab, setActiveTab] = useState<SectionKey>('hero');
     const t = translations[language].adminDashboard.contentManagement;
@@ -162,7 +165,7 @@ const AdminContentManagementPage: React.FC<{ language: Language }> = ({ language
 
             <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                 {activeTab === 'hero' && (
-                    <SectionEditor title="Hero Section" initialData={siteContent.hero} sectionKey="hero" language={language} onSaveSuccess={refetch}>
+                    <SectionEditor title="Hero Section" initialData={siteContent.hero} sectionKey="hero" onSaveSuccess={refetch}>
                         {(data, handleDataChange) => (
                             <div className="space-y-4">
                                 <DualLanguageInput name="title" value={data} onChange={e => handleDataChange(e.target.name, e.target.value)} label="Main Title" />
@@ -205,7 +208,7 @@ const AdminContentManagementPage: React.FC<{ language: Language }> = ({ language
                     </SectionEditor>
                 )}
                 {activeTab === 'whyUs' && (
-                    <SectionEditor title="Why Choose Us" initialData={siteContent.whyUs} sectionKey="whyUs" language={language} onSaveSuccess={refetch}>
+                    <SectionEditor title="Why Choose Us" initialData={siteContent.whyUs} sectionKey="whyUs" onSaveSuccess={refetch}>
                         {(data, handleDataChange) => (
                             <div className="space-y-4">
                                 <DualLanguageInput name="title" value={data} onChange={e => handleDataChange(e.target.name, e.target.value)} label="Main Title" />
@@ -253,7 +256,7 @@ const AdminContentManagementPage: React.FC<{ language: Language }> = ({ language
                     </SectionEditor>
                 )}
                  {activeTab === 'services' && (
-                    <SectionEditor title="Our Services" initialData={siteContent.services} sectionKey="services" language={language} onSaveSuccess={refetch}>
+                    <SectionEditor title="Our Services" initialData={siteContent.services} sectionKey="services" onSaveSuccess={refetch}>
                        {(data, handleDataChange) => (
                            <div className="space-y-4">
                                 <DualLanguageInput name="title" value={data} onChange={e => handleDataChange(e.target.name, e.target.value)} label="Main Title" />
@@ -308,7 +311,7 @@ const AdminContentManagementPage: React.FC<{ language: Language }> = ({ language
                     </SectionEditor>
                 )}
                  {activeTab === 'partners' && (
-                    <SectionEditor title="Partners" initialData={siteContent.partners} sectionKey="partners" language={language} onSaveSuccess={refetch}>
+                    <SectionEditor title="Partners" initialData={siteContent.partners} sectionKey="partners" onSaveSuccess={refetch}>
                        {(data, handleDataChange) => (
                            <div className="space-y-4">
                                <DualLanguageInput name="title" value={data} onChange={e => handleDataChange(e.target.name, e.target.value)} label="Section Title" />
@@ -322,7 +325,7 @@ const AdminContentManagementPage: React.FC<{ language: Language }> = ({ language
                     </SectionEditor>
                 )}
                  {activeTab === 'whyNewHeliopolis' && (
-                    <SectionEditor title="Why New Heliopolis" initialData={siteContent.whyNewHeliopolis} sectionKey="whyNewHeliopolis" language={language} onSaveSuccess={refetch}>
+                    <SectionEditor title="Why New Heliopolis" initialData={siteContent.whyNewHeliopolis} sectionKey="whyNewHeliopolis" onSaveSuccess={refetch}>
                        {(data, handleDataChange) => (
                            <div className="space-y-4">
                                 <DualLanguageInput name="title" value={{ ar: data.ar.title, en: data.en.title }} onChange={e => handleDataChange(e.target.name.replace('title.',''), e.target.value)} label="Section Title" />
@@ -357,7 +360,7 @@ const AdminContentManagementPage: React.FC<{ language: Language }> = ({ language
                     </SectionEditor>
                 )}
                  {activeTab === 'quotes' && (
-                    <SectionEditor title="Quotes" initialData={siteContent.quotes} sectionKey="quotes" language={language} onSaveSuccess={refetch}>
+                    <SectionEditor title="Quotes" initialData={siteContent.quotes} sectionKey="quotes" onSaveSuccess={refetch}>
                         {(data, handleDataChange) => (
                             <div className="space-y-4">
                                 <h3 className="text-lg font-semibold">Manage Quotes</h3>
@@ -399,7 +402,7 @@ const AdminContentManagementPage: React.FC<{ language: Language }> = ({ language
                     </SectionEditor>
                 )}
                  {activeTab === 'footer' && (
-                    <SectionEditor title="Footer" initialData={siteContent.footer} sectionKey="footer" language={language} onSaveSuccess={refetch}>
+                    <SectionEditor title="Footer" initialData={siteContent.footer} sectionKey="footer" onSaveSuccess={refetch}>
                        {(data, handleDataChange) => (
                            <div className="space-y-4">
                                <DualLanguageTextarea name="description" value={{ar: data.ar.description, en: data.en.description}} onChange={e => handleDataChange(e.target.name, e.target.value)} label="Footer Description" />

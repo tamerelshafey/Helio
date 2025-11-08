@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, SiteContent } from '../../types';
@@ -7,10 +8,7 @@ import { CloseIcon, PhotoIcon } from '../icons/Icons';
 import { getContent, updateContent as updateSiteContent } from '../../api/content';
 import { useApiQuery } from '../shared/useApiQuery';
 import { useToast } from '../shared/ToastContext';
-
-interface AdminSettingsPageProps {
-  language: Language;
-}
+import { useLanguage } from '../shared/LanguageContext';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -21,7 +19,8 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ language }) => {
+const AdminSettingsPage: React.FC = () => {
+    const { language } = useLanguage();
     const { data: siteContent, isLoading: dataLoading, refetch } = useApiQuery('siteContent', getContent);
     const t = translations[language];
     const { showToast } = useToast();

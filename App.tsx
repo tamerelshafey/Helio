@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
@@ -10,8 +11,8 @@ import QuietZone from './components/QuietZone';
 import { FavoritesProvider } from './components/shared/FavoritesContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Permission } from './types';
-import type { Language, Theme } from './types';
 import ToastContainer from './components/shared/ToastContainer';
+import BackToTopButton from './components/shared/BackToTopButton';
 
 // Lazy load all page components for code splitting
 const HomePage = React.lazy(() => import('./components/HomePage'));
@@ -70,6 +71,7 @@ const AdminDecorationRequestsPage = React.lazy(() => import('./components/admin/
 const AdminRolesPage = React.lazy(() => import('./components/admin/AdminRolesPage'));
 const AdminFinishingServicesPage = React.lazy(() => import('./components/admin/AdminFinishingServicesPage'));
 const AdminAIEstimatorPage = React.lazy(() => import('./components/admin/AdminAIEstimatorPage'));
+const AIEstimatorPage = React.lazy(() => import('./components/AIEstimatorPage'));
 const NotFoundPage = React.lazy(() => import('./components/NotFoundPage'));
 
 
@@ -82,40 +84,6 @@ const LoadingFallback = () => (
 
 const App: React.FC = () => {
   const [isQuietZoneActive, setIsQuietZoneActive] = useState(false);
-  const [language, setLanguage] = useState<Language>('ar');
-  const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' || savedTheme === 'light') {
-        return savedTheme;
-    }
-    // If no theme is saved, check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
-    }
-    return 'light';
-  });
-
-  useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-  }, [language]);
-
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-  
-  const handleLanguageChange = (lang: Language) => {
-    setLanguage(lang);
-  };
-
-  const handleThemeChange = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
 
   return (
     <FavoritesProvider>
@@ -123,10 +91,6 @@ const App: React.FC = () => {
         <ScrollToTop />
         <Header 
           onToggleQuietZone={() => setIsQuietZoneActive(true)}
-          language={language}
-          onLanguageChange={handleLanguageChange}
-          theme={theme}
-          onThemeChange={handleThemeChange}
         />
         <main className="flex-grow">
           <Suspense fallback={<LoadingFallback />}>
@@ -134,47 +98,48 @@ const App: React.FC = () => {
               {/* ================================================================== */}
               {/*                             Public Routes                          */}
               {/* ================================================================== */}
-              <Route path="/" element={<HomePage language={language} />} />
-              <Route path="/properties" element={<PropertiesPage language={language} />} />
-              <Route path="/projects" element={<ProjectsPage language={language} />} />
-              <Route path="/properties/:propertyId" element={<PropertyDetailsPage language={language} />} />
-              <Route path="/projects/:projectId" element={<ProjectDetailsPage language={language} />} />
-              <Route path="/finishing" element={<FinishingPage language={language} />} />
-              <Route path="/decorations" element={<DecorationsPage language={language} />} />
-              <Route path="/contact" element={<ContactPage language={language} />} />
-              <Route path="/favorites" element={<FavoritesPage language={language} />} />
-              <Route path="/partners/:partnerId" element={<PartnerProfilePage language={language} />} />
-              <Route path="/add-property" element={<AddPropertyPage language={language} />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicyPage language={language} />} />
-              <Route path="/terms-of-use" element={<TermsOfUsePage language={language} />} />
-              <Route path="/request-service" element={<ServiceRequestPage language={language} />} />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/properties" element={<PropertiesPage />} />
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/properties/:propertyId" element={<PropertyDetailsPage />} />
+              <Route path="/projects/:projectId" element={<ProjectDetailsPage />} />
+              <Route path="/finishing" element={<FinishingPage />} />
+              <Route path="/decorations" element={<DecorationsPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/partners/:partnerId" element={<PartnerProfilePage />} />
+              <Route path="/add-property" element={<AddPropertyPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms-of-use" element={<TermsOfUsePage />} />
+              <Route path="/request-service" element={<ServiceRequestPage />} />
+              <Route path="/cost-estimator" element={<AIEstimatorPage />} />
               
               {/* ================================================================== */}
               {/*                          Authentication Routes                     */}
               {/* ================================================================== */}
-              <Route path="/login" element={<LoginPage language={language} />} />
-              <Route path="/register" element={<RegisterPage language={language} />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
               
               {/* ================================================================== */}
               {/*                        Protected Partner Dashboard                   */}
               {/* ================================================================== */}
               <Route path="/dashboard" element={
                 <ProtectedRoute permission={Permission.VIEW_PARTNER_DASHBOARD}>
-                  <PartnerDashboardLayout language={language} />
+                  <PartnerDashboardLayout />
                 </ProtectedRoute>
               }>
-                <Route index element={<DashboardHomePage language={language} />} />
-                <Route path="profile" element={<DashboardProfilePage language={language} />} />
-                <Route path="portfolio" element={<DashboardPortfolioPage language={language} />} />
-                <Route path="properties" element={<DashboardPropertiesPage language={language} />} />
-                <Route path="properties/new" element={<PropertyFormPage language={language} />} />
-                <Route path="properties/edit/:propertyId" element={<PropertyFormPage language={language} />} />
-                <Route path="projects" element={<DashboardProjectsPage language={language} />} />
-                <Route path="projects/new" element={<ProjectFormPage language={language} />} />
-                <Route path="projects/edit/:projectId" element={<ProjectFormPage language={language} />} />
-                <Route path="projects/:projectId" element={<DashboardProjectDetailsPage language={language} />} />
-                <Route path="leads" element={<DashboardLeadsPage language={language} />} />
-                <Route path="subscription" element={<DashboardSubscriptionPage language={language} />} />
+                <Route index element={<DashboardHomePage />} />
+                <Route path="profile" element={<DashboardProfilePage />} />
+                <Route path="portfolio" element={<DashboardPortfolioPage />} />
+                <Route path="properties" element={<DashboardPropertiesPage />} />
+                <Route path="properties/new" element={<PropertyFormPage />} />
+                <Route path="properties/edit/:propertyId" element={<PropertyFormPage />} />
+                <Route path="projects" element={<DashboardProjectsPage />} />
+                <Route path="projects/new" element={<ProjectFormPage />} />
+                <Route path="projects/edit/:projectId" element={<ProjectFormPage />} />
+                <Route path="projects/:projectId" element={<DashboardProjectDetailsPage />} />
+                <Route path="leads" element={<DashboardLeadsPage />} />
+                <Route path="subscription" element={<DashboardSubscriptionPage />} />
               </Route>
 
               {/* ================================================================== */}
@@ -182,49 +147,50 @@ const App: React.FC = () => {
               {/* ================================================================== */}
               <Route path="/admin" element={
                 <ProtectedRoute permission={Permission.VIEW_ADMIN_DASHBOARD}>
-                  <AdminDashboardLayout language={language} />
+                  <AdminDashboardLayout />
                 </ProtectedRoute>
               }>
-                  <Route index element={<AdminHomePage language={language} />} />
-                  <Route path="analytics" element={<AdminAnalyticsPage language={language} />} />
-                  <Route path="reports" element={<AdminReportsPage language={language} />} />
-                  <Route path="partner-requests" element={<AdminPartnerRequestsPage language={language} />} />
-                  <Route path="partner-requests/:requestId" element={<AdminPartnerRequestDetailsPage language={language} />} />
-                  <Route path="property-requests" element={<AdminPropertyRequestsPage language={language} />} />
-                  <Route path="property-requests/:requestId" element={<AdminPropertyRequestDetailsPage language={language} />} />
-                  <Route path="property-inquiries" element={<AdminPropertyInquiriesPage language={language} />} />
-                  <Route path="contact-requests" element={<AdminContactRequestsPage language={language} />} />
-                  <Route path="partners" element={<AdminPartnersPage language={language} />} />
-                  <Route path="users" element={<AdminUsersPage language={language} />} />
-                  <Route path="projects" element={<AdminProjectsPage language={language} />} />
-                  <Route path="projects/edit/:projectId" element={<ProjectFormPage language={language} />} />
-                  <Route path="properties" element={<AdminPropertiesPage language={language} />} />
-                  <Route path="properties/new" element={<PropertyFormPage language={language} />} />
-                  <Route path="properties/edit/:propertyId" element={<PropertyFormPage language={language} />} />
-                  <Route path="leads" element={<AdminLeadsPage language={language} />} />
-                  <Route path="plans" element={<AdminPlansPage language={language} />} />
-                  <Route path="roles" element={<AdminRolesPage language={language} />} />
-                  <Route path="filters" element={<AdminFilterManagementPage language={language} />} />
-                  <Route path="banners" element={<AdminBannersPage language={language} />} />
-                  <Route path="content" element={<AdminContentManagementPage language={language} />} />
-                  <Route path="settings" element={<AdminSettingsPage language={language} />} />
-                  <Route path="decoration-works" element={<AdminDecorationsPage language={language} />} />
-                  <Route path="decorations-categories" element={<AdminDecorationsCategoriesPage language={language} />} />
-                  <Route path="finishing-services" element={<AdminFinishingServicesPage language={language} />} />
-                  <Route path="finishing-requests" element={<AdminFinishingRequestsPage language={language} />} />
-                  <Route path="finishing-requests/:requestId" element={<AdminFinishingRequestDetailsPage language={language} />} />
-                  <Route path="decoration-requests" element={<AdminDecorationRequestsPage language={language} />} />
-                  <Route path="decoration-requests/:requestId" element={<AdminDecorationRequestDetailsPage language={language} />} />
-                  <Route path="ai-estimator-settings" element={<AdminAIEstimatorPage language={language} />} />
+                  <Route index element={<AdminHomePage />} />
+                  <Route path="analytics" element={<AdminAnalyticsPage />} />
+                  <Route path="reports" element={<AdminReportsPage />} />
+                  <Route path="partner-requests" element={<AdminPartnerRequestsPage />} />
+                  <Route path="partner-requests/:requestId" element={<AdminPartnerRequestDetailsPage />} />
+                  <Route path="property-requests" element={<AdminPropertyRequestsPage />} />
+                  <Route path="property-requests/:requestId" element={<AdminPropertyRequestDetailsPage />} />
+                  <Route path="property-inquiries" element={<AdminPropertyInquiriesPage />} />
+                  <Route path="contact-requests" element={<AdminContactRequestsPage />} />
+                  <Route path="partners" element={<AdminPartnersPage />} />
+                  <Route path="users" element={<AdminUsersPage />} />
+                  <Route path="projects" element={<AdminProjectsPage />} />
+                  <Route path="projects/edit/:projectId" element={<ProjectFormPage />} />
+                  <Route path="properties" element={<AdminPropertiesPage />} />
+                  <Route path="properties/new" element={<PropertyFormPage />} />
+                  <Route path="properties/edit/:propertyId" element={<PropertyFormPage />} />
+                  <Route path="leads" element={<AdminLeadsPage />} />
+                  <Route path="plans" element={<AdminPlansPage />} />
+                  <Route path="roles" element={<AdminRolesPage />} />
+                  <Route path="filters" element={<AdminFilterManagementPage />} />
+                  <Route path="banners" element={<AdminBannersPage />} />
+                  <Route path="content" element={<AdminContentManagementPage />} />
+                  <Route path="settings" element={<AdminSettingsPage />} />
+                  <Route path="decoration-works" element={<AdminDecorationsPage />} />
+                  <Route path="decorations-categories" element={<AdminDecorationsCategoriesPage />} />
+                  <Route path="finishing-services" element={<AdminFinishingServicesPage />} />
+                  <Route path="finishing-requests" element={<AdminFinishingRequestsPage />} />
+                  <Route path="finishing-requests/:requestId" element={<AdminFinishingRequestDetailsPage />} />
+                  <Route path="decoration-requests" element={<AdminDecorationRequestsPage />} />
+                  <Route path="decoration-requests/:requestId" element={<AdminDecorationRequestDetailsPage />} />
+                  <Route path="ai-estimator-settings" element={<AdminAIEstimatorPage />} />
               </Route>
                {/* 404 Not Found Route */}
-              <Route path="*" element={<NotFoundPage language={language} />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
         </main>
-        <Footer language={language} />
-        {isQuietZoneActive && <QuietZone onClose={() => setIsQuietZoneActive(false)} language={language} />}
+        <Footer />
+        {isQuietZoneActive && <QuietZone onClose={() => setIsQuietZoneActive(false)} />}
         <ToastContainer />
+        <BackToTopButton />
       </div>
     </FavoritesProvider>
   );

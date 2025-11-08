@@ -3,20 +3,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem } from '../types';
 import { translations } from '../data/translations';
 import BannerDisplay from './shared/BannerDisplay';
-import { useDataContext } from './shared/DataContext';
-import AIEstimator from './ai/AIEstimator';
 import SEO from './shared/SEO';
+import { useApiQuery } from './shared/useApiQuery';
+import { getAllPortfolioItems } from '../api/portfolio';
+import { getAllPartnersForAdmin } from '../api/partners';
+import { getContent } from '../api/content';
+import { useLanguage } from './shared/LanguageContext';
 
-interface FinishingPageProps {
-  language: Language;
-}
-
-const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
+const FinishingPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].finishingPage;
     const navigate = useNavigate();
-    const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
 
-    const { allPortfolioItems: portfolio, allPartners: partners, siteContent, isLoading } = useDataContext();
+    const { data: portfolio, isLoading: isLoadingPortfolio } = useApiQuery('allPortfolioItems', getAllPortfolioItems);
+    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
+
+    const isLoading = isLoadingPortfolio || isLoadingPartners || isLoadingContent;
 
     const handleRequestService = (serviceTitle: string) => {
         navigate('/request-service', { 
@@ -54,7 +57,6 @@ const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
                 title={`${translations[language].nav.finishing} | ONLY HELIO`}
                 description={t.heroSubtitle}
             />
-            {isEstimatorOpen && <AIEstimator language={language} serviceType="finishing" onClose={() => setIsEstimatorOpen(false)} />}
             {/* Hero Section */}
             <section className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=1600&auto=format&fit=crop')" }}>
                 <div className="absolute top-0 left-0 w-full h-full bg-black/70 z-10"></div>
@@ -64,19 +66,19 @@ const FinishingPage: React.FC<FinishingPageProps> = ({ language }) => {
                 </div>
             </section>
             
-            <BannerDisplay location="finishing" language={language} />
+            <BannerDisplay location="finishing" />
 
             {/* AI Estimator CTA */}
             <section className="py-16 bg-amber-50 dark:bg-amber-900/10">
                 <div className="container mx-auto px-6 text-center">
                     <h2 className="text-3xl font-bold text-amber-600 dark:text-amber-400">{translations[language].aiEstimator.ctaTitle}</h2>
                     <p className="text-lg text-gray-600 dark:text-gray-300 mt-3 max-w-2xl mx-auto">{translations[language].aiEstimator.ctaSubtitle}</p>
-                    <button
-                        onClick={() => setIsEstimatorOpen(true)}
-                        className="mt-6 bg-amber-500 text-gray-900 font-bold px-8 py-4 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20 transform hover:scale-105"
+                    <Link
+                        to="/cost-estimator"
+                        className="mt-6 inline-block bg-amber-500 text-gray-900 font-bold px-8 py-4 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20 transform hover:scale-105"
                     >
                         {translations[language].aiEstimator.ctaButton}
-                    </button>
+                    </Link>
                 </div>
             </section>
             

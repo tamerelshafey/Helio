@@ -8,9 +8,9 @@ export interface SortConfig<T> {
     direction: SortDirection;
 }
 
-const getNestedValue = (obj: any, path: string): any => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
+// Using unknown is more type-safe. The sorting logic below correctly handles this.
+const getNestedValue = (obj: Record<string, any>, path: string): unknown => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
 
-// FIX: Add a generic constraint to `T` to ensure it is an object, which improves type inference for the hook's arguments and resolves potential issues with `keyof T`.
 export function useAdminTable<T extends Record<string, any>>({
     data = [],
     itemsPerPage = 10,
@@ -49,22 +49,21 @@ export function useAdminTable<T extends Record<string, any>>({
         
         if (sortConfig) {
             items.sort((a, b) => {
-                // FIX: Safely cast sortConfig.key to string to handle all possible key types (string, number, symbol).
                 const aValue = getNestedValue(a, String(sortConfig.key));
                 const bValue = getNestedValue(b, String(sortConfig.key));
 
                 if (aValue === null || aValue === undefined) return 1;
                 if (bValue === null || bValue === undefined) return -1;
                 
-                // FIX: Add type-safe comparison for strings to resolve type ambiguity and improve sorting logic.
-                if (typeof aValue === 'string' && typeof bValue === 'string') {
-                    const compare = aValue.localeCompare(bValue);
-                    return sortConfig.direction === 'ascending' ? compare : -compare;
+                let compareResult: number;
+                if (typeof aValue === 'number' && typeof bValue === 'number') {
+                    compareResult = aValue - bValue;
+                } else {
+                    // FIX: Explicitly convert both values to a string before passing to `localeCompare` to resolve the TypeScript error.
+                    compareResult = String(aValue).localeCompare(String(bValue));
                 }
 
-                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
-                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
-                return 0;
+                return sortConfig.direction === 'ascending' ? compareResult : -compareResult;
             });
         }
         return items;

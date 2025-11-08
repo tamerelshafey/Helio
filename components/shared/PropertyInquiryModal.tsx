@@ -4,13 +4,14 @@ import { translations } from '../../data/translations';
 import FormField, { inputClasses, selectClasses } from './FormField';
 import { addPropertyInquiry } from '../../api/propertyInquiries';
 import { useToast } from './ToastContext';
+import { useLanguage } from './LanguageContext';
 
 interface PropertyInquiryModalProps {
     onClose: () => void;
-    language: Language;
 }
 
-const PropertyInquiryModal: React.FC<PropertyInquiryModalProps> = ({ onClose, language }) => {
+const PropertyInquiryModal: React.FC<PropertyInquiryModalProps> = ({ onClose }) => {
+    const { language } = useLanguage();
     const t = translations[language].propertyInquiryModal;
     const t_contact = translations[language].contactPage;
     const modalRef = useRef<HTMLDivElement>(null);

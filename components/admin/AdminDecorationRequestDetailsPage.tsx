@@ -1,17 +1,17 @@
 
-
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
-import type { Language, LeadStatus, Lead } from '../../types';
+import React, { useMemo, useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import type { LeadStatus, Lead } from '../../types';
 import { translations } from '../../data/translations';
 import { ChevronLeftIcon } from '../icons/Icons';
-import { selectClasses, inputClasses } from '../shared/FormField';
+import { selectClasses } from '../shared/FormField';
 import { getAllLeads, updateLead } from '../../api/leads';
 import { useApiQuery } from '../shared/useApiQuery';
 import { useToast } from '../shared/ToastContext';
 import ConversationThread from '../shared/ConversationThread';
 import DetailSection from '../shared/DetailSection';
 import DetailItem from '../shared/DetailItem';
+import { useLanguage } from '../shared/LanguageContext';
 
 const statusColors: { [key in LeadStatus]?: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -23,7 +23,8 @@ const statusColors: { [key in LeadStatus]?: string } = {
     cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
 
-const AdminDecorationRequestDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminDecorationRequestDetailsPage: React.FC = () => {
+    const { language } = useLanguage();
     const { requestId } = useParams<{ requestId: string }>();
     const t = translations[language].adminDashboard.decorationsManagement;
     const t_lead_status = translations[language].dashboard.leadStatus;
@@ -81,7 +82,7 @@ const AdminDecorationRequestDetailsPage: React.FC<{ language: Language }> = ({ l
                          <DetailItem label={translations[language].dashboard.leadTable.notes} value={<p className="whitespace-pre-wrap">{request.customerNotes || '-'}</p>} layout="grid" />
                     </DetailSection>
 
-                    <ConversationThread lead={request} onMessageSent={refetchLeads} language={language} />
+                    <ConversationThread lead={request} onMessageSent={refetchLeads} />
 
                 </div>
 

@@ -1,14 +1,16 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import type { Language } from '../../types';
 import { useApiQuery } from '../shared/useApiQuery';
 import { getAllBanners } from '../../api/banners';
 import { getContent } from '../../api/content';
 import { PhotoIcon, QuoteIcon, CogIcon, ClipboardDocumentListIcon, WrenchScrewdriverIcon } from '../icons/Icons';
 import StatCard from '../shared/StatCard';
 import { translations } from '../../data/translations';
+import { useLanguage } from '../shared/LanguageContext';
 
-const ContentManagerHomePage: React.FC<{ language: Language }> = ({ language }) => {
+const ContentManagerHomePage: React.FC = () => {
+    const { language } = useLanguage();
     const t_home = translations[language].adminDashboard.home;
     const t_nav = translations[language].adminDashboard.nav;
     const t_content = translations[language].adminDashboard.contentManagerHome;

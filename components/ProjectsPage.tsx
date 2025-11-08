@@ -3,17 +3,24 @@ import { Link } from 'react-router-dom';
 import type { Language, Project, Partner } from '../types';
 import { translations } from '../data/translations';
 import { BuildingIcon, GridIcon, ListIcon } from './icons/Icons';
-import { useDataContext } from './shared/DataContext';
 import SEO from './shared/SEO';
 import ProjectCardSkeleton from './shared/ProjectCardSkeleton';
 import ProjectListItem from './shared/ProjectListItem';
 import ProjectListItemSkeleton from './shared/ProjectListItemSkeleton';
+import { useApiQuery } from './shared/useApiQuery';
+import { getAllProjects } from '../api/projects';
+import { getAllPartnersForAdmin } from '../api/partners';
+import { getAllProperties } from '../api/properties';
+import { useLanguage } from './shared/LanguageContext';
 
-interface ProjectsPageProps {
-  language: Language;
+interface ProjectCardProps {
+    project: Project; 
+    developer?: Partner; 
+    unitsCount: number;
 }
 
-const ProjectCard: React.FC<{ project: Project; developer?: Partner; unitsCount: number; language: Language }> = ({ project, developer, unitsCount, language }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ project, developer, unitsCount }) => {
+    const { language } = useLanguage();
     const t = translations[language];
     const unitsText = unitsCount === 1 ? t.projectsPage.unitsAvailable : t.projectsPage.unitsAvailablePlural;
     
@@ -47,11 +54,15 @@ const ProjectCard: React.FC<{ project: Project; developer?: Partner; unitsCount:
     );
 };
 
-const ProjectsPage: React.FC<ProjectsPageProps> = ({ language }) => {
+const ProjectsPage: React.FC = () => {
+  const { language } = useLanguage();
   const t = translations[language].projectsPage;
   const [view, setView] = useState<'grid' | 'list'>('grid');
   
-  const { allProjects: projects, allPartners: partners, allProperties: properties, isLoading } = useDataContext();
+  const { data: projects, isLoading: isLoadingProjs } = useApiQuery('allProjects', getAllProjects);
+  const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+  const { data: properties, isLoading: isLoadingProps } = useApiQuery('allProperties', getAllProperties);
+  const isLoading = isLoadingProjs || isLoadingPartners || isLoadingProps;
   
   const projectsWithDetails = React.useMemo(() => {
     if (!projects || !partners || !properties) return [];
@@ -112,7 +123,6 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ language }) => {
                             project={project}
                             developer={developer}
                             unitsCount={unitsCount}
-                            language={language}
                         />
                     ))}
                 </div>
@@ -124,7 +134,6 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ language }) => {
                             project={project}
                             developer={developer}
                             unitsCount={unitsCount}
-                            language={language}
                         />
                     ))}
                 </div>

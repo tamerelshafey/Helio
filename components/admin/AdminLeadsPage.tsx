@@ -1,3 +1,7 @@
+
+
+
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Language, Lead, LeadStatus, AdminPartner } from '../../types';
@@ -6,10 +10,13 @@ import { useAuth } from '../auth/AuthContext';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
 import { deleteLead as apiDeleteLead } from '../../api/leads';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllLeads } from '../../api/leads';
+import { getAllPartnersForAdmin } from '../../api/partners';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';
 import ConversationThread from '../shared/ConversationThread';
+import { useLanguage } from '../shared/LanguageContext';
 
 const statusColors: { [key in LeadStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -29,13 +36,20 @@ type SortConfig = {
 // FIX: Define missing ITEMS_PER_PAGE constant
 const ITEMS_PER_PAGE = 10;
 
-const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminLeadsPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard;
     const { currentUser } = useAuth();
     const t_dash = translations[language].dashboard;
     const [searchParams] = useSearchParams();
     
-    const { allLeads: leads, allPartners: partners, isLoading, refetchAll } = useDataContext();
+    const { data: leads, isLoading: isLoadingLeads, refetch: refetchLeads } = useApiQuery('allLeadsAdmin', getAllLeads);
+    const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const isLoading = isLoadingLeads || isLoadingPartners;
+    const refetchAll = useCallback(() => {
+        refetchLeads();
+        refetchPartners();
+    }, [refetchLeads, refetchPartners]);
     
     const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
     
@@ -60,14 +74,14 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
         itemsPerPage: ITEMS_PER_PAGE,
         initialSort: { key: 'createdAt', direction: 'descending' },
         // FIX: Add explicit type to lambda arguments for robustness.
-        searchFn: (lead: Lead, term) => 
+        searchFn: (lead: Lead, term: string) => 
             lead.customerName.toLowerCase().includes(term) ||
             (lead.partnerName && lead.partnerName.toLowerCase().includes(term)),
         filterFns: {
-            partner: (l: Lead, v) => l.partnerId === v,
-            startDate: (l: Lead, v) => new Date(l.createdAt) >= new Date(v),
-            endDate: (l: Lead, v) => new Date(l.createdAt) <= new Date(v),
-            tab: (l: Lead, v) => {
+            partner: (l: Lead, v: string) => l.partnerId === v,
+            startDate: (l: Lead, v: string) => new Date(l.createdAt) >= new Date(v),
+            endDate: (l: Lead, v: string) => new Date(l.createdAt) <= new Date(v),
+            tab: (l: Lead, v: string) => {
                  if (v === 'all') return true;
                  if (v === 'finishing') return l.serviceType === 'finishing';
                  if (v === 'decorations') return l.serviceType === 'decorations';
@@ -138,11 +152,11 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.nav.allLeads}</h1>
                     <p className="text-gray-500 dark:text-gray-400">{t.manageLeadsSubtitle}</p>
                 </div>
+                {/* FIX: Remove language prop as it's handled by context within ExportDropdown */}
                  <ExportDropdown
                     data={exportData}
                     columns={exportColumns}
                     filename="all-leads"
-                    language={language}
                 />
             </div>
             <div className="mb-6 flex space-x-2 border-b border-gray-200 dark:border-gray-700 pb-4">
@@ -240,7 +254,7 @@ const AdminLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                         </tbody>
                     </table>
                 </div>
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

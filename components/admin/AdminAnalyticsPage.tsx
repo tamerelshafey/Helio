@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, Property, AdminPartner } from '../../types';
@@ -9,6 +10,7 @@ import { getAllProperties } from '../../api/properties';
 import { getAllPartnersForAdmin } from '../../api/partners';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { useLanguage } from '../shared/LanguageContext';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
@@ -28,7 +30,8 @@ const StatCard: React.FC<{ title: string; value: number | string; icon: React.Re
 
 type TimePeriod = '7d' | '30d' | 'month' | 'year';
 
-const AdminAnalyticsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminAnalyticsPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminAnalytics;
     const t_dashboard = translations[language].dashboard;
     const { data: leads, isLoading: loadingLeads } = useApiQuery('allLeadsAnalytics', getAllLeads);

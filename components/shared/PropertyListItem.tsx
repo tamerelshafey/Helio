@@ -4,14 +4,15 @@ import { BedIcon, BathIcon, AreaIcon } from '../icons/Icons';
 import type { Property, Language, Project } from '../../types';
 import { translations } from '../../data/translations';
 import { isCommercial } from '../../utils/propertyUtils';
+import { useLanguage } from './LanguageContext';
 
-interface PropertyListItemProps extends Property {
-  language: Language;
+interface PropertyListItemProps extends Omit<Property, 'language'> {
   project?: Project;
 }
 
 const PropertyListItem: React.FC<PropertyListItemProps> = (props) => {
-    const { id, imageUrl, status, price, title, beds, baths, area, language } = props;
+    const { language } = useLanguage();
+    const { id, imageUrl, status, price, title, beds, baths, area } = props;
     const t = translations[language].propertyCard;
     const isForSale = status.en === 'For Sale';
     const isCommercialProp = isCommercial(props);

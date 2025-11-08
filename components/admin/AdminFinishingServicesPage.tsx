@@ -1,14 +1,17 @@
+
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import type { Language, SiteContent } from '../../types';
+import type { SiteContent } from '../../types';
 import { inputClasses } from '../shared/FormField';
 import { translations } from '../../data/translations';
-import { CloseIcon, TrashIcon } from '../icons/Icons';
+import { TrashIcon } from '../icons/Icons';
 import { getContent, updateContent as updateSiteContent } from '../../api/content';
 import { useApiQuery } from '../shared/useApiQuery';
 import { useToast } from '../shared/ToastContext';
+import { useLanguage } from '../shared/LanguageContext';
 
-const AdminFinishingServicesPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminFinishingServicesPage: React.FC = () => {
+    const { language } = useLanguage();
     const { data: siteContent, isLoading: dataLoading, refetch } = useApiQuery('siteContent', getContent);
     const t = translations[language];
     const { showToast } = useToast();

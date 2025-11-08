@@ -9,6 +9,7 @@ import { getDecorationCategories } from '../../../api/decorations';
 import AdminPortfolioItemFormModal from '../AdminPortfolioItemFormModal';
 import { ArrowDownIcon, ArrowUpIcon } from '../../icons/Icons';
 import Pagination from '../../shared/Pagination';
+import { useLanguage } from '../../shared/LanguageContext';
 
 type SortConfig = {
     key: 'title' | 'partnerName';
@@ -17,7 +18,8 @@ type SortConfig = {
 
 const ITEMS_PER_PAGE = 8;
 
-const PortfolioManagement: React.FC<{ language: Language }> = ({ language }) => {
+const PortfolioManagement: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.decorationsManagement;
     const { data: portfolio, refetch: refetchPortfolio, isLoading: loadingPortfolio } = useApiQuery('portfolio', getAllPortfolioItems);
     const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
@@ -85,7 +87,7 @@ const PortfolioManagement: React.FC<{ language: Language }> = ({ language }) => 
 
     return (
         <div className="animate-fadeIn">
-            {modalState.isOpen && <AdminPortfolioItemFormModal itemToEdit={modalState.itemToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} language={language} />}
+            {modalState.isOpen && <AdminPortfolioItemFormModal itemToEdit={modalState.itemToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} />}
             <div className="flex justify-end mb-4">
                 <button onClick={() => setModalState({ isOpen: true })} className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600">{t.addNewItem}</button>
             </div>
@@ -111,7 +113,7 @@ const PortfolioManagement: React.FC<{ language: Language }> = ({ language }) => 
                                 </div>
                             ))}
                         </div>
-                        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                     </>
                 ) : (
                     <div className="p-8 text-center">{t.noItems}</div>

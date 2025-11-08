@@ -1,11 +1,14 @@
+
+
 import React, { useMemo } from 'react';
 import { NavLink } from 'react-router-dom';
-import type { Language } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import { partnerNavLinks } from '../../data/navigation';
+import { useLanguage } from '../shared/LanguageContext';
 
-const PartnerSidebar: React.FC<{ language: Language }> = ({ language }) => {
+const PartnerSidebar: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].dashboard;
     const { currentUser, logout, hasPermission } = useAuth();
 
@@ -23,7 +26,7 @@ const PartnerSidebar: React.FC<{ language: Language }> = ({ language }) => {
     
     if (!currentUser) return null;
 
-    const partnerName = (translations[language].partnerInfo as any)[currentUser.id]?.name || currentUser.name;
+    const partnerName = translations[language].partnerInfo[currentUser.id]?.name || currentUser.name;
 
     return (
         <aside className="w-72 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 p-6 flex flex-col">

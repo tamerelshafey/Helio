@@ -1,13 +1,16 @@
+
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { Language, Lead, LeadStatus } from '../../types';
+import type { Lead, LeadStatus } from '../../types';
 import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import { ArrowUpIcon, ArrowDownIcon, ChevronRightIcon } from '../icons/Icons';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
-import { updateLead } from '../../api/leads';
-import { useDataContext } from '../shared/DataContext';
+import { getLeadsByPartnerId, updateLead, deleteLead as apiDeleteLead } from '../../api/leads';
+import { useApiQuery } from '../shared/useApiQuery';
 import ConversationThread from '../shared/ConversationThread';
+import { useLanguage } from '../shared/LanguageContext';
 
 const statusColors: { [key in LeadStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -24,12 +27,15 @@ type SortConfig = {
     direction: 'ascending' | 'descending';
 } | null;
 
-const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
+const DashboardLeadsPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].dashboard;
     const { currentUser } = useAuth();
-    const { allLeads, isLoading: loading, refetchAll } = useDataContext();
-
-    const partnerLeads = useMemo(() => (allLeads || []).filter(l => l.partnerId === currentUser?.id), [allLeads, currentUser?.id]);
+    const { data: partnerLeads, isLoading: loading, refetch } = useApiQuery(
+        `partner-leads-${currentUser?.id}`,
+        () => getLeadsByPartnerId(currentUser!.id),
+        { enabled: !!currentUser }
+    );
 
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -71,7 +77,7 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
 
     const handleStatusChange = async (leadId: string, status: LeadStatus) => {
         await updateLead(leadId, { status });
-        refetchAll();
+        refetch();
     };
     
     const toggleExpand = (leadId: string) => {
@@ -99,7 +105,8 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.leadsTitle}</h1>
                     <p className="text-gray-500 dark:text-gray-400">{t.leadsSubtitle}</p>
                 </div>
-                <ExportDropdown data={exportData} columns={exportColumns} filename="my-leads" language={language} />
+                {/* FIX: Remove language prop as it's handled by context within ExportDropdown */}
+                <ExportDropdown data={exportData} columns={exportColumns} filename="my-leads" />
             </div>
 
             <div className="mb-4 flex flex-wrap items-center gap-4">
@@ -149,7 +156,9 @@ const DashboardLeadsPage: React.FC<{ language: Language }> = ({ language }) => {
                                         {expandedLeadId === lead.id && (
                                             <tr className="bg-gray-50 dark:bg-gray-800/50">
                                                 <td colSpan={5} className="p-0">
-                                                    <ConversationThread lead={lead} onMessageSent={refetchAll} language={language} />
+                                                    <div className="p-4 animate-fadeIn">
+                                                        <ConversationThread lead={lead} onMessageSent={refetch} />
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )}

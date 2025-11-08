@@ -5,14 +5,13 @@ import { translations } from '../data/translations';
 import { addPropertyRequest } from '../api/propertyRequests';
 import FormField, { inputClasses, selectClasses } from './shared/FormField';
 import { CloseIcon } from './icons/Icons';
-import { useDataContext } from './shared/DataContext';
 import CooperationCard from './shared/CooperationCard';
 import LocationPickerModal from './shared/LocationPickerModal';
 import { useToast } from './shared/ToastContext';
-
-interface AddPropertyPageProps {
-  language: Language;
-}
+import { useApiQuery } from './shared/useApiQuery';
+import { getAllPropertyTypes, getAllFinishingStatuses } from '../api/filters';
+import { getPlans } from '../api/plans';
+import { useLanguage } from './shared/LanguageContext';
 
 const purposeOptions = [
     { en: 'For Sale', ar: 'للبيع' },
@@ -20,9 +19,13 @@ const purposeOptions = [
 ] as const;
 
 
-const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
+const AddPropertyPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].addPropertyPage;
-    const { propertyTypes, finishingStatuses, plans, isLoading: isLoadingContext } = useDataContext();
+    const { data: propertyTypes, isLoading: isLoadingPropTypes } = useApiQuery('propertyTypes', getAllPropertyTypes);
+    const { data: finishingStatuses, isLoading: isLoadingFinishing } = useApiQuery('finishingStatuses', getAllFinishingStatuses);
+    const { data: plans, isLoading: isLoadingPlans } = useApiQuery('plans', getPlans);
+    const isLoadingContext = isLoadingPropTypes || isLoadingFinishing || isLoadingPlans;
     const { showToast } = useToast();
 
     const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting }, reset } = useForm({
@@ -86,7 +89,7 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
             const filesArray = Array.from(e.target.files);
             const currentTotal = images.length + filesArray.length;
             if (currentTotal > 10) {
-                alert('You can only upload a maximum of 10 images.');
+                showToast('You can only upload a maximum of 10 images.', 'error');
                 return;
             }
             setImages(prev => [...prev, ...filesArray]);
@@ -109,7 +112,7 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
 
     const onSubmit = async (formData: any) => {
         if (!cooperationType) {
-            alert(t.errors.cooperationType);
+            showToast(t.errors.cooperationType, 'error');
             return;
         }
         
@@ -164,7 +167,6 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
                 <LocationPickerModal 
                     onClose={() => setIsLocationModalOpen(false)}
                     onLocationSelect={handleLocationSelect}
-                    language={language}
                     initialLocation={watchLatitude && watchLongitude ? { lat: parseFloat(watchLatitude), lng: parseFloat(watchLongitude) } : undefined}
                 />
             )}
@@ -210,8 +212,8 @@ const AddPropertyPage: React.FC<AddPropertyPageProps> = ({ language }) => {
                                     <legend className="text-lg font-semibold text-amber-500 mb-2">{t.cooperation.title}</legend>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 -mt-2 mb-4">{t.cooperation.subtitle}</p>
                                     <div className="grid sm:grid-cols-2 gap-6">
-                                        <CooperationCard type="paid_listing" isSelected={cooperationType === 'paid_listing'} onSelect={() => setCooperationType('paid_listing')} language={language} plans={plans} isLoadingPlans={isLoadingContext} />
-                                        <CooperationCard type="commission" isSelected={cooperationType === 'commission'} onSelect={() => setCooperationType('commission')} language={language} plans={plans} isLoadingPlans={isLoadingContext} />
+                                        <CooperationCard type="paid_listing" isSelected={cooperationType === 'paid_listing'} onSelect={() => setCooperationType('paid_listing')} plans={plans} isLoadingPlans={isLoadingContext} />
+                                        <CooperationCard type="commission" isSelected={cooperationType === 'commission'} onSelect={() => setCooperationType('commission')} plans={plans} isLoadingPlans={isLoadingContext} />
                                     </div>
                                     {!cooperationType && <p className="text-red-500 text-sm mt-2">{t.errors.cooperationType}</p>}
                                 </fieldset>

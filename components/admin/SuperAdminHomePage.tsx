@@ -1,6 +1,7 @@
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, Lead, AdminPartner, Property, AddPropertyRequest, ContactRequest, PartnerRequest, PropertyInquiryRequest, Project } from '../../types';
+import type { Lead, AdminPartner, Property, AddPropertyRequest, ContactRequest, PartnerRequest, PropertyInquiryRequest, Project, Language } from '../../types';
 import { translations } from '../../data/translations';
 import { UserPlusIcon, ClipboardDocumentListIcon, InboxIcon, BuildingIcon, UsersIcon, ChartBarIcon, CubeIcon } from '../icons/Icons';
 import { isListingActive } from '../../utils/propertyUtils';
@@ -13,6 +14,7 @@ import { getAllLeads } from '../../api/leads';
 import { getAllProjects } from '../../api/projects';
 import { useApiQuery } from '../shared/useApiQuery';
 import StatCard from '../shared/StatCard';
+import { useLanguage } from '../shared/LanguageContext';
 
 
 const ActionCard: React.FC<{ title: string; count: number; linkTo: string; icon: React.FC<{className?: string}>; language: Language }> = ({ title, count, linkTo, icon: Icon, language }) => (
@@ -30,7 +32,8 @@ const ActionCard: React.FC<{ title: string; count: number; linkTo: string; icon:
     </div>
 );
 
-const SuperAdminHomePage: React.FC<{ language: Language }> = ({ language }) => {
+const SuperAdminHomePage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.home;
     const t_analytics = translations[language].adminAnalytics;
     
@@ -121,7 +124,7 @@ const SuperAdminHomePage: React.FC<{ language: Language }> = ({ language }) => {
                         <ul className="space-y-4">
                             {topPartners.map(({ partner, count }) => partner && (
                                 <li key={partner.id}>
-                                    <Link to={`/admin/partners?edit=${partner.id}`} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                     <Link to={`/admin/partners?edit=${partner.id}`} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                         <img src={partner.imageUrl} alt={partner.name} className="w-10 h-10 rounded-full object-cover"/>
                                         <div className="flex-grow">
                                             <p className="font-semibold text-gray-800 dark:text-gray-200">{partner.name}</p>

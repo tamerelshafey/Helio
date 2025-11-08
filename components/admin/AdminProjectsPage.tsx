@@ -1,20 +1,35 @@
+
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Project, AdminPartner, Property } from '../../types';
 import { translations } from '../../data/translations';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import { deleteProject as apiDeleteProject } from '../../api/projects';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllProjects } from '../../api/projects';
+import { getAllPartnersForAdmin } from '../../api/partners';
+import { getAllProperties } from '../../api/properties';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';
+import { useLanguage } from '../shared/LanguageContext';
 
 const ITEMS_PER_PAGE = 10;
 
-const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminProjectsPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.projects;
     const t_filter = translations[language].adminDashboard.filter;
     
-    const { allProjects: projects, allPartners: partners, allProperties: properties, isLoading, refetchAll } = useDataContext();
+    const { data: projects, isLoading: isLoadingProjects, refetch: refetchProjects } = useApiQuery('allProjects', getAllProjects);
+    const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { data: properties, isLoading: isLoadingProperties, refetch: refetchProperties } = useApiQuery('allProperties', getAllProperties);
+    const isLoading = isLoadingProjects || isLoadingPartners || isLoadingProperties;
+    const refetchAll = useCallback(() => {
+        refetchProjects();
+        refetchPartners();
+        refetchProperties();
+    }, [refetchProjects, refetchPartners, refetchProperties]);
 
     const partnerOptions = useMemo(() => {
         return (partners || [])
@@ -42,12 +57,12 @@ const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
         itemsPerPage: ITEMS_PER_PAGE,
         initialSort: { key: `name.${language}`, direction: 'ascending' },
         // FIX: Add explicit type to lambda argument to resolve type inference issue.
-        searchFn: (p: Project & { partnerName: string; unitsCount: number; }, term) => 
+        searchFn: (p: Project & { partnerName: string; unitsCount: number; }, term: string) => 
             p.name[language].toLowerCase().includes(term) ||
             p.partnerName.toLowerCase().includes(term),
         filterFns: {
             // FIX: Add explicit type for robustness.
-            partner: (p: Project & { partnerName: string; unitsCount: number; }, v) => p.partnerId === v,
+            partner: (p: Project & { partnerName: string; unitsCount: number; }, v: string) => p.partnerId === v,
         }
     });
     
@@ -118,7 +133,7 @@ const AdminProjectsPage: React.FC<{ language: Language }> = ({ language }) => {
                         </tbody>
                     </table>
                 </div>
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

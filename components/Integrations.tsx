@@ -1,11 +1,9 @@
+
 import React from 'react';
 import { BuildingIcon, CheckCircleIcon, PriceIcon, LocationMarkerIcon } from './icons/Icons';
-import type { Language } from '../types';
-import { useDataContext } from './shared/DataContext';
-
-interface IntegrationsProps {
-  language: Language;
-}
+import { useApiQuery } from './shared/useApiQuery';
+import { getContent } from '../api/content';
+import { useLanguage } from './shared/LanguageContext';
 
 const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string }> = ({ icon, title, description }) => (
     <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-transparent hover:border-amber-500/30 transition-all duration-300 transform hover:-translate-y-1 h-full shadow-sm hover:shadow-lg">
@@ -20,8 +18,9 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description:
 );
 
 
-const Integrations: React.FC<IntegrationsProps> = ({ language }) => {
-    const { siteContent, isLoading } = useDataContext();
+const Integrations: React.FC = () => {
+    const { language } = useLanguage();
+    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
     
     if (isLoading || !siteContent) {
         return <section className="py-20 bg-white dark:bg-gray-900 animate-pulse h-96"></section>;
@@ -37,7 +36,7 @@ const Integrations: React.FC<IntegrationsProps> = ({ language }) => {
     ];
 
     return (
-        <section className="py-20 bg-white dark:bg-gray-900">
+        <section className="py-20 bg-white dark:bg-gray-900 subtle-bg">
             <div className="container mx-auto px-6">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">

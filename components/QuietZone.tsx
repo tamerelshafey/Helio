@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Language } from '../types';
 import { CloseIcon } from './icons/Icons';
-import { useDataContext } from './shared/DataContext';
+import { useApiQuery } from './shared/useApiQuery';
+import { getContent } from '../api/content';
+import { useLanguage } from './shared/LanguageContext';
 
 interface QuietZoneProps {
   onClose: () => void;
-  language: Language;
 }
 
-const QuietZone: React.FC<QuietZoneProps> = ({ onClose, language }) => {
-  const { siteContent, isLoading } = useDataContext();
+const QuietZone: React.FC<QuietZoneProps> = ({ onClose }) => {
+  const { language } = useLanguage();
+  const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
   const [currentQuote, setCurrentQuote] = useState({ quote: '', author: '' });
   const modalRef = useRef<HTMLDivElement>(null);
 

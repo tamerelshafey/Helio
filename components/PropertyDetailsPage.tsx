@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon } from './icons/Icons';
@@ -12,48 +13,46 @@ import { useApiQuery } from './shared/useApiQuery';
 import DetailItem from './shared/DetailItem';
 import ContactOptionsModal from './shared/ContactOptionsModal';
 import { useToast } from './shared/ToastContext';
-import { useDataContext } from './shared/DataContext';
 import SEO from './shared/SEO';
 import DetailSection from './shared/DetailSection';
+import { getProjectById } from '../api/projects';
+import { getAllAmenities } from '../api/filters';
+import { getPartnerById } from '../api/partners';
+import { useLanguage } from './shared/LanguageContext';
+import PropertyDetailsSkeleton from './shared/PropertyDetailsSkeleton';
 
-interface PropertyDetailsPageProps {
-    language: Language;
-}
 
-const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) => {
+const PropertyDetailsPage: React.FC = () => {
     const { propertyId } = useParams<{ propertyId: string }>();
+    const { language } = useLanguage();
     const t = translations[language];
     const navigate = useNavigate();
     const { showToast } = useToast();
     
-    const fetchProperty = useCallback(() => {
-        if (!propertyId) return Promise.resolve(undefined);
-        return getPropertyById(propertyId);
-    }, [propertyId]);
+    const fetchProperty = useCallback(() => getPropertyById(propertyId!), [propertyId]);
 
     const { data: property, isLoading: isLoadingProperty } = useApiQuery(`property-${propertyId}`, fetchProperty, { enabled: !!propertyId });
-    const { allProjects: projects, amenities, allPartners: partners, isLoading: isLoadingContext } = useDataContext();
+    
+    const { data: project, isLoading: isLoadingProjs } = useApiQuery(
+        `project-${property?.projectId}`,
+        () => getProjectById(property!.projectId!),
+        { enabled: !!property?.projectId }
+    );
 
-    const isLoading = isLoadingProperty || isLoadingContext;
+    const { data: partner, isLoading: isLoadingPartners } = useApiQuery(
+        `partner-${property?.partnerId}`,
+        () => getPartnerById(property!.partnerId!),
+        { enabled: !!property?.partnerId }
+    );
+    
+    const { data: amenities, isLoading: isLoadingAmenities } = useApiQuery('amenities', getAllAmenities);
+
+    const isLoading = isLoadingProperty || isLoadingProjs || isLoadingAmenities || isLoadingPartners;
     
     const [mainImage, setMainImage] = useState<string | undefined>(undefined);
     const [lightboxState, setLightboxState] = useState({ isOpen: false, startIndex: 0 });
     const [isContactModalOpen, setIsContactModalOpen] = useState(false);
     const [activeContactMethods, setActiveContactMethods] = useState<any>(null);
-
-    const project = useMemo(() => {
-        if (property?.projectId && projects) {
-            return projects.find(p => p.id === property.projectId);
-        }
-        return undefined;
-    }, [property, projects]);
-    
-    const partner = useMemo(() => {
-        if (property?.partnerId && partners) {
-            return partners.find(p => p.id === property.partnerId);
-        }
-        return undefined;
-    }, [property, partners]);
 
     useEffect(() => {
         if (property) {
@@ -166,11 +165,7 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
     }, [amenities, language]);
 
     if (isLoading) {
-        return (
-             <div className="py-20 text-center text-xl">
-                Loading property details...
-            </div>
-        )
+        return <PropertyDetailsSkeleton />;
     }
 
     if (!property) {
@@ -220,7 +215,6 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                     images={currentGallery}
                     startIndex={lightboxState.startIndex}
                     onClose={() => setLightboxState({ isOpen: false, startIndex: 0 })}
-                    language={language}
                 />
             )}
              {isContactModalOpen && activeContactMethods && (
@@ -229,7 +223,6 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                     onClose={() => setIsContactModalOpen(false)}
                     contactMethods={activeContactMethods}
                     onSelectForm={navigateToServiceRequest}
-                    language={language}
                 />
             )}
             <div className="container mx-auto px-6">
@@ -342,7 +335,7 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                                 <div className="relative rounded-lg overflow-hidden border dark:border-gray-700" style={{ paddingTop: '56.25%' }}>
                                     <a href={`https://www.google.com/maps/search/?api=1&query=${property.location.lat},${property.location.lng}`} target="_blank" rel="noopener noreferrer" title="View on Google Maps" className="absolute inset-0">
                                         <img 
-                                            src={`https://maps.googleapis.com/maps/api/staticmap?center=${property.location.lat},${property.location.lng}&zoom=15&size=800x450&markers=color:0xf59e0b%7C${property.location.lat},${property.location.lng}&maptype=roadmap&style=feature:poi|visibility:off&style=feature:transit|visibility:off`}
+                                            src={`https://maps.googleapis.com/maps/api/staticmap?center=${property.location.lat},${property.location.lng}&zoom=15&size=800x450&markers=color:0xf59e0b%7C${property.location.lat},${property.location.lng}&maptype=roadmap&style=feature:poi|visibility:off&style=feature:transit|visibility:off&key=${process.env.API_KEY}`}
                                             alt={`${t.propertyDetailsPage.mapOf} ${property.title[language]}`}
                                             className="w-full h-full object-cover"
                                             loading="lazy"
@@ -417,7 +410,7 @@ const PropertyDetailsPage: React.FC<PropertyDetailsPageProps> = ({ language }) =
                     </div>
                 </div>
             </div>
-             <BannerDisplay location="details" language={language} />
+             <BannerDisplay location="details" />
         </div>
         </>
     );

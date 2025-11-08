@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Language, PortfolioItem } from '../../types';
 import { translations } from '../../data/translations';
@@ -8,12 +7,12 @@ import { CloseIcon } from '../icons/Icons';
 import { getDecorationCategories } from '../../api/decorations';
 import { addPortfolioItem, updatePortfolioItem } from '../../api/portfolio';
 import { useApiQuery } from '../shared/useApiQuery';
+import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminPortfolioItemFormModalProps {
     itemToEdit?: PortfolioItem;
     onClose: () => void;
     onSave: () => void;
-    language: Language;
 }
 
 const fileToBase64 = (file: File): Promise<string> => {
@@ -25,7 +24,8 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = ({ itemToEdit, onClose, onSave, language }) => {
+const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = ({ itemToEdit, onClose, onSave }) => {
+    const { language } = useLanguage();
     const t = translations[language].dashboard;
     const t_admin = translations[language].adminDashboard.decorationsManagement;
     const t_shared = translations[language].adminShared;

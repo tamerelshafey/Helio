@@ -3,15 +3,16 @@ import { Link } from 'react-router-dom';
 import type { Language, Project, Partner } from '../../types';
 import { translations } from '../../data/translations';
 import { BuildingIcon } from '../icons/Icons';
+import { useLanguage } from './LanguageContext';
 
 interface ProjectListItemProps {
     project: Project;
     developer?: Partner;
     unitsCount: number;
-    language: Language;
 }
 
-const ProjectListItem: React.FC<ProjectListItemProps> = ({ project, developer, unitsCount, language }) => {
+const ProjectListItem: React.FC<ProjectListItemProps> = ({ project, developer, unitsCount }) => {
+    const { language } = useLanguage();
     const t = translations[language];
     const unitsText = unitsCount === 1 ? t.projectsPage.unitsAvailable : t.projectsPage.unitsAvailablePlural;
 

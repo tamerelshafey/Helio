@@ -1,20 +1,22 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { Language, SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../../types';
+
+import React, { useState, useEffect, useRef } from 'react';
+import type { SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../../types';
 import { translations } from '../../data/translations';
 import FormField, { inputClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { getPlans, updatePlan as apiUpdatePlan } from '../../api/plans';
 import { useApiQuery } from '../shared/useApiQuery';
+import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminPlanEditModalProps {
     planType: PlanCategory;
     planKey: SubscriptionPlan;
     onClose: () => void;
     onSave: () => void;
-    language: Language;
 }
 
-const AdminPlanEditModal: React.FC<AdminPlanEditModalProps> = ({ planType, planKey, onClose, onSave, language }) => {
+const AdminPlanEditModal: React.FC<AdminPlanEditModalProps> = ({ planType, planKey, onClose, onSave }) => {
+    const { language } = useLanguage();
     const { data: plans } = useApiQuery('plans', getPlans);
     const t = translations[language].adminDashboard.plans;
     const t_shared = translations[language].adminShared;

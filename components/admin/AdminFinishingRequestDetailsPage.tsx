@@ -1,15 +1,18 @@
+
 import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { Language, LeadStatus, Lead, AdminPartner } from '../../types';
+import type { LeadStatus, Lead, AdminPartner } from '../../types';
 import { translations } from '../../data/translations';
 import { ChevronLeftIcon } from '../icons/Icons';
 import { selectClasses } from '../shared/FormField';
-import { updateLead } from '../../api/leads';
-import { useDataContext } from '../shared/DataContext';
+import { updateLead, getAllLeads } from '../../api/leads';
+import { getAllPartnersForAdmin } from '../../api/partners';
 import DetailItem from '../shared/DetailItem';
 import { useToast } from '../shared/ToastContext';
 import ConversationThread from '../shared/ConversationThread';
 import DetailSection from '../shared/DetailSection';
+import { useApiQuery } from '../shared/useApiQuery';
+import { useLanguage } from '../shared/LanguageContext';
 
 const statusColors: { [key in LeadStatus]?: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -21,7 +24,8 @@ const statusColors: { [key in LeadStatus]?: string } = {
     cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
 
-const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminFinishingRequestDetailsPage: React.FC = () => {
+    const { language } = useLanguage();
     const { requestId } = useParams<{ requestId: string }>();
     const t_req = translations[language].adminDashboard.decorationsManagement;
     const t_lead_status = translations[language].dashboard.leadStatus;
@@ -29,7 +33,9 @@ const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ la
     const t_shared = translations[language].adminShared;
     const { showToast } = useToast();
     
-    const { allLeads: leads, allPartners: partners, isLoading, refetchAll } = useDataContext();
+    const { data: leads, isLoading: isLoadingLeads, refetch: refetchLeads } = useApiQuery('allLeadsAdmin', getAllLeads);
+    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const isLoading = isLoadingLeads || isLoadingPartners;
 
     const request = useMemo(() => (leads || []).find(l => l.id === requestId), [leads, requestId]);
     
@@ -53,7 +59,7 @@ const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ la
             status,
             assignedTo,
         });
-        refetchAll();
+        await refetchLeads();
         setIsSaving(false);
         showToast('Request updated successfully!', 'success');
     };
@@ -87,7 +93,7 @@ const AdminFinishingRequestDetailsPage: React.FC<{ language: Language }> = ({ la
                          <DetailItem label={translations[language].dashboard.leadTable.notes} value={<p className="whitespace-pre-wrap">{request.customerNotes || '-'}</p>} layout="grid" />
                     </DetailSection>
                     
-                    <ConversationThread lead={request} onMessageSent={refetchAll} language={language} />
+                    <ConversationThread lead={request} onMessageSent={refetchLeads} />
 
                 </div>
 

@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+
+import React, { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Property, AdminPartner } from '../../types';
 import { translations } from '../../data/translations';
@@ -6,12 +7,13 @@ import { inputClasses, selectClasses } from '../shared/FormField';
 import { isListingActive } from '../../utils/propertyUtils';
 import ExportDropdown from '../shared/ExportDropdown';
 import { getAllProperties, deleteProperty as apiDeleteProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
-import { useDataContext } from '../shared/DataContext';
+import { useApiQuery } from '../shared/useApiQuery';
+import { getAllPartnersForAdmin } from '../../api/partners';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';
+import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminPropertiesPageProps {
-  language: Language;
   filterOptions?: {
     partnerId?: string;
   };
@@ -19,12 +21,19 @@ interface AdminPropertiesPageProps {
 
 const ITEMS_PER_PAGE = 10;
 
-const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, filterOptions }) => {
+const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ filterOptions }) => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard;
     const t_dash = translations[language].dashboard;
     const tp = translations[language].propertiesPage;
     
-    const { allProperties: properties, allPartners: partners, isLoading, refetchAll } = useDataContext();
+    const { data: properties, isLoading: isLoadingProps, refetch: refetchProps } = useApiQuery('allProperties', getAllProperties);
+    const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const isLoading = isLoadingProps || isLoadingPartners;
+    const refetchAll = useCallback(() => {
+        refetchProps();
+        refetchPartners();
+    }, [refetchProps, refetchPartners]);
 
     const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
 
@@ -45,15 +54,15 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
         data: properties,
         itemsPerPage: ITEMS_PER_PAGE,
         initialSort: { key: 'listingStartDate', direction: 'descending' },
-        searchFn: (prop, term) => 
+        searchFn: (prop: Property, term: string) => 
             prop.title[language].toLowerCase().includes(term) ||
             (prop.partnerName && prop.partnerName.toLowerCase().includes(term)),
         filterFns: {
-            partner: (p, v) => p.partnerId === v,
-            status: (p, v) => p.status.en === v,
-            type: (p, v) => p.type.en === v,
-            startDate: (p, v) => p.listingStartDate && new Date(p.listingStartDate) >= new Date(v),
-            endDate: (p, v) => p.listingStartDate && new Date(p.listingStartDate) <= new Date(v),
+            partner: (p: Property, v: string) => p.partnerId === v,
+            status: (p: Property, v: string) => p.status.en === v,
+            type: (p: Property, v: string) => p.type.en === v,
+            startDate: (p: Property, v: string) => p.listingStartDate && new Date(p.listingStartDate) >= new Date(v),
+            endDate: (p: Property, v: string) => p.listingStartDate && new Date(p.listingStartDate) <= new Date(v),
         }
     });
 
@@ -120,7 +129,6 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                         data={paginatedProperties}
                         columns={exportColumns}
                         filename="all-properties"
-                        language={language}
                     />
                     <Link to="/admin/properties/new" className="bg-amber-500 text-gray-900 font-semibold px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors">
                         {t_dash.addProperty}
@@ -216,7 +224,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                                 paginatedProperties.map(prop => (
                                     <tr key={prop.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                         <td className="w-4 p-4">
-                                            <input type="checkbox" checked={selectedProperties.includes(prop.id)} onChange={() => handleSelect(prop.id)} />
+                                             <input type="checkbox" checked={selectedProperties.includes(prop.id)} onChange={() => handleSelect(prop.id)} />
                                         </td>
                                         <td className="px-6 py-4">
                                             <img src={prop.imageUrl} alt={prop.title[language]} className="w-16 h-16 object-cover rounded-md" />
@@ -255,7 +263,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ language, fil
                         </tbody>
                     </table>
                 </div>
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

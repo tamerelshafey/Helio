@@ -1,12 +1,10 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BuildingIcon, DecorationIcon, FinishingIcon, SparklesIcon } from './icons/Icons';
-import type { Language } from '../types';
-import { useDataContext } from './shared/DataContext';
-
-interface ServicesProps {
-    language: Language;
-}
+import { useApiQuery } from './shared/useApiQuery';
+import { getContent } from '../api/content';
+import { useLanguage } from './shared/LanguageContext';
 
 const iconMap: { [key: string]: React.FC<{className?: string}> } = {
     BuildingIcon,
@@ -28,8 +26,9 @@ const ServiceCard: React.FC<{ icon: React.ReactNode; title: string; description:
 );
 
 
-const Services: React.FC<ServicesProps> = ({ language }) => {
-    const { siteContent, isLoading } = useDataContext();
+const Services: React.FC = () => {
+    const { language } = useLanguage();
+    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
 
     if (isLoading || !siteContent) {
         return <section className="py-20 bg-gray-50 dark:bg-gray-800 animate-pulse h-96"></section>;
@@ -38,7 +37,7 @@ const Services: React.FC<ServicesProps> = ({ language }) => {
     const t = siteContent.services[language];
     
     return (
-        <section className="py-20 bg-gray-50 dark:bg-gray-800">
+        <section className="py-20 bg-gray-50 dark:bg-gray-800 subtle-bg">
             <div className="container mx-auto px-6">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">

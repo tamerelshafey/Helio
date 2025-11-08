@@ -1,15 +1,16 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import type { Language, PartnerRequest } from '../../types';
 import { translations } from '../../data/translations';
 import { CloseIcon } from '../icons/Icons';
 import { addPartner } from '../../api/partners';
 import { updatePartnerRequestStatus } from '../../api/partnerRequests';
+import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminPartnerRequestModalProps {
     request: PartnerRequest;
     onClose: () => void;
     onSave: () => void; // Added for consistency with other modals, triggers refetch
-    language: Language;
 }
 
 const DetailSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
@@ -28,7 +29,8 @@ const DetailItem: React.FC<{ label: string; value?: string | React.ReactNode }> 
     ) : null
 );
 
-const AdminPartnerRequestModal: React.FC<AdminPartnerRequestModalProps> = ({ request, onClose, onSave, language }) => {
+const AdminPartnerRequestModal: React.FC<AdminPartnerRequestModalProps> = ({ request, onClose, onSave }) => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.adminRequests;
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);

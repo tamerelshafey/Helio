@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 
 interface IconProps {
@@ -198,8 +200,9 @@ export const GridIcon: React.FC<IconProps> = ({ className }) => (
 );
 
 export const MapIcon: React.FC<IconProps> = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className}>
-        <path fillRule="evenodd" d="M8.25 3.75a.75.75 0 0 1 .75.75v14.04l6-3.75a.75.75 0 0 1 .75 0l6 3.75a.75.75 0 0 1 0 1.34l-6 3.75a.75.75 0 0 1-.75 0l-6-3.75a.75.75 0 0 1 0-1.34l6-3.75a.75.75 0 0 1 .75 0l6 3.75V4.5a.75.75 0 0 1-1.5 0v11.04l-4.5-2.812a.75.75 0 0 1-.75 0L9 15.54V4.5a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503-6.998l-6.862 3.431M9 6.75h6M9 15h6m-6.862-3.431l6.862-3.431" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
     </svg>
 );
 
@@ -370,6 +373,12 @@ export const TagIcon: React.FC<IconProps> = ({ className }) => (
 export const HomeIcon: React.FC<IconProps> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" />
+    </svg>
+);
+
+export const GlobeAltIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A11.953 11.953 0 0112 16.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 003 12c0-.778.099-1.533.284-2.253m0 0c-.39.813-.673 1.713-.86 2.663" />
     </svg>
 );
 

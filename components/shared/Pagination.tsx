@@ -1,14 +1,16 @@
 import React from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons';
+import { useLanguage } from './LanguageContext';
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-  language: 'ar' | 'en';
 }
 
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange, language }) => {
+const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+  const { language } = useLanguage();
+
   if (totalPages <= 1) return null;
 
   const getPageNumbers = (): (string | number)[] => {

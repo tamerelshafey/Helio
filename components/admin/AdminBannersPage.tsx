@@ -1,11 +1,13 @@
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { Language, Banner } from '../../types';
+import type { Banner } from '../../types';
 import { translations } from '../../data/translations';
 import AdminBannerFormModal from './AdminBannerFormModal';
 import { ArrowDownIcon, ArrowUpIcon } from '../icons/Icons';
 import { getAllBanners, deleteBanner as apiDeleteBanner } from '../../api/banners';
 import { useApiQuery } from '../shared/useApiQuery';
 import Pagination from '../shared/Pagination';
+import { useLanguage } from '../shared/LanguageContext';
 
 type SortConfig = {
     key: 'title' | 'locations' | 'status';
@@ -14,7 +16,8 @@ type SortConfig = {
 
 const ITEMS_PER_PAGE = 10;
 
-const AdminBannersPage: React.FC<{ language: Language }> = ({ language }) => {
+const AdminBannersPage: React.FC = () => {
+    const { language } = useLanguage();
     const t = translations[language].adminDashboard.manageBanners;
     const { data: banners, isLoading: loading, refetch } = useApiQuery('banners', getAllBanners);
     const [modalState, setModalState] = useState<{ isOpen: boolean, bannerToEdit?: Banner }>({ isOpen: false });
@@ -85,7 +88,6 @@ const AdminBannersPage: React.FC<{ language: Language }> = ({ language }) => {
                 <AdminBannerFormModal
                     bannerToEdit={modalState.bannerToEdit}
                     onClose={handleModalClose}
-                    language={language}
                 />
             )}
             <div className="flex justify-between items-center mb-8">
@@ -146,7 +148,7 @@ const AdminBannersPage: React.FC<{ language: Language }> = ({ language }) => {
                         </tbody>
                     </table>
                 </div>
-                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

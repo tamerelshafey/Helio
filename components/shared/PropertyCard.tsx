@@ -1,18 +1,17 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon, HeartIcon, HeartIconSolid, FloorIcon, CompoundIcon, TagIcon, BanknotesIcon } from '../icons/Icons';
-import type { Property, Language, Project } from '../../types';
+import type { Property, Language } from '../../types';
 import { translations } from '../../data/translations';
 import { useFavorites } from './FavoritesContext';
 import { isCommercial } from '../../utils/propertyUtils';
 import { useToast } from './ToastContext';
+import { useLanguage } from './LanguageContext';
 
-interface PropertyCardProps extends Property {
-  language: Language;
-  project?: Project;
-}
+type PropertyCardProps = Property;
 
 const PropertyCard: React.FC<PropertyCardProps> = (props) => {
+  const { language } = useLanguage();
   const {
     id,
     imageUrl,
@@ -34,8 +33,8 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
     partnerName,
     installmentsAvailable,
     realEstateFinanceAvailable,
-    language,
-    project,
+    projectId,
+    projectName,
   } = props;
   const t = translations[language];
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -125,8 +124,8 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
                  <p>{t.propertyCard.by} {partnerName}</p>
             ) : null}
 
-            {project && (
-                <Link to={`/projects/${project.id}`} onClick={(e) => e.stopPropagation()} className="text-amber-600 dark:text-amber-500 hover:underline text-xs">
+            {projectName && projectId && (
+                <Link to={`/projects/${projectId}`} onClick={(e) => e.stopPropagation()} className="text-amber-600 dark:text-amber-500 hover:underline text-xs">
                     {t.propertyCard.viewProject}
                 </Link>
             )}

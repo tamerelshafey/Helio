@@ -1,22 +1,20 @@
+
 import React from 'react';
 import Hero from './Hero';
 import Services from './Services';
 import Partners from './Partners';
 import Integrations from './Integrations';
 import CTA from './CTA';
-import type { Language } from '../types';
 import BannerDisplay from './shared/BannerDisplay';
 import AboutCity from './AboutCity';
 import LatestProperties from './LatestProperties';
 import SEO from './shared/SEO';
 import { translations } from '../data/translations';
+import { useLanguage } from './shared/LanguageContext';
 
 
-interface HomePageProps {
-  language: Language;
-}
-
-const HomePage: React.FC<HomePageProps> = ({ language }) => {
+const HomePage: React.FC = () => {
+  const { language } = useLanguage();
   const t = translations[language];
   const pageTitle = `ONLY HELIO | ${t.nav.home}`;
   const pageDescription = language === 'ar' 
@@ -26,14 +24,14 @@ const HomePage: React.FC<HomePageProps> = ({ language }) => {
   return (
     <>
       <SEO title={pageTitle} description={pageDescription} />
-      <Hero language={language} />
-      <BannerDisplay location="home" language={language} />
-      <Services language={language} />
-      <AboutCity language={language} />
-      <Integrations language={language} />
-      <LatestProperties language={language} />
-      <Partners language={language} />
-      <CTA language={language} />
+      <Hero />
+      <BannerDisplay location="home" />
+      <Services />
+      <AboutCity />
+      <Integrations />
+      <LatestProperties />
+      <Partners />
+      <CTA />
     </>
   );
 };
