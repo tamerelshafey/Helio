@@ -48,7 +48,7 @@ const Hero: React.FC<HeroProps> = ({ language }) => {
         aria-live="polite" 
         aria-atomic="true"
       >
-        {currentImageAlt}
+        New background image: {currentImageAlt}
       </div>
 
       <div className="relative z-20 px-4 container mx-auto flex flex-col items-center">

@@ -10,7 +10,8 @@ export interface SortConfig<T> {
 
 const getNestedValue = (obj: any, path: string): any => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
 
-export function useAdminTable<T>({
+// FIX: Add a generic constraint to `T` to ensure it is an object, which improves type inference for the hook's arguments and resolves potential issues with `keyof T`.
+export function useAdminTable<T extends Record<string, any>>({
     data = [],
     itemsPerPage = 10,
     initialSort,
@@ -54,6 +55,12 @@ export function useAdminTable<T>({
 
                 if (aValue === null || aValue === undefined) return 1;
                 if (bValue === null || bValue === undefined) return -1;
+                
+                // FIX: Add type-safe comparison for strings to resolve type ambiguity and improve sorting logic.
+                if (typeof aValue === 'string' && typeof bValue === 'string') {
+                    const compare = aValue.localeCompare(bValue);
+                    return sortConfig.direction === 'ascending' ? compare : -compare;
+                }
 
                 if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
                 if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;

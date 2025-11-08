@@ -6,28 +6,21 @@ import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import { adminNavLinks } from '../../data/navigation';
 import GlobalSearch from './GlobalSearch';
-import { MenuIcon, CloseIcon } from '../icons/Icons';
+import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '../icons/Icons';
 
 const AdminDashboardLayout: React.FC<{ language: Language }> = ({ language }) => {
     const t = translations[language].adminDashboard;
     const { currentUser, logout, hasPermission } = useAuth();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const location = useLocation();
+    const isRTL = language === 'ar';
 
     useEffect(() => {
-        setIsSidebarOpen(false);
+        // You might want to close the sidebar on mobile when navigating,
+        // but with the new collapsible design, it might be better to keep its state.
+        // For now, we'll keep it as is.
     }, [location]);
 
-    useEffect(() => {
-        if (isSidebarOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'auto';
-        }
-        return () => {
-            document.body.style.overflow = 'auto';
-        };
-    }, [isSidebarOpen]);
 
     const visibleNavLinks = useMemo(() => {
         if (!currentUser) return [];
@@ -72,60 +65,60 @@ const AdminDashboardLayout: React.FC<{ language: Language }> = ({ language }) =>
     
     const SidebarContent = () => (
         <>
-            <div className="text-center mb-8">
-                <img src={currentUser.imageUrl} alt={currentUser.name} className="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-amber-500 object-cover" />
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{currentUser.name}</h2>
-                <p className="text-sm text-amber-500 mt-1 capitalize">{pageTitle.toLowerCase()}</p>
+            <div className={`text-center mb-8 ${isSidebarCollapsed ? 'px-2' : ''}`}>
+                <img src={currentUser.imageUrl} alt={currentUser.name} className={`w-24 h-24 rounded-full mx-auto mb-4 border-2 border-amber-500 object-cover transition-all ${isSidebarCollapsed ? '!w-12 !h-12' : ''}`} />
+                <div className={`${isSidebarCollapsed ? 'hidden' : 'block'}`}>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white truncate">{currentUser.name}</h2>
+                    <p className="text-sm text-amber-500 mt-1 capitalize truncate">{pageTitle.toLowerCase()}</p>
+                </div>
             </div>
-            <nav className="flex-grow overflow-y-auto">
+            <nav className="flex-grow overflow-y-auto overflow-x-hidden">
                 {linkGroups.map((group, index) => (
                     <ul key={index} className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 first:border-t-0 first:mt-0 first:pt-0">
                         {group.map(link => {
                             const Icon = link.icon;
                             return (
                             <li key={link.href}>
-                                <NavLink to={link.href} end={link.exact} className={({isActive}) => `flex items-center px-4 py-3 text-md font-medium rounded-lg transition-colors ${isActive ? 'bg-amber-500 text-gray-900' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
-                                    <span className={language === 'ar' ? 'ml-3' : 'mr-3'}><Icon className="w-5 h-5" /></span>
-                                    {link.name(t)}
+                                <NavLink to={link.href} end={link.exact} className={({isActive}) => `flex items-center px-4 py-3 text-md font-medium rounded-lg transition-colors ${isSidebarCollapsed ? 'justify-center' : ''} ${isActive ? 'bg-amber-500 text-gray-900' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
+                                    <Icon className="w-5 h-5 flex-shrink-0" />
+                                    <span className={`${isSidebarCollapsed ? 'hidden' : `block ${isRTL ? 'mr-3' : 'ml-3'}`}`}>{link.name(t)}</span>
                                 </NavLink>
                             </li>
                         )})}
                     </ul>
                 ))}
             </nav>
-            <div className="mt-4">
-                 <button onClick={logout} className="w-full text-left text-red-500 hover:bg-red-500/10 px-4 py-3 rounded-lg transition-colors">
-                    {translations[language].auth.logout}
+            <div className={`mt-auto flex-shrink-0 ${isSidebarCollapsed ? 'border-t border-gray-200 dark:border-gray-700 pt-4' : ''}`}>
+                 <button onClick={logout} className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors text-red-500 hover:bg-red-500/10 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                    {/* Placeholder for logout icon if needed */}
+                    <span className={`${isSidebarCollapsed ? 'hidden' : 'block'}`}>{translations[language].auth.logout}</span>
                 </button>
+                 <button 
+                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                    className="w-full flex items-center px-4 py-3 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg"
+                 >
+                    {isRTL ? (
+                        isSidebarCollapsed ? <ChevronDoubleLeftIcon className="w-5 h-5 mx-auto"/> : <ChevronDoubleRightIcon className="w-5 h-5"/>
+                    ) : (
+                        isSidebarCollapsed ? <ChevronDoubleRightIcon className="w-5 h-5 mx-auto"/> : <ChevronDoubleLeftIcon className="w-5 h-5"/>
+                    )}
+                    <span className={`${isSidebarCollapsed ? 'hidden' : `block ${isRTL ? 'mr-3' : 'ml-3'}`}`}>{language === 'ar' ? 'تقليص' : 'Collapse'}</span>
+                 </button>
             </div>
         </>
     );
 
     return (
-        <div className="flex min-h-[80vh] bg-gray-50 dark:bg-gray-800">
-            <div 
-                className={`fixed inset-0 bg-black/50 z-30 lg:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                onClick={() => setIsSidebarOpen(false)}
-                aria-hidden="true"
-            ></div>
-            <aside className={`fixed lg:relative inset-y-0 ${language === 'ar' ? 'right-0 border-l' : 'left-0 border-r'} z-40 transform transition-transform duration-300 w-72 flex-shrink-0 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-6 flex flex-col
-                lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : (language === 'ar' ? 'translate-x-full' : '-translate-x-full')}`}
-            >
-                <button onClick={() => setIsSidebarOpen(false)} className={`lg:hidden absolute top-4 ${language === 'ar' ? 'left-4' : 'right-4'} text-gray-500 dark:text-gray-400 p-2`}>
-                    <CloseIcon className="w-6 h-6"/>
-                </button>
+        <div className="flex h-full">
+            <aside className={`flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 p-4 flex flex-col h-[calc(100vh-80px)] sticky top-20 transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-72'}`}>
                 <SidebarContent />
             </aside>
 
-            <div className="flex-1 flex flex-col">
-                <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700/50 p-4 flex items-center justify-between lg:justify-center sticky top-20 z-20">
-                    <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden text-gray-600 dark:text-gray-300 p-2">
-                        <MenuIcon className="w-6 h-6"/>
-                    </button>
+            <div className="flex-1 flex flex-col min-w-0">
+                <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700/50 p-4 flex items-center justify-center sticky top-20 z-20">
                     <GlobalSearch language={language} />
-                    <div className="lg:hidden w-8"></div> {/* Spacer to help center search on mobile */}
                 </header>
-                <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
+                <main className="flex-1 p-6 lg:p-10 overflow-y-auto bg-gray-50 dark:bg-gray-800">
                     <Outlet />
                 </main>
             </div>
