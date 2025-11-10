@@ -1,17 +1,14 @@
-
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ArrowUpIcon, ArrowDownIcon } from '../../icons/Icons';
 import { useDebounce } from '../../hooks/useDebounce';
 
 type SortDirection = 'ascending' | 'descending';
 
-// FIX: Changed `interface` to `type` to allow a union type with `null`.
 export type SortConfig<T> = {
     key: keyof T | string;
     direction: SortDirection;
 } | null;
 
-// Using unknown is more type-safe. The sorting logic below correctly handles this.
 const getNestedValue = (obj: Record<string, any>, path: string): unknown => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
 
 export function useAdminTable<T extends Record<string, any>>({
@@ -63,12 +60,10 @@ export function useAdminTable<T extends Record<string, any>>({
                 if (typeof aValue === 'number' && typeof bValue === 'number') {
                     compareResult = aValue - bValue;
                 } else {
-                    // FIX: The error "Argument of type 'unknown' is not assignable to parameter of type 'string'"
-                    // likely stems from a type inference issue. Explicitly converting both values to strings
-                    // for comparison resolves this.
-                    // FIX: Using .toString() is safer after null/undefined checks and can help the type checker.
-                    // FIX: Use String() constructor to safely convert 'unknown' type to string for localeCompare.
-                    compareResult = String(aValue).localeCompare(String(bValue));
+                    // FIX: Explicitly convert unknown values to strings before using localeCompare.
+                    const stringA = String(aValue);
+                    const stringB = String(bValue);
+                    compareResult = stringA.localeCompare(stringB);
                 }
 
                 return sortConfig.direction === 'ascending' ? compareResult : -compareResult;

@@ -1,6 +1,873 @@
+// This file embeds the translation JSON content directly into the application bundle
+// to prevent any runtime file loading or path resolution errors.
 
-// This file is currently empty and appears to be unused.
-// The application's internationalization (i18n) is handled by fetching
-// JSON files (ar.json, en.json) from the `/public/locales` directory
-// via the `LanguageContext.tsx` provider.
-// This file can likely be removed in a future cleanup.
+export const arTranslations = {
+    "addProperty": "أضف عقارك",
+    "joinAsPartner": "انضم كشريك",
+    "viewAll": "عرض الكل",
+    "latestProperties": "أحدث العقارات",
+    "heroButtons": {
+        "availableProperties": "العقارات المتاحة"
+    },
+    "notifications": {
+        "title": "الإشعارات",
+        "noNotifications": "لا توجد إشعارات جديدة.",
+        "newPartnerRequest": "لديك طلب انضمام شريك جديد من \"{companyName}\".",
+        "newPropertyRequest": "طلب عرض عقار جديد من \"{customerName}\".",
+        "newContactRequest": "رسالة تواصل جديدة من \"{name}\".",
+        "newLead": "لديك طلب عميل جديد من \"{customerName}\".",
+        "partnerApproved": "مرحباً بك! تم الموافقة على حساب الشراكة الخاص بك."
+    },
+    "adminShared": {
+        "backToRequests": "العودة للطلبات",
+        "backToList": "العودة للقائمة",
+        "close": "إغلاق",
+        "cancel": "إلغاء",
+        "save": "حفظ",
+        "approve": "موافقة",
+        "reject": "رفض",
+        "edit": "تعديل",
+        "delete": "حذف",
+        "add": "إضافة",
+        "addNewCategory": "إضافة قسم جديد",
+        "editCategory": "تعديل القسم"
+    },
+    "nav": {
+        "home": "الرئيسية",
+        "properties": "العقارات",
+        "projects": "المشاريع",
+        "finishing": "التشطيبات",
+        "decorations": "الديكورات",
+        "favorites": "المفضلة",
+        "contact": "تواصل معنا",
+        "privacyPolicy": "سياسة الخصوصية",
+        "termsOfUse": "شروط الاستخدام"
+    },
+    "partnerInfo": {
+        "united-development": { "name": "الشركة المتحدة للتطوير", "description": "شريكنا الاستراتيجي في تطوير المشاريع السكنية الفاخرة." },
+        "modern-construction-group": { "name": "مجموعة البناء الحديث", "description": "متخصصون في توفير مواد البناء عالية الجودة." },
+        "sodic": { "name": "سوديك", "description": "واحدة من أبرز شركات التطوير العقاري في مصر." },
+        "capital-group-properties": { "name": "كابيتال جروب بروبرتيز", "description": "مطور عالمي يركز على إنشاء مجتمعات متكاملة." },
+        "heliopolis-developers-group": { "name": "مجموعة مطوري هليوبوليس", "description": "تحالف من المطورين يركز على تقديم مشاريع عالية الجودة." },
+        "alrowad-engineering": { "name": "الرواد للهندسة والاستشارات", "description": "يقدمون الدعم الهندسي والاستشارات الفنية." },
+        "future-real-estate-dev": { "name": "المستقبل للتطوير العقاري", "description": "رواد في بناء المجمعات السكنية المتكاملة." },
+        "el-mottaheda-group": { "name": "المتحدة جروب للمقاولات", "description": "ذراعنا التنفيذي في مجال المقاولات والتشطيبات." },
+        "design-hub": { "name": "ديزاين هاب", "description": "خبراء التصميم الداخلي لابتكار مساحات عصرية." },
+        "artistic-touch-decor": { "name": "لمسة فنية للديكور", "description": "متخصصون في تنفيذ أعمال الديكور والتشطيبات الفاخرة." },
+        "ebdaa-integrated-finishes": { "name": "إبداع للتشطيبات المتكاملة", "description": "نقدم حلول تشطيب مبتكرة ومتكاملة للمساحات." },
+        "future-real-estate": { "name": "المستقبل للتسويق العقاري", "description": "يتولون تسويق مشاريعنا العقارية بخطط مبتكرة." },
+        "admin-user": { "name": "المدير العام", "description": "يمتلك صلاحيات كاملة على المنصة." },
+        "service-manager-1": { "name": "مدير الخدمات", "description": "مسؤول عن جميع طلبات التشطيب والديكور." },
+        "customer-relations-manager-1": { "name": "مدير علاقات العملاء", "description": "مسؤول عن طلبات عرض العقارات ورسائل التواصل." },
+        "listings-manager-1": { "name": "مدير العقارات والمشاريع", "description": "مسؤول عن إدارة جميع العقارات والمشاريع المعروضة." },
+        "partner-relations-manager-1": { "name": "مدير علاقات الشركاء", "description": "مسؤول عن مراجعة طلبات الشركاء وإدارة حساباتهم." },
+        "content-manager-1": { "name": "مدير المحتوى", "description": "مسؤول عن محتوى الموقع والإعلانات والفلاتر." },
+        "individual-listings": { "name": "عقارات الأفراد", "description": "عقارات معروضة مباشرة من الملاك." }
+    },
+    "wisdomQuotes": {
+        "title": "كلمات من الحكمة",
+        "description": "اقتباسات ملهمة في الهندسة المعمارية والتصميم والمنزل."
+    },
+    "aiEstimator": {
+        "ctaTitle": "هل تخطط للتشطيب؟",
+        "ctaSubtitle": "احصل على تقدير تكلفة فوري ومفصل لمشروعك باستخدام مساعدنا الذكي.",
+        "ctaButton": "جرّب مقدّر التكاليف الذكي",
+        "title": "مقدّر التكاليف الذكي",
+        "next": "التالي",
+        "back": "العودة",
+        "getEstimate": "احصل على التقدير",
+        "requestTitle": "طلب تقدير تكلفة بالذكاء الاصطناعي",
+        "step1": {
+            "title": "معلومات أساسية",
+            "propertyType": "نوع الوحدة",
+            "apartment": "شقة",
+            "villa": "فيلا",
+            "area": "المساحة (بالمتر المربع)"
+        },
+        "step2": {
+            "title": "حدد مستوى الجودة",
+            "quality": "مستوى التشطيب",
+            "standard": "قياسي",
+            "premium": "ممتاز",
+            "luxury": "فاخر",
+            "bedrooms": "غرف نوم",
+            "bathrooms": "حمامات",
+            "reception": "استقبال",
+            "kitchen": "مطبخ"
+        },
+        "step3": {
+            "title": "طلبات خاصة",
+            "requests": "هل لديك أي طلبات أو مواد معينة تود استخدامها؟",
+            "placeholder": "مثال: أرغب في استخدام أرضيات رخام في الاستقبال، دهانات جوتن، إضاءة مخفية..."
+        },
+        "loading": {
+            "title": "يقوم مساعدنا الذكي بحساب التكاليف...",
+            "subtitle": "قد تستغرق هذه العملية بضع لحظات.",
+            "messages": [
+                "جاري تحليل تفاصيل الوحدة...",
+                "حساب تكاليف المواد الخام...",
+                "الأخذ في الاعتبار مستوى الجودة المطلوب...",
+                "تجميع بنود التكلفة...",
+                "وضع اللمسات الأخيرة على تقديرك..."
+            ]
+        },
+        "results": {
+            "title": "التقدير المبدئي للتكلفة",
+            "total": "التكلفة الإجمالية التقديرية",
+            "breakdown": "تفصيل التكاليف",
+            "notes": "ملاحظات وتوصيات الذكاء الاصطناعي",
+            "disclaimer": "يرجى العلم أن هذا تقدير مبدئي وقد تختلف التكلفة النهائية بناءً على المعاينة والتفاصيل الدقيقة.",
+            "sendRequest": "أرسل الطلب للمختصين"
+        },
+        "error": {
+            "title": "حدث خطأ",
+            "subtitle": "عذرًا، لم نتمكن من حساب التكلفة. يرجى المحاولة مرة أخرى.",
+            "retry": "حاول مرة أخرى"
+        }
+    },
+    "cta": {
+        "title": "هل أنت مستعد للبدء؟",
+        "subtitle": "انضم إلى شبكة شركائنا الناجحين ومقدمي الخدمات المميزة في هليوبوليس الجديدة.",
+        "button": "تواصل معنا الآن"
+    },
+    "footer": {
+        "quickLinks": "روابط سريعة",
+        "forPartners": "للشركاء",
+        "contactUs": "تواصل معنا",
+        "rightsReserved": "جميع الحقوق محفوظة.",
+        "sendFeedback": "إرسال ملاحظات"
+    },
+    "propertyCard": {
+        "beds": "غرف",
+        "baths": "حمامات",
+        "area": "م²",
+        "floor": "الطابق",
+        "by": "بواسطة",
+        "viewProject": "عرض المشروع"
+    },
+    "projectsPage": {
+        "title": "اكتشف مشاريعنا الرائدة",
+        "subtitle": "مجموعة من أرقى المشاريع السكنية والتجارية في هليوبوليس الجديدة، مقدمة من نخبة المطورين العقاريين.",
+        "unitsAvailable": "وحدة متاحة",
+        "unitsAvailablePlural": "وحدات متاحة"
+    },
+    "propertiesPage": {
+        "title": "عقارات حصرية في هليوبوليس الجديدة",
+        "subtitle": "ابحث عن عقارك المثالي ضمن مجموعتنا المختارة بعناية من العقارات داخل مدينة هليوبوليس الجديدة.",
+        "listView": "عرض القائمة",
+        "mapView": "عرض الخريطة",
+        "statusLabel": "الحالة",
+        "typeLabel": "النوع",
+        "searchLabel": "البحث",
+        "allStatuses": "كل الحالات",
+        "forSale": "للبيع",
+        "forRent": "إيجار",
+        "allTypes": "كل الأنواع",
+        "apartment": "شقة",
+        "villa": "فيلا",
+        "commercial": "تجاري",
+        "land": "أرض",
+        "floor": "الطابق",
+        "noResults": "لا توجد عقارات تطابق معايير البحث الحالية.",
+        "cantFindTitle": "لم نعثر على ما تبحث عنه؟",
+        "cantFindSubtitle": "اترك لنا تفاصيل طلبك وسيقوم فريقنا بالبحث عن العقار المناسب لك والتواصل معك فور توافره.",
+        "leaveRequestButton": "اترك طلبك الآن",
+        "searchPlaceholder": "ابحث بالاسم، العنوان، أو اسم الشريك...",
+        "priceRange": "نطاق السعر",
+        "minPricePlaceholder": "أقل سعر",
+        "maxPricePlaceholder": "أعلى سعر",
+        "finishing": "حالة التشطيب",
+        "allFinishes": "كل حالات التشطيب",
+        "fullyFinished": "تشطيب كامل",
+        "semiFinished": "نصف تشطيب",
+        "withoutFinishing": "بدون تشطيب",
+        "superLux": "سوبر لوكس",
+        "luxuryFinishing": "تشطيب فاخر",
+        "fullyFurnished": "مفروشة بالكامل",
+        "installments": "إمكانية التقسيط",
+        "allInstallments": "الكل",
+        "installmentsYes": "متاح",
+        "installmentsNo": "غير متاح",
+        "realEstateFinance": "تمويل عقاري",
+        "allRealEstateFinance": "الكل",
+        "realEstateFinanceYes": "متاح",
+        "realEstateFinanceNo": "غير متاح",
+        "inCompound": "داخل كومبوند",
+        "allCompound": "الكل",
+        "compoundYes": "نعم",
+        "compoundNo": "لا",
+        "delivery": "الاستلام",
+        "allDelivery": "الكل",
+        "immediateDelivery": "استلام فوري",
+        "amenities": "المميزات",
+        "advancedFilters": "مرشحات متقدمة",
+        "hideFilters": "إخفاء المرشحات",
+        "filtersApplied": "مرشحات",
+        "project": "المشروع",
+        "allProjects": "كل المشاريع",
+        "additionalOptions": "خيارات إضافية",
+        "resultsFound": "تم العثور على {count} نتيجة."
+    },
+    "propertyInquiryModal": {
+        "title": "طلب بحث عن عقار",
+        "subtitle": "أخبرنا عن مواصفات العقار الذي تبحث عنه وسنبذل قصارى جهدنا لنجده لك.",
+        "fullName": "الاسم بالكامل",
+        "phone": "رقم الهاتف",
+        "contactTime": "الوقت المناسب للتواصل",
+        "propertyDetails": "مواصفات العقار المطلوب",
+        "detailsPlaceholder": "مثال: شقة للبيع، ٣ غرف، مساحة ١٥٠م، في حدود ٢ مليون جنيه، بمنطقة الحي الثاني...",
+        "submitButton": "إرسال الطلب",
+        "successMessage": "تم استلام طلبك بنجاح! سنتواصل معك قريباً."
+    },
+    "propertyDetailsPage": {
+        "projectFeatures": "مميزات المشروع",
+        "availableUnits": "الوحدات المتاحة",
+        "allUnits": "كل الوحدات",
+        "notFoundTitle": "لم يتم العثور على العقار",
+        "notFoundText": "عذرًا، لا يمكننا العثور على العقار الذي تبحث عنه.",
+        "backButton": "العودة إلى قائمة العقارات",
+        "description": "الوصف",
+        "location": "الموقع",
+        "mapOf": "خريطة",
+        "amenities": "المميزات والمرافق",
+        "bedrooms": "غرف نوم",
+        "bathrooms": "حمامات",
+        "area": "المساحة",
+        "floor": "الطابق",
+        "contactAgent": "تواصل مع المعلن",
+        "contactText": "للحصول على مزيد من المعلومات أو لتحديد موعد للمعاينة، يرجى التواصل معنا.",
+        "contactButton": "تواصل الآن",
+        "inquiryAbout": "استفسار بخصوص",
+        "keyInfo": "معلومات أساسية",
+        "deliveryPayment": "الاستلام والدفع",
+        "inCompound": "داخل كومبوند",
+        "deliveryDate": "تاريخ الاستلام",
+        "installmentsPlan": "خطة التقسيط",
+        "downPayment": "المقدم",
+        "monthlyInstallment": "القسط الشهري",
+        "years": "سنوات",
+        "yes": "نعم",
+        "no": "لا",
+        "immediate": "فوري",
+        "onDate": "في",
+        "partOfProject": "هذا العقار جزء من مشروع",
+        "viewProject": "عرض تفاصيل المشروع",
+        "realEstateFinanceAvailable": "تمويل عقاري متاح",
+        "amenitiesIncluded": {
+            "Private Garden": "حديقة خاصة", "Swimming Pool": "حمام سباحة", "Covered Parking": "موقف سيارات مغطى", "24/7 Security": "أمن 24/7", "Balcony": "شرفة", "Maid's Room": "غرفة خادمة", "Electricity Meter": "عداد كهرباء", "Water Meter": "عداد مياه", "Natural Gas": "غاز طبيعي", "Panoramic View": "إطلالة بانورامية", "Fully Air-Conditioned": "مكيف بالكامل", "Security": "أمن وحراسة", "Shared Health Club": "نادي صحي مشترك", "Elevator": "مصعد", "Prime Location": "موقع متميز", "Close to Services": "قريبة من الخدمات", "Separate Meters": "عدادات منفصلة", "Private Roof": "رووف خاص", "Open View": "إطلالة مفتوحة", "Jacuzzi": "جاكوزي", "Dressing Room": "غرفة ملابس", "Modern Design": "تصميم حديث", "Large Garden": "حديقة كبيرة", "Complete Privacy": "خصوصية تامة", "Panoramic Windows": "نوافذ بانورامية", "Private Garage": "جراج خاص", "Fully Furnished": "مفروشة بالكامل", "Modern Appliances": "أجهزة حديثة", "Ready to Move In": "جاهزة للسكن", "High-Speed Internet": "إنترنت فائق السرعة", "Strategic Location": "موقع استراتيجي", "Frontage on a Main Street": "واجهة على شارع رئيسي", "Fully Serviced": "كاملة المرافق", "Full Customization Potential": "إمكانية التخصيص الكامل", "Quiet Area": "منطقة هادئة", "Parking": "موقف سيارات"
+        }
+    },
+    "contactOptionsModal": {
+        "title": "كيف تود التواصل؟",
+        "whatsapp": "محادثة عبر واتساب",
+        "phone": "اتصال مباشر",
+        "form": "إرسال استفسار"
+    },
+    "addPropertyPage": {
+        "title": "اعرض عقارك معنا",
+        "subtitle": "هذه الخدمة مخصصة للملاك الأفراد. الشركات والمكاتب العقارية يرجى التواصل معنا للانضمام كشريك.",
+        "howItWorksTitle": "كيف تعمل الخدمة؟",
+        "step1": "اختر نموذج التعاون المناسب لك.",
+        "step2": "املأ النموذج ببيانات عقارك وبيانات التواصل.",
+        "step3": "سيقوم فريقنا بالتواصل معك لمراجعة البيانات والتحقق منها.",
+        "step4": "بعد الاتفاق، يتم نشر إعلانك أو بدء عملية التسويق.",
+        "cooperation": {
+            "title": "اختر نموذج التعاون",
+            "subtitle": "اختر الطريقة التي تفضلها لعرض عقارك معنا.",
+            "paid_listing": {
+                "title": "باقة الإعلان المدفوع",
+                "description": "أضف عقارك على منصتنا لمدة محددة مقابل رسوم ثابتة. يمكنك اختيار استقبال استفسارات المهتمين مباشرة أو من خلالنا.",
+                "price": "تبدأ من 500 ج.م",
+                "benefits": ["تحكم كامل في إعلانك.", "مرونة في استقبال الاستفسارات.", "لا يوجد عمولات على البيع أو الإيجار."]
+            },
+            "commission": {
+                "title": "التفويض بالتسويق الحصري",
+                "description": "فوض فريقنا المتخصص لتولي كافة مهام بيع أو تأجير عقارك، من التسويق الاحترافي وحتى إتمام الصفقة، مقابل نسبة عمولة يتم الاتفاق عليها.",
+                "price": "مقابل عمولة",
+                "benefits": ["تسويق احترافي وتصوير مميز.", "نتولى الرد على الاستفسارات وترتيب المعاينات.", "متابعة قانونية وإدارية حتى إتمام الصفقة."]
+            },
+            "selectButton": "اختر هذا النموذج"
+        },
+        "contactPreference": {
+            "title": "طريقة استقبال الاستفسارات",
+            "platform": "استقبال الاستفسارات عبر المنصة",
+            "direct": "استقبال الاستفسارات مباشرة على هاتفي"
+        },
+        "formTitle": "نموذج طلب عرض عقار",
+        "ownerInfo": "بيانات المالك",
+        "fullName": "الاسم بالكامل",
+        "phone": "رقم الهاتف",
+        "contactTime": "الوقت المناسب للتواصل",
+        "selectTime": "اختر الوقت...",
+        "morning": "صباحاً (9ص - 12م)",
+        "afternoon": "ظهراً (12م - 3م)",
+        "evening": "مساءً (3م - 6م)",
+        "propertyInfo": "بيانات العقار",
+        "purpose": "الغرض من العرض",
+        "selectPurpose": "اختر الغرض...",
+        "forSale": "للبيع",
+        "forRent": "للإيجار",
+        "finishingStatus": "حالة التشطيب",
+        "selectFinishing": "اختر حالة التشطيب...",
+        "fullyFinished": "تشطيب كامل",
+        "semiFinished": "نصف تشطيب",
+        "withoutFinishing": "بدون تشطيب",
+        "superLux": "سوبر لوكس",
+        "luxuryFinishing": "تشطيب فاخر",
+        "fullyFurnished": "مفروشة بالكامل",
+        "propertyType": "نوع العقار",
+        "selectType": "اختر النوع...",
+        "apartment": "شقة",
+        "villa": "فيلا",
+        "commercial": "تجاري",
+        "area": "المساحة (م²)",
+        "price": "السعر المطلوب (ج.م)",
+        "bedrooms": "عدد غرف النوم",
+        "bathrooms": "عدد الحمامات",
+        "floor": "الطابق",
+        "address": "العنوان التفصيلي",
+        "description": "وصف العقار",
+        "descriptionPlaceholder": "اذكر تفاصيل ومميزات العقار هنا...",
+        "images": "صور العقار",
+        "imagesHelpText": "ارفع صورًا واضحة للعقار (حتى 10 صور).",
+        "confirmationLabel": "أقر بأنني المالك الفعلي للعقار وأوافق على أن يقوم فريق ONLY HELIO بالتواصل معي.",
+        "submitButton": "إرسال الطلب",
+        "successTitle": "تم استلام طلبك بنجاح!",
+        "successMessage": "شكرًا لك. سيقوم أحد أعضاء فريقنا بمراجعة طلبك والتواصل معك في أقرب وقت ممكن لمناقشة الخطوات التالية.",
+        "backToHome": "العودة إلى الرئيسية",
+        "inCompound": "هل العقار داخل كومبوند؟",
+        "yes": "نعم",
+        "no": "لا",
+        "deliveryDate": "تاريخ الاستلام",
+        "immediate": "استلام فوري",
+        "future": "استلام مستقبلي",
+        "deliveryMonth": "شهر الاستلام",
+        "deliveryYear": "سنة الاستلام",
+        "installments": "هل يوجد تقسيط؟",
+        "realEstateFinance": "هل التمويل العقاري متاح؟",
+        "installmentsDetails": "تفاصيل التقسيط",
+        "downPayment": "المقدم",
+        "monthlyInstallment": "القسط الشهري",
+        "years": "عدد السنوات",
+        "listingStartDate": "تاريخ بدء العرض (اختياري)",
+        "listingEndDate": "تاريخ نهاية العرض (اختياري)",
+        "errors": {
+            "required": "هذا الحقل مطلوب.",
+            "positiveNumber": "يجب أن تكون القيمة رقمًا موجبًا.",
+            "invalidPhone": "الرجاء إدخال رقم هاتف صحيح.",
+            "mustBeOwner": "يجب الموافقة على الإقرار للمتابعة.",
+            "cooperationType": "الرجاء اختيار نموذج التعاون."
+        }
+    },
+    "finishingPage": {
+        "heroTitle": "تشطيب وتصميم داخلي في هليوبوليس الجديدة",
+        "heroSubtitle": "نقدم خدمات تشطيب وتصميم داخلي مخصصة لمشاريعكم في مدينة هليوبوليس الجديدة، ونحول رؤيتكم إلى واقع ملموس.",
+        "servicesTitle": "ابدأ التخطيط لمشروعك معنا",
+        "servicesSubtitle": "اختر الباقة التي تناسب احتياجاتك الحالية، سواء كنت في مرحلة التخطيط أو جاهزًا للتنفيذ.",
+        "servicesIntro": "نقدم من خلال فريقنا المختص خدمات الاستشارة والتصميم لمساعدتك في التخطيط لمشروعك. أما إذا كنت تبحث عن التنفيذ، فيمكنك استعراض أعمال شركائنا الموثوقين أدناه.",
+        "requestButton": "اطلب الخدمة",
+        "galleryTitle": "أو اختر شريك التنفيذ",
+        "gallerySubtitle": "تصفح أعمال شركاؤنا المميزين في التشطيب والتصميم، واختر الشريك المناسب لبدء تنفيذ مشروعك.",
+        "ctaTitle": "هل لديك مشروع في هليوبوليس الجديدة؟",
+        "ctaSubtitle": "إذا كنت تملك وحدة في هليوبوليس الجديدة وترغب في تشطيبها بأعلى جودة، تواصل معنا اليوم للحصول على استشارة مجانية.",
+        "ctaButton": "ابدأ مشروعك الآن"
+    },
+    "servicesPage": {
+        "title": "خدماتنا",
+        "subtitle": "حلول شاملة تلبي كافة احتياجاتكم العقارية، من التصميم والديكور إلى التشطيبات والتسويق.",
+        "service1Title": "الخدمات العقارية المتكاملة",
+        "service1Desc": "نوفر خدمات بيع وشراء وتأجير العقارات السكنية والتجارية. نساعدك في عرض عقارك على منصتنا للوصول إلى أكبر عدد من العملاء المحتملين.",
+        "service2Title": "التشطيب والتصميم الداخلي",
+        "service2Desc": "نقدم حلولاً متكاملة للتشطيبات والتصميم الداخلي، بدءًا من وضع التصاميم والمقايسات الدقيقة، وصولاً إلى التنفيذ والإشراف بأعلى معايير الجودة.",
+        "service3Title": "الديكورات والتحف الفنية",
+        "service3Desc": "نصمم وننفذ ديكورات جدارية فريدة ومنحوتات فنية رائعة. نوفر تشكيلة واسعة من اللوحات والتحف التي تضيف لمسة جمالية استثنائية لمنزلك أو مكتبك."
+    },
+    "partnersPage": {
+        "title": "شركاء النجاح",
+        "subtitle": "مسيرتنا نحو التميز مبنية على الثقة والتعاون مع نخبة من أفضل الشركات في مختلف المجالات.",
+        "partners": [
+            { "name": "الشركة المتحدة للتطوير", "description": "شريكنا الاستراتيجي في تطوير المشاريع السكنية الفاخرة، معروفون بالجودة والالتزام بالمواعيد." },
+            { "name": "المتحدة جروب للمقاولات", "description": "ذراعنا التنفيذي في مجال المقاولات والتشطيبات، يمتلكون خبرة واسعة في تنفيذ المشاريع الكبرى." },
+            { "name": "مجموعة البناء الحديث", "description": "متخصصون في توفير مواد البناء عالية الجودة التي نعتمد عليها في جميع مشاريعنا لضمان المتانة والأمان." },
+            { "name": "الرواد للهندسة والاستشارات", "description": "يقدمون لنا الدعم الهندسي والاستشارات الفنية لضمان أن جميع تصاميمنا تتبع أعلى المعايير العالمية." },
+            { "name": "ديزاين هاب", "description": "خبراء التصميم الداخلي الذين نتعاون معهم لابتكار مساحات عصرية ووظيفية تلبي أذواق عملائنا." },
+            { "name": "مستقبل العقارات للتسويق", "description": "يتولون تسويق مشاريعنا العقارية بخطط مبتكرة تضمن الوصول إلى الشريحة المستهدفة بفعالية." }
+        ]
+    },
+    "serviceRequestModal": {
+        "title": "طلب خدمة",
+        "fullName": "الاسم بالكامل",
+        "phone": "رقم الهاتف",
+        "notes": "ملاحظات إضافية (اختياري)",
+        "notesPlaceholder": "اذكر أي تفاصيل إضافية قد تساعدنا، مثل مساحة الوحدة أو أي أفكار أولية لديك...",
+        "submitButton": "إرسال الطلب",
+        "successMessage": "تم استلام طلبك بنجاح وسيتواصل معك الشريك قريبًا!",
+        "preferredContactTime": "الوقت المناسب للتواصل",
+        "preferredContactTimeDefault": "اختر الوقت المناسب...",
+        "preferredContactTimeMorning": "صباحاً (9ص - 12م)",
+        "preferredContactTimeAfternoon": "ظهراً (12م - 3م)",
+        "preferredContactTimeEvening": "مساءً (3م - 6م)"
+    },
+    "decorationsPage": {
+        "heroTitle": "إبداعات فنية تزين جدرانك",
+        "heroSubtitle": "نصمم وننفذ منحوتات فنية مباشرة على الجدران لتحويلها إلى قطعة فنية فريدة. استلهم من أعمالنا أو زودنا بفكرتك الخاصة لنحولها إلى واقع.",
+        "tabs": {
+            "sculptures": "منحوتات جدارية",
+            "paintings": "لوحات كانفس",
+            "antiques": "تحف وديكورات"
+        },
+        "sculptures_desc": "نصمم وننفذ منحوتات فنية مباشرة على الجدران لتحويلها إلى قطعة فنية فريدة. استلهم من أعمالنا أو زودنا بفكرتك الخاصة لنحولها إلى واقع.",
+        "paintings_desc": "مجموعة فريدة من اللوحات الفنية التي تناسب جميع الأذواق والمساحات، منفذة بأيدي فنانين محترفين.",
+        "antiques_desc": "تشكيلة مختارة من التحف وقطع الديكور التي تضيف لمسة من الأناقة والفخامة لمساحتك.",
+        "requestSimilarButton": "اطلب عمل مشابه",
+        "requestCustomDesign": "اطلب تصميم خاص",
+        "dimensions": "الأبعاد",
+        "availability": "التوفر",
+        "inStock": "متوفر",
+        "madeToOrder": "يُصنع بالطلب",
+        "inquireNow": "الاستفسار الآن"
+    },
+    "decorationRequestModal": {
+        "title": "الاستفسار عن هذه القطعة",
+        "subtitle": "أكد بياناتك وسيقوم فريقنا بالتواصل معك بخصوص تنفيذ هذه القطعة.",
+        "reference": "القطعة المرجعية:",
+        "fullName": "الاسم بالكامل",
+        "phone": "رقم الهاتف",
+        "notes": "ملاحظات (اختياري)",
+        "notesPlaceholder": "اذكر أي تعديلات أو تفاصيل تود إضافتها...",
+        "submitButton": "إرسال الطلب",
+        "successMessage": "تم استلام طلبك بنجاح وسيتواصل معك فريقنا قريبًا!",
+        "viewLarger": "عرض مكبر"
+    },
+    "customDecorationRequestModal": {
+        "title": "اطلب تصميم خاص",
+        "categoryLabel": "القسم",
+        "serviceTitle": "طلب تصميم خاص",
+        "fullName": "الاسم بالكامل",
+        "phone": "رقم الهاتف",
+        "ideaDescription": "صف فكرتك",
+        "ideaPlaceholder": "صف التصميم الذي تريده بالتفصيل، الأبعاد، الألوان، وأي تفاصيل أخرى...",
+        "referenceImage": "ارفع صورة مرجعية (اختياري)",
+        "submitButton": "إرسال الطلب",
+        "successMessage": "تم استلام طلبك بنجاح! سيقوم فريقنا بمراجعة فكرتك والتواصل معك قريبًا."
+    },
+    "partnerProfilePage": {
+        "requestService": "اطلب الخدمة الآن",
+        "galleryTitle": "معرض الأعمال",
+        "ourListings": "عقاراتنا",
+        "partnerNotFound": "لم يتم العثور على الشريك",
+        "partnerNotFoundText": "عذرًا، لا يمكننا العثور على الشريك الذي تبحث عنه.",
+        "backToHome": "العودة للرئيسية",
+        "serviceRequestFor": "طلب خدمة من"
+    },
+    "contactPage": {
+        "title": "تواصل معنا",
+        "subtitle": "نحن هنا لمساعدتك. إذا كان لديك استفسار حول خدماتنا وعقاراتنا داخل هليوبوليس الجديدة، أو ترغب في بدء مشروع، لا تتردد في التواصل معنا.",
+        "formTitle": "أرسل لنا رسالة",
+        "namePlaceholder": "الاسم الكامل",
+        "phonePlaceholder": "رقم الهاتف",
+        "messagePlaceholder": "اكتب رسالتك هنا...",
+        "sendButton": "إرسال",
+        "successMessage": "تم استلام رسالتك بنجاح! سنتواصل معك قريباً.",
+        "errorMessage": "حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقًا.",
+        "contactInfoTitle": "معلومات الاتصال",
+        "addressTitle": "العنوان",
+        "phoneTitle": "الهاتف",
+        "emailTitle": "البريد الإلكتروني",
+        "hoursTitle": "ساعات العمل",
+        "contactTimeLabel": "موعد التواصل المناسب",
+        "contactTimeDefault": "اختر الوقت المناسب...",
+        "contactTimeMorning": "صباحاً (9ص - 12م)",
+        "contactTimeAfternoon": "ظهراً (12م - 3م)",
+        "contactTimeEvening": "مساءً (3م - 6م)",
+        "inquiryTypeLabel": "أنا أستفسر بصفتي:",
+        "clientOption": "عميل",
+        "partnerOption": "شريك محتمل",
+        "companyNamePlaceholder": "اسم الشركة",
+        "businessTypeLabel": "نوع النشاط التجاري",
+        "developerOption": "مطور عقاري",
+        "finishingOption": "شركة تشطيبات",
+        "agencyOption": "مكتب تسويق"
+    },
+    "sharing": {
+        "share": "مشاركة",
+        "shareProperty": "مشاركة العقار",
+        "linkCopied": "تم نسخ الرابط!",
+        "shareFailed": "فشلت المشاركة. يرجى المحاولة مرة أخرى."
+    },
+    "favoritesPage": {
+        "title": "عقاراتي المفضلة",
+        "subtitle": "هنا العقارات التي قمت بحفظها. يمكنك العودة إليها في أي وقت.",
+        "noFavorites": "لم تقم بحفظ أي عقارات مفضلة بعد.",
+        "browseButton": "تصفح العقارات",
+        "addToFavorites": "أضف إلى المفضلة",
+        "removeFromFavorites": "إزالة من المفضلة",
+        "addedToFavorites": "تمت الإضافة إلى المفضلة بنجاح!",
+        "removedFromFavorites": "تمت الإزالة من المفضلة."
+    },
+    "auth": {
+        "login": "تسجيل الدخول",
+        "logout": "تسجيل الخروج",
+        "register": "تسجيل حساب جديد",
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "loginTitle": "بوابة الشركاء",
+        "loginSubtitle": "قم بتسجيل الدخول لإدارة عقاراتك وملفك الشخصي.",
+        "loginButton": "دخول",
+        "loginError": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+        "registerTitle": "انضم إلى شبكة شركائنا",
+        "registerSubtitle": "املأ النموذج التالي لتقديم طلب الانضمام كشريك في منصة ONLY HELIO.",
+        "registerSuccessTitle": "تم استلام طلبك بنجاح!",
+        "registerSuccessMessage": "شكرًا لك على اهتمامك بالانضمام إلينا. سيقوم فريقنا بمراجعة طلبك والتواصل معك في أقرب وقت ممكن.",
+        "loginAsDeveloper": "دخول كمطور",
+        "loginAsFinishing": "دخول كشركة تشطيب",
+        "loginAsAgency": "دخول كمكتب عقاري",
+        "loginAsAdmin": "دخول كمسؤول"
+    },
+    "notFoundPage": {
+        "title": "404 - الصفحة غير موجودة",
+        "subtitle": "عفواً، الصفحة التي تبحث عنها غير موجودة أو تم حذفها.",
+        "backButton": "العودة إلى الصفحة الرئيسية"
+    },
+    "partnerRequestForm": {
+        "companyInfo": "معلومات الشركة",
+        "companyName": "اسم الشركة",
+        "companyType": "نوع الشركة",
+        "selectType": "اختر نوع الشركة...",
+        "developer": "مطور عقاري",
+        "finishing": "شركة تشطيبات",
+        "agency": "مكتب تسويق عقاري",
+        "companyAddress": "عنوان الشركة",
+        "website": "الموقع الإلكتروني (اختياري)",
+        "companyDescription": "وصف الشركة",
+        "companyLogo": "شعار الشركة",
+        "primaryContact": "معلومات التواصل الأساسية",
+        "contactName": "اسم مسؤول التواصل",
+        "contactEmail": "البريد الإلكتروني للمسؤول",
+        "contactPhone": "هاتف المسؤول",
+        "managementContacts": "جهات اتصال الإدارة العليا",
+        "addManagementContact": "إضافة جهة اتصال أخرى",
+        "remove": "إزالة",
+        "managementName": "الاسم",
+        "managementPosition": "المنصب",
+        "managementEmail": "البريد الإلكتروني",
+        "managementPhone": "الهاتف",
+        "officialDocs": "الأوراق الرسمية",
+        "uploadDocs": "ارفع المستندات (سجل تجاري، بطاقة ضريبية، إلخ)",
+        "submitRequest": "إرسال طلب الانضمام",
+        "next": "التالي",
+        "back": "العودة",
+        "step1_title": "اختر باقتك",
+        "step1_subtitle": "أولاً، أخبرنا عن نوع نشاطك التجاري لعرض الباقات المناسبة.",
+        "step2_title": "بيانات الشركة",
+        "step2_subtitle": "أخبرنا المزيد عن شركتك وكيف يمكننا التواصل معك.",
+        "step3_title": "اللمسات الأخيرة",
+        "step3_subtitle": "ارفع شعار شركتك وأي مستندات رسمية لإكمال ملفك."
+    },
+    "dashboard": {
+        "title": "لوحة التحكم",
+        "welcome": "مرحباً،",
+        "nav": {
+            "home": "نظرة عامة",
+            "projects": "مشاريعي",
+            "properties": "عقاراتي",
+            "portfolio": "معرض أعمالي",
+            "leads": "طلبات العملاء",
+            "subscription": "الاشتراك والباقة",
+            "profile": "ملفي الشخصي"
+        },
+        "propertiesTitle": "إدارة العقارات",
+        "addProperty": "إضافة عقار جديد",
+        "profileTitle": "إدارة الملف الشخصي",
+        "profileSubtitle": "قم بتحديث بياناتك التي تظهر للعملاء على صفحتك العامة.",
+        "partnerName": "اسم الشريك",
+        "partnerDescription": "الوصف",
+        "partnerImageUrl": "رفع شعار الشركة",
+        "saveChanges": "حفظ التغييرات",
+        "profileUpdateSuccess": "تم تحديث الملف الشخصي بنجاح!",
+        "portfolioTitle": "إدارة معرض الأعمال",
+        "addWork": "إضافة عمل جديد",
+        "workImageURL": "رفع صورة العمل",
+        "workTitleAr": "عنوان العمل (بالعربية)",
+        "workTitleEn": "عنوان العمل (بالإنجليزية)",
+        "workCategoryAr": "التصنيف (بالعربية)",
+        "workCategoryEn": "التصنيف (بالإنجليزية)",
+        "saveWork": "حفظ العمل",
+        "confirmDeleteWork": "هل أنت متأكد أنك تريد حذف هذا العمل؟",
+        "leadsTitle": "إدارة طلبات العملاء",
+        "leadsSubtitle": "هنا يمكنك عرض وإدارة جميع الطلبات الواردة من العملاء.",
+        "subscription": "باقة الاشتراك",
+        "currentPlan": "باقتك الحالية:",
+        "manageSubscription": "إدارة الاشتراك",
+        "upgradePlan": "ترقية الباقة",
+        "leadTable": {
+            "customer": "العميل", "phone": "الهاتف", "service": "الخدمة المطلوبة", "date": "التاريخ", "status": "الحالة", "actions": "إجراءات", "notes": "الملاحظات", "contactTime": "وقت التواصل", "delete": "حذف", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الطلب؟", "noLeads": "لا توجد طلبات واردة حاليًا."
+        },
+        "leadStatus": {
+            "new": "جديد", "contacted": "تم التواصل", "site-visit": "تحديد معاينة", "quoted": "تم إرسال عرض سعر", "in-progress": "قيد التنفيذ", "completed": "مكتمل", "cancelled": "ملغى"
+        },
+        "propertyTable": {
+            "image": "صورة", "title": "العنوان", "status": "الحالة", "price": "السعر", "actions": "إجراءات", "edit": "تعديل", "delete": "حذف", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا العقار؟", "noProperties": "لم تقم بإضافة أي عقارات بعد."
+        },
+        "portfolioTable": {
+            "image": "صورة", "title": "العنوان", "category": "التصنيف", "actions": "إجراءات", "edit": "تعديل", "delete": "حذف", "noWorks": "لم تقم بإضافة أي أعمال بعد."
+        },
+        "propertyForm": {
+            "addTitle": "إضافة عقار جديد", "editTitle": "تعديل العقار", "propertyTitleAr": "عنوان العقار (بالعربية)", "propertyTitleEn": "عنوان العقار (بالإنجليزية)", "addressAr": "العنوان (بالعربية)", "addressEn": "العنوان (بالإنجليزية)", "descriptionAr": "الوصف (بالعربية)", "descriptionEn": "الوصف (بالإنجليزية)", "mainImage": "الصورة الرئيسية", "galleryImages": "صور المعرض", "saveProperty": "حفظ العقار", "addSuccess": "تمت إضافة العقار بنجاح!", "updateSuccess": "تم تحديث العقار بنجاح!", "isInCompound": "داخل كومبوند", "realEstateFinanceAvailable": "التمويل العقاري متاح", "deliveryInfo": "معلومات الاستلام", "immediateDelivery": "استلام فوري", "futureDelivery": "استلام مستقبلي", "deliveryDate": "تاريخ الاستلام (YYYY-MM)", "installmentsInfo": "معلومات التقسيط", "installmentsAvailable": "التقسيط متاح", "downPayment": "المقدم", "monthlyInstallment": "القسط الشهري", "years": "عدد السنوات", "amenities": "المميزات والمرافق", "amenitiesAr": "المميزات (بالعربية)", "amenitiesEn": "المميزات (بالإنجليزية)", "pricePerMeter": "سعر المتر (محسوب)"
+        },
+        "filter": {
+            "search": "بحث...", "filterByStatus": "فلترة بالحالة", "all": "الكل"
+        },
+        "projectAnalytics": {
+            "title": "تحليلات المشروع", "totalLeads": "إجمالي الطلبات للمشروع", "topPerformingUnits": "الوحدات الأعلى أداءً", "leadsCount": "عدد الطلبات", "unit": "الوحدة"
+        }
+    },
+    "dashboardHome": {
+        "title": "نظرة عامة على لوحة التحكم", "subtitle": "ملخص سريع لنشاطك على المنصة.", "totalProjects": "إجمالي المشاريع", "totalProperties": "إجمالي العقارات", "totalUnits": "إجمالي الوحدات", "totalPortfolio": "إجمالي الأعمال", "newLeads": "طلبات العملاء الجديدة", "currentPlan": "الباقة الحالية", "recentLeads": "أحدث الطلبات", "noRecentLeads": "لا توجد طلبات جديدة لعرضها.", "viewAllLeads": "عرض كل الطلبات", "projectsOverview": "نظرة عامة على المشاريع"
+    },
+    "portfolioForm": {
+        "addTitle": "إضافة عمل جديد", "editTitle": "تعديل العمل"
+    },
+    "projectDashboard": {
+        "title": "مشاريعي", "addProject": "إضافة مشروع جديد", "editProject": "تعديل المشروع", "noProjects": "لم تقم بإضافة أي مشاريع بعد.", "addUnit": "إضافة وحدة", "units": "وحدات", "editProjectButton": "تعديل المشروع", "deleteProjectButton": "حذف", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا المشروع وجميع الوحدات المرتبطة به؟ لا يمكن التراجع عن هذا الإجراء.", "projectForm": {
+            "addTitle": "إضافة مشروع جديد", "editTitle": "تعديل المشروع", "nameAr": "اسم المشروع (بالعربية)", "nameEn": "اسم المشروع (بالإنجليزية)", "descriptionAr": "الوصف (بالعربية)", "descriptionEn": "الوصف (بالإنجليزية)", "image": "صورة المشروع", "saveChanges": "حفظ التغييرات", "createProject": "إنشاء المشروع"
+        }, "manageProject": "إدارة المشروع"
+    },
+    "dashboardSubscription": {
+        "title": "إدارة الاشتراك", "subtitle": "عرض تفاصيل باقتك الحالية أو قم بالترقية للوصول إلى ميزات إضافية.", "currentPlanTitle": "باقتك الحالية", "usageTitle": "استهلاك الباقة", "propertiesListed": "العقارات المضافة", "of": "من", "unlimited": "غير محدود", "upgradeOptionsTitle": "باقات الترقية المتاحة", "yourCurrentPlan": "باقتك الحالية"
+    },
+    "adminDashboard": {
+        "title": "لوحة تحكم المسؤول",
+        "nav": {
+            "dashboard": "لوحة التحكم", "analytics": "التحليلات", "reports": "التقارير", "partnerRequests": "طلبات الشركاء", "propertyRequests": "طلبات العرض", "propertyInquiries": "طلبات البحث", "contactRequests": "رسائل التواصل", "partners": "الشركاء", "users": "المستخدمين", "rolesAndPermissions": "الأدوار والصلاحيات", "properties": "العقارات", "projects": "المشاريع", "allLeads": "كل الطلبات", "subscriptionPlans": "باقات الاشتراك", "propertyFilters": "فلاتر العقارات", "decorationsManagement": "إدارة الديكورات", "banners": "الإعلانات", "siteContent": "محتوى الموقع", "settings": "الإعدادات", "finishingRequests": "طلبات التشطيب", "decorationsRequests": "طلبات الديكور", "finishingServices": "خدمات التشطيب", "aiEstimatorSettings": "إعدادات المقدّر الذكي"
+        },
+        "aiEstimatorSettings": {
+            "title": "إعدادات المقدّر الذكي", "subtitle": "تحكم في سلوك وخيارات مقدّر التكاليف الذكي.", "promptTitle": "Prompt الذكاء الاصطناعي", "promptDescription": "هذا هو الأمر الرئيسي الذي يتم إرساله إلى الذكاء الاصطناعي. قم بتعديله لتغيير شخصيته أو تعليماته.", "modelTitle": "موديل الذكاء الاصطناعي", "optionsTitle": "خيارات التشطيب", "optionsDescription": "إدارة الخيارات التي تظهر للمستخدم في خطوة \"التشطيبات والمواد\".", "optionKey": "المفتاح (انجليزي، بدون مسافات)", "optionAr": "الاسم بالعربية", "optionEn": "الاسم بالإنجليزية", "addNewOption": "إضافة خيار جديد"
+        },
+        "roleDescriptions": {
+            "DEVELOPER_PARTNER": "إدارة المشاريع والوحدات الخاصة بهم.", "FINISHING_PARTNER": "إدارة معرض الأعمال وطلبات خدمات التشطيب.", "AGENCY_PARTNER": "إدارة العقارات المعروضة وطلبات العملاء.", "SERVICE_MANAGER": "الإشراف على جميع طلبات التشطيبات والديكورات.", "CUSTOMER_RELATIONS_MANAGER": "متابعة طلبات الملاك الأفراد ورسائل التواصل.", "LISTINGS_MANAGER": "إدارة جميع العقارات والمشاريع على المنصة.", "PARTNER_RELATIONS_MANAGER": "مراجعة طلبات الشركاء الجدد وإدارة حساباتهم.", "CONTENT_MANAGER": "التحكم في المحتوى العام للموقع مثل الإعلانات والفلاتر."
+        },
+        "serviceManagerHome": {
+            "title": "لوحة تحكم مدير الخدمات", "subtitle": "نظرة عامة على جميع طلبات خدمات التشطيب والديكور.", "newRequests": "طلبات جديدة", "inProgress": "قيد التنفيذ", "completedThisMonth": "مكتملة هذا الشهر", "totalRequests": "إجمالي الطلبات", "recentActivity": "أحدث الطلبات", "manage": "إدارة",
+            "recentFinishing": "أحدث طلبات التشطيب",
+            "recentDecorations": "أحدث طلبات الديكور"
+        },
+        "customerRelationsHome": {
+            "title": "لوحة تحكم علاقات العملاء", "subtitle": "نظرة عامة على جميع الطلبات الواردة من العملاء الأفراد.", "newListingRequests": "طلبات عرض عقارات جديدة", "newSearchRequests": "طلبات بحث عن عقار جديدة", "newContactMessages": "رسائل تواصل جديدة", "recentPropertyRequests": "أحدث طلبات عرض العقارات", "recentInquiries": "أحدث طلبات البحث", "recentContacts": "أحدث رسائل التواصل", "viewAll": "عرض الكل", "noNewRequests": "لا توجد طلبات جديدة."
+        },
+        "listingsManagerHome": {
+            "title": "لوحة تحكم العقارات والمشاريع", "subtitle": "نظرة عامة على جميع العقارات والمشاريع على المنصة.", "activeProperties": "العقارات النشطة", "totalProjects": "إجمالي المشاريع"
+        },
+        "contentManagerHome": {
+            "title": "لوحة تحكم المحتوى", "subtitle": "نظرة عامة على محتوى الموقع القابل للتعديل.", "quickLinks": "روابط سريعة"
+        },
+        "partnersManagement": {
+            "title": "لوحة تحكم علاقات الشركاء", "subtitle": "نظرة عامة على حسابات الشركاء وطلبات الانضمام.", "newListingRequests": "طلبات عرض جديدة", "newPropertyInquiries": "طلبات بحث جديدة", "activeProperties": "عقارات نشطة", "totalInquiries": "إجمالي طلبات البحث", "recentListingRequests": "أحدث طلبات عرض العقارات", "recentSearchInquiries": "أحدث طلبات البحث عن عقارات", "propertyDistribution": "توزيع العقارات حسب النوع", "listingsByStatus": "العقارات حسب الحالة", "totalPartners": "إجمالي الشركاء", "newPartnersThisMonth": "شركاء جدد هذا الشهر", "partnerDistributionByType": "توزيع الشركاء حسب النوع", "partnersByPlan": "الشركاء حسب الباقة", "recentPartnerRequests": "أحدث طلبات الانضمام", "companyName": "اسم الشركة", "requester": "مقدم الطلب"
+        },
+        "finishingRequests": {
+            "manage": "إدارة", "assignedTo": "مسند إلى", "internalTeam": "الفريق الداخلي", "newRequests": "طلبات جديدة", "inProgress": "قيد التنفيذ", "completedThisMonth": "مكتملة هذا الشهر", "totalRequests": "إجمالي الطلبات", "recentActivity": "أحدث الطلبات", "assignmentOverview": "نظرة عامة على التعيينات", "externalPartners": "شركاء خارجيين", "unassigned": "غير مسندة"
+        },
+        "contentManagement": {
+            "title": "إدارة المحتوى", "subtitle": "تعديل النصوص والصور في الصفحات العامة للموقع.", "tabs": {
+                "hero": "الواجهة الرئيسية", "whyUs": "لماذا تختارنا", "services": "خدماتنا", "partners": "الشركاء", "whyNewHeliopolis": "لماذا هليوبوليس", "quotes": "الاقتباسات", "footer": "التذييل"
+            }, "saveChanges": "حفظ التغييرات", "unsavedChanges": "لديك تغييرات غير محفوظة", "saving": "جاري الحفظ...", "addFeature": "إضافة ميزة", "addStat": "إضافة إحصائية", "remove": "إزالة", "uploadImage": "رفع صورة"
+        },
+        "userManagement": {
+            "title": "إدارة المستخدمين", "subtitle": "الإشراف على وتعديل وإدارة جميع حسابات المستخدمين والشركاء على المنصة.", "addUser": "إضافة مستخدم جديد", "user": "المستخدم", "role": "الدور", "status": "الحالة", "actions": "إجراءات", "editUser": "تعديل", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.", "form": {
+                "nameAr": "الاسم (بالعربية)", "nameEn": "الاسم (بالإنجليزية)", "email": "البريد الإلكتروني", "password": "كلمة المرور", "passwordHelp": "اتركه فارغًا لكلمة المرور الافتراضية. يمكن للمستخدم تغييرها لاحقًا."
+            }
+        },
+        "projects": {
+            "title": "إدارة كل المشاريع", "subtitle": "الإشراف على وإدارة جميع المشاريع من جميع المطورين.", "table": {
+                "project": "المشروع", "partner": "الشريك", "units": "الوحدات", "actions": "إجراءات"
+            }, "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا المشروع وجميع الوحدات المرتبطة به؟"
+        },
+        "propertyInquiries": {
+            "title": "طلبات البحث عن عقار", "subtitle": "إدارة طلبات العملاء المخصصة للبحث عن عقارات غير متوفرة حالياً بالمنصة.", "table": {
+                "details": "تفاصيل الطلب"
+            }, "noRequests": "لا توجد طلبات بحث عن عقار حاليًا."
+        },
+        "manageBanners": {
+            "title": "إدارة الإعلانات", "addBanner": "إضافة إعلان جديد", "editBanner": "تعديل الإعلان", "bannerTitle": "عنوان الإعلان", "bannerImage": "صورة الإعلان", "bannerLink": "الرابط (اختياري)", "displayLocations": "أماكن العرض", "status": "الحالة", "active": "نشط", "inactive": "غير نشط", "startDate": "تاريخ البدء (اختياري)", "endDate": "تاريخ الانتهاء (اختياري)", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الإعلان؟", "edit": "تعديل", "delete": "حذف", "tableImage": "صورة", "tableTitle": "العنوان", "tableLocations": "الأماكن", "tableStatus": "الحالة", "tableActions": "إجراءات"
+        },
+        "home": {
+            "title": "لوحة التحكم الرئيسية", "subtitle": "نظرة سريعة على أهم مؤشرات الأداء والإجراءات المطلوبة.", "actionableItems": "إجراءات عاجلة", "pendingPartnerRequests": "طلبات شراكة معلقة", "pendingPropertyRequests": "طلبات عقارات جديدة", "newContactMessages": "رسائل تواصل جديدة", "review": "مراجعة", "leadsLast7Days": "الطلبات الجديدة (آخر 7 أيام)", "propertyStatusDistribution": "توزيع حالات العقارات", "topPerformingPartners": "الشركاء الأعلى أداءً", "topPerformingProperties": "العقارات الأكثر طلبًا", "activeProperties": "عقارات نشطة", "activePartners": "شركاء نشطون", "totalLeads": "إجمالي الطلبات", "inquiries": "استفسار", "activeBanners": "إعلانات نشطة", "totalQuotes": "إجمالي الاقتباسات"
+        },
+        "partnersTitle": "إدارة الشركاء",
+        "partnersSubtitle": "مراجعة حسابات الشركاء وتفعيلها أو تعطيلها على المنصة.",
+        "partnerTable": {
+            "partner": "الشريك", "type": "النوع", "status": "الحالة", "actions": "إجراءات", "verify": "تفعيل", "disable": "تعطيل", "enable": "تمكين", "subscriptionPlan": "الباقة", "planUsage": "استهلاك الباقة", "subscriptionEndDate": "انتهاء الاشتراك", "displayType": "نوع العرض", "contactMethods": "طرق التواصل", "enableWhatsApp": "تفعيل واتساب", "whatsAppNumber": "رقم الواتساب", "enablePhone": "تفعيل الاتصال المباشر", "phoneNumber": "رقم الهاتف", "enableForm": "تفعيل النموذج الداخلي"
+        },
+        "partnerDisplayTypes": {
+            "mega_project": "مشروع ضخم", "featured": "مميز", "standard": "عادي"
+        },
+        "editPartnerTitle": "تعديل الشريك",
+        "changePlan": "تغيير الباقة",
+        "updateSubscription": "تحديث تاريخ الاشتراك",
+        "partnerTypes": {
+            "developer": "مطور", "finishing": "شركة تشطيب", "agency": "مكتب عقاري", "admin": "مدير عام", "service_manager": "مدير الخدمات", "customer_relations_manager": "مدير علاقات العملاء", "listings_manager": "مدير العقارات", "partner_relations_manager": "مدير علاقات الشركاء", "content_manager": "مدير المحتوى"
+        },
+        "partnerStatuses": {
+            "active": "نشط", "pending": "قيد المراجعة", "disabled": "معطل"
+        },
+        "propertiesTitle": "إدارة كل العقارات",
+        "propertiesSubtitle": "الإشراف على وإدارة جميع قوائم العقارات من جميع الشركاء.",
+        "propertyTable": {
+            "partner": "الشريك", "edit": "تعديل", "liveStatus": "حالة العرض", "listingPeriod": "فترة العرض", "active": "نشط", "inactive": "غير نشط"
+        },
+        "editPropertyModal": {
+            "title": "تعديل العقار", "listingStartDate": "تاريخ بدء العرض", "listingEndDate": "تاريخ نهاية العرض"
+        },
+        "manageLeadsSubtitle": "عرض وإدارة جميع طلبات العملاء الواردة لجميع الشركاء.",
+        "plans": {
+            "title": "إدارة باقات الاشتراك", "subtitle": "عرض وتعديل تفاصيل باقات الاشتراك المتاحة للشركاء.", "editPlanTitle": "تعديل الباقة", "price": "السعر", "description": "الوصف", "features": "المميزات", "featuresHelpText": "كل ميزة في سطر جديد.", "commissionRate": "نسبة العمولة (%)", "planCategories": {
+                "developer": "المطورون", "agency": "المكاتب العقارية", "finishing": "شركات التشطيب", "individual": "المستخدمين الأفراد"
+            }
+        },
+        "decorationsManagement": {
+            "title": "إدارة الديكورات", "subtitle": "إدارة محتوى صفحة الديكورات والطلبات الواردة.",
+            "portfolioTab": "معرض الأعمال",
+            "categoriesTab": "الأقسام",
+            "addNewItem": "إضافة عمل جديد",
+            "editItem": "تعديل العمل",
+            "itemPartner": "الشريك",
+            "itemImage": "الصورة",
+            "itemTitle": "العنوان",
+            "itemCategory": "التصنيف",
+            "itemActions": "إجراءات",
+            "noItems": "لا توجد أعمال ديكور حاليًا.",
+            "noRequests": "لا توجد طلبات ديكور حاليًا.",
+            "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا العنصر؟",
+            "lastUpdated": "آخر تحديث",
+            "internalNotes": "ملاحظات داخلية",
+            "filterByDate": "فلترة بالتاريخ",
+            "startDate": "تاريخ البدء",
+            "endDate": "تاريخ الانتهاء",
+            "backToRequests": "العودة للطلبات",
+            "requestDetails": "تفاصيل الطلب",
+            "customerInformation": "بيانات العميل",
+            "requestInformation": "بيانات الطلب",
+            "management": "إدارة الطلب",
+            "newRequests": "طلبات جديدة",
+            "inProgress": "قيد التنفيذ",
+            "completedThisMonth": "مكتملة هذا الشهر",
+            "totalPortfolioItems": "إجمالي الأعمال",
+            "recentActivity": "أحدث الطلبات",
+            "categoryOverview": "نظرة عامة على الأقسام",
+            "portfolioDistribution": "توزيع الأعمال",
+            "leadsByCategory": "الطلبات المفتوحة حسب القسم",
+            "addNewCategory": "إضافة قسم جديد",
+            "editCategory": "تعديل القسم"
+        },
+        "adminRequests": {
+            "partnerRequestsTitle": "طلبات انضمام الشركاء", "partnerRequestsSubtitle": "مراجعة طلبات الشركاء الجدد واتخاذ إجراء بشأنها.", "propertyRequestsTitle": "طلبات عرض العقارات", "propertyRequestsSubtitle": "مراجعة طلبات عرض العقارات من الملاك والموافقة عليها.", "contactRequestsTitle": "رسائل التواصل", "contactRequestsSubtitle": "عرض وإدارة الرسائل الواردة من نموذج التواصل العام.", "table": {
+                "requester": "مقدم الطلب", "phone": "الهاتف", "date": "التاريخ", "status": "الحالة", "actions": "إجراءات", "details": "عرض التفاصيل", "propertyInfo": "معلومات العقار", "message": "الرسالة", "approve": "موافقة", "reject": "رفض", "markAsReviewed": "تحديد كمقروء", "delete": "حذف", "companyInfo": "معلومات الشركة", "primaryContact": "معلومات التواصل", "managementContacts": "جهات اتصال الإدارة", "documents": "المستندات الرسمية", "download": "تحميل"
+            }, "requestStatus": {
+                "pending": "قيد الانتظار", "reviewed": "تمت المراجعة", "closed": "مغلق", "approved": "تمت الموافقة", "rejected": "مرفوض", "new": "جديد"
+            }, "noPartnerRequests": "لا توجد طلبات انضمام جديدة حاليًا.", "noPropertyRequests": "لا توجد طلبات عرض عقارات جديدة حاليًا.", "noContactRequests": "لا توجد رسائل تواصل جديدة حاليًا.", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الطلب؟", "propertyDetailsTitle": "تفاصيل طلب عرض العقار", "subscriptionPlan": "باقة الاشتراك", "cooperationType": "نموذج التعاون"
+        },
+        "filter": {
+            "search": "بحث...", "searchByNameOrEmail": "بحث بالاسم أو البريد الإلكتروني...", "searchByRequesterOrPhone": "بحث بالاسم أو الهاتف...", "filterByType": "فلترة بالنوع", "filterByStatus": "فلترة بالحالة", "filterByPlan": "فلترة بالباقة", "filterByDisplayType": "فلترة بنوع العرض", "filterByPartner": "فلترة بالشريك", "all": "الكل", "allPartners": "كل الشركاء", "listingDateRange": "نطاق تاريخ العرض", "leadDateRange": "نطاق تاريخ الطلب"
+        },
+        "bulkActions": {
+            "selected": "تم تحديد", "activate": "تفعيل المحدد", "deactivate": "تعطيل المحدد", "delete": "حذف المحدد", "clear": "مسح"
+        }
+    },
+    "adminAnalytics": {
+        "title": "التحليلات المتقدمة", "subtitle": "نظرة معمقة على أداء المنصة والبيانات الرئيسية.", "timeFilter": "الفترة الزمنية", "last7days": "آخر 7 أيام", "last30days": "آخر 30 يومًا", "thismonth": "هذا الشهر", "thisyear": "هذه السنة", "userGrowth": "نمو المستخدمين والشركاء", "users": "المستخدمين", "partners": "الشركاء", "propertyPerformance": "أداء العقارات", "leads": "الطلبات", "topPerformingProperties": "العقارات الأكثر تلقيًا للطلبات", "topPerformingPartners": "الشركاء الأكثر تلقيًا للطلبات", "conversionRate": "معدل التحويل", "leadsPerProperty": "طلب / عقار", "propertyHotspots": "المناطق الأكثر طلبًا للعقارات", "newLeads": "الطلبات الجديدة", "newPartners": "شركاء جدد", "newProperties": "عقارات جديدة",
+        "leadsOverTime": "الطلبات عبر الزمن",
+        "leadStatusDistribution": "توزيع حالات الطلبات",
+        "propertyTypeDistribution": "توزيع أنواع العقارات"
+    },
+    "adminReports": {
+        "title": "نظام التقارير المخصصة", "subtitle": "أنشئ وصَدّر تقارير مخصصة بناءً على بيانات المنصة.", "step1": "الخطوة 1: اختر مصدر البيانات", "selectDataSource": "اختر مصدرًا...", "dataSources": {
+            "leads": "طلبات العملاء", "properties": "العقارات", "partners": "الشركاء"
+        }, "step2": "الخطوة 2: اختر الأعمدة", "step3": "الخطوة 3: تطبيق الفلاتر", "dateRange": "النطاق الزمني", "startDate": "من تاريخ", "endDate": "إلى تاريخ", "step4": "الخطوة 4: تصدير التقرير", "exportCSV": "تصدير CSV", "exportPDF": "تصدير PDF", "noColumnsSelected": "الرجاء اختيار عمود واحد على الأقل."
+    },
+    "subscriptionPlans": {
+        "title": "اختر الباقة التي تناسبك", "selectButton": "اختر الباقة", "developer": {
+            "basic": { "name": "الأساسية", "price": "مجانية", "description": "مثالية للبدء وعرض عدد محدود من المشاريع.", "features": ["إضافة حتى مشروع واحد", "إضافة حتى 5 وحدات", "ملف شخصي أساسي"] }, "professional": { "name": "الاحترافية", "price": "799 ج.م / شهرياً", "description": "للشركات النامية التي ترغب في عرض مشاريع متعددة.", "features": ["إضافة حتى 5 مشاريع", "إضافة حتى 50 وحدة", "شارة 'شريك مميز'"] }, "elite": { "name": "النخبة", "price": "1499 ج.م / شهرياً", "description": "للشركات الكبرى التي تبحث عن أقصى استفادة.", "features": ["عدد غير محدود من المشاريع", "عدد غير محدود من الوحدات", "ظهور بارز في الصفحة الرئيسية", "شارة 'شريك النخبة'"] }
+        }, "agency": {
+            "basic": { "name": "الأساسية", "price": "مجانية", "description": "مثالية للبدء وعرض عدد محدود من العقارات.", "features": ["إضافة حتى 3 عقارات", "ملف شخصي أساسي", "ظهور قياسي في البحث"] }, "professional": { "name": "الاحترافية", "price": "499 ج.م / شهرياً", "description": "للشركاء الذين يسعون للنمو وزيادة الظهور.", "features": ["إضافة حتى 15 عقارًا", "شارة 'شريك مميز'", "أولوية أعلى في نتائج البحث", "تحليلات أساسية للأداء"] }, "elite": { "name": "النخبة", "price": "999 ج.م / شهرياً", "description": "للشركات الكبرى التي تبحث عن أقصى استفادة.", "features": ["عدد غير محدود من العقارات", "ظهور بارز في الصفحة الرئيسية", "شارة 'شريك النخبة'", "تحليلات متقدمة ودعم فني"] }
+        }, "finishing": {
+            "commission": { "name": "باقة العمولة", "price": "رسوم رمزية + عمولة 10%", "description": "ابدأ بدون التزام كبير. نحن نجلب لك العملاء، ونتقاسم النجاح.", "features": ["ملف شخصي أساسي", "معرض أعمال (10 صور)", "استقبال طلبات العملاء عبر المنصة", "دعم أساسي"], "commissionRate": 10 }, "professional": { "name": "الباقة الاحترافية", "price": "499 ج.م / شهرياً", "description": "للشركات التي ترغب في تعزيز حضورها والحصول على عملاء مباشرين بدون عمولة.", "features": ["كل شيء في باقة العمولة، بالإضافة إلى:", "شارة 'شريك مميز'", "أولوية في الظهور بصفحة التشطيبات", "معرض أعمال أكبر (50 صورة)", "لا يوجد عمولة على المشاريع"], "commissionRate": 0 }, "elite": { "name": "باقة النخبة", "price": "999 ج.م / شهرياً", "description": "للوصول الأقصى للعملاء والظهور الأبرز في المنصة.", "features": ["كل شيء في الباقة الاحترافية، بالإضافة إلى:", "شارة 'شريك النخبة'", "ظهور بارز في أماكن مميزة", "معرض أعمال غير محدود + فيديو", "دعم مخصص"], "commissionRate": 0 }
+        }, "individual": {
+            "paid_listing": { "name": "باقة الإعلان المدفوع", "price": "500 ج.م / 3 أشهر", "description": "أضف عقارك على منصتنا لمدة محددة مقابل رسوم ثابتة. يمكنك اختيار استقبال استفسارات المهتمين مباشرة أو من خلالنا.", "features": ["إعلان لمدة 3 أشهر", "تحكم كامل في إعلانك", "مرونة في استقبال الاستفسارات", "لا يوجد عمولات على البيع أو الإيجار"], "commissionRate": 0 }, "commission": { "name": "التفويض بالتسويق الحصري", "price": "مقابل عمولة", "description": "فوض فريقنا المتخصص لتولي كافة مهام بيع أو تأجير عقارك، من التسويق الاحترافي وحتى إتمام الصفقة، مقابل نسبة عمولة يتم الاتفاق عليها.", "features": ["تسويق احترافي وتصوير مميز", "نتولى الرد على الاستفسارات وترتيب المعاينات", "متابعة قانونية وإدارية حتى إتمام الصفقة"], "commissionRate": 2.5 }
+        }
+    },
+    "upgradePlanModal": {
+        "title": "الوصول للحد الأقصى", "message": "لقد وصلت إلى الحد الأقصى لعدد العقارات المسموح به في باقتك الحالية. قم بترقية باقتك لإضافة المزيد من العقارات.", "closeButton": "إغلاق", "upgradeButton": "الترقية الآن"
+    },
+    "privacyPolicyPage": {
+        "title": "سياسة الخصوصية",
+        "lastUpdated": "آخر تحديث: 26 يوليو 2024",
+        "introduction": {
+            "title": "1. مقدمة",
+            "content": "تحترم منصة ONLY HELIO ('نحن'، 'المنصة') خصوصيتك وتلتزم بحماية بياناتك الشخصية. توضح سياسة الخصوصية هذه كيف نجمع معلوماتك الشخصية ونستخدمها ونشاركها ونحميها عند استخدامك لموقعنا وخدماتنا. باستخدامك للمنصة، فإنك توافق على الممارسات الموضحة في هذه السياسة."
+        },
+        "dataCollection": {
+            "title": "2. المعلومات التي نجمعها",
+            "content": "قد نجمع ونعالج الأنواع التالية من المعلومات:\n- **البيانات الشخصية:** الاسم ورقم الهاتف والبريد الإلكتروني عند تقديم طلب، أو التسجيل كشريك، أو التواصل معنا.\n- **بيانات العقارات:** التفاصيل والصور التي تقدمها عند عرض عقار للبيع أو الإيجار.\n- **بيانات الاستخدام:** معلومات حول كيفية وصولك إلى الخدمة واستخدامها، مثل عنوان IP ونوع المتصفح والصفحات التي تمت زيارتها والوقت المستغرق فيها.\n- **ملفات تعريف الارتباط (الكوكيز):** نستخدم ملفات تعريف الارتباط لتحسين تجربتك وتتبع النشاط على خدمتنا."
+        },
+        "dataUsage": {
+            "title": "3. كيف نستخدم معلوماتك",
+            "content": "نستخدم البيانات التي نجمعها للأغراض التالية:\n- لتوفير خدماتنا وصيانتها، بما في ذلك عرض العقارات وتسهيل التواصل بين الأطراف.\n- لإدارة حسابك كشريك وتسهيل التواصل معك.\n- لتوصيل طلباتك واستفساراتك إلى الشركاء المعنيين (المطورين، شركات التشطيب، إلخ).\n- لإعلامك بالتغييرات التي تطرأ على خدماتنا أو سياساتنا.\n- لتحليل الاستخدام بهدف تحسين وتطوير منصتنا وخدماتنا.\n- لمنع الاحتيال وضمان أمان المنصة."
+        },
+        "dataSharing": {
+            "title": "4. مشاركة معلوماتك",
+            "content": "قد نشارك معلوماتك الشخصية في الحالات التالية:\n- **مع الشركاء:** عند تقديم طلب خدمة أو استفسار عن عقار، تتم مشاركة معلومات الاتصال الخاصة بك وتفاصيل طلبك مع الشريك المعني (المعلن عن العقار أو مقدم الخدمة) لتمكينه من التواصل معك.\n- **مع مقدمي الخدمات:** قد نستعين بأطراف ثالثة لمساعدتنا في تشغيل خدمتنا (مثل خدمات الاستضافة وتحليل البيانات)، وقد يكون لديهم وصول محدود إلى بياناتك لأداء هذه المهام نيابة عنا.\n- **للامتثال القانوني:** إذا طُلب منا ذلك بموجب القانون أو استجابة لطلبات صالحة من السلطات العامة."
+        },
+        "security": {
+            "title": "5. أمن بياناتك",
+            "content": "أمن بياناتك مهم بالنسبة لنا. نحن نتخذ تدابير معقولة لحماية معلوماتك الشخصية من الوصول غير المصرح به أو التغيير أو الكشف أو التدمير. ومع ذلك، تذكر أنه لا توجد وسيلة نقل عبر الإنترنت أو طريقة تخزين إلكتروني آمنة 100%، ولا يمكننا ضمان أمنها المطلق."
+        },
+        "changes": {
+            "title": "6. التغييرات على سياسة الخصوصية",
+            "content": "قد نقوم بتحديث سياسة الخصوصية الخاصة بنا من وقت لآخر. سنعلمك بأي تغييرات عن طريق نشر سياسة الخصوصية الجديدة على هذه الصفحة وتحديث تاريخ 'آخر تحديث' في الأعلى. يُنصح بمراجعة هذه السياسة بشكل دوري."
+        },
+        "contact": {
+            "title": "7. تواصل معنا",
+            "content": "إذا كان لديك أي أسئلة حول سياسة الخصوصية هذه، يمكنك الاتصال بنا عبر المعلومات المتاحة في صفحة 'تواصل معنا'."
+        }
+    },
+    "termsOfUsePage": {
+        "title": "شروط الاستخدام",
+        "lastUpdated": "آخر تحديث: 26 يوليو 2024",
+        "agreement": {
+            "title": "1. الموافقة على الشروط",
+            "content": "باستخدامك لمنصة ONLY HELIO ('المنصة')، فإنك توافق على الالتزام بشروط الاستخدام هذه ('الشروط'). إذا كنت لا توافق على هذه الشروط، فالرجاء عدم استخدام المنصة. تشكل هذه الشروط اتفاقية ملزمة قانونيًا بينك وبين ONLY HELIO."
+        },
+        "serviceDescription": {
+            "title": "2. وصف الخدمة",
+            "content": "ONLY HELIO هي منصة إلكترونية تعمل كوسيط لعرض العقارات والخدمات ذات الصلة (مثل التشطيب والديكور) المتخصصة في مدينة هليوبوليس الجديدة. نحن نسهل التواصل بين العملاء الباحثين عن عقارات أو خدمات وبين مقدمي هذه الخدمات ('الشركاء'). دورنا يقتصر على الربط، ونحن لسنا طرفًا في أي اتفاقيات أو معاملات تتم بين المستخدمين والشركاء."
+        },
+        "userAccounts": {
+            "title": "3. حسابات الشركاء",
+            "content": "يجب على الشركاء تقديم معلومات دقيقة وكاملة عند التسجيل. الشركاء مسؤولون عن الحفاظ على سرية معلومات حساباتهم وعن جميع الأنشطة التي تحدث تحت حساباتهم. نحتفظ بالحق في تعليق أو إنهاء الحسابات التي تقدم معلومات مضللة أو تنتهك هذه الشروط."
+        },
+        "prohibited": {
+            "title": "4. الأنشطة المحظورة",
+            "content": "أنت توافق على عدم استخدام المنصة لأي غرض غير قانوني أو محظور بموجب هذه الشروط. يشمل ذلك، على سبيل المثال لا الحصر: نشر محتوى كاذب أو مضلل أو احتيالي؛ انتهاك حقوق الملكية الفكرية لأي طرف؛ استخدام المنصة بطريقة قد تضر بها أو تعطلها؛ جمع معلومات عن الآخرين دون موافقتهم."
+        },
+        "intellectualProperty": {
+            "title": "5. حقوق الملكية الفكرية",
+            "content": "المنصة وجميع محتوياتها الأصلية وميزاتها ووظائفها (بما في ذلك على سبيل المثال لا الحصر جميع المعلومات والبرامج والنصوص والصور والفيديو والصوت) مملوكة لـ ONLY HELIO وهي محمية بموجب قوانين حقوق النشر والعلامات التجارية وبراءات الاختراع والأسرار التجارية وغيرها من قوانين الملكية الفكرية."
+        },
+        "disclaimer": {
+            "title": "6. إخلاء المسؤولية عن الضمانات",
+            "content": "يتم توفير الخدمة 'كما هي' و 'كما هي متاحة'. نحن لا نضمن دقة أو اكتمال أو موثوقية أي معلومات على المنصة، بما في ذلك قوائم العقارات وتفاصيل الشركاء. أنت توافق صراحة على أن استخدامك للمنصة على مسؤوليتك الخاصة. نحن لا نضمن أن المنصة ستكون خالية من الأخطاء أو الانقطاعات."
+        },
+        "limitation": {
+            "title": "7. تحديد المسؤولية",
+            "content": "لن تكون ONLY HELIO أو مديريها أو موظفيها أو شركائها مسؤولين بأي حال من الأحوال عن أي أضرار غير مباشرة أو عرضية أو خاصة أو تبعية أو عقابية تنشأ عن أو فيما يتعلق بوصولك إلى المنصة أو استخدامها."
+        },
+        "governingLaw": {
+            "title": "8. القانون الحاكم",
+            "content": "تخضع هذه الشروط وتُفسر وفقًا لقوانين جمهورية مصر العربية، بغض النظر عن تعارضها مع أحكام القانون."
+        },
+        "contact": {
+            "title": "9. تواصل معنا",
+            "content": "إذا كان لديك أي أسئلة حول شروط الاستخدام هذه، يمكنك الاتصال بنا عبر المعلومات المتاحة في صفحة 'تواصل معنا'."
+        }
+    }
+}
