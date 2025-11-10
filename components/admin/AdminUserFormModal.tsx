@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { PartnerStatus, AdminPartner, PartnerType } from '../../types';
 import FormField from '../shared/FormField';
@@ -85,7 +84,7 @@ const AdminUserFormModal: React.FC<AdminUserFormModalProps> = ({ userToEdit, onC
                             </FormField>
                             <FormField label={t_um.status} id="status">
                                 <Select name="status" value={formData.status} onChange={handleChange}>
-                                    {Object.entries(t_admin.partnerStatuses).map(([key, value]) => <option key={key} value={key}>{value}</option>))}
+                                    {Object.entries(t_admin.partnerStatuses).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
                                 </Select>
                             </FormField>
                         </div>
