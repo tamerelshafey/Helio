@@ -144,8 +144,8 @@ export interface Property {
     baths: number;
     area: number;
     floor?: number;
-    amenities: { [key in Language]: string[], en: string[], ar: string[] };
-    finishingStatus?: { [key in Language]: string, en: string };
+    amenities: { [key in Language]: string[] };
+    finishingStatus?: { [key in Language]: string };
     installmentsAvailable?: boolean;
     isInCompound: boolean;
     realEstateFinanceAvailable?: boolean;
@@ -241,7 +241,7 @@ export interface AddPropertyRequest {
     floor?: number;
     address: string;
     description: string;
-    location: { lat: number; lng: number; };
+    location: { lat: number; lng: number };
     isInCompound: boolean;
     deliveryType: 'immediate' | 'future';
     deliveryMonth?: string;

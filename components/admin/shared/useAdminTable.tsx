@@ -62,6 +62,7 @@ export function useAdminTable<T extends Record<string, any>>({
                     compareResult = aValue - bValue;
                 } else {
                     // FIX: Explicitly convert unknown types to strings before comparison to resolve TypeScript error.
+                    // FIX: Explicitly convert bValue to a string for localeCompare.
                     compareResult = String(aValue).localeCompare(String(bValue));
                 }
 

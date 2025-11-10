@@ -2,7 +2,7 @@
 // to a backend service. The data is modified in-memory for simulation purposes.
 
 import { partnersData } from '../data/partners';
-import type { Partner, PartnerStatus, PartnerRequest, AdminPartner, PartnerType, Role, SubscriptionPlan, PartnerDisplayType } from '../types';
+import type { Partner, PartnerStatus, PartnerRequest, AdminPartner, PartnerType, SubscriptionPlan, PartnerDisplayType } from '../types';
 import { mapPartnerTypeToRole } from '../data/permissions';
 import { addNotification } from './notifications';
 

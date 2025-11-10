@@ -2,7 +2,6 @@
 // to a backend service. The data is modified in-memory for simulation purposes.
 
 import { propertiesData } from '../data/properties';
-import { getPartnerById } from './partners';
 import { projectsData } from '../data/projects';
 import type { Property, PropertyFiltersType } from '../types';
 import { isListingActive } from '../utils/propertyUtils';

@@ -2,8 +2,8 @@
 // to a backend service. The data is modified in-memory for simulation purposes.
 
 import { leadsData } from '../data/leads';
-import type { Lead, LeadStatus, PartnerType, LeadMessage } from '../types';
-import { getPartnerById, getAllPartners } from './partners';
+import type { Lead, LeadMessage } from '../types';
+import { getPartnerById } from './partners';
 import { addNotification } from './notifications';
 
 const SIMULATED_DELAY = 300;

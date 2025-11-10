@@ -1,7 +1,7 @@
 
 
 import { contactRequestsData } from '../data/contactRequests';
-import type { ContactRequest, RequestStatus, PartnerType } from '../types';
+import type { ContactRequest, RequestStatus } from '../types';
 import { addNotification } from './notifications';
 
 const SIMULATED_DELAY = 300;

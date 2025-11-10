@@ -1,6 +1,5 @@
 import { propertyInquiriesData } from '../data/propertyInquiries';
 import type { PropertyInquiryRequest, RequestStatus } from '../types';
-import { getAllPartners } from './partners';
 
 const SIMULATED_DELAY = 300;
 
