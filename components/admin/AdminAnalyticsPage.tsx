@@ -4,11 +4,8 @@ import { Link } from 'react-router-dom';
 import type { Language, Lead, Property, AdminPartner } from '../../types';
 import { BuildingIcon, InboxIcon, UsersIcon, ChartBarIcon } from '../icons/Icons';
 import { useQuery } from '@tanstack/react-query';
-// FIX: Corrected import path from `api` to `services`.
 import { getAllLeads } from '../../services/leads';
-// FIX: Corrected import path from `api` to `services`.
 import { getAllProperties } from '../../services/properties';
-// FIX: Corrected import path from `api` to `services`.
 import { getAllPartnersForAdmin } from '../../services/partners';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';

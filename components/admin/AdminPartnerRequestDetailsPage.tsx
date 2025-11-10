@@ -1,12 +1,9 @@
 
-
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Language, PartnerRequest } from '../../types';
 import { ChevronLeftIcon } from '../icons/Icons';
-// FIX: Corrected import path from `api` to `services`.
 import { getAllPartnerRequests, updatePartnerRequestStatus } from '../../services/partnerRequests';
-// FIX: Corrected import path from `api` to `services`.
 import { addPartner } from '../../services/partners';
 import { useQuery } from '@tanstack/react-query';
 import DetailItem from '../shared/DetailItem';

@@ -1,17 +1,13 @@
 
-
 import React from 'react';
 import type { ContactRequest, RequestStatus } from '../../types';
 import { inputClasses } from '../shared/FormField';
-// FIX: Corrected import path from `api` to `services`.
-import { updateContactRequestStatus, deleteContactRequest } from '../../services/contactRequests';
+import { updateContactRequestStatus, deleteContactRequest, getAllContactRequests } from '../../services/contactRequests';
 import Pagination from '../shared/Pagination';
 import TableSkeleton from '../shared/TableSkeleton';
 import EmptyState from '../shared/EmptyState';
 import { InboxIcon } from '../icons/Icons';
 import { useQuery } from '@tanstack/react-query';
-// FIX: Corrected import path from `api` to `services`.
-import { getAllContactRequests } from '../../services/contactRequests';
 import { useAdminTable } from './shared/useAdminTable';
 import { useLanguage } from '../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';

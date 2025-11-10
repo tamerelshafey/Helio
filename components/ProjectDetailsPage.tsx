@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon, SwimmingPoolIcon, ParkIcon, ShieldCheckIcon, ShoppingCartIcon, BuildingStorefrontIcon, ElevatorIcon } from './icons/Icons';
@@ -9,7 +8,6 @@ import Lightbox from './shared/Lightbox';
 import { isCommercial } from '../utils/propertyUtils';
 import BannerDisplay from './shared/BannerDisplay';
 import { getPropertiesByProjectId } from '../services/properties';
-// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
 import { useQuery } from '@tanstack/react-query';
 import DetailItem from './shared/DetailItem';
 import ContactOptionsModal from './shared/ContactOptionsModal';

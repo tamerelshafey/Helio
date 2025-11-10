@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import type { Language } from '../types';
@@ -133,4 +134,43 @@ const ServiceRequestPage: React.FC = () => {
                                 </select>
                             </FormField>
                             
-                            <FormField label={isCustom ?
+                            <FormField label={isCustom ? t_custom_decor_modal.ideaDescription : t_modal.notes} id="customerNotes">
+                                <textarea
+                                    id="customerNotes"
+                                    name="customerNotes"
+                                    rows={4}
+                                    value={formData.customerNotes}
+                                    onChange={handleChange}
+                                    placeholder={isCustom ? t_custom_decor_modal.ideaPlaceholder : t_modal.notesPlaceholder}
+                                    className={inputClasses}
+                                    required={isCustom}
+                                />
+                            </FormField>
+
+                            {isCustom && (
+                                <FormField label={t_custom_decor_modal.referenceImage} id="referenceImage">
+                                    <input
+                                        type="file"
+                                        id="referenceImage"
+                                        onChange={handleFileChange}
+                                        className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`}
+                                        accept="image/*"
+                                    />
+                                    {referenceImage && <p className="text-xs text-gray-500 mt-1">{referenceImage.name}</p>}
+                                </FormField>
+                            )}
+                            
+                            <div className="pt-4 flex justify-end">
+                                <button type="submit" disabled={loading} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
+                                    {loading ? '...' : (isCustom ? t_custom_decor_modal.submitButton : t_modal.submitButton)}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default ServiceRequestPage;
