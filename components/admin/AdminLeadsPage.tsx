@@ -1,22 +1,20 @@
 
 
-
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Language, Lead, LeadStatus, AdminPartner } from '../../types';
-import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
+import { ChevronRightIcon } from '../icons/Icons';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
-import { deleteLead as apiDeleteLead } from '../../api/leads';
-import { useApiQuery } from '../shared/useApiQuery';
-import { getAllLeads } from '../../api/leads';
+import { updateLead, deleteLead as apiDeleteLead, getAllLeads } from '../../api/leads';
+import { useQuery } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../../api/partners';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';
 import ConversationThread from '../shared/ConversationThread';
 import { useLanguage } from '../shared/LanguageContext';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
 
 const statusColors: { [key in LeadStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -28,23 +26,17 @@ const statusColors: { [key in LeadStatus]: string } = {
     cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
 
-type SortConfig = {
-    key: keyof Lead;
-    direction: 'ascending' | 'descending';
-} | null;
-
-// FIX: Define missing ITEMS_PER_PAGE constant
 const ITEMS_PER_PAGE = 10;
 
 const AdminLeadsPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard;
+    const { language, t } = useLanguage();
     const { currentUser } = useAuth();
-    const t_dash = translations[language].dashboard;
+    const t_admin = t.adminDashboard;
+    const t_dash = t.dashboard;
     const [searchParams] = useSearchParams();
     
-    const { data: leads, isLoading: isLoadingLeads, refetch: refetchLeads } = useApiQuery('allLeadsAdmin', getAllLeads);
-    const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { data: leads, isLoading: isLoadingLeads, refetch: refetchLeads } = useQuery({ queryKey: ['allLeadsAdmin'], queryFn: getAllLeads });
+    const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
     const isLoading = isLoadingLeads || isLoadingPartners;
     const refetchAll = useCallback(() => {
         refetchLeads();
@@ -55,6 +47,7 @@ const AdminLeadsPage: React.FC = () => {
     
     const initialTab = searchParams.get('tab') as 'all' | 'finishing' | 'decorations' | 'other' | null;
     const [activeTab, setActiveTab] = useState<'all' | 'finishing' | 'decorations' | 'other'>(initialTab || 'all');
+    const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
 
     const partnerOptions = useMemo(() => {
         return (partners || [])
@@ -73,7 +66,6 @@ const AdminLeadsPage: React.FC = () => {
         data: leads,
         itemsPerPage: ITEMS_PER_PAGE,
         initialSort: { key: 'createdAt', direction: 'descending' },
-        // FIX: Add explicit type to lambda arguments for robustness.
         searchFn: (lead: Lead, term: string) => 
             lead.customerName.toLowerCase().includes(term) ||
             (lead.partnerName && lead.partnerName.toLowerCase().includes(term)),
@@ -94,6 +86,15 @@ const AdminLeadsPage: React.FC = () => {
     useEffect(() => {
         setFilter('tab', activeTab);
     }, [activeTab, setFilter]);
+
+    const handleStatusChange = async (leadId: string, status: LeadStatus) => {
+        await updateLead(leadId, { status });
+        refetchAll();
+    };
+    
+    const toggleExpand = (leadId: string) => {
+        setExpandedLeadId(prevId => (prevId === leadId ? null : leadId));
+    };
     
     const handleSelect = (leadId: string) => {
         setSelectedLeads(prev => 
@@ -106,7 +107,7 @@ const AdminLeadsPage: React.FC = () => {
     };
 
     const handleBulkDelete = async () => {
-        if (window.confirm(`${t.bulkActions.delete} ${selectedLeads.length} ${language === 'ar' ? 'طلب؟' : 'leads?'}`)) {
+        if (window.confirm(`${t_admin.bulkActions.delete} ${selectedLeads.length} ${language === 'ar' ? 'طلب؟' : 'leads?'}`)) {
             await Promise.all(selectedLeads.map(id => apiDeleteLead(id)));
             refetchAll();
             setSelectedLeads([]);
@@ -128,7 +129,7 @@ const AdminLeadsPage: React.FC = () => {
 
     const exportColumns = {
         customerName: t_dash.leadTable.customer,
-        partnerName: t.propertyTable.partner,
+        partnerName: t_admin.propertyTable.partner,
         customerPhone: t_dash.leadTable.phone,
         serviceTitle: t_dash.leadTable.service,
         status: t_dash.leadTable.status,
@@ -149,10 +150,9 @@ const AdminLeadsPage: React.FC = () => {
         <div>
             <div className="flex justify-between items-start mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.nav.allLeads}</h1>
-                    <p className="text-gray-500 dark:text-gray-400">{t.manageLeadsSubtitle}</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_admin.nav.allLeads}</h1>
+                    <p className="text-gray-500 dark:text-gray-400">{t_admin.manageLeadsSubtitle}</p>
                 </div>
-                {/* FIX: Remove language prop as it's handled by context within ExportDropdown */}
                  <ExportDropdown
                     data={exportData}
                     columns={exportColumns}
@@ -160,28 +160,28 @@ const AdminLeadsPage: React.FC = () => {
                 />
             </div>
             <div className="mb-6 flex space-x-2 border-b border-gray-200 dark:border-gray-700 pb-4">
-                 <TabButton tabKey="all" label={t.filter.all} />
-                 <TabButton tabKey="finishing" label={t.nav.finishingRequests} />
-                 <TabButton tabKey="decorations" label={t.nav.decorationsRequests} />
+                 <TabButton tabKey="all" label={t_admin.filter.all} />
+                 <TabButton tabKey="finishing" label={t_admin.nav.finishingRequests} />
+                 <TabButton tabKey="decorations" label={t_admin.nav.decorationsRequests} />
                  <TabButton tabKey="other" label={language === 'ar' ? 'أخرى' : 'Other'} />
             </div>
 
              <div className="my-8 p-6 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <div className="sm:col-span-2">
-                        <input type="text" placeholder={t.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={inputClasses} />
+                        <input type="text" placeholder={t_admin.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={inputClasses} />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.filterByPartner}</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t_admin.filter.filterByPartner}</label>
                         <select value={filters.partner || 'all'} onChange={e => setFilter('partner', e.target.value)} className={selectClasses} disabled={isLoading}>
-                            <option value="all">{t.filter.allPartners}</option>
+                            <option value="all">{t_admin.filter.allPartners}</option>
                             {(partnerOptions || []).map(partner => (
                                 <option key={partner.id} value={partner.id}>{partner.name}</option>
                             ))}
                         </select>
                     </div>
                     <div className="lg:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.leadDateRange}</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t_admin.filter.leadDateRange}</label>
                         <div className="flex items-center gap-2">
                             <input type="date" value={filters.startDate || ''} onChange={e => setFilter('startDate', e.target.value)} className={inputClasses} />
                             <span className="text-gray-400 dark:text-gray-500">-</span>
@@ -194,66 +194,85 @@ const AdminLeadsPage: React.FC = () => {
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {selectedLeads.length > 0 && (
                     <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 flex items-center gap-4 border-b border-gray-200 dark:border-gray-700">
-                        <span className="font-semibold text-sm">{selectedLeads.length} {t.bulkActions.selected}</span>
-                        <button onClick={handleBulkDelete} className="text-sm font-medium text-red-600 hover:text-red-800">{t.bulkActions.delete}</button>
-                        <button onClick={() => setSelectedLeads([])} className={`text-sm font-medium text-gray-500 hover:text-gray-700 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}>{t.bulkActions.clear}</button>
+                        <span className="font-semibold text-sm">{selectedLeads.length} {t_admin.bulkActions.selected}</span>
+                        <button onClick={handleBulkDelete} className="text-sm font-medium text-red-600 hover:text-red-800">{t_admin.bulkActions.delete}</button>
+                        <button onClick={() => setSelectedLeads([])} className={`text-sm font-medium text-gray-500 hover:text-gray-700 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}>{t_admin.bulkActions.clear}</button>
                     </div>
                 )}
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th scope="col" className="p-4">
-                                     <input type="checkbox" onChange={handleSelectAll} checked={paginatedLeads.length > 0 && selectedLeads.length === paginatedLeads.length} ref={input => { if (input) input.indeterminate = selectedLeads.length > 0 && selectedLeads.length < paginatedLeads.length }} />
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerName')}>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="p-4">
+                                <input type="checkbox" onChange={handleSelectAll} checked={paginatedLeads.length > 0 && selectedLeads.length === paginatedLeads.length} ref={input => { if (input) input.indeterminate = selectedLeads.length > 0 && selectedLeads.length < paginatedLeads.length }} />
+                            </TableHead>
+                            <TableHead className="py-3 w-8"></TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('customerName')}>
                                 <div className="flex items-center">{t_dash.leadTable.customer}{getSortIcon('customerName')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('partnerName')}>
-                                    <div className="flex items-center">{t.propertyTable.partner}{getSortIcon('partnerName')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerPhone')}>
-                                    <div className="flex items-center">{t_dash.leadTable.phone}{getSortIcon('customerPhone')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('serviceTitle')}>
-                                    <div className="flex items-center">{t_dash.leadTable.service}{getSortIcon('serviceTitle')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
-                                    <div className="flex items-center">{t_dash.leadTable.date}{getSortIcon('createdAt')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3">{t_dash.leadTable.actions}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {isLoading ? (
-                                <tr><td colSpan={7} className="text-center p-8">Loading leads...</td></tr>
-                            ) : paginatedLeads.length > 0 ? (
-                                paginatedLeads.map(lead => (
-                                    <tr key={lead.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="w-4 p-4">
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('partnerName')}>
+                                <div className="flex items-center">{t_admin.propertyTable.partner}{getSortIcon('partnerName')}</div>
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('serviceTitle')}>
+                                <div className="flex items-center">{t_dash.leadTable.service}{getSortIcon('serviceTitle')}</div>
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('createdAt')}>
+                                <div className="flex items-center">{t_dash.leadTable.date}{getSortIcon('createdAt')}</div>
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('status')}>
+                                <div className="flex items-center">{t_dash.leadTable.status}{getSortIcon('status')}</div>
+                            </TableHead>
+                            <TableHead>{t_dash.leadTable.actions}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            <TableRow><TableCell colSpan={8} className="text-center p-8">Loading leads...</TableCell></TableRow>
+                        ) : paginatedLeads.length > 0 ? (
+                            paginatedLeads.map(lead => (
+                                <React.Fragment key={lead.id}>
+                                    <TableRow>
+                                        <TableCell className="p-4">
                                              <input type="checkbox" checked={selectedLeads.includes(lead.id)} onChange={() => handleSelect(lead.id)} />
-                                        </td>
-                                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                            {lead.customerName}
-                                            {lead.customerNotes && <p className="font-normal text-gray-500 dark:text-gray-400 text-xs mt-1 max-w-xs truncate" title={lead.customerNotes}>{lead.customerNotes}</p>}
-                                        </th>
-                                        <td className="px-6 py-4">{lead.partnerName || lead.partnerId}</td>
-                                        <td className="px-6 py-4" dir="ltr">{lead.customerPhone}</td>
-                                        <td className="px-6 py-4 max-w-xs truncate" title={lead.serviceTitle}>{lead.serviceTitle}</td>
-                                        <td className="px-6 py-4">{new Date(lead.createdAt).toLocaleDateString(language)}</td>
-                                        <td className="px-6 py-4">
+                                        </TableCell>
+                                        <TableCell className="px-1">
+                                            <button onClick={() => toggleExpand(lead.id)} className="p-2">
+                                                <ChevronRightIcon className={`w-5 h-5 transition-transform ${expandedLeadId === lead.id ? 'rotate-90' : ''}`} />
+                                            </button>
+                                        </TableCell>
+                                        <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                            <div>{lead.customerName}</div>
+                                            <div className="font-normal text-gray-500 dark:text-gray-400" dir="ltr">{lead.customerPhone}</div>
+                                        </TableCell>
+                                        <TableCell>{lead.partnerName || lead.partnerId}</TableCell>
+                                        <TableCell className="max-w-xs truncate" title={lead.serviceTitle}>{lead.serviceTitle}</TableCell>
+                                        <TableCell>{new Date(lead.createdAt).toLocaleDateString(language)}</TableCell>
+                                        <TableCell>
+                                            <select value={lead.status} onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)} className={`text-xs font-medium px-2.5 py-0.5 rounded-full border-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800 ${statusColors[lead.status]}`}>
+                                                {Object.entries(t_dash.leadStatus).map(([key, value]) => (<option key={key} value={key} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">{value}</option>))}
+                                            </select>
+                                        </TableCell>
+                                        <TableCell>
                                             <button onClick={() => handleDelete(lead.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">
                                                 {t_dash.leadTable.delete}
                                             </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr><td colSpan={7} className="text-center p-8">{t_dash.leadTable.noLeads}</td></tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                        </TableCell>
+                                    </TableRow>
+                                    {expandedLeadId === lead.id && (
+                                        <TableRow className="bg-gray-50 dark:bg-gray-800/50">
+                                            <TableCell colSpan={8} className="p-0">
+                                                <div className="p-4 animate-fadeIn">
+                                                    <ConversationThread lead={lead} onMessageSent={refetchAll} />
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </React.Fragment>
+                            ))
+                        ) : (
+                            <TableRow><TableCell colSpan={8} className="text-center p-8">{t_dash.leadTable.noLeads}</TableCell></TableRow>
+                        )}
+                    </TableBody>
+                </Table>
                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>

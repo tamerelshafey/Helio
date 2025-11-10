@@ -12,10 +12,10 @@ export let projectsData: Project[] = [
             ar: 'كمبوند تلالا في هليوبوليس الجديدة، يقدم تجربة سكنية فاخرة مع التركيز على المساحات الخضراء والهدوء.',
             en: 'Talala Compound in New Heliopolis, offering a luxurious residential experience with a focus on green spaces and tranquility.'
         },
-        imageUrl: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?q=80&w=2148&auto=format&fit=crop',
-        imageUrl_small: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?q=80&w=480&auto=format&fit=crop',
-        imageUrl_medium: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?q=80&w=800&auto=format&fit=crop',
-        imageUrl_large: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?q=80&w=1200&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?q=75&w=2148&auto=format&fit=crop',
+        imageUrl_small: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?q=75&w=480&auto=format&fit=crop',
+        imageUrl_medium: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?q=75&w=800&auto=format&fit=crop',
+        imageUrl_large: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?q=75&w=1200&auto=format&fit=crop',
         createdAt: new Date('2023-11-10T00:00:00Z').toISOString(),
         features: [
             { icon: 'SwimmingPoolIcon', text: { ar: 'حمامات سباحة', en: 'Swimming Pools' } },
@@ -35,10 +35,10 @@ export let projectsData: Project[] = [
             ar: 'كمبوند جولز يقدم حياة عصرية متكاملة مع مجموعة متنوعة من الوحدات السكنية والخدمات الترفيهية.',
             en: 'Joules Compound offers a modern, integrated lifestyle with a variety of residential units and recreational services.'
         },
-        imageUrl: 'https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=2070&auto=format&fit=crop',
-        imageUrl_small: 'https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=480&auto=format&fit=crop',
-        imageUrl_medium: 'https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=800&auto=format&fit=crop',
-        imageUrl_large: 'https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=1200&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=2070&auto=format&fit=crop',
+        imageUrl_small: 'https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=480&auto=format&fit=crop',
+        imageUrl_medium: 'https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=800&auto=format&fit=crop',
+        imageUrl_large: 'https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=1200&auto=format&fit=crop',
         createdAt: new Date('2024-02-15T00:00:00Z').toISOString(),
         features: [
             { icon: 'BuildingStorefrontIcon', text: { ar: 'محلات تجارية بالأسفل', en: 'Ground-Floor Shops' } },
@@ -55,10 +55,10 @@ export let projectsData: Project[] = [
             ar: 'مشروع متكامل يمتد على مساحة 655 فدانًا، ويقدم مجموعة متنوعة من الوحدات السكنية مع خدمات متكاملة تشمل ناديًا رياضيًا ومناطق تجارية ومدارس.',
             en: 'An integrated project spanning 655 acres, offering a variety of residential units with comprehensive services including a sports club, commercial areas, and schools.'
         },
-        imageUrl: 'https://images.unsplash.com/photo-1605146769283-4a23588950c6?q=80&w=2070&auto=format&fit=crop',
-        imageUrl_small: 'https://images.unsplash.com/photo-1605146769283-4a23588950c6?q=80&w=480&auto=format&fit=crop',
-        imageUrl_medium: 'https://images.unsplash.com/photo-1605146769283-4a23588950c6?q=80&w=800&auto=format&fit=crop',
-        imageUrl_large: 'https://images.unsplash.com/photo-1605146769283-4a23588950c6?q=80&w=1200&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1605146769283-4a23588950c6?q=75&w=2070&auto=format&fit=crop',
+        imageUrl_small: 'https://images.unsplash.com/photo-1605146769283-4a23588950c6?q=75&w=480&auto=format&fit=crop',
+        imageUrl_medium: 'https://images.unsplash.com/photo-1605146769283-4a23588950c6?q=75&w=800&auto=format&fit=crop',
+        imageUrl_large: 'https://images.unsplash.com/photo-1605146769283-4a23588950c6?q=75&w=1200&auto=format&fit=crop',
         createdAt: new Date('2024-04-01T00:00:00Z').toISOString(),
         features: [
             { icon: 'ParkIcon', text: { ar: 'حدائق ومساحات خضراء', en: 'Parks & Green Spaces' } },
@@ -75,10 +75,10 @@ export let projectsData: Project[] = [
             ar: 'كمبوند سكني فاخر يقع على طريق القاهرة-الإسماعيلية، يتميز بتصميماته المعمارية الراقية وبنية تحتية متطورة تشمل مركزًا ثقافيًا عالميًا وحدائق مركزية.',
             en: 'A luxury residential compound on the Cairo-Ismailia road, distinguished by its refined architecture and advanced infrastructure, including a world-class cultural hub and central gardens.'
         },
-        imageUrl: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=2070&auto=format&fit=crop',
-        imageUrl_small: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=480&auto=format&fit=crop',
-        imageUrl_medium: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=800&auto=format&fit=crop',
-        imageUrl_large: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=1200&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=75&w=2070&auto=format&fit=crop',
+        imageUrl_small: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=75&w=480&auto=format&fit=crop',
+        imageUrl_medium: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=75&w=800&auto=format&fit=crop',
+        imageUrl_large: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=75&w=1200&auto=format&fit=crop',
         createdAt: new Date('2024-05-20T00:00:00Z').toISOString(),
         features: [
             { icon: 'ParkIcon', text: { ar: 'حديقة مركزية ضخمة', en: 'Orchard Park' } },
@@ -95,10 +95,10 @@ export let projectsData: Project[] = [
             ar: 'كمبوند سكني هادئ في قلب هليوبوليس الجديدة، يوفر تجربة سكنية مميزة مع التركيز على الخصوصية والمساحات الخضراء.',
             en: 'A tranquil residential compound in the heart of New Heliopolis, offering a distinctive living experience with a focus on privacy and green spaces.'
         },
-        imageUrl: 'https://images.unsplash.com/photo-1560185893-a55d88652353?q=80&w=2070&auto=format&fit=crop',
-        imageUrl_small: 'https://images.unsplash.com/photo-1560185893-a55d88652353?q=80&w=480&auto=format&fit=crop',
-        imageUrl_medium: 'https://images.unsplash.com/photo-1560185893-a55d88652353?q=80&w=800&auto=format&fit=crop',
-        imageUrl_large: 'https://images.unsplash.com/photo-1560185893-a55d88652353?q=80&w=1200&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1560185893-a55d88652353?q=75&w=2070&auto=format&fit=crop',
+        imageUrl_small: 'https://images.unsplash.com/photo-1560185893-a55d88652353?q=75&w=480&auto=format&fit=crop',
+        imageUrl_medium: 'https://images.unsplash.com/photo-1560185893-a55d88652353?q=75&w=800&auto=format&fit=crop',
+        imageUrl_large: 'https://images.unsplash.com/photo-1560185893-a55d88652353?q=75&w=1200&auto=format&fit=crop',
         createdAt: new Date('2024-01-10T00:00:00Z').toISOString(),
         features: [
             { icon: 'ParkIcon', text: { ar: 'مساحات خضراء', en: 'Green Areas' } },
@@ -115,10 +115,10 @@ export let projectsData: Project[] = [
             ar: 'كمبوند تيباروز هليوبوليس الجديدة، مجتمع سكني فاخر يوفر شققًا وبنتهاوس بتصميمات عصرية وخدمات متكاملة.', 
             en: 'Tibarose Heliopolis, a luxurious residential community offering apartments and penthouses with modern designs and integrated services.' 
         },
-        imageUrl: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=2070&auto=format&fit=crop',
-        imageUrl_small: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=480&auto=format&fit=crop',
-        imageUrl_medium: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=800&auto=format&fit=crop',
-        imageUrl_large: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=1200&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=75&w=2070&auto=format&fit=crop',
+        imageUrl_small: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=75&w=480&auto=format&fit=crop',
+        imageUrl_medium: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=75&w=800&auto=format&fit=crop',
+        imageUrl_large: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=75&w=1200&auto=format&fit=crop',
         createdAt: new Date('2024-03-10T00:00:00Z').toISOString(),
         features: [
             { icon: 'ShieldCheckIcon', text: { ar: 'أمن وحراسة', en: 'Security Services' } },

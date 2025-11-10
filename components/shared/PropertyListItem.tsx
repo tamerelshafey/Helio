@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon } from '../icons/Icons';
 import type { Property, Language, Project } from '../../types';
-import { translations } from '../../data/translations';
 import { isCommercial } from '../../utils/propertyUtils';
 import { useLanguage } from './LanguageContext';
 
@@ -11,9 +10,9 @@ interface PropertyListItemProps extends Omit<Property, 'language'> {
 }
 
 const PropertyListItem: React.FC<PropertyListItemProps> = (props) => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
+    const t_card = t.propertyCard;
     const { id, imageUrl, status, price, title, beds, baths, area } = props;
-    const t = translations[language].propertyCard;
     const isForSale = status.en === 'For Sale';
     const isCommercialProp = isCommercial(props);
 
@@ -33,19 +32,19 @@ const PropertyListItem: React.FC<PropertyListItemProps> = (props) => {
                     <div className="flex items-center gap-3 md:gap-4 text-gray-500 dark:text-gray-400 text-xs md:text-sm mt-2">
                          {!isCommercialProp && (
                             <>
-                                <div className="flex items-center gap-1.5" title={`${beds} ${t.beds}`}>
+                                <div className="flex items-center gap-1.5" title={`${beds} ${t_card.beds}`}>
                                     <BedIcon className="w-4 h-4" />
                                     <span>{beds}</span>
                                 </div>
-                                <div className="flex items-center gap-1.5" title={`${baths} ${t.baths}`}>
+                                <div className="flex items-center gap-1.5" title={`${baths} ${t_card.baths}`}>
                                     <BathIcon className="w-4 h-4" />
                                     <span>{baths}</span>
                                 </div>
                             </>
                         )}
-                        <div className="flex items-center gap-1.5" title={`${area} ${t.area}`}>
+                        <div className="flex items-center gap-1.5" title={`${area} ${t_card.area}`}>
                             <AreaIcon className="w-4 h-4" />
-                            <span>{area} {t.area}</span>
+                            <span>{area} {t_card.area}</span>
                         </div>
                     </div>
                 </div>

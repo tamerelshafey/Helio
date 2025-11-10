@@ -1,27 +1,33 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { TwitterIcon, LinkedInIcon, FacebookIcon, InstagramIcon } from './icons/Icons';
-import { translations } from '../data/translations';
 import { HelioLogo } from './HelioLogo';
-import { useApiQuery } from './shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getContent } from '../api/content';
 import { useLanguage } from './shared/LanguageContext';
 
 const FooterLink: React.FC<{ to: string; children: React.ReactNode }> = ({ to, children }) => (
     <li>
-        <Link to={to} className="text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200">{children}</Link>
+        <Link to={to} className="text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200">
+            {children}
+        </Link>
     </li>
 );
 
 const SocialLink: React.FC<{ href: string; children: React.ReactNode }> = ({ href, children }) => (
-     <a href={href} target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200">{children}</a>
+    <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200"
+    >
+        {children}
+    </a>
 );
 
 const Footer: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language];
-    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
+    const { language, t } = useLanguage();
+    const { data: siteContent, isLoading } = useQuery({ queryKey: ['siteContent'], queryFn: getContent });
 
     if (isLoading || !siteContent) {
         return <footer className="bg-gray-200 dark:bg-gray-900 pt-16 h-64 animate-pulse"></footer>;
@@ -38,12 +44,10 @@ const Footer: React.FC = () => {
                     {/* About */}
                     <div className="md:col-span-2 lg:col-span-1">
                         <Link to="/" className="flex items-center gap-3 text-3xl font-bold text-amber-500 mb-4">
-                          <HelioLogo className="h-10 w-10" />
-                          <span className="text-2xl">ONLY HELIO</span>
+                            <HelioLogo className="h-10 w-10" />
+                            <span className="text-2xl">ONLY HELIO</span>
                         </Link>
-                        <p className="text-gray-600 dark:text-gray-400 max-w-md">
-                           {contentLang.description}
-                        </p>
+                        <p className="text-gray-600 dark:text-gray-400 max-w-md">{contentLang.description}</p>
                     </div>
                     {/* Quick Links */}
                     <div>
@@ -69,17 +73,17 @@ const Footer: React.FC = () => {
                     </div>
                     {/* Contact Info */}
                     <div>
-                         <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">{t.footer.contactUs}</h3>
+                        <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">{t.footer.contactUs}</h3>
                         <ul className="space-y-3 text-gray-600 dark:text-gray-400">
                             <li className="flex items-start gap-3">
                                 <span>📍</span>
                                 <span>{contentLang.address}</span>
                             </li>
-                             <li className="flex items-center gap-3">
+                            <li className="flex items-center gap-3">
                                 <span>📞</span>
                                 <span dir="ltr">{content.phone}</span>
                             </li>
-                             <li className="flex items-center gap-3">
+                            <li className="flex items-center gap-3">
                                 <span>✉️</span>
                                 <span>{content.email}</span>
                             </li>
@@ -93,15 +97,26 @@ const Footer: React.FC = () => {
                         <p className="text-gray-500 dark:text-gray-500">
                             &copy; {new Date().getFullYear()} ONLY HELIO. {t.footer.rightsReserved}
                         </p>
-                        <a href={`mailto:${content.email}?subject=Beta Feedback`} className="text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200">
+                        <a
+                            href={`mailto:${content.email}?subject=Beta Feedback`}
+                            className="text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors duration-200"
+                        >
                             {t.footer.sendFeedback}
                         </a>
                     </div>
                     <div className={`flex space-x-6 ${language === 'ar' ? 'space-x-reverse' : ''} mt-4 sm:mt-0`}>
-                       <SocialLink href={content.social.facebook}><FacebookIcon className="h-6 w-6" /></SocialLink>
-                       <SocialLink href={content.social.twitter}><TwitterIcon className="h-6 w-6" /></SocialLink>
-                       <SocialLink href={content.social.instagram}><InstagramIcon className="h-6 w-6" /></SocialLink>
-                       <SocialLink href={content.social.linkedin}><LinkedInIcon className="h-6 w-6" /></SocialLink>
+                        <SocialLink href={content.social.facebook}>
+                            <FacebookIcon className="h-6 w-6" />
+                        </SocialLink>
+                        <SocialLink href={content.social.twitter}>
+                            <TwitterIcon className="h-6 w-6" />
+                        </SocialLink>
+                        <SocialLink href={content.social.instagram}>
+                            <InstagramIcon className="h-6 w-6" />
+                        </SocialLink>
+                        <SocialLink href={content.social.linkedin}>
+                            <LinkedInIcon className="h-6 w-6" />
+                        </SocialLink>
                     </div>
                 </div>
             </div>

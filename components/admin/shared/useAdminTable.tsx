@@ -1,5 +1,7 @@
+
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ArrowUpIcon, ArrowDownIcon } from '../../icons/Icons';
+import { useDebounce } from '../../hooks/useDebounce';
 
 type SortDirection = 'ascending' | 'descending';
 
@@ -27,6 +29,7 @@ export function useAdminTable<T extends Record<string, any>>({
     const [currentPage, setCurrentPage] = useState(1);
     const [sortConfig, setSortConfig] = useState<SortConfig<T>>(initialSort);
     const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
     const [filters, setFilters] = useState<Record<string, string>>({});
 
     const setFilter = useCallback((key: string, value: string) => {
@@ -37,8 +40,8 @@ export function useAdminTable<T extends Record<string, any>>({
         if (!data) return [];
         let items = [...data];
 
-        if (searchTerm.trim()) {
-            items = items.filter(item => searchFn(item, searchTerm));
+        if (debouncedSearchTerm.trim()) {
+            items = items.filter(item => searchFn(item, debouncedSearchTerm));
         }
         
         Object.entries(filters).forEach(([key, value]) => {
@@ -59,7 +62,7 @@ export function useAdminTable<T extends Record<string, any>>({
                 if (typeof aValue === 'number' && typeof bValue === 'number') {
                     compareResult = aValue - bValue;
                 } else {
-                    // FIX: Explicitly convert both values to a string before passing to `localeCompare` to resolve the TypeScript error.
+                    // FIX: Explicitly convert unknown types to strings before comparison to resolve TypeScript error.
                     compareResult = String(aValue).localeCompare(String(bValue));
                 }
 
@@ -67,11 +70,7 @@ export function useAdminTable<T extends Record<string, any>>({
             });
         }
         return items;
-    }, [data, searchTerm, filters, sortConfig, searchFn, filterFns]);
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, filters]);
+    }, [data, debouncedSearchTerm, filters, sortConfig, searchFn, filterFns]);
 
     const requestSort = useCallback((key: keyof T | string) => {
         let direction: SortDirection = 'ascending';
@@ -90,6 +89,18 @@ export function useAdminTable<T extends Record<string, any>>({
 
     const totalPages = Math.ceil(processedData.length / itemsPerPage);
     const paginatedItems = processedData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    useEffect(() => {
+        if (currentPage > totalPages && totalPages > 0) {
+            setCurrentPage(totalPages);
+        } else if (currentPage === 0 && totalPages > 0) {
+            setCurrentPage(1);
+        }
+    }, [currentPage, totalPages]);
+    
+     useEffect(() => {
+        setCurrentPage(1);
+    }, [debouncedSearchTerm, filters]);
 
     return {
         currentPage, setCurrentPage,

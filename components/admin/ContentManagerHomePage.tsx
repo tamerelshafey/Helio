@@ -1,21 +1,22 @@
 
+
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllBanners } from '../../api/banners';
 import { getContent } from '../../api/content';
 import { PhotoIcon, QuoteIcon, CogIcon, ClipboardDocumentListIcon, WrenchScrewdriverIcon } from '../icons/Icons';
 import StatCard from '../shared/StatCard';
-import { translations } from '../../data/translations';
 import { useLanguage } from '../shared/LanguageContext';
 
 const ContentManagerHomePage: React.FC = () => {
-    const { language } = useLanguage();
-    const t_home = translations[language].adminDashboard.home;
-    const t_nav = translations[language].adminDashboard.nav;
-    const t_content = translations[language].adminDashboard.contentManagerHome;
-    const { data: banners, isLoading: loadingBanners } = useApiQuery('banners', getAllBanners);
-    const { data: siteContent, isLoading: loadingContent } = useApiQuery('siteContent', getContent);
+    const { language, t } = useLanguage();
+    const t_home = t.adminDashboard.home;
+    const t_nav = t.adminDashboard.nav;
+    const t_content = t.adminDashboard.contentManagerHome;
+    const { data: banners, isLoading: loadingBanners } = useQuery({ queryKey: ['banners'], queryFn: getAllBanners });
+    const { data: siteContent, isLoading: loadingContent } = useQuery({ queryKey: ['siteContent'], queryFn: getContent });
 
     const isLoading = loadingBanners || loadingContent;
 

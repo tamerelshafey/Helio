@@ -1,17 +1,17 @@
 
+
 import React, { useState } from 'react';
 import type { DecorationCategory } from '../../types';
-import { translations } from '../../data/translations';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getDecorationCategories, deleteDecorationCategory as apiDeleteDecorationCategory } from '../../api/decorations';
 import AdminDecorationCategoryFormModal from './AdminDecorationCategoryFormModal';
 import { useLanguage } from '../shared/LanguageContext';
 
 const AdminDecorationsCategoriesPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t_nav = translations[language].adminDashboard.nav;
-    const t_decor = translations[language].adminDashboard.decorationsManagement;
-    const { data: categories, refetch: refetchCategories, isLoading: loading } = useApiQuery('decorationCategories', getDecorationCategories);
+    const { language, t } = useLanguage();
+    const t_nav = t.adminDashboard.nav;
+    const t_decor = t.adminDashboard.decorationsManagement;
+    const { data: categories, refetch: refetchCategories, isLoading: loading } = useQuery({ queryKey: ['decorationCategories'], queryFn: getDecorationCategories });
     const [modalState, setModalState] = useState<{ isOpen: boolean; categoryToEdit?: DecorationCategory }>({ isOpen: false });
 
     const handleDelete = async (categoryId: string) => {
@@ -51,8 +51,8 @@ const AdminDecorationsCategoriesPage: React.FC = () => {
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{cat.description[language]}</p>
                             </div>
                             <div className="space-x-4">
-                                <button onClick={() => setModalState({ isOpen: true, categoryToEdit: cat })} className="font-medium text-amber-600 hover:underline">{translations[language].adminShared.edit}</button>
-                                <button onClick={() => handleDelete(cat.id)} className="font-medium text-red-600 hover:underline">{translations[language].adminShared.delete}</button>
+                                <button onClick={() => setModalState({ isOpen: true, categoryToEdit: cat })} className="font-medium text-amber-600 hover:underline">{t.adminShared.edit}</button>
+                                <button onClick={() => handleDelete(cat.id)} className="font-medium text-red-600 hover:underline">{t.adminShared.delete}</button>
                             </div>
                         </li>
                     ))}

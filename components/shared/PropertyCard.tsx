@@ -2,16 +2,16 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon, HeartIcon, HeartIconSolid, FloorIcon, CompoundIcon, TagIcon, BanknotesIcon } from '../icons/Icons';
 import type { Property, Language } from '../../types';
-import { translations } from '../../data/translations';
 import { useFavorites } from './FavoritesContext';
 import { isCommercial } from '../../utils/propertyUtils';
 import { useToast } from './ToastContext';
 import { useLanguage } from './LanguageContext';
+import { Card, CardContent, CardFooter } from '../ui/Card';
 
 type PropertyCardProps = Property;
 
 const PropertyCard: React.FC<PropertyCardProps> = (props) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const {
     id,
     imageUrl,
@@ -36,7 +36,6 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
     projectId,
     projectName,
   } = props;
-  const t = translations[language];
   const { isFavorite, toggleFavorite } = useFavorites();
   const { showToast } = useToast();
   const isForSale = status.en === 'For Sale';
@@ -57,16 +56,23 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
 
   return (
     <Link to={`/properties/${id}`} className="block h-full">
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 group h-full flex flex-col">
+      <Card className="transform hover:-translate-y-2 transition-transform duration-300 group h-full flex flex-col overflow-hidden p-0">
         <div className="relative">
-          <img 
-            src={imageUrl_large || imageUrl}
-            srcSet={`${imageUrl_small} 480w, ${imageUrl_medium} 800w, ${imageUrl_large || imageUrl} 1200w`}
-            sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 22vw"
-            alt={title[language]} 
-            className="w-full h-56 object-cover"
-            loading="lazy"
-          />
+            <picture>
+                <source
+                    type="image/webp"
+                    srcSet={`${imageUrl_small}&fm=webp 480w, ${imageUrl_medium}&fm=webp 800w, ${imageUrl_large || imageUrl}&fm=webp 1200w`}
+                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 22vw"
+                />
+                <img 
+                    src={imageUrl_large || imageUrl}
+                    srcSet={`${imageUrl_small} 480w, ${imageUrl_medium} 800w, ${imageUrl_large || imageUrl} 1200w`}
+                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 22vw"
+                    alt={title[language]} 
+                    className="w-full h-56 object-cover"
+                    loading="lazy"
+                />
+            </picture>
           <span className={`absolute top-4 ${language === 'ar' ? 'right-4' : 'left-4'} text-white font-semibold px-3 py-1 rounded-md text-sm ${isForSale ? 'bg-green-600' : 'bg-sky-600'}`}>
             {status[language]}
           </span>
@@ -99,7 +105,7 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
             )}
           </div>
         </div>
-        <div className="p-5 flex flex-col flex-grow">
+        <CardContent className="p-5 flex flex-col flex-grow">
           <p className="text-2xl font-bold text-amber-500 mb-1">{price[language]}</p>
           {isForSale && pricePerMeter && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{pricePerMeter[language]}</p>
@@ -155,8 +161,8 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
                 </div>
             )}
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </Link>
   );
 };

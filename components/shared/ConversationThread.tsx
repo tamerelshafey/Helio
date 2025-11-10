@@ -1,9 +1,10 @@
 
 
+
+
 import React, { useState, useRef, useEffect } from 'react';
 import type { Lead, LeadMessage } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import { translations } from '../../data/translations';
 import { inputClasses } from './FormField';
 import { useToast } from './ToastContext';
 import { addMessageToLead } from '../../api/leads';
@@ -16,10 +17,9 @@ interface ConversationThreadProps {
 }
 
 const ConversationThread: React.FC<ConversationThreadProps> = ({ lead, onMessageSent }) => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const { currentUser } = useAuth();
     const { showToast } = useToast();
-    const t = translations[language];
     
     const [newMessage, setNewMessage] = useState('');
     const [messageType, setMessageType] = useState<'message' | 'note'>('message');
@@ -36,7 +36,6 @@ const ConversationThread: React.FC<ConversationThreadProps> = ({ lead, onMessage
         
         setIsSending(true);
         try {
-            // FIX: Use Role enum for comparison and correct logic for checking manager roles.
             const senderType = currentUser.role === Role.SUPER_ADMIN || currentUser.role.includes('_manager') ? 'admin' : 'partner';
 
             await addMessageToLead(lead.id, {

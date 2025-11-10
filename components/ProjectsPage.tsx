@@ -1,17 +1,18 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Project, Partner } from '../types';
-import { translations } from '../data/translations';
 import { BuildingIcon, GridIcon, ListIcon } from './icons/Icons';
 import SEO from './shared/SEO';
 import ProjectCardSkeleton from './shared/ProjectCardSkeleton';
 import ProjectListItem from './shared/ProjectListItem';
 import ProjectListItemSkeleton from './shared/ProjectListItemSkeleton';
-import { useApiQuery } from './shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllProjects } from '../api/projects';
 import { getAllPartnersForAdmin } from '../api/partners';
 import { getAllProperties } from '../api/properties';
 import { useLanguage } from './shared/LanguageContext';
+import { Card, CardContent } from './ui/Card';
 
 interface ProjectCardProps {
     project: Project; 
@@ -20,15 +21,28 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, developer, unitsCount }) => {
-    const { language } = useLanguage();
-    const t = translations[language];
+    const { language, t } = useLanguage();
     const unitsText = unitsCount === 1 ? t.projectsPage.unitsAvailable : t.projectsPage.unitsAvailablePlural;
     
     return (
         <Link to={`/projects/${project.id}`} className="block group h-full">
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 h-full flex flex-col">
+            <Card className="transform hover:-translate-y-2 transition-transform duration-300 h-full flex flex-col overflow-hidden p-0">
                 <div className="relative">
-                    <img src={project.imageUrl} alt={project.name[language]} className="w-full h-64 object-cover" />
+                    <picture>
+                        <source
+                            type="image/webp"
+                            srcSet={`${project.imageUrl_small}&fm=webp 480w, ${project.imageUrl_medium}&fm=webp 800w, ${project.imageUrl_large || project.imageUrl}&fm=webp 1200w`}
+                            sizes="(max-width: 640px) 90vw, 100vw"
+                        />
+                        <img 
+                            src={project.imageUrl}
+                            srcSet={`${project.imageUrl_small} 480w, ${project.imageUrl_medium} 800w, ${project.imageUrl_large || project.imageUrl} 1200w`}
+                            sizes="(max-width: 640px) 90vw, 100vw"
+                            alt={project.name[language]}
+                            className="w-full h-64 object-cover"
+                            loading="lazy"
+                        />
+                    </picture>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                     <div className="absolute bottom-0 left-0 p-6">
                         <h3 className="text-white text-2xl font-bold">{project.name[language]}</h3>
@@ -37,7 +51,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, developer, unitsCoun
                         )}
                     </div>
                 </div>
-                <div className="p-6 flex flex-col flex-grow">
+                <CardContent className="p-6 flex flex-col flex-grow">
                     <p className="text-gray-600 dark:text-gray-400 text-sm flex-grow mb-4 line-clamp-3">{project.description[language]}</p>
                     <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-auto flex justify-between items-center text-gray-500 dark:text-gray-400">
                         <div className="flex items-center gap-2">
@@ -48,20 +62,20 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, developer, unitsCoun
                             {t.propertyCard.viewProject}
                         </span>
                     </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         </Link>
     );
 };
 
 const ProjectsPage: React.FC = () => {
-  const { language } = useLanguage();
-  const t = translations[language].projectsPage;
+  const { language, t } = useLanguage();
+  const t_page = t.projectsPage;
   const [view, setView] = useState<'grid' | 'list'>('grid');
   
-  const { data: projects, isLoading: isLoadingProjs } = useApiQuery('allProjects', getAllProjects);
-  const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
-  const { data: properties, isLoading: isLoadingProps } = useApiQuery('allProperties', getAllProperties);
+  const { data: projects, isLoading: isLoadingProjs } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
+  const { data: partners, isLoading: isLoadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
+  const { data: properties, isLoading: isLoadingProps } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
   const isLoading = isLoadingProjs || isLoadingPartners || isLoadingProps;
   
   const projectsWithDetails = React.useMemo(() => {
@@ -76,16 +90,16 @@ const ProjectsPage: React.FC = () => {
   return (
     <div className="bg-gray-50 dark:bg-gray-900 py-20">
       <SEO 
-        title={`${translations[language].nav.projects} | ONLY HELIO`}
-        description={t.subtitle}
+        title={`${t.nav.projects} | ONLY HELIO`}
+        description={t_page.subtitle}
       />
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">{t.title}</h1>
-          <p className="text-lg text-gray-500 dark:text-gray-400 mt-4 max-w-3xl mx-auto">{t.subtitle}</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">{t_page.title}</h1>
+          <p className="text-lg text-gray-500 dark:text-gray-400 mt-4 max-w-3xl mx-auto">{t_page.subtitle}</p>
         </div>
         
-        <div className="flex justify-end items-center mb-8 max-w-4xl mx-auto">
+        <div className="flex justify-end items-center mb-8 max-w-7xl mx-auto">
             <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-200 dark:bg-gray-800">
                 <button
                     onClick={() => setView('grid')}
@@ -105,39 +119,43 @@ const ProjectsPage: React.FC = () => {
         </div>
 
         {isLoading ? (
-            view === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {Array.from({ length: 3 }).map((_, i) => <ProjectCardSkeleton key={i} />)}
-                </div>
-            ) : (
-                <div className="space-y-4 max-w-4xl mx-auto">
-                    {Array.from({ length: 3 }).map((_, i) => <ProjectListItemSkeleton key={i} />)}
-                </div>
-            )
+            <div className="animate-fadeIn max-w-7xl mx-auto">
+                {view === 'grid' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {Array.from({ length: 3 }).map((_, i) => <ProjectCardSkeleton key={i} />)}
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {Array.from({ length: 3 }).map((_, i) => <ProjectListItemSkeleton key={i} />)}
+                    </div>
+                )}
+            </div>
         ) : (
-            view === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {projectsWithDetails.map(({ project, developer, unitsCount }) => (
-                        <ProjectCard 
-                            key={project.id}
-                            project={project}
-                            developer={developer}
-                            unitsCount={unitsCount}
-                        />
-                    ))}
-                </div>
-            ) : (
-                 <div className="space-y-4 max-w-4xl mx-auto">
-                    {projectsWithDetails.map(({ project, developer, unitsCount }) => (
-                        <ProjectListItem
-                            key={project.id}
-                            project={project}
-                            developer={developer}
-                            unitsCount={unitsCount}
-                        />
-                    ))}
-                </div>
-            )
+            <div className="animate-fadeIn max-w-7xl mx-auto">
+                {view === 'grid' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {projectsWithDetails.map(({ project, developer, unitsCount }) => (
+                            <ProjectCard 
+                                key={project.id}
+                                project={project}
+                                developer={developer as Partner}
+                                unitsCount={unitsCount}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {projectsWithDetails.map(({ project, developer, unitsCount }) => (
+                            <ProjectListItem
+                                key={project.id}
+                                project={project}
+                                developer={developer as Partner}
+                                unitsCount={unitsCount}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
         )}
       </div>
     </div>

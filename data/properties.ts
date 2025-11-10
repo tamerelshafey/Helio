@@ -1,4 +1,5 @@
 
+
 import type { Property } from '../types';
 
 // Data is now mutable to simulate a database
@@ -7,13 +8,13 @@ export let propertiesData: Property[] = [
       id: 'villa-heliopolis-1',
       partnerId: 'united-development',
       projectId: 'proj-1',
-      imageUrl: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop",
-      imageUrl_small: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=480&auto=format&fit=crop",
-      imageUrl_medium: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800&auto=format&fit=crop",
-      imageUrl_large: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=2071&auto=format&fit=crop",
+      imageUrl_small: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=480&auto=format&fit=crop",
+      imageUrl_medium: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=800&auto=format&fit=crop",
+      imageUrl_large: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=1200&auto=format&fit=crop",
       gallery: [
-        "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=2070&auto=format&fit=crop"
+        "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=2071&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1613977257363-707ba9348227?q=75&w=2070&auto=format&fit=crop"
       ],
       status: { en: 'For Sale', ar: 'للبيع' },
       price: { en: 'EGP 8,500,000', ar: '8,500,000 ج.م' },
@@ -51,14 +52,14 @@ export let propertiesData: Property[] = [
       id: 'apartment-heliopolis-2',
       partnerId: 'modern-construction-group',
       projectId: 'proj-2',
-      imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop",
-      imageUrl_small: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=480&auto=format=fit-crop",
-      imageUrl_medium: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=800&auto=format&fit=crop",
-      imageUrl_large: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=75&w=2070&auto=format&fit=crop",
+      imageUrl_small: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=75&w=480&auto=format=fit-crop",
+      imageUrl_medium: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=75&w=800&auto=format&fit=crop",
+      imageUrl_large: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=75&w=1200&auto=format&fit=crop",
       gallery: [
-        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2070&auto=format&fit=crop"
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=75&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=75&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=75&w=2070&auto=format&fit=crop"
       ],
       status: { en: 'For Rent', ar: 'إيجار' },
       price: { en: 'EGP 25,000 / month', ar: '25,000 ج.م / شهرياً' },
@@ -93,10 +94,10 @@ export let propertiesData: Property[] = [
     {
       id: 'commercial-heliopolis-3',
       partnerId: 'future-real-estate',
-      imageUrl: "https://images.unsplash.com/photo-1448630360428-65456885c650?q=80&w=2067&auto=format&fit=crop",
-      imageUrl_small: "https://images.unsplash.com/photo-1448630360428-65456885c650?q=80&w=480&auto=format&fit=crop",
-      imageUrl_medium: "https://images.unsplash.com/photo-1448630360428-65456885c650?q=80&w=800&auto=format&fit=crop",
-      imageUrl_large: "https://images.unsplash.com/photo-1448630360428-65456885c650?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://images.unsplash.com/photo-1448630360428-65456885c650?q=75&w=2067&auto=format&fit=crop",
+      imageUrl_small: "https://images.unsplash.com/photo-1448630360428-65456885c650?q=75&w=480&auto=format&fit=crop",
+      imageUrl_medium: "https://images.unsplash.com/photo-1448630360428-65456885c650?q=75&w=800&auto=format&fit=crop",
+      imageUrl_large: "https://images.unsplash.com/photo-1448630360428-65456885c650?q=75&w=1200&auto=format&fit=crop",
       gallery: [],
       status: { en: 'For Sale', ar: 'للبيع' },
       price: { en: 'EGP 3,200,000', ar: '3,200,000 ج.م' },
@@ -133,10 +134,10 @@ export let propertiesData: Property[] = [
     {
       id: 'land-heliopolis-4',
       partnerId: 'individual-listings',
-      imageUrl: "https://images.unsplash.com/photo-1555526244-4c3113576751?q=80&w=2070&auto=format&fit=crop",
-      imageUrl_small: "https://images.unsplash.com/photo-1555526244-4c3113576751?q=80&w=480&auto=format&fit=crop",
-      imageUrl_medium: "https://images.unsplash.com/photo-1555526244-4c3113576751?q=80&w=800&auto=format&fit=crop",
-      imageUrl_large: "https://images.unsplash.com/photo-1555526244-4c3113576751?q=80&w=1200&auto=format&fit=crop",
+      imageUrl: "https://images.unsplash.com/photo-1555526244-4c3113576751?q=75&w=2070&auto=format&fit=crop",
+      imageUrl_small: "https://images.unsplash.com/photo-1555526244-4c3113576751?q=75&w=480&auto=format&fit=crop",
+      imageUrl_medium: "https://images.unsplash.com/photo-1555526244-4c3113576751?q=75&w=800&auto=format&fit=crop",
+      imageUrl_large: "https://images.unsplash.com/photo-1555526244-4c3113576751?q=75&w=1200&auto=format&fit=crop",
       gallery: [],
       status: { en: 'For Sale', ar: 'للبيع' },
       price: { en: 'EGP 5,000,000', ar: '5,000,000 ج.م' },
@@ -166,7 +167,6 @@ export let propertiesData: Property[] = [
       listingStartDate: '2024-07-10',
       contactMethod: 'direct',
       ownerPhone: '01012345678',
-      // FIX: Added missing required property 'isInCompound'.
       isInCompound: false,
     }
 ];

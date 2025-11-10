@@ -1,7 +1,7 @@
 
+
 import React, { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { translations } from '../data/translations';
 import { CloseIcon } from './icons/Icons';
 import { useLanguage } from './shared/LanguageContext';
 
@@ -10,8 +10,8 @@ interface UpgradePlanModalProps {
 }
 
 const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ onClose }) => {
-    const { language } = useLanguage();
-    const t = translations[language].upgradePlanModal;
+    const { language, t } = useLanguage();
+    const t_modal = t.upgradePlanModal;
     const modalRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
@@ -45,20 +45,20 @@ const UpgradePlanModal: React.FC<UpgradePlanModalProps> = ({ onClose }) => {
                  <button onClick={onClose} className={`absolute top-4 ${language === 'ar' ? 'left-4' : 'right-4'} text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors z-10`}>
                     <CloseIcon className="h-6 w-6" />
                 </button>
-                <h2 className="text-2xl font-bold text-amber-500 mb-4">{t.title}</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">{t.message}</p>
+                <h2 className="text-2xl font-bold text-amber-500 mb-4">{t_modal.title}</h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">{t_modal.message}</p>
                 <div className="flex justify-center gap-4">
                      <button 
                         onClick={onClose}
                         className="px-6 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold"
                     >
-                        {t.closeButton}
+                        {t_modal.closeButton}
                     </button>
                     <button 
                         onClick={handleUpgrade}
                         className="bg-amber-500 text-gray-900 font-bold px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors"
                     >
-                        {t.upgradeButton}
+                        {t_modal.upgradeButton}
                     </button>
                 </div>
             </div>

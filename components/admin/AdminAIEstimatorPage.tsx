@@ -4,8 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray, Control, UseFormRegister, UseFormSetValue, UseFormGetValues } from 'react-hook-form';
 import { GoogleGenAI, Type } from "@google/genai";
 import type { AIEstimatorConfig, AIEstimatorStage, AIEstimatorItem } from '../../types';
-import { translations } from '../../data/translations';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../shared/ToastContext';
 import { getAIEstimatorConfig, updateAIEstimatorConfig } from '../../api/aiConfig';
 import { inputClasses } from '../shared/FormField';
@@ -192,12 +191,11 @@ const StageEditor: React.FC<{
 
 
 const AdminAIEstimatorPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.aiEstimatorSettings;
-    const { data: config, isLoading, refetch } = useApiQuery('aiEstimatorConfig', getAIEstimatorConfig);
+    const { language, t } = useLanguage();
+    const t_page = t.adminDashboard.aiEstimatorSettings;
+    const { data: config, isLoading, refetch } = useQuery({ queryKey: ['aiEstimatorConfig'], queryFn: getAIEstimatorConfig });
     const { showToast } = useToast();
 
-    // FIX: Destructure isSubmitting from formState to resolve 'Cannot find name' error.
     const { control, register, handleSubmit, reset, getValues, setValue, formState: { isSubmitting } } = useForm<AIEstimatorConfig>({
         defaultValues: { stages: [] }
     });
@@ -222,7 +220,7 @@ const AdminAIEstimatorPage: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.title}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_page.title}</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-8">Manage the pricing and items for the public cost estimator.</p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">

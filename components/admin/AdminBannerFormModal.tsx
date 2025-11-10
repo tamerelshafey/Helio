@@ -1,11 +1,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import type { Banner } from '../../types';
-import { translations } from '../../data/translations';
-import FormField, { inputClasses, selectClasses } from '../shared/FormField';
+import FormField from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { addBanner, updateBanner } from '../../api/banners';
 import { useLanguage } from '../shared/LanguageContext';
+import { Checkbox } from '../ui/Checkbox';
+import { Input } from '../ui/Input';
+import { Select } from '../ui/Select';
+import { Button } from '../ui/Button';
 
 interface AdminBannerFormModalProps {
     bannerToEdit?: Banner;
@@ -22,9 +25,9 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 const AdminBannerFormModal: React.FC<AdminBannerFormModalProps> = ({ bannerToEdit, onClose }) => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.manageBanners;
-    const t_shared = translations[language].adminShared;
+    const { language, t } = useLanguage();
+    const t_page = t.adminDashboard.manageBanners;
+    const t_shared = t.adminShared;
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
 
@@ -98,18 +101,18 @@ const AdminBannerFormModal: React.FC<AdminBannerFormModalProps> = ({ bannerToEdi
         <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={onClose}>
             <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-amber-500">{bannerToEdit ? t.editBanner : t.addBanner}</h3>
+                    <h3 className="text-xl font-bold text-amber-500">{bannerToEdit ? t_page.editBanner : t_page.addBanner}</h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="flex-grow contents">
                     <div className="flex-grow overflow-y-auto p-6 space-y-4">
-                        <FormField label={t.bannerTitle} id="title">
-                            <input name="title" value={formData.title} onChange={handleChange} className={inputClasses} required />
+                        <FormField label={t_page.bannerTitle} id="title">
+                            <Input name="title" value={formData.title} onChange={handleChange} required />
                         </FormField>
-                        <FormField label={t.bannerImage} id="image">
+                        <FormField label={t_page.bannerImage} id="image">
                             <div className="flex items-center gap-4">
                                 {imagePreview && <img src={imagePreview} alt="Preview" className="w-24 h-12 rounded-md object-cover border" />}
-                                <input type="file" id="image" accept="image/*" onChange={handleFileChange} className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`} required={!bannerToEdit} />
+                                <Input type="file" id="image" accept="image/*" onChange={handleFileChange} className="p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" required={!bannerToEdit} />
                             </div>
                             <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-md border border-gray-200 dark:border-gray-600">
                                 <h4 className="font-bold mb-1">{language === 'ar' ? 'الأبعاد الموصى بها (لأفضل النتائج):' : 'Recommended Dimensions (for best results):'}</h4>
@@ -120,42 +123,46 @@ const AdminBannerFormModal: React.FC<AdminBannerFormModalProps> = ({ bannerToEdi
                                 </ul>
                             </div>
                         </FormField>
-                        <FormField label={t.bannerLink} id="link">
-                            <input name="link" value={formData.link} placeholder="e.g., /properties" className={inputClasses} />
+                        <FormField label={t_page.bannerLink} id="link">
+                            <Input name="link" value={formData.link} placeholder="e.g., /properties" />
                         </FormField>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.displayLocations}</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t_page.displayLocations}</label>
                             <div className="flex flex-wrap gap-4">
                                 {locationOptions.map(loc => (
                                     <label key={loc} className="flex items-center gap-2">
-                                        <input type="checkbox" checked={formData.locations.includes(loc)} onChange={() => handleLocationChange(loc)} className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500" />
+                                        <Checkbox
+                                            checked={formData.locations.includes(loc)}
+                                            onCheckedChange={() => handleLocationChange(loc)}
+                                            id={`loc-${loc}`}
+                                        />
                                         <span className="capitalize">{loc}</span>
                                     </label>
                                 ))}
                             </div>
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             <FormField label={t.status} id="status">
-                                <select name="status" value={formData.status} onChange={handleChange} className={selectClasses}>
-                                    <option value="active">{t.active}</option>
-                                    <option value="inactive">{t.inactive}</option>
-                                </select>
+                             <FormField label={t_page.status} id="status">
+                                <Select name="status" value={formData.status} onChange={handleChange}>
+                                    <option value="active">{t_page.active}</option>
+                                    <option value="inactive">{t_page.inactive}</option>
+                                </Select>
                             </FormField>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField label={t.startDate} id="startDate">
-                                <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className={inputClasses} />
+                            <FormField label={t_page.startDate} id="startDate">
+                                <Input type="date" name="startDate" value={formData.startDate} onChange={handleChange} />
                             </FormField>
-                             <FormField label={t.endDate} id="endDate">
-                                <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className={inputClasses} />
+                             <FormField label={t_page.endDate} id="endDate">
+                                <Input type="date" name="endDate" value={formData.endDate} onChange={handleChange} />
                             </FormField>
                         </div>
                     </div>
                     <div className="p-4 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                        <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">{t_shared.cancel}</button>
-                        <button type="submit" disabled={loading} className="px-6 py-2 rounded-lg bg-amber-500 text-gray-900 font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50">
-                            {loading ? '...' : t_shared.save}
-                        </button>
+                        <Button type="button" variant="secondary" onClick={onClose}>{t_shared.cancel}</Button>
+                        <Button type="submit" isLoading={loading}>
+                            {t_shared.save}
+                        </Button>
                     </div>
                 </form>
             </div>

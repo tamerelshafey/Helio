@@ -1,11 +1,12 @@
+
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { Language, SubscriptionPlan, AdminPartner, PlanCategory } from '../../types';
-import { translations } from '../../data/translations';
 import { CloseIcon } from '../icons/Icons';
 import FormField, { selectClasses, inputClasses } from '../shared/FormField';
 import { getPlans } from '../../api/plans';
 import { updatePartnerAdmin } from '../../api/partners';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminPartnerEditModalProps {
@@ -15,10 +16,10 @@ interface AdminPartnerEditModalProps {
 }
 
 const AdminPartnerEditModal: React.FC<AdminPartnerEditModalProps> = ({ partner, onClose, onSave }) => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard;
-    const t_shared = translations[language].adminShared;
-    const { data: plans, isLoading: plansLoading } = useApiQuery('plans', getPlans);
+    const { language, t } = useLanguage();
+    const t_admin = t.adminDashboard;
+    const t_shared = t.adminShared;
+    const { data: plans, isLoading: plansLoading } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
     const modalRef = useRef<HTMLDivElement>(null);
 
     const [plan, setPlan] = useState<SubscriptionPlan>(partner.subscriptionPlan);
@@ -77,13 +78,13 @@ const AdminPartnerEditModal: React.FC<AdminPartnerEditModalProps> = ({ partner, 
             <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {t.editPartnerTitle}: {language === 'ar' ? partner.nameAr || partner.name : partner.name}
+                        {t_admin.editPartnerTitle}: {language === 'ar' ? partner.nameAr || partner.name : partner.name}
                     </h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
                 </div>
                 
                 <div className="p-6 overflow-y-auto space-y-6">
-                    <FormField label={t.changePlan} id="subscriptionPlan">
+                    <FormField label={t_admin.changePlan} id="subscriptionPlan">
                         <select
                             id="subscriptionPlan"
                             value={plan}
@@ -98,7 +99,7 @@ const AdminPartnerEditModal: React.FC<AdminPartnerEditModalProps> = ({ partner, 
                             ))}
                         </select>
                     </FormField>
-                    <FormField label={t.updateSubscription} id="subscriptionEndDate">
+                    <FormField label={t_admin.updateSubscription} id="subscriptionEndDate">
                         <input
                             type="date"
                             id="subscriptionEndDate"
@@ -109,32 +110,32 @@ const AdminPartnerEditModal: React.FC<AdminPartnerEditModalProps> = ({ partner, 
                     </FormField>
 
                     <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
-                        <legend className="text-lg font-semibold text-amber-500">{t.partnerTable.contactMethods}</legend>
+                        <legend className="text-lg font-semibold text-amber-500">{t_admin.partnerTable.contactMethods}</legend>
                         
                         <div className="space-y-3">
                             <label className="flex items-center gap-2 text-sm font-medium">
                                 <input type="checkbox" name="whatsapp.enabled" checked={contactMethods.whatsapp.enabled} onChange={handleContactMethodChange} className="h-4 w-4 rounded"/>
-                                {t.partnerTable.enableWhatsApp}
+                                {t_admin.partnerTable.enableWhatsApp}
                             </label>
                             {contactMethods.whatsapp.enabled && (
-                                <input type="text" name="whatsapp.number" value={contactMethods.whatsapp.number} onChange={handleContactMethodChange} placeholder={t.partnerTable.whatsAppNumber} className={inputClasses} />
+                                <input type="text" name="whatsapp.number" value={contactMethods.whatsapp.number} onChange={handleContactMethodChange} placeholder={t_admin.partnerTable.whatsAppNumber} className={inputClasses} />
                             )}
                         </div>
 
                          <div className="space-y-3">
                             <label className="flex items-center gap-2 text-sm font-medium">
                                 <input type="checkbox" name="phone.enabled" checked={contactMethods.phone.enabled} onChange={handleContactMethodChange} className="h-4 w-4 rounded"/>
-                                {t.partnerTable.enablePhone}
+                                {t_admin.partnerTable.enablePhone}
                             </label>
                             {contactMethods.phone.enabled && (
-                                <input type="text" name="phone.number" value={contactMethods.phone.number} onChange={handleContactMethodChange} placeholder={t.partnerTable.phoneNumber} className={inputClasses} />
+                                <input type="text" name="phone.number" value={contactMethods.phone.number} onChange={handleContactMethodChange} placeholder={t_admin.partnerTable.phoneNumber} className={inputClasses} />
                             )}
                         </div>
                         
                          <div className="space-y-3">
                             <label className="flex items-center gap-2 text-sm font-medium">
                                 <input type="checkbox" name="form.enabled" checked={contactMethods.form.enabled} onChange={handleContactMethodChange} className="h-4 w-4 rounded"/>
-                                {t.partnerTable.enableForm}
+                                {t_admin.partnerTable.enableForm}
                             </label>
                         </div>
                     </fieldset>

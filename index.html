@@ -21,35 +21,7 @@
     <meta property="twitter:description" content="An integrated portal for modern living in New Heliopolis, offering real estate services, interior design, finishing, and decorations.">
     <meta property="twitter:image" content="https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=1200&auto=format&fit=crop">
 
-    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      // Configure Tailwind CSS
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              primary: {
-                '50': '#fffbeb',
-                '100': '#fef3c7',
-                '200': '#fde68a',
-                '300': '#fcd34d',
-                '400': '#fbbf24',
-                '500': '#f59e0b',
-                '600': '#d97706',
-                '700': '#b45309',
-                '800': '#92400e',
-                '900': '#78350f',
-                '950': '#451a03',
-              },
-            },
-            fontFamily: {
-              sans: ['Tajawal', 'sans-serif'],
-            },
-          }
-        }
-      };
-      
       // Prevents "flash of incorrect theme" on page load.
       (function() {
         const theme = localStorage.getItem('theme');
@@ -65,6 +37,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://images.unsplash.com">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script>
+      window.tailwind = {
+        config: {
+          darkMode: 'class',
+          theme: {
+            extend: {},
+          },
+          plugins: [],
+        },
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/index.css" />
 <script type="importmap">
 {
@@ -75,6 +59,8 @@
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react-hook-form": "https://aistudiocdn.com/react-hook-form@^7.66.0",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0",
+    "@tanstack/react-query": "https://aistudiocdn.com/@tanstack/react-query@^5.51.11",
+    "@tanstack/react-query-devtools": "https://aistudiocdn.com/@tanstack/react-query-devtools@^5.51.11",
     "chart.js": "https://aistudiocdn.com/chart.js@^4.5.1",
     "react-chartjs-2": "https://aistudiocdn.com/react-chartjs-2@^5.3.1",
     "jspdf": "https://aistudiocdn.com/jspdf@^3.0.3",

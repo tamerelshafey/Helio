@@ -1,31 +1,6 @@
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./**/*.tsx", // Scan all tsx files in all folders
-  ],
-  darkMode: 'class',
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          '50': '#fffbeb',
-          '100': '#fef3c7',
-          '200': '#fde68a',
-          '300': '#fcd34d',
-          '400': '#fbbf24',
-          '500': '#f59e0b',
-          '600': '#d97706',
-          '700': '#b45309',
-          '800': '#92400e',
-          '900': '#78350f',
-          '950': '#451a03',
-        },
-      },
-      fontFamily: {
-        sans: ['Tajawal', 'sans-serif'],
-      },
-    }
-  },
-  plugins: [],
-}
+
+// This file is empty because the Tailwind CSS configuration is currently
+// being handled directly within a <script> tag in `index.html`.
+// The project uses the Tailwind CDN, which allows for this type of setup.
+// For a production build process, it would be standard to populate this file
+// and use PostCSS to compile the styles.

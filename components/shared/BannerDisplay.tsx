@@ -1,10 +1,12 @@
 
+
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Banner } from '../../types';
 import { getAllBanners } from '../../api/banners';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons';
-import { useApiQuery } from './useApiQuery';
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from './LanguageContext';
 
 interface BannerDisplayProps {
@@ -13,7 +15,7 @@ interface BannerDisplayProps {
 
 const BannerDisplay: React.FC<BannerDisplayProps> = ({ location }) => {
     const { language } = useLanguage();
-    const { data: banners, isLoading: loading } = useApiQuery('banners', getAllBanners);
+    const { data: banners, isLoading: loading } = useQuery({ queryKey: ['banners'], queryFn: getAllBanners });
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const activeBanners = useMemo(() => {

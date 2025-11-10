@@ -1,12 +1,11 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem, Property, AdminPartner, Project } from '../types';
-import { translations } from '../data/translations';
 import Lightbox from './shared/Lightbox';
 import PropertyCard from './shared/PropertyCard';
 import { getPortfolioByPartnerId } from '../api/portfolio';
 import { getPropertiesByPartnerId } from '../api/properties';
-import { useApiQuery } from './shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getPartnerById } from '../api/partners';
 import { useLanguage } from './shared/LanguageContext';
 
@@ -37,20 +36,19 @@ const PartnerProfileSkeleton: React.FC = () => (
 
 const PartnerProfilePage: React.FC = () => {
     const { partnerId } = useParams<{ partnerId: string }>();
-    const { language } = useLanguage();
-    const t = translations[language];
+    const { language, t } = useLanguage();
     const navigate = useNavigate();
 
-    const { data: partnerInfo, isLoading: isLoadingPartner } = useApiQuery(`partner-${partnerId}`, () => getPartnerById(partnerId!), { enabled: !!partnerId });
-    const { data: partnerPortfolio, isLoading: isLoadingPortfolio } = useApiQuery(`partnerPortfolio-${partnerId}`, () => getPortfolioByPartnerId(partnerId!), { enabled: !!partnerId });
-    const { data: partnerProperties, isLoading: isLoadingProperties } = useApiQuery(`partnerProperties-${partnerId}`, () => getPropertiesByPartnerId(partnerId!), { enabled: !!partnerId });
+    const { data: partnerInfo, isLoading: isLoadingPartner } = useQuery({ queryKey: [`partner-${partnerId}`], queryFn: () => getPartnerById(partnerId!), enabled: !!partnerId });
+    const { data: partnerPortfolio, isLoading: isLoadingPortfolio } = useQuery({ queryKey: [`partnerPortfolio-${partnerId}`], queryFn: () => getPortfolioByPartnerId(partnerId!), enabled: !!partnerId });
+    const { data: partnerProperties, isLoading: isLoadingProperties } = useQuery({ queryKey: [`partnerProperties-${partnerId}`], queryFn: () => getPropertiesByPartnerId(partnerId!), enabled: !!partnerId });
 
     const loading = isLoadingPartner || isLoadingPortfolio || isLoadingProperties;
 
     const localizedPartner = useMemo(() => {
         if (!partnerInfo) return null;
-        return translations[language].partnerInfo[partnerInfo.id] || null;
-    }, [partnerInfo, language]);
+        return t.partnerInfo[partnerInfo.id] || null;
+    }, [partnerInfo, t]);
 
 
     const [lightboxState, setLightboxState] = useState({

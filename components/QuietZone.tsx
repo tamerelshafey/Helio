@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Language } from '../types';
 import { CloseIcon } from './icons/Icons';
-import { useApiQuery } from './shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getContent } from '../api/content';
 import { useLanguage } from './shared/LanguageContext';
+import { Button } from './ui/Button';
 
 interface QuietZoneProps {
   onClose: () => void;
@@ -11,7 +12,7 @@ interface QuietZoneProps {
 
 const QuietZone: React.FC<QuietZoneProps> = ({ onClose }) => {
   const { language } = useLanguage();
-  const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
+  const { data: siteContent, isLoading } = useQuery({ queryKey: ['siteContent'], queryFn: getContent });
   const [currentQuote, setCurrentQuote] = useState({ quote: '', author: '' });
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -81,13 +82,15 @@ const QuietZone: React.FC<QuietZoneProps> = ({ onClose }) => {
         className="relative w-full max-w-3xl p-12 rounded-2xl shadow-2xl bg-white dark:bg-gray-800 flex flex-col items-center text-center overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={onClose}
-          className="absolute top-6 right-6 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors z-10"
+          className="absolute top-4 right-4 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white z-10"
           aria-label="Close Quiet Zone"
         >
-          <CloseIcon className="h-7 w-7" />
-        </button>
+          <CloseIcon className="h-6 w-6" />
+        </Button>
 
         <blockquote className="relative">
           {isLoading ? (

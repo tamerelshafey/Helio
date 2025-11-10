@@ -1,15 +1,15 @@
 
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon } from './icons/Icons';
 import type { Property, Language } from '../types';
-import { translations } from '../data/translations';
 import { useFavorites } from './shared/FavoritesContext';
 import Lightbox from './shared/Lightbox';
 import { isCommercial } from '../utils/propertyUtils';
 import BannerDisplay from './shared/BannerDisplay';
 import { getPropertyById } from '../api/properties';
-import { useApiQuery } from './shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import DetailItem from './shared/DetailItem';
 import ContactOptionsModal from './shared/ContactOptionsModal';
 import { useToast } from './shared/ToastContext';
@@ -24,28 +24,27 @@ import PropertyDetailsSkeleton from './shared/PropertyDetailsSkeleton';
 
 const PropertyDetailsPage: React.FC = () => {
     const { propertyId } = useParams<{ propertyId: string }>();
-    const { language } = useLanguage();
-    const t = translations[language];
+    const { language, t } = useLanguage();
     const navigate = useNavigate();
     const { showToast } = useToast();
     
     const fetchProperty = useCallback(() => getPropertyById(propertyId!), [propertyId]);
 
-    const { data: property, isLoading: isLoadingProperty } = useApiQuery(`property-${propertyId}`, fetchProperty, { enabled: !!propertyId });
+    const { data: property, isLoading: isLoadingProperty } = useQuery({ queryKey: [`property-${propertyId}`], queryFn: fetchProperty, enabled: !!propertyId });
     
-    const { data: project, isLoading: isLoadingProjs } = useApiQuery(
-        `project-${property?.projectId}`,
-        () => getProjectById(property!.projectId!),
-        { enabled: !!property?.projectId }
-    );
+    const { data: project, isLoading: isLoadingProjs } = useQuery({
+        queryKey: [`project-${property?.projectId}`],
+        queryFn: () => getProjectById(property!.projectId!),
+        enabled: !!property?.projectId,
+    });
 
-    const { data: partner, isLoading: isLoadingPartners } = useApiQuery(
-        `partner-${property?.partnerId}`,
-        () => getPartnerById(property!.partnerId!),
-        { enabled: !!property?.partnerId }
-    );
+    const { data: partner, isLoading: isLoadingPartners } = useQuery({
+        queryKey: [`partner-${property?.partnerId}`],
+        queryFn: () => getPartnerById(property!.partnerId!),
+        enabled: !!property?.partnerId,
+    });
     
-    const { data: amenities, isLoading: isLoadingAmenities } = useApiQuery('amenities', getAllAmenities);
+    const { data: amenities, isLoading: isLoadingAmenities } = useQuery({ queryKey: ['amenities'], queryFn: getAllAmenities });
 
     const isLoading = isLoadingProperty || isLoadingProjs || isLoadingAmenities || isLoadingPartners;
     
@@ -243,14 +242,23 @@ const PropertyDetailsPage: React.FC = () => {
                                     className="w-full block"
                                     aria-label={language === 'ar' ? `عرض صورة مكبرة لـ ${property.title[language]}` : `View larger image of ${property.title[language]}`}
                                 >
-                                    <img 
-                                        src={mainImage}
-                                        srcSet={isDefaultImage ? `${property.imageUrl_small} 480w, ${property.imageUrl_medium} 800w, ${property.imageUrl_large || property.imageUrl} 1200w` : undefined}
-                                        sizes={isDefaultImage ? "(max-width: 1024px) 90vw, 60vw" : undefined}
-                                        alt={property.title[language]} 
-                                        className="w-full h-[500px] object-cover rounded-lg shadow-lg hover:opacity-90 transition-opacity"
-                                        loading="lazy"
-                                    />
+                                    <picture>
+                                        {isDefaultImage && property.imageUrl_small && (
+                                            <source
+                                                type="image/webp"
+                                                srcSet={`${property.imageUrl_small}&fm=webp 480w, ${property.imageUrl_medium}&fm=webp 800w, ${property.imageUrl_large || property.imageUrl}&fm=webp 1200w`}
+                                                sizes="(max-width: 1024px) 90vw, 60vw"
+                                            />
+                                        )}
+                                        <img 
+                                            src={mainImage}
+                                            srcSet={isDefaultImage ? `${property.imageUrl_small} 480w, ${property.imageUrl_medium} 800w, ${property.imageUrl_large || property.imageUrl} 1200w` : undefined}
+                                            sizes={isDefaultImage ? "(max-width: 1024px) 90vw, 60vw" : undefined}
+                                            alt={property.title[language]} 
+                                            className="w-full h-[500px] object-cover rounded-lg shadow-lg hover:opacity-90 transition-opacity"
+                                            loading="lazy"
+                                        />
+                                    </picture>
                                 </button>
                                 <span className={`absolute top-4 ${language === 'ar' ? 'right-4' : 'left-4'} text-white font-semibold px-4 py-2 rounded-md text-base ${isForSale ? 'bg-green-600' : 'bg-sky-600'}`}>
                                   {property.status[language]}

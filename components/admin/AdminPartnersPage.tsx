@@ -1,19 +1,18 @@
 
-
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { PartnerStatus, SubscriptionPlan, AdminPartner, PartnerType } from '../../types';
-import { translations } from '../../data/translations';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import AdminPartnerEditModal from './AdminPartnerEditModal';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../../api/partners';
 import { getAllProperties } from '../../api/properties';
 import { getAllPortfolioItems } from '../../api/portfolio';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';
 import { useLanguage } from '../shared/LanguageContext';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
 
 const statusColors: { [key in PartnerStatus]: string } = {
     active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
@@ -30,15 +29,15 @@ interface AdminPartnersPageProps {
 const ITEMS_PER_PAGE = 10;
 
 const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ filterOptions }) => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard;
-    const t_shared = translations[language].adminShared;
+    const { language, t } = useLanguage();
+    const t_admin = t.adminDashboard;
+    const t_shared = t.adminShared;
     const [searchParams, setSearchParams] = useSearchParams();
     const tableRef = useRef<HTMLTableElement>(null);
     
-    const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
-    const { data: properties, isLoading: isLoadingProperties, refetch: refetchProperties } = useApiQuery('allProperties', getAllProperties);
-    const { data: portfolio, isLoading: isLoadingPortfolio, refetch: refetchPortfolio } = useApiQuery('allPortfolioItems', getAllPortfolioItems);
+    const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
+    const { data: properties, isLoading: isLoadingProperties, refetch: refetchProperties } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
+    const { data: portfolio, isLoading: isLoadingPortfolio, refetch: refetchPortfolio } = useQuery({ queryKey: ['allPortfolioItems'], queryFn: getAllPortfolioItems });
     const isLoading = isLoadingPartners || isLoadingProperties || isLoadingPortfolio;
     const refetchAll = useCallback(() => {
         refetchPartners();
@@ -51,8 +50,9 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ filterOptions }) 
     const [selectedPartners, setSelectedPartners] = useState<string[]>([]);
 
     const partnersWithUsage = useMemo(() => {
+        const partnerTypesToShow: PartnerType[] = ['developer', 'agency', 'finishing'];
         return (partners || [])
-            .filter(p => p.type !== 'admin')
+            .filter(p => partnerTypesToShow.includes(p.type))
             .map(partner => {
                 const usageCount = (() => {
                     switch(partner.type) {
@@ -144,8 +144,8 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ filterOptions }) 
         setSelectedPartners(e.target.checked ? paginatedPartners.map(p => p.id) : []);
     };
     
-    const partnerTypes = t.partnerTypes;
-    const partnerStatuses = t.partnerStatuses;
+    const partnerTypes = t_admin.partnerTypes;
+    const partnerStatuses = t_admin.partnerStatuses;
     const subscriptionPlans = ['basic', 'professional', 'elite', 'commission'];
 
     return (
@@ -157,72 +157,67 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ filterOptions }) 
                     onSave={refetchAll}
                 />
             )}
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.partnersTitle}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">{t.partnersSubtitle}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_admin.partnersTitle}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">{t_admin.partnersSubtitle}</p>
             
             <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                  <input
                     type="text"
-                    placeholder={t.filter.searchByNameOrEmail}
+                    placeholder={t_admin.filter.searchByNameOrEmail}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={inputClasses + " lg:col-span-2"}
                 />
                 {!filterOptions?.type && (
                      <select value={filters.type || 'all'} onChange={(e) => setFilter('type', e.target.value)} className={selectClasses}>
-                        <option value="all">{t.filter.filterByType} ({t.filter.all})</option>
-                        {Object.entries(partnerTypes).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
+                        <option value="all">{t_admin.filter.filterByType} ({t_admin.filter.all})</option>
+                        {Object.entries(partnerTypes).filter(([key]) => ['developer', 'agency', 'finishing'].includes(key)).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
                     </select>
                 )}
                 <select value={filters.status || 'all'} onChange={(e) => setFilter('status', e.target.value)} className={selectClasses}>
-                    <option value="all">{t.filter.filterByStatus} ({t.filter.all})</option>
+                    <option value="all">{t_admin.filter.filterByStatus} ({t_admin.filter.all})</option>
                     {Object.entries(partnerStatuses).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
                 </select>
                 <select value={filters.plan || 'all'} onChange={(e) => setFilter('plan', e.target.value)} className={selectClasses}>
-                    <option value="all">{t.filter.filterByPlan} ({t.filter.all})</option>
+                    <option value="all">{t_admin.filter.filterByPlan} ({t_admin.filter.all})</option>
                     {subscriptionPlans.map(plan => <option key={plan} value={plan} className="capitalize">{plan}</option>)}
                 </select>
-                <select value={filters.displayType || 'all'} onChange={(e) => setFilter('displayType', e.target.value)} className={selectClasses}>
-                    <option value="all">{t.filter.filterByDisplayType} ({t.filter.all})</option>
-                    {Object.entries(t.partnerDisplayTypes).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
+                 <select value={filters.displayType || 'all'} onChange={(e) => setFilter('displayType', e.target.value)} className={selectClasses}>
+                    <option value="all">{t_admin.filter.filterByDisplayType} ({t_admin.filter.all})</option>
+                    {Object.entries(t_admin.partnerDisplayTypes).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
                 </select>
             </div>
             
-             <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table ref={tableRef} className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0">
-                            <tr>
-                                <th scope="col" className="p-4">
-                                    <input type="checkbox" onChange={handleSelectAll} checked={paginatedPartners.length > 0 && selectedPartners.length === paginatedPartners.length} ref={input => { if (input) input.indeterminate = selectedPartners.length > 0 && selectedPartners.length < paginatedPartners.length }} />
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort(language === 'ar' ? 'nameAr' : 'name')}>
-                                    <div className="flex items-center">{t.partnerTable.partner}{getSortIcon(language === 'ar' ? 'nameAr' : 'name')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('type')}>
-                                    <div className="flex items-center">{t.partnerTable.type}{getSortIcon('type')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
-                                    <div className="flex items-center">{t.partnerTable.status}{getSortIcon('status')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('subscriptionPlan')}>
-                                    <div className="flex items-center">{t.partnerTable.planUsage}{getSortIcon('subscriptionPlan')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3">{t.partnerTable.actions}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {isLoading ? (
-                                <tr><td colSpan={6} className="text-center p-8">Loading partners...</td></tr>
-                            ) : paginatedPartners.length > 0 ? (
-                                paginatedPartners.map(partner => {
-                                    const limit = getPlanLimit(partner.type, partner.subscriptionPlan, 'properties'); // simplified
-                                    return (
-                                    <tr key={partner.id} data-partner-id={partner.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="w-4 p-4">
-                                            <input type="checkbox" checked={selectedPartners.includes(partner.id)} onChange={() => handleSelect(partner.id)} />
-                                        </td>
-                                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <Table ref={tableRef}>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="p-4">
+                                <input type="checkbox" onChange={handleSelectAll} checked={paginatedPartners.length > 0 && selectedPartners.length === paginatedPartners.length} ref={input => { if (input) input.indeterminate = selectedPartners.length > 0 && selectedPartners.length < paginatedPartners.length }} />
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('name')}>{t_admin.partnerTable.partner}{getSortIcon('name')}</TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('type')}>{t_admin.partnerTable.type}{getSortIcon('type')}</TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('status')}>{t_admin.partnerTable.status}{getSortIcon('status')}</TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('subscriptionPlan')}>{t_admin.partnerTable.subscriptionPlan}{getSortIcon('subscriptionPlan')}</TableHead>
+                            <TableHead>{t_admin.partnerTable.planUsage}</TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('subscriptionEndDate')}>{t_admin.partnerTable.subscriptionEndDate}{getSortIcon('subscriptionEndDate')}</TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('displayType')}>{t_admin.partnerTable.displayType}{getSortIcon('displayType')}</TableHead>
+                            <TableHead>{t_admin.partnerTable.actions}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            <TableRow><TableCell colSpan={9} className="text-center p-8">Loading partners...</TableCell></TableRow>
+                        ) : paginatedPartners.length > 0 ? (
+                            paginatedPartners.map(partner => {
+                                const limitType = partner.type === 'finishing' ? 'portfolio' : (partner.type === 'developer' ? 'units' : 'properties');
+                                const limit = getPlanLimit(partner.type, partner.subscriptionPlan, limitType);
+                                return (
+                                    <TableRow key={partner.id} data-partner-id={partner.id}>
+                                        <TableCell className="p-4">
+                                             <input type="checkbox" checked={selectedPartners.includes(partner.id)} onChange={() => handleSelect(partner.id)} />
+                                        </TableCell>
+                                        <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                             <div className="flex items-center gap-3">
                                                 <img src={partner.imageUrl} alt={partner.name} className="w-10 h-10 object-cover rounded-full" />
                                                 <div>
@@ -230,33 +225,30 @@ const AdminPartnersPage: React.FC<AdminPartnersPageProps> = ({ filterOptions }) 
                                                     <div className="text-xs text-gray-500">{partner.email}</div>
                                                 </div>
                                             </div>
-                                        </th>
-                                        <td className="px-6 py-4">{partnerTypes[partner.type as keyof typeof partnerTypes] || partner.type}</td>
-                                        <td className="px-6 py-4">
+                                        </TableCell>
+                                        <TableCell>{partnerTypes[partner.type as keyof typeof partnerTypes] || partner.type}</TableCell>
+                                        <TableCell>
                                             <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColors[partner.status]}`}>
                                                 {partnerStatuses[partner.status as keyof typeof partnerStatuses] || partner.status}
                                             </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-xs">
-                                            <div className="capitalize">{partner.subscriptionPlan}</div>
-                                            <div>{partner.usageCount} / {limit === Infinity ? '∞' : limit}</div>
-                                        </td>
-                                        <td className="px-6 py-4 space-x-2 whitespace-nowrap">
-                                            <button onClick={() => handleEditClick(partner)} className="font-medium text-amber-600 dark:text-amber-500 text-sm hover:underline">
-                                                {t_shared.edit}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                )})
-                            ) : (
-                                <tr><td colSpan={6} className="text-center p-8">No partners found.</td></tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                        </TableCell>
+                                        <TableCell className="capitalize">{partner.subscriptionPlan}</TableCell>
+                                        <TableCell>{limit === Infinity ? '∞' : `${partner.usageCount} / ${limit}`}</TableCell>
+                                        <TableCell>{partner.subscriptionEndDate ? new Date(partner.subscriptionEndDate).toLocaleDateString(language) : 'N/A'}</TableCell>
+                                        <TableCell>{t_admin.partnerDisplayTypes[partner.displayType as keyof typeof t_admin.partnerDisplayTypes] || partner.displayType}</TableCell>
+                                        <TableCell className="space-x-4 whitespace-nowrap">
+                                            <button onClick={() => handleEditClick(partner)} className="font-medium text-amber-600 dark:text-amber-500 hover:underline">{t_shared.edit}</button>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })
+                        ) : (
+                            <TableRow><TableCell colSpan={9} className="text-center p-8">No partners found.</TableCell></TableRow>
+                        )}
+                    </TableBody>
+                </Table>
                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
-
         </div>
     );
 };

@@ -1,7 +1,8 @@
 
+
+
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import type { Language, SubscriptionPlan, SubscriptionPlanDetails } from '../../types';
-import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import { CheckCircleIcon } from '../icons/Icons';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
@@ -13,9 +14,10 @@ const PlanCard: React.FC<{
     plan: SubscriptionPlanDetails,
     isCurrent: boolean,
     isUpgradeOption: boolean,
-    language: Language
-}> = ({ planKey, plan, isCurrent, isUpgradeOption, language }) => {
-    const t = translations[language].dashboardSubscription;
+    language: Language,
+    t: any
+}> = ({ planKey, plan, isCurrent, isUpgradeOption, language, t }) => {
+    const t_sub = t.dashboardSubscription;
 
     const handleUpgrade = () => {
         alert('Upgrade functionality is coming soon!');
@@ -27,7 +29,7 @@ const PlanCard: React.FC<{
             ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-900/20' 
             : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50'
         }`}>
-             {isCurrent && <div className="text-center mb-4 text-sm font-bold text-amber-600 dark:text-amber-400">{t.yourCurrentPlan}</div>}
+             {isCurrent && <div className="text-center mb-4 text-sm font-bold text-amber-600 dark:text-amber-400">{t_sub.yourCurrentPlan}</div>}
             <h3 className="text-2xl font-bold text-amber-600 dark:text-amber-400">{plan.name}</h3>
             <p className="text-3xl font-extrabold text-gray-900 dark:text-white my-4">{plan.price}</p>
             <p className="text-gray-500 dark:text-gray-400 mb-6 flex-grow">{plan.description}</p>
@@ -46,7 +48,7 @@ const PlanCard: React.FC<{
                     onClick={handleUpgrade}
                     className="w-full font-bold py-3 rounded-lg mt-auto bg-amber-500 text-gray-900 hover:bg-amber-600 transition-colors"
                 >
-                    {translations[language].dashboard.upgradePlan}
+                    {t.dashboard.upgradePlan}
                 </button>
             )}
         </div>
@@ -54,8 +56,8 @@ const PlanCard: React.FC<{
 };
 
 const DashboardSubscriptionPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].dashboardSubscription;
+    const { language, t } = useLanguage();
+    const t_sub = t.dashboardSubscription;
     const { currentUser } = useAuth();
     
     const usageType = useMemo(() => {
@@ -72,14 +74,14 @@ const DashboardSubscriptionPage: React.FC = () => {
 
     const usageLabel = useMemo(() => {
         if (!currentUser || !('type' in currentUser)) return '';
-        const t_home = translations[language].dashboardHome;
+        const t_home = t.dashboardHome;
         switch (currentUser.type) {
             case 'finishing': return t_home.totalPortfolio;
-            case 'agency': return t.propertiesListed;
+            case 'agency': return t_sub.propertiesListed;
             case 'developer': return t_home.totalUnits;
-            default: return t.propertiesListed;
+            default: return t_sub.propertiesListed;
         }
-    }, [currentUser, language, t.propertiesListed]);
+    }, [currentUser, language, t_sub.propertiesListed, t.dashboardHome]);
 
     if (!currentUser || isLoading || !('type' in currentUser)) {
         return <div>Loading...</div>;
@@ -90,7 +92,7 @@ const DashboardSubscriptionPage: React.FC = () => {
         return <div>Subscription management is not available for your account type.</div>;
     }
     
-    const plansForCurrentUserType = translations[language].subscriptionPlans[planCategory];
+    const plansForCurrentUserType = t.subscriptionPlans[planCategory];
     const currentPlanKey = currentUser.subscriptionPlan;
     const currentPlanDetails = plansForCurrentUserType[currentPlanKey as keyof typeof plansForCurrentUserType];
     
@@ -107,12 +109,12 @@ const DashboardSubscriptionPage: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.title}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">{t.subtitle}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_sub.title}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">{t_sub.subtitle}</p>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-1">
-                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t.currentPlanTitle}</h2>
+                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t_sub.currentPlanTitle}</h2>
                      {currentPlanDetails ? (
                         <PlanCard
                             planKey={currentPlanKey}
@@ -120,6 +122,7 @@ const DashboardSubscriptionPage: React.FC = () => {
                             isCurrent={true}
                             isUpgradeOption={false}
                             language={language}
+                            t={t}
                         />
                     ) : (
                         <div className="border-2 border-red-500 bg-red-50/50 dark:bg-red-900/20 p-6 rounded-lg text-center">
@@ -131,7 +134,7 @@ const DashboardSubscriptionPage: React.FC = () => {
                     )}
                 </div>
                 <div className="lg:col-span-2">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t.usageTitle}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t_sub.usageTitle}</h2>
                     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center mb-2">
                             <span className="font-semibold text-gray-700 dark:text-gray-300">{usageLabel}</span>
@@ -149,7 +152,7 @@ const DashboardSubscriptionPage: React.FC = () => {
                     
                     {upgradeOptions.length > 0 && (
                         <>
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-10 mb-4">{t.upgradeOptionsTitle}</h2>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-10 mb-4">{t_sub.upgradeOptionsTitle}</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {upgradeOptions.map(planKey => (
                                     <PlanCard
@@ -159,6 +162,7 @@ const DashboardSubscriptionPage: React.FC = () => {
                                         isCurrent={false}
                                         isUpgradeOption={true}
                                         language={language}
+                                        t={t}
                                     />
                                 ))}
                             </div>

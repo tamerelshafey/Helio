@@ -1,26 +1,26 @@
+
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import type { Language } from '../types';
-import { translations } from '../data/translations';
 import FormField, { inputClasses, selectClasses } from './shared/FormField';
 import { addLead } from '../api/leads';
 import { HelioLogo } from './HelioLogo';
 import { useToast } from './shared/ToastContext';
-import { useApiQuery } from './shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../api/partners';
 import { useLanguage } from './shared/LanguageContext';
 
 const ServiceRequestPage: React.FC = () => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const location = useLocation();
     const navigate = useNavigate();
-    const t_modal = translations[language].serviceRequestModal;
-    const t_decor_modal = translations[language].decorationRequestModal;
-    const t_custom_decor_modal = translations[language].customDecorationRequestModal;
-    const t_decor = translations[language].decorationsPage;
+    const t_modal = t.serviceRequestModal;
+    const t_decor_modal = t.decorationRequestModal;
+    const t_custom_decor_modal = t.customDecorationRequestModal;
+    const t_decor = t.decorationsPage;
 
     const { serviceTitle, partnerId, propertyId, workItem, isCustom, serviceType } = location.state || {};
-    const { data: allPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { data: allPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
     const { showToast } = useToast();
     
     const [formData, setFormData] = useState({

@@ -1,10 +1,10 @@
 
+
 import React from 'react';
 import type { SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../types';
-import { translations } from '../data/translations';
 import { CheckCircleIcon } from './icons/Icons';
 import { getPlans } from '../api/plans';
-import { useApiQuery } from './shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from './shared/LanguageContext';
 
 interface SubscriptionPlanSelectorProps {
@@ -14,9 +14,9 @@ interface SubscriptionPlanSelectorProps {
 }
 
 const SubscriptionPlanSelector: React.FC<SubscriptionPlanSelectorProps> = ({ selectedPlan, onSelectPlan, partnerType }) => {
-    const { language } = useLanguage();
-    const t = translations[language].subscriptionPlans;
-    const { data: allPlans, isLoading: loading } = useApiQuery('plans', getPlans);
+    const { language, t } = useLanguage();
+    const t_plans = t.subscriptionPlans;
+    const { data: allPlans, isLoading: loading } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
 
     if (loading || !allPlans || !allPlans[partnerType]) {
         return <div className="text-center p-8">Loading plans...</div>;
@@ -26,7 +26,7 @@ const SubscriptionPlanSelector: React.FC<SubscriptionPlanSelectorProps> = ({ sel
 
     return (
         <div>
-            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-10">{t.title}</h2>
+            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-10">{t_plans.title}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {(Object.keys(plansForType) as (keyof typeof plansForType)[]).map(planKey => {
                     const plan = (plansForType as any)[planKey][language];
@@ -64,7 +64,7 @@ const SubscriptionPlanSelector: React.FC<SubscriptionPlanSelectorProps> = ({ sel
                                     : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-amber-500 hover:text-gray-900'
                                 }`}
                             >
-                                {t.selectButton}
+                                {t_plans.selectButton}
                             </button>
                         </div>
                     );

@@ -1,7 +1,7 @@
 
+
 import React, { useEffect, useRef, useState } from 'react';
 import type { Language, PartnerRequest } from '../../types';
-import { translations } from '../../data/translations';
 import { CloseIcon } from '../icons/Icons';
 import { addPartner } from '../../api/partners';
 import { updatePartnerRequestStatus } from '../../api/partnerRequests';
@@ -30,8 +30,9 @@ const DetailItem: React.FC<{ label: string; value?: string | React.ReactNode }> 
 );
 
 const AdminPartnerRequestModal: React.FC<AdminPartnerRequestModalProps> = ({ request, onClose, onSave }) => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.adminRequests;
+    const { language, t } = useLanguage();
+    const t_req = t.adminDashboard.adminRequests;
+    const t_form = t.partnerRequestForm;
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
 
@@ -69,41 +70,41 @@ const AdminPartnerRequestModal: React.FC<AdminPartnerRequestModalProps> = ({ req
             <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {t.table.details}: {request.companyName}
+                        {t_req.table.details}: {request.companyName}
                     </h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
                 </div>
                 
                 <div className="p-6 overflow-y-auto">
-                    <DetailSection title={t.table.companyInfo}>
+                    <DetailSection title={t_req.table.companyInfo}>
                         <div className="flex items-start gap-4">
                             <img src={request.logo} alt={`${request.companyName} logo`} className="w-20 h-20 rounded-full object-cover border"/>
                             <div className="flex-grow space-y-1">
-                                <DetailItem label={translations[language].partnerRequestForm.companyName} value={request.companyName} />
-                                <DetailItem label={translations[language].partnerRequestForm.companyType} value={request.companyType} />
-                                <DetailItem label={translations[language].partnerRequestForm.companyAddress} value={request.companyAddress} />
-                                <DetailItem label={translations[language].partnerRequestForm.website} value={request.website ? <a href={request.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{request.website}</a> : '-'} />
-                                <DetailItem label={translations[language].partnerRequestForm.companyDescription} value={request.description} />
+                                <DetailItem label={t_form.companyName} value={request.companyName} />
+                                <DetailItem label={t_form.companyType} value={request.companyType} />
+                                <DetailItem label={t_form.companyAddress} value={request.companyAddress} />
+                                <DetailItem label={t_form.website} value={request.website ? <a href={request.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{request.website}</a> : '-'} />
+                                <DetailItem label={t_form.companyDescription} value={request.description} />
                             </div>
                         </div>
                     </DetailSection>
 
-                    <DetailSection title={t.table.primaryContact}>
-                        <DetailItem label={translations[language].partnerRequestForm.contactName} value={request.contactName} />
-                        <DetailItem label={translations[language].partnerRequestForm.contactEmail} value={request.contactEmail} />
-                        <DetailItem label={translations[language].partnerRequestForm.contactPhone} value={request.contactPhone} />
+                    <DetailSection title={t_req.table.primaryContact}>
+                        <DetailItem label={t_form.contactName} value={request.contactName} />
+                        <DetailItem label={t_form.contactEmail} value={request.contactEmail} />
+                        <DetailItem label={t_form.contactPhone} value={request.contactPhone} />
                     </DetailSection>
 
                     {request.managementContacts.length > 0 && (
-                        <DetailSection title={t.table.managementContacts}>
+                        <DetailSection title={t_req.table.managementContacts}>
                            <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead className="text-left">
                                         <tr>
-                                            <th className="py-1">{translations[language].partnerRequestForm.managementName}</th>
-                                            <th className="py-1">{translations[language].partnerRequestForm.managementPosition}</th>
-                                            <th className="py-1">{translations[language].partnerRequestForm.managementEmail}</th>
-                                            <th className="py-1">{translations[language].partnerRequestForm.managementPhone}</th>
+                                            <th className="py-1">{t_form.managementName}</th>
+                                            <th className="py-1">{t_form.managementPosition}</th>
+                                            <th className="py-1">{t_form.managementEmail}</th>
+                                            <th className="py-1">{t_form.managementPhone}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
@@ -122,12 +123,12 @@ const AdminPartnerRequestModal: React.FC<AdminPartnerRequestModalProps> = ({ req
                     )}
 
                      {request.documents.length > 0 && (
-                         <DetailSection title={t.table.documents}>
+                         <DetailSection title={t_req.table.documents}>
                              <ul className="space-y-2">
                                 {request.documents.map((doc, index) => (
                                     <li key={index}>
                                         <a href={doc.fileContent} download={doc.fileName} className="text-blue-500 hover:underline flex items-center gap-2">
-                                           {doc.fileName} ({t.table.download})
+                                           {doc.fileName} ({t_req.table.download})
                                         </a>
                                     </li>
                                 ))}
@@ -140,8 +141,8 @@ const AdminPartnerRequestModal: React.FC<AdminPartnerRequestModalProps> = ({ req
                     <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600" disabled={loading}>{language === 'ar' ? 'إغلاق' : 'Close'}</button>
                     {request.status === 'pending' && (
                         <>
-                            <button onClick={handleReject} className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600" disabled={loading}>{t.table.reject}</button>
-                            <button onClick={handleApprove} className="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600" disabled={loading}>{t.table.approve}</button>
+                            <button onClick={handleReject} className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600" disabled={loading}>{t_req.table.reject}</button>
+                            <button onClick={handleApprove} className="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600" disabled={loading}>{t_req.table.approve}</button>
                         </>
                     )}
                 </div>

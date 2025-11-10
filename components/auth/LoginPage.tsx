@@ -3,31 +3,27 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { Role, Permission } from '../../types';
 import type { Language, Partner } from '../../types';
-import { translations } from '../../data/translations';
 import { getPartnerByEmail } from '../../api/partners';
-import { inputClasses } from '../shared/FormField';
+import { Input } from '../ui/Input';
 import { HelioLogo } from '../HelioLogo';
 import { partnersData } from '../../data/partners';
 import { rolePermissions } from '../../data/permissions';
 import { useLanguage } from '../shared/LanguageContext';
+import { Button } from '../ui/Button';
 
 const LoginPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].auth;
+    const { language, t } = useLanguage();
+    const t_auth = t.auth;
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState<string | boolean>(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleLoginAndRedirect = async (emailToLogin: string) => {
-        setError('');
-        setLoading(true);
-
         const user = await login(emailToLogin, 'password');
-        setLoading(false);
-        
+
         if (user) {
             const permissions = rolePermissions.get(user.role) || [];
             const isAdmin = permissions.includes(Permission.VIEW_ADMIN_DASHBOARD);
@@ -38,13 +34,23 @@ const LoginPage: React.FC = () => {
                 navigate('/dashboard', { replace: true });
             }
         } else {
-            setError(t.loginError);
+            setError(t_auth.loginError);
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
+        setLoading(true);
         await handleLoginAndRedirect(email);
+        setLoading(false);
+    };
+
+    const handleQuickLogin = async (emailToLogin: string) => {
+        setError('');
+        setLoading(emailToLogin);
+        await handleLoginAndRedirect(emailToLogin);
+        setLoading(false);
     };
 
     const quickLoginUsers = useMemo(() => {
@@ -64,14 +70,14 @@ const LoginPage: React.FC = () => {
             .map(email => {
                 const partner = partnersData.find(p => p.email === email);
                 if (!partner) return null;
-                const localizedInfo = (translations[language].partnerInfo as any)[partner.id];
+                const localizedInfo = t.partnerInfo[partner.id];
                 return {
                     name: localizedInfo?.name || partner.id,
                     email: partner.email,
                 };
             })
             .filter(Boolean) as { name: string; email: string }[];
-    }, [language]);
+    }, [language, t.partnerInfo]);
 
 
     return (
@@ -82,39 +88,37 @@ const LoginPage: React.FC = () => {
                         <HelioLogo className="h-10 w-10" />
                         <span className="text-2xl">ONLY HELIO</span>
                     </Link>
-                    <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{t.loginTitle}</h1>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">{t.loginSubtitle}</p>
+                    <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{t_auth.loginTitle}</h1>
+                    <p className="mt-2 text-gray-600 dark:text-gray-400">{t_auth.loginSubtitle}</p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="rounded-md shadow-sm -space-y-px">
                         <div>
-                            <label htmlFor="email-address" className="sr-only">{t.email}</label>
-                            <input
+                            <label htmlFor="email-address" className="sr-only">{t_auth.email}</label>
+                            <Input
                                 id="email-address"
                                 name="email"
                                 type="email"
                                 autoComplete="email"
                                 required
-                                className={inputClasses}
-                                placeholder={t.email}
+                                placeholder={t_auth.email}
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                disabled={loading}
+                                disabled={!!loading}
                             />
                         </div>
                         <div className="pt-4">
-                            <label htmlFor="password" className="sr-only">{t.password}</label>
-                            <input
+                            <label htmlFor="password" className="sr-only">{t_auth.password}</label>
+                            <Input
                                 id="password"
                                 name="password"
                                 type="password"
                                 autoComplete="current-password"
                                 required
-                                className={inputClasses}
-                                placeholder={t.password}
+                                placeholder={t_auth.password}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                disabled={loading}
+                                disabled={!!loading}
                             />
                         </div>
                     </div>
@@ -122,19 +126,15 @@ const LoginPage: React.FC = () => {
                     {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
                     <div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-gray-900 bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50"
-                        >
-                            {loading ? '...' : t.loginButton}
-                        </button>
+                        <Button type="submit" isLoading={loading === true} className="w-full" size="lg">
+                           {t_auth.loginButton}
+                        </Button>
                     </div>
                 </form>
                  <div className="text-center">
-                    <Link to="/register" className="font-medium text-amber-600 hover:text-amber-500 dark:text-amber-500 dark:hover:text-amber-400">
-                        {translations[language].joinAsPartner}
-                    </Link>
+                    <Button variant="link" onClick={() => navigate('/register')}>
+                        {t.joinAsPartner}
+                    </Button>
                 </div>
 
                 {/* Quick Login Section for Demo/Testing Purposes */}
@@ -144,14 +144,16 @@ const LoginPage: React.FC = () => {
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {quickLoginUsers.map(user => (
-                            <button
+                            <Button
                                 key={user.email}
-                                onClick={() => handleLoginAndRedirect(user.email)}
-                                disabled={loading}
-                                className="w-full text-center text-xs p-2 rounded-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleQuickLogin(user.email)}
+                                isLoading={loading === user.email}
+                                className="w-full text-xs"
                             >
                                 {user.name}
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 </div>

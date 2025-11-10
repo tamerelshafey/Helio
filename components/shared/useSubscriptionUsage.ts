@@ -2,7 +2,7 @@ import { useMemo, useCallback } from 'react';
 import type { PartnerType, SubscriptionPlan, Property, Project, PortfolioItem } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
-import { useApiQuery } from './useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllProperties } from '../../api/properties';
 import { getAllProjects } from '../../api/projects';
 import { getAllPortfolioItems } from '../../api/portfolio';
@@ -12,9 +12,9 @@ type UsageType = 'properties' | 'projects' | 'units' | 'portfolio';
 export const useSubscriptionUsage = (usageType: UsageType) => {
     const { currentUser } = useAuth();
     
-    const { data: allProperties, isLoading: isLoadingProperties, refetch: refetchProperties } = useApiQuery('allProperties', getAllProperties, { enabled: !!currentUser });
-    const { data: allProjects, isLoading: isLoadingProjects, refetch: refetchProjects } = useApiQuery('allProjects', getAllProjects, { enabled: !!currentUser });
-    const { data: allPortfolioItems, isLoading: isLoadingPortfolio, refetch: refetchPortfolio } = useApiQuery('allPortfolioItems', getAllPortfolioItems, { enabled: !!currentUser });
+    const { data: allProperties, isLoading: isLoadingProperties, refetch: refetchProperties } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties, enabled: !!currentUser });
+    const { data: allProjects, isLoading: isLoadingProjects, refetch: refetchProjects } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects, enabled: !!currentUser });
+    const { data: allPortfolioItems, isLoading: isLoadingPortfolio, refetch: refetchPortfolio } = useQuery({ queryKey: ['allPortfolioItems'], queryFn: getAllPortfolioItems, enabled: !!currentUser });
 
     const isLoading = isLoadingProperties || isLoadingProjects || isLoadingPortfolio;
 

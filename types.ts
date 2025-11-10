@@ -1,8 +1,10 @@
 
-
 // Basic types
 export type Language = 'ar' | 'en';
 export type Theme = 'light' | 'dark';
+export type AllTranslations = {
+    [key in Language]: any;
+};
 export type RequestStatus = 'pending' | 'reviewed' | 'closed' | 'approved' | 'rejected' | 'new';
 export type LeadStatus = 'new' | 'contacted' | 'site-visit' | 'quoted' | 'in-progress' | 'completed' | 'cancelled';
 
@@ -100,6 +102,24 @@ export interface PartnerTranslations {
 }
 
 // Property and Project types
+export interface PropertyFiltersType {
+  status: string;
+  type: string;
+  query: string;
+  minPrice: string;
+  maxPrice: string;
+  project: string;
+  finishing: string;
+  installments: string;
+  realEstateFinance: string;
+  floor: string;
+  compound: string;
+  delivery: string;
+  amenities: string[];
+  beds: string;
+  baths: string;
+}
+
 export interface Property {
     id: string;
     partnerId: string;

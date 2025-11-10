@@ -1,42 +1,43 @@
-
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, Property, AdminPartner } from '../../types';
-import { translations } from '../../data/translations';
 import { BuildingIcon, InboxIcon, UsersIcon, ChartBarIcon } from '../icons/Icons';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllLeads } from '../../api/leads';
 import { getAllProperties } from '../../api/properties';
 import { getAllPartnersForAdmin } from '../../api/partners';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import { useLanguage } from '../shared/LanguageContext';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
 const StatCard: React.FC<{ title: string; value: number | string; icon: React.ReactNode; }> = ({ title, value, icon }) => (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-        <div className="flex justify-between items-start">
-            <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
-                <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
+    <Card className="p-0">
+        <CardContent className="p-6">
+            <div className="flex justify-between items-start">
+                <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
+                    <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
+                </div>
+                <div className="bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 p-3 rounded-full">
+                    {icon}
+                </div>
             </div>
-            <div className="bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 p-3 rounded-full">
-                {icon}
-            </div>
-        </div>
-    </div>
+        </CardContent>
+    </Card>
 );
 
 type TimePeriod = '7d' | '30d' | 'month' | 'year';
 
 const AdminAnalyticsPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminAnalytics;
-    const t_dashboard = translations[language].dashboard;
-    const { data: leads, isLoading: loadingLeads } = useApiQuery('allLeadsAnalytics', getAllLeads);
-    const { data: properties, isLoading: loadingProperties } = useApiQuery('allPropertiesAnalytics', getAllProperties);
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAnalytics', getAllPartnersForAdmin);
+    const { language, t } = useLanguage();
+    const t_analytics = t.adminAnalytics;
+    const t_dashboard = t.dashboard;
+    const { data: leads, isLoading: loadingLeads } = useQuery({ queryKey: ['allLeadsAnalytics'], queryFn: getAllLeads });
+    const { data: properties, isLoading: loadingProperties } = useQuery({ queryKey: ['allPropertiesAnalytics'], queryFn: getAllProperties });
+    const { data: partners, isLoading: loadingPartners } = useQuery({ queryKey: ['allPartnersAnalytics'], queryFn: getAllPartnersForAdmin });
     
     const [timePeriod, setTimePeriod] = useState<TimePeriod>('30d');
     
@@ -153,7 +154,7 @@ const AdminAnalyticsPage: React.FC = () => {
     const lineChartData = {
         labels: leadsOverTime.labels,
         datasets: [{
-            label: t.newLeads,
+            label: t_analytics.newLeads,
             data: leadsOverTime.data,
             borderColor: '#F59E0B',
             backgroundColor: 'rgba(245, 158, 11, 0.2)',
@@ -186,7 +187,6 @@ const AdminAnalyticsPage: React.FC = () => {
         maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
-            title: { display: true, text: title, font: { size: 16 }, color: document.documentElement.classList.contains('dark') ? '#E5E7EB' : '#374151' },
         },
         scales: {
              x: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#6B7280' } },
@@ -198,7 +198,7 @@ const AdminAnalyticsPage: React.FC = () => {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: { position: 'top' as const, labels: { color: document.documentElement.classList.contains('dark') ? '#E5E7EB' : '#374151' } },
+            legend: { position: 'right' as const, labels: { color: document.documentElement.classList.contains('dark') ? '#E5E7EB' : '#374151' } },
         }
     };
 
@@ -206,44 +206,46 @@ const AdminAnalyticsPage: React.FC = () => {
         <div className="space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.title}</h1>
-                    <p className="text-gray-500 dark:text-gray-400">{t.subtitle}</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_analytics.title}</h1>
+                    <p className="text-gray-500 dark:text-gray-400">{t_analytics.subtitle}</p>
                 </div>
                 <div className="flex-shrink-0 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg flex gap-1">
-                    {(Object.keys(t) as (keyof typeof t)[]).filter(k => String(k).startsWith('last') || String(k).startsWith('this')).map(periodKey => {
+                    {(Object.keys(t_analytics) as (keyof typeof t_analytics)[]).filter(k => String(k).startsWith('last') || String(k).startsWith('this')).map(periodKey => {
                         const periodMap: Record<string, TimePeriod> = { last7days: '7d', last30days: '30d', thismonth: 'month', thisyear: 'year' };
                         const key = String(periodKey).replace(/([A-Z])/g, '$1').toLowerCase();
                         return (
-                            <button key={key} onClick={() => setTimePeriod(periodMap[key])} className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${timePeriod === periodMap[key] ? 'bg-white dark:bg-gray-700 shadow text-amber-600' : 'text-gray-600 dark:text-gray-400'}`}>{t[periodKey]}</button>
+                            <button key={key} onClick={() => setTimePeriod(periodMap[key])} className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${timePeriod === periodMap[key] ? 'bg-white dark:bg-gray-700 shadow text-amber-600' : 'text-gray-600 dark:text-gray-400'}`}>{t_analytics[periodKey]}</button>
                         );
                     })}
                 </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard title={t.newLeads} value={analyticsData.newLeads} icon={<InboxIcon className="w-6 h-6" />} />
-                <StatCard title={t.newPartners} value={analyticsData.newPartners} icon={<UsersIcon className="w-6 h-6" />} />
-                <StatCard title={t.newProperties} value={analyticsData.newProperties} icon={<BuildingIcon className="w-6 h-6" />} />
-                <StatCard title={t.conversionRate} value={`${analyticsData.conversionRate} ${t.leadsPerProperty}`} icon={<ChartBarIcon className="w-6 h-6" />} />
+                <StatCard title={t_analytics.newLeads} value={analyticsData.newLeads} icon={<InboxIcon className="w-6 h-6" />} />
+                <StatCard title={t_analytics.newPartners} value={analyticsData.newPartners} icon={<UsersIcon className="w-6 h-6" />} />
+                <StatCard title={t_analytics.newProperties} value={analyticsData.newProperties} icon={<BuildingIcon className="w-6 h-6" />} />
+                <StatCard title={t_analytics.conversionRate} value={`${analyticsData.conversionRate} ${t_analytics.leadsPerProperty}`} icon={<ChartBarIcon className="w-6 h-6" />} />
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                    <div className="h-80"><Line data={lineChartData} options={commonChartOptions('Leads Over Time')}/></div>
-                </div>
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                    <div className="h-80"><Bar data={barChartData} options={{...commonChartOptions('Lead Status Distribution'), indexAxis: 'y'}}/></div>
-                </div>
-            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Leads Over Time</CardTitle>
+                </CardHeader>
+                <CardContent className="h-80"><Line data={lineChartData} options={commonChartOptions('')}/></CardContent>
+            </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                 <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                     <h3 className="text-lg font-bold text-gray-900 dark:text-white text-center mb-4">Property Type Distribution</h3>
-                     <div className="h-72 w-full"><Doughnut data={doughnutChartData} options={doughnutOptions} /></div>
-                </div>
-                 <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t.topPerformingPartners}</h3>
+                <Card className="lg:col-span-1">
+                     <CardHeader><CardTitle>Lead Status Distribution</CardTitle></CardHeader>
+                     <CardContent className="h-80"><Bar data={barChartData} options={{...commonChartOptions(''), indexAxis: 'y'}}/></CardContent>
+                </Card>
+                 <Card className="lg:col-span-1">
+                     <CardHeader><CardTitle>Property Type Distribution</CardTitle></CardHeader>
+                     <CardContent className="h-80"><Doughnut data={doughnutChartData} options={doughnutOptions} /></CardContent>
+                </Card>
+                <Card>
+                    <CardHeader><CardTitle>{t_analytics.topPerformingPartners}</CardTitle></CardHeader>
+                    <CardContent>
                         <ul className="space-y-3">
                             {analyticsData.topPartners.map(({ partner, count }) => partner && (
                                 <li key={partner.id}>
@@ -253,31 +255,33 @@ const AdminAnalyticsPage: React.FC = () => {
                                             <p className="font-semibold text-sm truncate">{partner.name}</p>
                                             <p className="text-xs text-gray-500">{partner.type}</p>
                                         </div>
-                                        <div className="font-bold text-gray-800 dark:text-gray-200">{count} {t.leads}</div>
+                                        <div className="font-bold text-gray-800 dark:text-gray-200">{count} {t_analytics.leads}</div>
                                     </Link>
                                 </li>
                             ))}
                         </ul>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t.topPerformingProperties}</h3>
-                        <ul className="space-y-3">
-                            {analyticsData.topProperties.map(({ property, count }) => property && (
-                                <li key={property.id}>
-                                    <Link to={`/admin/properties/edit/${property.id}`} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <img src={property.imageUrl} alt="" className="w-10 h-10 rounded-md object-cover" />
-                                        <div className="flex-grow overflow-hidden">
-                                            <p className="font-semibold text-sm truncate">{property.title[language]}</p>
-                                            <p className="text-xs text-gray-500">{property.partnerName}</p>
-                                        </div>
-                                        <div className="font-bold text-gray-800 dark:text-gray-200 flex-shrink-0">{count} {t.leads}</div>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
             </div>
+            <Card>
+                <CardHeader><CardTitle>{t_analytics.topPerformingProperties}</CardTitle></CardHeader>
+                <CardContent>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {analyticsData.topProperties.map(({ property, count }) => property && (
+                            <li key={property.id}>
+                                <Link to={`/admin/properties/edit/${property.id}`} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <img src={property.imageUrl} alt="" className="w-10 h-10 rounded-md object-cover" />
+                                    <div className="flex-grow overflow-hidden">
+                                        <p className="font-semibold text-sm truncate">{property.title[language]}</p>
+                                        <p className="text-xs text-gray-500">{property.partnerName}</p>
+                                    </div>
+                                    <div className="font-bold text-gray-800 dark:text-gray-200 flex-shrink-0">{count} {t_analytics.leads}</div>
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </CardContent>
+            </Card>
         </div>
     );
 };

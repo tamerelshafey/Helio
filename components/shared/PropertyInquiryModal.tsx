@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
 import type { Language } from '../../types';
-import { translations } from '../../data/translations';
 import FormField, { inputClasses, selectClasses } from './FormField';
 import { addPropertyInquiry } from '../../api/propertyInquiries';
 import { useToast } from './ToastContext';
@@ -11,9 +10,9 @@ interface PropertyInquiryModalProps {
 }
 
 const PropertyInquiryModal: React.FC<PropertyInquiryModalProps> = ({ onClose }) => {
-    const { language } = useLanguage();
-    const t = translations[language].propertyInquiryModal;
-    const t_contact = translations[language].contactPage;
+    const { language, t } = useLanguage();
+    const t_modal = t.propertyInquiryModal;
+    const t_contact = t.contactPage;
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
     const { showToast } = useToast();
@@ -48,7 +47,7 @@ const PropertyInquiryModal: React.FC<PropertyInquiryModalProps> = ({ onClose }) 
         setLoading(true);
         await addPropertyInquiry(formData);
         setLoading(false);
-        showToast(t.successMessage, 'success');
+        showToast(t_modal.successMessage, 'success');
         onClose();
     };
 
@@ -71,20 +70,20 @@ const PropertyInquiryModal: React.FC<PropertyInquiryModalProps> = ({ onClose }) 
                         </svg>
                     </button>
                     
-                    <h2 className="text-3xl font-bold text-amber-500 mb-2 text-center">{t.title}</h2>
-                    <p className="text-gray-500 dark:text-gray-400 text-center mb-6">{t.subtitle}</p>
+                    <h2 className="text-3xl font-bold text-amber-500 mb-2 text-center">{t_modal.title}</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-center mb-6">{t_modal.subtitle}</p>
                     
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField label={t.fullName} id="customerName">
+                            <FormField label={t_modal.fullName} id="customerName">
                                 <input type="text" id="customerName" name="customerName" value={formData.customerName} onChange={handleChange} className={inputClasses} required />
                             </FormField>
-                            <FormField label={t.phone} id="customerPhone">
+                            <FormField label={t_modal.phone} id="customerPhone">
                                 <input type="tel" id="customerPhone" name="customerPhone" value={formData.customerPhone} onChange={handleChange} className={inputClasses} required dir="ltr" />
                             </FormField>
                         </div>
 
-                        <FormField label={t.contactTime} id="contactTime">
+                        <FormField label={t_modal.contactTime} id="contactTime">
                             <select id="contactTime" name="contactTime" value={formData.contactTime} onChange={handleChange} className={`${selectClasses} ${!formData.contactTime ? 'text-gray-500 dark:text-gray-400' : ''}`} required>
                                 <option value="" disabled>{t_contact.contactTimeDefault}</option>
                                 <option value="morning" className="text-gray-900 dark:text-white">{t_contact.contactTimeMorning}</option>
@@ -93,13 +92,13 @@ const PropertyInquiryModal: React.FC<PropertyInquiryModalProps> = ({ onClose }) 
                             </select>
                         </FormField>
                         
-                        <FormField label={t.propertyDetails} id="details">
-                            <textarea id="details" name="details" rows={4} value={formData.details} onChange={handleChange} placeholder={t.detailsPlaceholder} className={inputClasses} required></textarea>
+                        <FormField label={t_modal.propertyDetails} id="details">
+                            <textarea id="details" name="details" rows={4} value={formData.details} onChange={handleChange} placeholder={t_modal.detailsPlaceholder} className={inputClasses} required></textarea>
                         </FormField>
 
                         <div className="pt-2 flex justify-end">
                             <button type="submit" disabled={loading} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
-                                {loading ? '...' : t.submitButton}
+                                {loading ? '...' : t_modal.submitButton}
                             </button>
                         </div>
                     </form>

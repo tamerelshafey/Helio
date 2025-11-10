@@ -1,8 +1,9 @@
 
+
+
 import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { LeadStatus, Lead, AdminPartner } from '../../types';
-import { translations } from '../../data/translations';
 import { ChevronLeftIcon } from '../icons/Icons';
 import { selectClasses } from '../shared/FormField';
 import { updateLead, getAllLeads } from '../../api/leads';
@@ -11,7 +12,7 @@ import DetailItem from '../shared/DetailItem';
 import { useToast } from '../shared/ToastContext';
 import ConversationThread from '../shared/ConversationThread';
 import DetailSection from '../shared/DetailSection';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';
 
 const statusColors: { [key in LeadStatus]?: string } = {
@@ -25,16 +26,16 @@ const statusColors: { [key in LeadStatus]?: string } = {
 };
 
 const AdminFinishingRequestDetailsPage: React.FC = () => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const { requestId } = useParams<{ requestId: string }>();
-    const t_req = translations[language].adminDashboard.decorationsManagement;
-    const t_lead_status = translations[language].dashboard.leadStatus;
-    const t_finishing = translations[language].adminDashboard.finishingRequests;
-    const t_shared = translations[language].adminShared;
+    const t_req = t.adminDashboard.decorationsManagement;
+    const t_lead_status = t.dashboard.leadStatus;
+    const t_finishing = t.adminDashboard.finishingRequests;
+    const t_shared = t.adminShared;
     const { showToast } = useToast();
     
-    const { data: leads, isLoading: isLoadingLeads, refetch: refetchLeads } = useApiQuery('allLeadsAdmin', getAllLeads);
-    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { data: leads, isLoading: isLoadingLeads, refetch: refetchLeads } = useQuery({ queryKey: ['allLeadsAdmin'], queryFn: getAllLeads });
+    const { data: partners, isLoading: isLoadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
     const isLoading = isLoadingLeads || isLoadingPartners;
 
     const request = useMemo(() => (leads || []).find(l => l.id === requestId), [leads, requestId]);
@@ -83,14 +84,14 @@ const AdminFinishingRequestDetailsPage: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
                     <DetailSection title={t_req.customerInformation}>
-                        <DetailItem label={translations[language].customDecorationRequestModal.fullName} value={request.customerName} />
-                        <DetailItem label={translations[language].customDecorationRequestModal.phone} value={<span dir="ltr">{request.customerPhone}</span>} />
-                        <DetailItem label={translations[language].serviceRequestModal.preferredContactTime} value={request.contactTime} />
+                        <DetailItem label={t.customDecorationRequestModal.fullName} value={request.customerName} />
+                        <DetailItem label={t.customDecorationRequestModal.phone} value={<span dir="ltr">{request.customerPhone}</span>} />
+                        <DetailItem label={t.serviceRequestModal.preferredContactTime} value={request.contactTime} />
                     </DetailSection>
 
                     <DetailSection title={t_req.requestInformation}>
-                         <DetailItem label={translations[language].dashboard.leadTable.service} value={request.serviceTitle} layout="grid" />
-                         <DetailItem label={translations[language].dashboard.leadTable.notes} value={<p className="whitespace-pre-wrap">{request.customerNotes || '-'}</p>} layout="grid" />
+                         <DetailItem label={t.dashboard.leadTable.service} value={request.serviceTitle} layout="grid" />
+                         <DetailItem label={t.dashboard.leadTable.notes} value={<p className="whitespace-pre-wrap">{request.customerNotes || '-'}</p>} layout="grid" />
                     </DetailSection>
                     
                     <ConversationThread lead={request} onMessageSent={refetchLeads} />
@@ -100,7 +101,7 @@ const AdminFinishingRequestDetailsPage: React.FC = () => {
                 <div className="space-y-8">
                      <DetailSection title={t_req.management}>
                         <div>
-                            <label htmlFor="status" className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{translations[language].dashboard.leadTable.status}</label>
+                            <label htmlFor="status" className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{t.dashboard.leadTable.status}</label>
                             <select id="status" value={status} onChange={(e) => setStatus(e.target.value as LeadStatus)} className={`${selectClasses} ${statusColors[status]}`}>
                                 {Object.entries(t_lead_status).map(([key, value]) => (
                                     <option key={key} value={key} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">{value}</option>

@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import type { Language, Project, AdminPartner, FilterOption } from '../types';
-import { translations } from '../data/translations';
 import { SearchIcon, ArrowDownIcon, ChevronRightIcon } from './icons/Icons';
-import { inputClasses, selectClasses } from './shared/FormField';
 import type { usePropertyFilters } from './shared/usePropertyFilters';
 import { useLanguage } from './shared/LanguageContext';
+import { Input } from './ui/Input';
+import { Select } from './ui/Select';
+import { Checkbox } from './ui/Checkbox';
 
 interface PropertyFiltersProps {
   filters: ReturnType<typeof usePropertyFilters>;
@@ -23,18 +24,30 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
   finishingStatuses,
   amenities,
 }) => {
-    const { language } = useLanguage();
-    const t = translations[language].propertiesPage;
+    const { language, t: translations } = useLanguage();
+    const t = translations.propertiesPage;
+    const { propertyDetailsPage: t_details } = translations;
     const [showAdvanced, setShowAdvanced] = useState(false);
     
     const { 
+        setFilter, 
+        resetFilters,
         status: statusFilter, type: typeFilter, query: queryFilter, 
         minPrice: minPriceFilter, maxPrice: maxPriceFilter, project: projectFilter, 
         finishing: finishingFilter, installments: installmentsFilter, floor: floorFilter, 
         compound: compoundFilter, delivery: deliveryFilter, amenities: amenitiesFilter,
         beds: bedsFilter, baths: bathsFilter, realEstateFinance: realEstateFinanceFilter,
-        setFilter 
     } = filters;
+
+    const isAnyFilterActive = useMemo(() => {
+        return (
+            statusFilter !== 'all' || typeFilter !== 'all' || queryFilter !== '' ||
+            minPriceFilter !== '' || maxPriceFilter !== '' || projectFilter !== 'all' ||
+            finishingFilter !== 'all' || installmentsFilter !== 'all' || realEstateFinanceFilter !== 'all' ||
+            floorFilter !== '' || compoundFilter !== 'all' || deliveryFilter !== 'all' ||
+            amenitiesFilter.length > 0 || bedsFilter !== '' || bathsFilter !== ''
+        );
+    }, [filters]);
 
     const megaProjects = useMemo(() => projects.filter(p => partners.find(partner => partner.id === p.partnerId)?.displayType === 'mega_project'), [projects, partners]);
 
@@ -47,12 +60,13 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
     
     const advancedFilterCount = [
         projectFilter !== 'all',
-        finishingFilter !== 'all',
         installmentsFilter !== 'all',
         realEstateFinanceFilter !== 'all',
         compoundFilter !== 'all',
         deliveryFilter !== 'all',
         !!floorFilter,
+        !!bedsFilter,
+        !!bathsFilter,
         amenitiesFilter.length > 0
     ].filter(Boolean).length;
 
@@ -64,7 +78,7 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
     }, [amenities, typeFilter]);
 
     const availableFinishingStatuses = useMemo(() => {
-        if (typeFilter === 'all') return finishingStatuses;
+        if (typeFilter === 'all' || typeFilter === '') return finishingStatuses.filter(status => status.applicableTo && !status.applicableTo.includes('Land'));
         if (typeFilter === 'Land') return [];
         return finishingStatuses.filter(status => 
             !status.applicableTo || status.applicableTo.length === 0 || status.applicableTo.includes(typeFilter)
@@ -82,63 +96,61 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
         </div>
         
         <div className="mb-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            <div className="sm:col-span-2 lg:col-span-4 xl:col-span-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="sm:col-span-2 lg:col-span-4">
               <label htmlFor="search-query" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.searchLabel}</label>
               <div className="relative">
-                <input 
+                <Input 
                   type="text" 
                   id="search-query"
                   value={queryFilter} 
                   onChange={e => setFilter('q', e.target.value)} 
                   placeholder={t.searchPlaceholder}
-                  className={`${inputClasses} ${language === 'ar' ? 'pr-10' : 'pl-10'}`}
+                  className={`${language === 'ar' ? 'pr-10' : 'pl-10'}`}
                 />
                 <SearchIcon className={`absolute top-1/2 -translate-y-1/2 ${language === 'ar' ? 'right-3' : 'left-3'} h-5 w-5 text-gray-400 dark:text-gray-400`} />
               </div>
             </div>
             <div>
               <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.statusLabel}</label>
-              <select id="status-filter" value={statusFilter} onChange={e => setFilter('status', e.target.value)} className={selectClasses}>
+              <Select id="status-filter" value={statusFilter} onChange={e => setFilter('status', e.target.value)}>
                 <option value="all">{t.allStatuses}</option>
                 <option value="For Sale">{t.forSale}</option>
                 <option value="For Rent">{t.forRent}</option>
-              </select>
+              </Select>
             </div>
             <div>
               <label htmlFor="type-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.typeLabel}</label>
-              <select id="type-filter" value={typeFilter} onChange={e => setFilter('type', e.target.value)} className={selectClasses}>
+              <Select id="type-filter" value={typeFilter} onChange={e => setFilter('type', e.target.value)}>
                 <option value="all">{t.allTypes}</option>
                 {propertyTypes.map(opt => (
                   <option key={opt.id} value={opt.en}>{opt[language]}</option>
                 ))}
-              </select>
+              </Select>
             </div>
-            <div className="lg:col-span-2">
+            <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.priceRange}</label>
               <div className="flex items-center gap-2">
-                <input 
+                <Input 
                   type="number" 
                   placeholder={t.minPricePlaceholder} 
                   value={minPriceFilter} 
                   onChange={e => setFilter('minPrice', e.target.value)} 
-                  className={inputClasses} 
                   min="0"
                 />
                 <span className="text-gray-400 dark:text-gray-500">-</span>
-                <input 
+                <Input 
                   type="number" 
                   placeholder={t.maxPricePlaceholder} 
                   value={maxPriceFilter} 
                   onChange={e => setFilter('maxPrice', e.target.value)} 
-                  className={inputClasses} 
                   min="0"
                 />
               </div>
             </div>
           </div>
           
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
               className="flex items-center gap-2 font-semibold text-amber-600 dark:text-amber-500"
@@ -153,79 +165,92 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                 </span>
               )}
             </button>
+             {isAnyFilterActive && (
+              <button onClick={resetFilters} className="text-sm font-semibold text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors">
+                  {language === 'ar' ? 'إعادة تعيين' : 'Reset Filters'}
+              </button>
+            )}
           </div>
 
           {showAdvanced && (
             <div id="advanced-filters-content" className="pt-4 space-y-4 animate-fadeIn">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <div>
-                  <label htmlFor="project-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.project}</label>
-                  <select id="project-filter" value={projectFilter} onChange={e => setFilter('project', e.target.value)} className={selectClasses}>
-                    <option value="all">{t.allProjects}</option>
-                    {megaProjects.map(p => <option key={p.id} value={p.id}>{p.name[language]}</option>)}
-                  </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                 <div>
+                    <label htmlFor="finishing-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.finishing}</label>
+                    <Select id="finishing-filter" value={finishingFilter} onChange={e => setFilter('finishing', e.target.value)} disabled={isFinishingDisabled}>
+                      <option value="all">{t.allFinishes}</option>
+                      {availableFinishingStatuses.map(opt => (
+                        <option key={opt.id} value={opt.en}>{opt[language]}</option>
+                      ))}
+                    </Select>
                 </div>
-                <div>
-                  <label htmlFor="finishing-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.finishing}</label>
-                  <select id="finishing-filter" value={finishingFilter} onChange={e => setFilter('finishing', e.target.value)} className={selectClasses} disabled={isFinishingDisabled}>
-                    <option value="all">{t.allFinishes}</option>
-                    {availableFinishingStatuses.map(opt => (
-                      <option key={opt.id} value={opt.en}>{opt[language]}</option>
-                    ))}
-                  </select>
-                </div>
-                {(typeFilter !== 'Villa' && typeFilter !== 'Land') && (
+                {(typeFilter !== 'Commercial' && typeFilter !== 'Land') && <>
+                    <div>
+                      <label htmlFor="beds-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t_details.bedrooms}</label>
+                      <Select id="beds-filter" value={bedsFilter} onChange={e => setFilter('beds', e.target.value)}>
+                          <option value="">{language === 'ar' ? 'أي عدد' : 'Any'}</option>
+                          <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option>
+                      </Select>
+                    </div>
+                    <div>
+                      <label htmlFor="baths-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t_details.bathrooms}</label>
+                      <Select id="baths-filter" value={bathsFilter} onChange={e => setFilter('baths', e.target.value)}>
+                          <option value="">{language === 'ar' ? 'أي عدد' : 'Any'}</option>
+                          <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
+                      </Select>
+                    </div>
+                </>}
+                {(typeFilter === 'Apartment' || typeFilter === 'Commercial') && (
                   <div>
                     <label htmlFor="floor-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.floor}</label>
-                    <input
-                      type="number"
-                      id="floor-filter"
-                      placeholder={t.floor}
-                      value={floorFilter}
-                      onChange={e => setFilter('floor', e.target.value)}
-                      className={inputClasses}
-                      min="0"
-                    />
+                    <Input type="number" id="floor-filter" placeholder={t.floor} value={floorFilter} onChange={e => setFilter('floor', e.target.value)} min="0" />
                   </div>
                 )}
               </div>
-
-              <details className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              
+              <details className="pt-4 border-t border-gray-200 dark:border-gray-700" open>
                 <summary className="font-semibold text-gray-800 dark:text-gray-300 cursor-pointer list-none flex items-center gap-2">
                   <ChevronRightIcon className="w-4 h-4 transition-transform duration-200 rotate-on-open" />
                   {t.additionalOptions}
                 </summary>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
                   <div>
+                    <label htmlFor="project-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.project}</label>
+                    <Select id="project-filter" value={projectFilter} onChange={e => setFilter('project', e.target.value)}>
+                      <option value="all">{t.allProjects}</option>
+                      {megaProjects.map(p => <option key={p.id} value={p.id}>{p.name[language]}</option>)}
+                    </Select>
+                  </div>
+                  <div>
                     <label htmlFor="installments-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.installments}</label>
-                    <select id="installments-filter" value={installmentsFilter} onChange={e => setFilter('installments', e.target.value)} className={selectClasses} disabled={isForRent}>
+                    <Select id="installments-filter" value={installmentsFilter} onChange={e => setFilter('installments', e.target.value)} disabled={isForRent}>
                       <option value="all">{t.allInstallments}</option>
                       <option value="yes">{t.installmentsYes}</option>
                       <option value="no">{t.installmentsNo}</option>
-                    </select>
+                    </Select>
                   </div>
                   <div>
                     <label htmlFor="real-estate-finance-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.realEstateFinance}</label>
-                    <select id="real-estate-finance-filter" value={realEstateFinanceFilter} onChange={e => setFilter('realEstateFinance', e.target.value)} className={selectClasses} disabled={isForRent}>
+                    <Select id="real-estate-finance-filter" value={realEstateFinanceFilter} onChange={e => setFilter('realEstateFinance', e.target.value)} disabled={isForRent}>
                       <option value="all">{t.allRealEstateFinance}</option>
                       <option value="yes">{t.realEstateFinanceYes}</option>
                       <option value="no">{t.realEstateFinanceNo}</option>
-                    </select>
+                    </Select>
                   </div>
                   <div>
                     <label htmlFor="compound-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.inCompound}</label>
-                    <select id="compound-filter" value={compoundFilter} onChange={e => setFilter('compound', e.target.value)} className={selectClasses}>
+                    <Select id="compound-filter" value={compoundFilter} onChange={e => setFilter('compound', e.target.value)}>
                       <option value="all">{t.allCompound}</option>
                       <option value="yes">{t.compoundYes}</option>
                       <option value="no">{t.compoundNo}</option>
-                    </select>
+                    </Select>
                   </div>
                   <div>
                     <label htmlFor="delivery-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.delivery}</label>
-                    <select id="delivery-filter" value={deliveryFilter} onChange={e => setFilter('delivery', e.target.value)} className={selectClasses}>
+                    <Select id="delivery-filter" value={deliveryFilter} onChange={e => setFilter('delivery', e.target.value)}>
                       <option value="all">{t.allDelivery}</option>
                       <option value="immediate">{t.immediateDelivery}</option>
-                    </select>
+                    </Select>
                   </div>
                 </div>
               </details>
@@ -235,11 +260,10 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-3">
                   {availableAmenities.map(amenity => (
                     <label key={amenity.id} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={amenitiesFilter.includes(amenity.en)}
                         onChange={() => handleAmenitiesChange(amenity.en)}
-                        className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                        id={`amenity-${amenity.id}`}
                       />
                       {amenity[language]}
                     </label>

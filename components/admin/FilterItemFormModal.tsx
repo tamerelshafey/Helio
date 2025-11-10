@@ -1,12 +1,11 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { FilterOption } from '../../types';
-import { translations } from '../../data/translations';
 import FormField, { inputClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { addFilterOption, updateFilterOption, getAllPropertyTypes } from '../../api/filters';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';
+import { Checkbox } from '../ui/Checkbox';
 
 type DataType = 'propertyType' | 'finishingStatus' | 'amenity';
 
@@ -18,9 +17,9 @@ interface FilterItemFormModalProps {
 }
 
 const FilterItemFormModal: React.FC<FilterItemFormModalProps> = ({ dataType, itemToEdit, onClose, onSave }) => {
-    const { language } = useLanguage();
-    const { data: propertyTypes, refetch: refetchOptions } = useApiQuery('propertyTypes', getAllPropertyTypes);
-    const t_shared = translations[language].adminShared;
+    const { language, t } = useLanguage();
+    const { data: propertyTypes, refetch: refetchOptions } = useQuery({ queryKey: ['propertyTypes'], queryFn: getAllPropertyTypes });
+    const t_shared = t.adminShared;
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
 
@@ -99,11 +98,10 @@ const FilterItemFormModal: React.FC<FilterItemFormModalProps> = ({ dataType, ite
                                 <div className="grid grid-cols-2 gap-3 p-4 border border-gray-200 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700/50">
                                     {(propertyTypes || []).map(type => (
                                         <label key={type.id} className="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
-                                            <input 
-                                                type="checkbox" 
+                                            <Checkbox 
                                                 checked={applicableTo.includes(type.en)}
                                                 onChange={() => handleApplicableToChange(type.en)}
-                                                className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                                                id={`type-${type.id}`}
                                             />
                                             {type[language]}
                                         </label>

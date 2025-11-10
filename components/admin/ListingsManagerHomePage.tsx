@@ -1,20 +1,21 @@
 
+
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllProperties } from '../../api/properties';
 import { getAllProjects } from '../../api/projects';
 import { ClipboardDocumentListIcon, BuildingIcon, CubeIcon } from '../icons/Icons';
 import StatCard from '../shared/StatCard';
 import { isListingActive } from '../../utils/propertyUtils';
-import { translations } from '../../data/translations';
 import { useLanguage } from '../shared/LanguageContext';
 
 const ListingsManagerHomePage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.listingsManagerHome;
-    const { data: properties, isLoading: loadingProps } = useApiQuery('allProperties', getAllProperties);
-    const { data: projects, isLoading: loadingProjs } = useApiQuery('allProjects', getAllProjects);
+    const { language, t: i18n } = useLanguage();
+    const t = i18n.adminDashboard.listingsManagerHome;
+    const { data: properties, isLoading: loadingProps } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
+    const { data: projects, isLoading: loadingProjs } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
 
     const activeProperties = (properties || []).filter(isListingActive).length;
     const totalProjects = (projects || []).length;

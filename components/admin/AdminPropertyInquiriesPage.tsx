@@ -1,17 +1,18 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { PropertyInquiryRequest, RequestStatus } from '../../types';
-import { translations } from '../../data/translations';
 import { SearchIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
 import { updatePropertyInquiryStatus, deletePropertyInquiry } from '../../api/propertyInquiries';
 import Pagination from '../shared/Pagination';
 import TableSkeleton from '../shared/TableSkeleton';
 import EmptyState from '../shared/EmptyState';
-import { useApiQuery } from '../shared/useApiQuery';
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+import { useQuery } from '@tanstack/react-query';
 import { getAllPropertyInquiries } from '../../api/propertyInquiries';
 import { useAdminTable } from './shared/useAdminTable';
 import { useLanguage } from '../shared/LanguageContext';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
 
 const statusColors: { [key in RequestStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -25,10 +26,10 @@ const statusColors: { [key in RequestStatus]: string } = {
 const ITEMS_PER_PAGE = 10;
 
 const AdminPropertyInquiriesPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.propertyInquiries;
-    const t_req = translations[language].adminDashboard.adminRequests;
-    const { data: propertyInquiries, isLoading, refetch: refetchAll } = useApiQuery('propertyInquiries', getAllPropertyInquiries);
+    const { language, t } = useLanguage();
+    const t_page = t.adminDashboard.propertyInquiries;
+    const t_req = t.adminDashboard.adminRequests;
+    const { data: propertyInquiries, isLoading, refetch: refetchAll } = useQuery({ queryKey: ['propertyInquiries'], queryFn: getAllPropertyInquiries });
 
     const {
         paginatedItems: paginatedRequests,
@@ -65,13 +66,13 @@ const AdminPropertyInquiriesPage: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.title}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">{t.subtitle}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_page.title}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">{t_page.subtitle}</p>
             
              <div className="mb-4">
                 <input
                     type="text"
-                    placeholder={translations[language].adminDashboard.filter.searchByRequesterOrPhone}
+                    placeholder={t.adminDashboard.filter.searchByRequesterOrPhone}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={inputClasses + " max-w-xs"}
@@ -79,70 +80,68 @@ const AdminPropertyInquiriesPage: React.FC = () => {
             </div>
 
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('customerName')}>
-                                    <div className="flex items-center">{t_req.table.requester}{getSortIcon('customerName')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('details')}>
-                                    <div className="flex items-center">{t.table.details}{getSortIcon('details')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('createdAt')}>
-                                    <div className="flex items-center">{t_req.table.date}{getSortIcon('createdAt')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('status')}>
-                                    <div className="flex items-center">{t_req.table.status}{getSortIcon('status')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3">{t_req.table.actions}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedRequests.length > 0 ? (
-                                paginatedRequests.map(req => (
-                                    <tr key={req.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="px-6 py-4">
-                                            <div className="font-medium text-gray-900 dark:text-white">{req.customerName}</div>
-                                            <div className="text-xs text-gray-500">{req.customerPhone}</div>
-                                        </td>
-                                        <td className="px-6 py-4 max-w-md">
-                                            <p className="whitespace-pre-wrap">{req.details}</p>
-                                            <p className="text-xs text-gray-400 mt-1">Contact at: {req.contactTime}</p>
-                                        </td>
-                                        <td className="px-6 py-4">{new Date(req.createdAt).toLocaleDateString(language)}</td>
-                                        <td className="px-6 py-4">
-                                            <select
-                                                value={req.status}
-                                                onChange={(e) => handleStatusChange(req.id, e.target.value as RequestStatus)}
-                                                className={`text-xs font-medium px-2.5 py-0.5 rounded-full border-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800 ${statusColors[req.status]}`}
-                                            >
-                                            {Object.keys(t_req.requestStatus).map((key) => (
-                                                    <option key={key} value={key} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                                                        {t_req.requestStatus[key as keyof typeof t_req.requestStatus]}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                        <td className="px-6 py-4 space-x-2 whitespace-nowrap">
-                                            <button onClick={() => handleDelete(req.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t_req.table.delete}</button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={5}>
-                                         <EmptyState
-                                            icon={<SearchIcon className="w-12 h-12" />}
-                                            title={t.noRequests}
-                                            subtitle="When users request a search for a specific property, their inquiry will appear here."
-                                        />
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('customerName')}>
+                                <div className="flex items-center">{t_req.table.requester}{getSortIcon('customerName')}</div>
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('details')}>
+                                <div className="flex items-center">{t_page.table.details}{getSortIcon('details')}</div>
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('createdAt')}>
+                                <div className="flex items-center">{t_req.table.date}{getSortIcon('createdAt')}</div>
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('status')}>
+                                <div className="flex items-center">{t_req.table.status}{getSortIcon('status')}</div>
+                            </TableHead>
+                            <TableHead>{t_req.table.actions}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {paginatedRequests.length > 0 ? (
+                            paginatedRequests.map(req => (
+                                <TableRow key={req.id}>
+                                    <TableCell>
+                                        <div className="font-medium text-gray-900 dark:text-white">{req.customerName}</div>
+                                        <div className="text-xs text-gray-500">{req.customerPhone}</div>
+                                    </TableCell>
+                                    <TableCell className="max-w-md">
+                                        <p className="whitespace-pre-wrap">{req.details}</p>
+                                        <p className="text-xs text-gray-400 mt-1">Contact at: {req.contactTime}</p>
+                                    </TableCell>
+                                    <TableCell>{new Date(req.createdAt).toLocaleDateString(language)}</TableCell>
+                                    <TableCell>
+                                        <select
+                                            value={req.status}
+                                            onChange={(e) => handleStatusChange(req.id, e.target.value as RequestStatus)}
+                                            className={`text-xs font-medium px-2.5 py-0.5 rounded-full border-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800 ${statusColors[req.status]}`}
+                                        >
+                                        {Object.keys(t_req.requestStatus).map((key) => (
+                                                <option key={key} value={key} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                                    {t_req.requestStatus[key as keyof typeof t_req.requestStatus]}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </TableCell>
+                                    <TableCell className="space-x-2 whitespace-nowrap">
+                                        <button onClick={() => handleDelete(req.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t_req.table.delete}</button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={5}>
+                                     <EmptyState
+                                        icon={<SearchIcon className="w-12 h-12" />}
+                                        title={t_page.noRequests}
+                                        subtitle="When users request a search for a specific property, their inquiry will appear here."
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
                  <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>

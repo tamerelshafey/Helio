@@ -1,12 +1,14 @@
+
+
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { PartnerRequest, PropertyInquiryRequest, AddPropertyRequest, ContactRequest } from '../../types';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllPropertyRequests } from '../../api/propertyRequests';
 import { getAllPropertyInquiries } from '../../api/propertyInquiries';
 import { getAllContactRequests } from '../../api/contactRequests';
 import { InboxIcon, ClipboardDocumentListIcon, SearchIcon } from '../icons/Icons';
-import { translations } from '../../data/translations';
 import RequestList from './shared/RequestList';
 import { useLanguage } from '../shared/LanguageContext';
 
@@ -26,12 +28,12 @@ const StatCard: React.FC<{ title: string; value: number | string; icon: React.FC
 
 
 const CustomerRelationsHomePage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.customerRelationsHome;
+    const { language, t } = useLanguage();
+    const t_home = t.adminDashboard.customerRelationsHome;
 
-    const { data: propertyRequests, isLoading: loadingPropReqs } = useApiQuery('propertyRequests', getAllPropertyRequests);
-    const { data: propertyInquiries, isLoading: loadingInquiries } = useApiQuery('propertyInquiries', getAllPropertyInquiries);
-    const { data: contactRequests, isLoading: loadingContacts } = useApiQuery('contactRequests', getAllContactRequests);
+    const { data: propertyRequests, isLoading: loadingPropReqs } = useQuery({ queryKey: ['propertyRequests'], queryFn: getAllPropertyRequests });
+    const { data: propertyInquiries, isLoading: loadingInquiries } = useQuery({ queryKey: ['propertyInquiries'], queryFn: getAllPropertyInquiries });
+    const { data: contactRequests, isLoading: loadingContacts } = useQuery({ queryKey: ['contactRequests'], queryFn: getAllContactRequests });
 
     const isLoading = loadingPropReqs || loadingInquiries || loadingContacts;
 
@@ -50,24 +52,24 @@ const CustomerRelationsHomePage: React.FC = () => {
 
     return (
         <div className="space-y-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.title}</h1>
-            <p className="text-gray-500 dark:text-gray-400">{t.subtitle}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_home.title}</h1>
+            <p className="text-gray-500 dark:text-gray-400">{t_home.subtitle}</p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <StatCard 
-                    title={t.newListingRequests} 
+                    title={t_home.newListingRequests} 
                     value={stats.pendingPropertyRequests}
                     icon={ClipboardDocumentListIcon}
                     linkTo="/admin/property-requests"
                 />
                 <StatCard 
-                    title={t.newSearchRequests}
+                    title={t_home.newSearchRequests}
                     value={stats.pendingInquiries}
                     icon={SearchIcon}
                     linkTo="/admin/property-inquiries"
                 />
                 <StatCard 
-                    title={t.newContactMessages}
+                    title={t_home.newContactMessages}
                     value={stats.pendingContacts}
                     icon={InboxIcon}
                     linkTo="/admin/contact-requests"
@@ -76,51 +78,51 @@ const CustomerRelationsHomePage: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <RequestList<AddPropertyRequest>
-                    title={t.recentPropertyRequests}
+                    title={t_home.recentPropertyRequests}
                     requests={propertyRequests}
                     linkTo="/admin/property-requests"
-                    itemRenderer={(item, lang) => (
+                    itemRenderer={(item) => (
                         <li key={item.id} className="py-3">
                             <Link to={`/admin/property-requests/${item.id}`} className="flex justify-between items-center group">
                                 <div>
                                     <p className="font-medium group-hover:text-amber-600">{item.customerName}</p>
-                                    <p className="text-sm text-gray-500">{item.propertyDetails.propertyType[lang]} - {item.propertyDetails.area}m²</p>
+                                    <p className="text-sm text-gray-500">{item.propertyDetails.propertyType[language]} - {item.propertyDetails.area}m²</p>
                                 </div>
-                                <p className="text-xs text-gray-400">{new Date(item.createdAt).toLocaleDateString(lang)}</p>
+                                <p className="text-xs text-gray-400">{new Date(item.createdAt).toLocaleDateString(language)}</p>
                             </Link>
                         </li>
                     )}
                 />
 
                 <RequestList<PropertyInquiryRequest>
-                    title={t.recentInquiries}
+                    title={t_home.recentInquiries}
                     requests={propertyInquiries}
                     linkTo="/admin/property-inquiries"
-                    itemRenderer={(item, lang) => (
+                    itemRenderer={(item) => (
                          <li key={item.id} className="py-3">
                             <div className="flex justify-between items-center">
                                 <div>
                                     <p className="font-medium">{item.customerName}</p>
                                     <p className="text-sm text-gray-500 truncate max-w-xs" title={item.details}>{item.details}</p>
                                 </div>
-                                <p className="text-xs text-gray-400">{new Date(item.createdAt).toLocaleDateString(lang)}</p>
+                                <p className="text-xs text-gray-400">{new Date(item.createdAt).toLocaleDateString(language)}</p>
                             </div>
                         </li>
                     )}
                 />
             </div>
              <RequestList<ContactRequest>
-                title={t.recentContacts}
+                title={t_home.recentContacts}
                 requests={contactRequests}
                 linkTo="/admin/contact-requests"
-                itemRenderer={(item, lang) => (
+                itemRenderer={(item) => (
                     <li key={item.id} className="py-3">
                         <div className="flex justify-between items-center">
                             <div>
                                 <p className="font-medium">{item.name}</p>
                                 <p className="text-sm text-gray-500 truncate max-w-md" title={item.message}>{item.message}</p>
                             </div>
-                            <p className="text-xs text-gray-400">{new Date(item.createdAt).toLocaleDateString(lang)}</p>
+                            <p className="text-xs text-gray-400">{new Date(item.createdAt).toLocaleDateString(language)}</p>
                         </div>
                     </li>
                 )}

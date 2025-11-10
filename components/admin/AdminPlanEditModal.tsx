@@ -1,11 +1,12 @@
 
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../../types';
-import { translations } from '../../data/translations';
 import FormField, { inputClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { getPlans, updatePlan as apiUpdatePlan } from '../../api/plans';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminPlanEditModalProps {
@@ -16,10 +17,10 @@ interface AdminPlanEditModalProps {
 }
 
 const AdminPlanEditModal: React.FC<AdminPlanEditModalProps> = ({ planType, planKey, onClose, onSave }) => {
-    const { language } = useLanguage();
-    const { data: plans } = useApiQuery('plans', getPlans);
-    const t = translations[language].adminDashboard.plans;
-    const t_shared = translations[language].adminShared;
+    const { language, t } = useLanguage();
+    const { data: plans } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
+    const t_page = t.adminDashboard.plans;
+    const t_shared = t.adminShared;
     const modalRef = useRef<HTMLDivElement>(null);
 
     const [arData, setArData] = useState({ price: '', description: '', features: '' });
@@ -72,7 +73,7 @@ const AdminPlanEditModal: React.FC<AdminPlanEditModalProps> = ({ planType, planK
             <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
                 <form onSubmit={handleSave} className="flex-grow contents">
                     <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                        <h3 className="text-xl font-bold text-amber-500">{t.editPlanTitle}: {plans?.[planType]?.[planKey as keyof typeof plans[typeof planType]]?.en.name}</h3>
+                        <h3 className="text-xl font-bold text-amber-500">{t_page.editPlanTitle}: {plans?.[planType]?.[planKey as keyof typeof plans[typeof planType]]?.en.name}</h3>
                         <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
                     </div>
                     <div className="flex-grow overflow-y-auto p-6">
@@ -80,34 +81,34 @@ const AdminPlanEditModal: React.FC<AdminPlanEditModalProps> = ({ planType, planK
                             {/* Arabic Fields */}
                             <div className="space-y-4 md:col-span-1">
                                 <h4 className="font-semibold text-lg text-gray-900 dark:text-white">Arabic Content</h4>
-                                <FormField label={`${t.price} (AR)`} id="arPrice">
+                                <FormField label={`${t_page.price} (AR)`} id="arPrice">
                                     <input value={arData.price} onChange={e => setArData({...arData, price: e.target.value})} className={inputClasses} />
                                 </FormField>
-                                <FormField label={`${t.description} (AR)`} id="arDesc">
+                                <FormField label={`${t_page.description} (AR)`} id="arDesc">
                                     <textarea value={arData.description} onChange={e => setArData({...arData, description: e.target.value})} className={inputClasses} rows={3} />
                                 </FormField>
-                                <FormField label={`${t.features} (AR)`} id="arFeatures">
+                                <FormField label={`${t_page.features} (AR)`} id="arFeatures">
                                     <textarea value={arData.features} onChange={e => setArData({...arData, features: e.target.value})} className={inputClasses} rows={5} />
-                                    <p className="text-xs text-gray-500 mt-1">{t.featuresHelpText}</p>
+                                    <p className="text-xs text-gray-500 mt-1">{t_page.featuresHelpText}</p>
                                 </FormField>
                             </div>
                             {/* English Fields */}
                             <div className="space-y-4 md:col-span-1">
                                 <h4 className="font-semibold text-lg text-gray-900 dark:text-white">English Content</h4>
-                                <FormField label={`${t.price} (EN)`} id="enPrice">
+                                <FormField label={`${t_page.price} (EN)`} id="enPrice">
                                     <input value={enData.price} onChange={e => setEnData({...enData, price: e.target.value})} className={inputClasses} />
                                 </FormField>
-                                <FormField label={`${t.description} (EN)`} id="enDesc">
+                                <FormField label={`${t_page.description} (EN)`} id="enDesc">
                                     <textarea value={enData.description} onChange={e => setEnData({...enData, description: e.target.value})} className={inputClasses} rows={3} />
                                 </FormField>
-                                <FormField label={`${t.features} (EN)`} id="enFeatures">
+                                <FormField label={`${t_page.features} (EN)`} id="enFeatures">
                                     <textarea value={enData.features} onChange={e => setEnData({...enData, features: e.target.value})} className={inputClasses} rows={5} />
-                                    <p className="text-xs text-gray-500 mt-1">{t.featuresHelpText}</p>
+                                    <p className="text-xs text-gray-500 mt-1">{t_page.featuresHelpText}</p>
                                 </FormField>
                             </div>
                             {/* Shared Fields */}
                              <div className="md:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4">
-                                <FormField label={t.commissionRate} id="commissionRate">
+                                <FormField label={t_page.commissionRate} id="commissionRate">
                                     <input type="number" step="0.1" value={commissionRate} onChange={e => setCommissionRate(e.target.value)} className={inputClasses + " max-w-xs"} />
                                 </FormField>
                             </div>

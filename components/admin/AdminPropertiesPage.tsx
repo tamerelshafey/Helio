@@ -2,16 +2,16 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Property, AdminPartner } from '../../types';
-import { translations } from '../../data/translations';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import { isListingActive } from '../../utils/propertyUtils';
 import ExportDropdown from '../shared/ExportDropdown';
 import { getAllProperties, deleteProperty as apiDeleteProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../../api/partners';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';
 import { useLanguage } from '../shared/LanguageContext';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
 
 interface AdminPropertiesPageProps {
   filterOptions?: {
@@ -22,13 +22,13 @@ interface AdminPropertiesPageProps {
 const ITEMS_PER_PAGE = 10;
 
 const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ filterOptions }) => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard;
-    const t_dash = translations[language].dashboard;
-    const tp = translations[language].propertiesPage;
+    const { language, t } = useLanguage();
+    const t_admin = t.adminDashboard;
+    const t_dash = t.dashboard;
+    const tp = t.propertiesPage;
     
-    const { data: properties, isLoading: isLoadingProps, refetch: refetchProps } = useApiQuery('allProperties', getAllProperties);
-    const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { data: properties, isLoading: isLoadingProps, refetch: refetchProps } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
+    const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
     const isLoading = isLoadingProps || isLoadingPartners;
     const refetchAll = useCallback(() => {
         refetchProps();
@@ -83,7 +83,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ filterOptions
     };
 
     const handleBulkAction = async (action: 'activate' | 'deactivate' | 'delete') => {
-        const actionText = t.bulkActions[action];
+        const actionText = t_admin.bulkActions[action];
         if (window.confirm(`Are you sure you want to ${actionText.toLowerCase()} ${selectedProperties.length} properties?`)) {
             const promises = selectedProperties.map(id => {
                 switch(action) {
@@ -110,7 +110,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ filterOptions
 
     const exportColumns = {
         [`title.${language}`]: t_dash.propertyTable.title,
-        partnerName: t.propertyTable.partner,
+        partnerName: t_admin.propertyTable.partner,
         [`status.${language}`]: t_dash.propertyTable.status,
         [`price.${language}`]: t_dash.propertyTable.price,
         listingStartDate: language === 'ar' ? 'تاريخ البدء' : 'Start Date',
@@ -121,8 +121,8 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ filterOptions
         <div>
             <div className="flex justify-between items-center mb-2">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t.propertiesTitle}</h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-1">{t.propertiesSubtitle}</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t_admin.propertiesTitle}</h1>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1">{t_admin.propertiesSubtitle}</p>
                 </div>
                  <div className="flex items-center gap-4">
                     <ExportDropdown
@@ -139,13 +139,13 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ filterOptions
             <div className="my-8 p-6 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                      <div className="sm:col-span-2 md:col-span-3 lg:col-span-4">
-                        <input type="text" placeholder={t.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={inputClasses} />
+                        <input type="text" placeholder={t_admin.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={inputClasses} />
                     </div>
                     {!filterOptions?.partnerId && (
                         <div>
-                            <label htmlFor="partner-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.filterByPartner}</label>
+                            <label htmlFor="partner-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t_admin.filter.filterByPartner}</label>
                             <select id="partner-filter" value={filters.partner || 'all'} onChange={e => setFilter('partner', e.target.value)} className={selectClasses} disabled={isLoading}>
-                                <option value="all">{t.filter.allPartners}</option>
+                                <option value="all">{t_admin.filter.allPartners}</option>
                                 {(partnerOptions || []).map(partner => (
                                     <option key={partner.id} value={partner.id}>{partner.name}</option>
                                 ))}
@@ -171,7 +171,7 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ filterOptions
                         </select>
                     </div>
                     <div className="lg:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.listingDateRange}</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t_admin.filter.listingDateRange}</label>
                         <div className="flex items-center gap-2">
                             <input type="date" value={filters.startDate || ''} onChange={e => setFilter('startDate', e.target.value)} className={inputClasses} />
                             <span className="text-gray-400 dark:text-gray-500">-</span>
@@ -184,85 +184,83 @@ const AdminPropertiesPage: React.FC<AdminPropertiesPageProps> = ({ filterOptions
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {selectedProperties.length > 0 && (
                     <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 flex items-center gap-4 border-b border-gray-200 dark:border-gray-700">
-                        <span className="font-semibold text-sm">{selectedProperties.length} {t.bulkActions.selected}</span>
-                        <button onClick={() => handleBulkAction('activate')} className="text-sm font-medium text-green-600 hover:text-green-800">{t.bulkActions.activate}</button>
-                        <button onClick={() => handleBulkAction('deactivate')} className="text-sm font-medium text-yellow-600 hover:text-yellow-800">{t.bulkActions.deactivate}</button>
-                        <button onClick={() => handleBulkAction('delete')} className="text-sm font-medium text-red-600 hover:text-red-800">{t.bulkActions.delete}</button>
-                        <button onClick={() => setSelectedProperties([])} className={`text-sm font-medium text-gray-500 hover:text-gray-700 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}>{t.bulkActions.clear}</button>
+                        <span className="font-semibold text-sm">{selectedProperties.length} {t_admin.bulkActions.selected}</span>
+                        <button onClick={() => handleBulkAction('activate')} className="text-sm font-medium text-green-600 hover:text-green-800">{t_admin.bulkActions.activate}</button>
+                        <button onClick={() => handleBulkAction('deactivate')} className="text-sm font-medium text-yellow-600 hover:text-yellow-800">{t_admin.bulkActions.deactivate}</button>
+                        <button onClick={() => handleBulkAction('delete')} className="text-sm font-medium text-red-600 hover:text-red-800">{t_admin.bulkActions.delete}</button>
+                        <button onClick={() => setSelectedProperties([])} className={`text-sm font-medium text-gray-500 hover:text-gray-700 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}>{t_admin.bulkActions.clear}</button>
                     </div>
                 )}
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th scope="col" className="p-4">
-                                    <input type="checkbox" onChange={handleSelectAll} checked={paginatedProperties.length > 0 && selectedProperties.length === paginatedProperties.length} ref={input => { if (input) input.indeterminate = selectedProperties.length > 0 && selectedProperties.length < paginatedProperties.length }} />
-                                </th>
-                                <th scope="col" className="px-6 py-3">{t_dash.propertyTable.image}</th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort(`title.${language}`)}>
-                                    <div className="flex items-center">{t_dash.propertyTable.title}{getSortIcon(`title.${language}`)}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('partnerName')}>
-                                    <div className="flex items-center">{t.propertyTable.partner}{getSortIcon('partnerName')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('listingEndDate')}>
-                                    <div className="flex items-center">{t.propertyTable.liveStatus}{getSortIcon('listingEndDate')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('listingStartDate')}>
-                                    <div className="flex items-center">{t.propertyTable.listingPeriod}{getSortIcon('listingStartDate')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => requestSort('priceNumeric')}>
-                                    <div className="flex items-center">{t_dash.propertyTable.price}{getSortIcon('priceNumeric')}</div>
-                                </th>
-                                <th scope="col" className="px-6 py-3">{t_dash.propertyTable.actions}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {isLoading ? (
-                                <tr><td colSpan={8} className="text-center p-8">Loading properties...</td></tr>
-                            ) : paginatedProperties.length > 0 ? (
-                                paginatedProperties.map(prop => (
-                                    <tr key={prop.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="w-4 p-4">
-                                             <input type="checkbox" checked={selectedProperties.includes(prop.id)} onChange={() => handleSelect(prop.id)} />
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <img src={prop.imageUrl} alt={prop.title[language]} className="w-16 h-16 object-cover rounded-md" />
-                                        </td>
-                                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                            {prop.title[language]}
-                                        </th>
-                                        <td className="px-6 py-4">{prop.partnerName}</td>
-                                        <td className="px-6 py-4">
-                                            {isListingActive(prop) ? (
-                                                <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                                                    {t.propertyTable.active}
-                                                </span>
-                                            ) : (
-                                                <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                                    {t.propertyTable.inactive}
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 text-xs">
-                                            <div>{prop.listingStartDate || 'N/A'}</div>
-                                            <div>{prop.listingEndDate || 'N/A'}</div>
-                                        </td>
-                                        <td className="px-6 py-4">{prop.price[language]}</td>
-                                        <td className="px-6 py-4 space-x-2 whitespace-nowrap">
-                                            <Link to={`/admin/properties/edit/${prop.id}`} className="font-medium text-amber-600 dark:text-amber-500 hover:underline">{t.propertyTable.edit}</Link>
-                                            <button onClick={() => handleDelete(prop.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">
-                                                {t_dash.propertyTable.delete}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr><td colSpan={8} className="text-center p-8">{t_dash.propertyTable.noProperties}</td></tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="p-4">
+                                <input type="checkbox" onChange={handleSelectAll} checked={paginatedProperties.length > 0 && selectedProperties.length === paginatedProperties.length} ref={input => { if (input) input.indeterminate = selectedProperties.length > 0 && selectedProperties.length < paginatedProperties.length }} />
+                            </TableHead>
+                            <TableHead>{t_dash.propertyTable.image}</TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort(`title.${language}`)}>
+                                <div className="flex items-center">{t_dash.propertyTable.title}{getSortIcon(`title.${language}`)}</div>
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('partnerName')}>
+                                <div className="flex items-center">{t_admin.propertyTable.partner}{getSortIcon('partnerName')}</div>
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('listingEndDate')}>
+                                <div className="flex items-center">{t_admin.propertyTable.liveStatus}{getSortIcon('listingEndDate')}</div>
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('listingStartDate')}>
+                                <div className="flex items-center">{t_admin.propertyTable.listingPeriod}{getSortIcon('listingStartDate')}</div>
+                            </TableHead>
+                            <TableHead className="cursor-pointer" onClick={() => requestSort('priceNumeric')}>
+                                <div className="flex items-center">{t_dash.propertyTable.price}{getSortIcon('priceNumeric')}</div>
+                            </TableHead>
+                            <TableHead>{t_dash.propertyTable.actions}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            <TableRow><TableCell colSpan={8} className="text-center p-8">Loading properties...</TableCell></TableRow>
+                        ) : paginatedProperties.length > 0 ? (
+                            paginatedProperties.map(prop => (
+                                <TableRow key={prop.id}>
+                                    <TableCell className="p-4">
+                                         <input type="checkbox" checked={selectedProperties.includes(prop.id)} onChange={() => handleSelect(prop.id)} />
+                                    </TableCell>
+                                    <TableCell>
+                                        <img src={prop.imageUrl} alt={prop.title[language]} className="w-16 h-16 object-cover rounded-md" />
+                                    </TableCell>
+                                    <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {prop.title[language]}
+                                    </TableCell>
+                                    <TableCell>{prop.partnerName}</TableCell>
+                                    <TableCell>
+                                        {isListingActive(prop) ? (
+                                            <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                                                {t_admin.propertyTable.active}
+                                            </span>
+                                        ) : (
+                                            <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                                {t_admin.propertyTable.inactive}
+                                            </span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-xs">
+                                        <div>{prop.listingStartDate || 'N/A'}</div>
+                                        <div>{prop.listingEndDate || 'N/A'}</div>
+                                    </TableCell>
+                                    <TableCell>{prop.price[language]}</TableCell>
+                                    <TableCell className="space-x-2 whitespace-nowrap">
+                                        <Link to={`/admin/properties/edit/${prop.id}`} className="font-medium text-amber-600 dark:text-amber-500 hover:underline">{t_admin.propertyTable.edit}</Link>
+                                        <button onClick={() => handleDelete(prop.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">
+                                            {t_dash.propertyTable.delete}
+                                        </button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow><TableCell colSpan={8} className="text-center p-8">{t_dash.propertyTable.noProperties}</TableCell></TableRow>
+                        )}
+                    </TableBody>
+                </Table>
                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>

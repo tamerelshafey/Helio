@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUpIcon } from '../icons/Icons';
+import { Button } from '../ui/Button';
 
 const BackToTopButton: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -29,13 +30,15 @@ const BackToTopButton: React.FC = () => {
   return (
     <>
       {isVisible && (
-        <button
+        <Button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 p-3 bg-amber-500 text-gray-900 rounded-full shadow-lg hover:bg-amber-600 transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+          variant="primary"
+          size="icon"
+          className="fixed bottom-24 right-6 z-50 rounded-full shadow-lg transform hover:scale-110"
           aria-label="Go to top"
         >
           <ArrowUpIcon className="h-6 w-6" />
-        </button>
+        </Button>
       )}
     </>
   );

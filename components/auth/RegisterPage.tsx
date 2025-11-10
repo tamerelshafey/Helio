@@ -2,16 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import type { Language, ManagementContact, OfficialDocument, PartnerRequest, SubscriptionPlan, PartnerType } from '../../types';
-import { translations } from '../../data/translations';
-import FormField, { inputClasses, selectClasses } from '../shared/FormField';
+import FormField from '../shared/FormField';
 import { CheckCircleIcon, CloseIcon, ClipboardDocumentListIcon } from '../icons/Icons';
 import { addPartnerRequest } from '../../api/partnerRequests';
 import SubscriptionPlanSelector from '../SubscriptionPlanSelector';
 import { HelioLogo } from '../HelioLogo';
 import { useLanguage } from '../shared/LanguageContext';
 import { useToast } from '../shared/ToastContext';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getPlans } from '../../api/plans';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Select } from '../ui/Select';
+import { Textarea } from '../ui/Textarea';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -53,12 +56,11 @@ const Stepper: React.FC<{ steps: string[], currentStep: number }> = ({ steps, cu
 
 
 const RegisterPage: React.FC = () => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const { showToast } = useToast();
-    const t = translations[language];
     const t_form = t.partnerRequestForm;
     const t_auth = t.auth;
-    const { data: allPlans } = useApiQuery('plans', getPlans);
+    const { data: allPlans } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
 
     const [step, setStep] = useState(1);
     const [submitted, setSubmitted] = useState(false);
@@ -165,7 +167,7 @@ const RegisterPage: React.FC = () => {
                     <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{t_auth.registerSuccessTitle}</h1>
                     <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">{t_auth.registerSuccessMessage}</p>
                     <Link to="/" className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors">
-                        {translations[language].addPropertyPage.backToHome}
+                        {t.addPropertyPage.backToHome}
                     </Link>
                 </div>
             </div>
@@ -197,12 +199,12 @@ const RegisterPage: React.FC = () => {
                                     </div>
                                     <div className="max-w-md mx-auto mb-8">
                                         <FormField label={t_form.companyType} id="companyType">
-                                            <select {...register("companyType", { required: true })} className={selectClasses}>
+                                            <Select {...register("companyType", { required: true })} className={!watch('companyType') ? 'text-gray-500' : ''}>
                                                 <option value="" disabled>{t_form.selectType}</option>
                                                 <option value="developer">{t_form.developer}</option>
                                                 <option value="finishing">{t_form.finishing}</option>
                                                 <option value="agency">{t_form.agency}</option>
-                                            </select>
+                                            </Select>
                                         </FormField>
                                     </div>
                                     {watchCompanyType && (
@@ -215,9 +217,9 @@ const RegisterPage: React.FC = () => {
                                         </div>
                                     )}
                                     <div className="mt-8 pt-6 flex justify-end">
-                                        <button type="button" onClick={nextStep} disabled={!watchCompanyType || !watchSubscriptionPlan} className="w-full sm:w-auto bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <Button type="button" size="lg" onClick={nextStep} disabled={!watchCompanyType || !watchSubscriptionPlan} className="w-full sm:w-auto">
                                             {t_form.next}
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             )}
@@ -231,19 +233,19 @@ const RegisterPage: React.FC = () => {
                                     <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
                                         <legend className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t_form.companyInfo}</legend>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <FormField label={t_form.companyName} id="companyName" error={errors.companyName?.message}><input type="text" {...register("companyName", { required: "Company name is required." })} className={inputClasses} /></FormField>
-                                            <FormField label={t_form.companyAddress} id="companyAddress" error={errors.companyAddress?.message}><input type="text" {...register("companyAddress", { required: "Company address is required." })} className={inputClasses} /></FormField>
+                                            <FormField label={t_form.companyName} id="companyName" error={errors.companyName?.message}><Input type="text" {...register("companyName", { required: "Company name is required." })} /></FormField>
+                                            <FormField label={t_form.companyAddress} id="companyAddress" error={errors.companyAddress?.message}><Input type="text" {...register("companyAddress", { required: "Company address is required." })} /></FormField>
                                         </div>
-                                        <FormField label={t_form.website} id="website"><input type="url" {...register("website")} className={inputClasses} /></FormField>
-                                        <FormField label={t_form.companyDescription} id="description" error={errors.description?.message}><textarea {...register("description", { required: "Description is required." })} rows={4} className={inputClasses}></textarea></FormField>
+                                        <FormField label={t_form.website} id="website"><Input type="url" {...register("website")} /></FormField>
+                                        <FormField label={t_form.companyDescription} id="description" error={errors.description?.message}><Textarea {...register("description", { required: "Description is required." })} rows={4}></Textarea></FormField>
                                     </fieldset>
 
                                     <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
                                         <legend className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t_form.primaryContact}</legend>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            <FormField label={t_form.contactName} id="contactName" error={errors.contactName?.message}><input type="text" {...register("contactName", { required: "Contact name is required." })} className={inputClasses} /></FormField>
-                                            <FormField label={t_form.contactEmail} id="contactEmail" error={errors.contactEmail?.message}><input type="email" {...register("contactEmail", { required: "Email is required.", pattern: { value: /^\S+@\S+$/i, message: "Invalid email address" }})} className={inputClasses} /></FormField>
-                                            <FormField label={t_form.contactPhone} id="contactPhone" error={errors.contactPhone?.message}><input type="tel" {...register("contactPhone", { required: "Phone is required." })} className={inputClasses} /></FormField>
+                                            <FormField label={t_form.contactName} id="contactName" error={errors.contactName?.message}><Input type="text" {...register("contactName", { required: "Contact name is required." })} /></FormField>
+                                            <FormField label={t_form.contactEmail} id="contactEmail" error={errors.contactEmail?.message}><Input type="email" {...register("contactEmail", { required: "Email is required.", pattern: { value: /^\S+@\S+$/i, message: "Invalid email address" }})} /></FormField>
+                                            <FormField label={t_form.contactPhone} id="contactPhone" error={errors.contactPhone?.message}><Input type="tel" {...register("contactPhone", { required: "Phone is required." })} /></FormField>
                                         </div>
                                     </fieldset>
 
@@ -253,10 +255,10 @@ const RegisterPage: React.FC = () => {
                                             <div key={item.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4 relative">
                                                 <button type="button" onClick={() => remove(index)} className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1"><CloseIcon className="w-4 h-4" /></button>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <FormField label={t_form.managementName} id={`mgmt-name-${index}`}><input {...register(`managementContacts.${index}.name` as const, { required: true })} className={inputClasses} /></FormField>
-                                                    <FormField label={t_form.managementPosition} id={`mgmt-pos-${index}`}><input {...register(`managementContacts.${index}.position` as const, { required: true })} className={inputClasses} /></FormField>
-                                                    <FormField label={t_form.managementEmail} id={`mgmt-email-${index}`}><input type="email" {...register(`managementContacts.${index}.email` as const, { required: true })} className={inputClasses} /></FormField>
-                                                    <FormField label={t_form.managementPhone} id={`mgmt-phone-${index}`}><input type="tel" {...register(`managementContacts.${index}.phone` as const, { required: true })} className={inputClasses} /></FormField>
+                                                    <FormField label={t_form.managementName} id={`mgmt-name-${index}`}><Input {...register(`managementContacts.${index}.name` as const, { required: true })} /></FormField>
+                                                    <FormField label={t_form.managementPosition} id={`mgmt-pos-${index}`}><Input {...register(`managementContacts.${index}.position` as const, { required: true })} /></FormField>
+                                                    <FormField label={t_form.managementEmail} id={`mgmt-email-${index}`}><Input type="email" {...register(`managementContacts.${index}.email` as const, { required: true })} /></FormField>
+                                                    <FormField label={t_form.managementPhone} id={`mgmt-phone-${index}`}><Input type="tel" {...register(`managementContacts.${index}.phone` as const, { required: true })} /></FormField>
                                                 </div>
                                             </div>
                                         ))}
@@ -264,8 +266,12 @@ const RegisterPage: React.FC = () => {
                                     </fieldset>
                                     
                                     <div className="pt-6 flex justify-between items-center">
-                                        <button type="button" onClick={prevStep} className="px-8 py-3 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold">{t_form.back}</button>
-                                        <button type="button" onClick={nextStep} className="w-full sm:w-auto bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200">{t_form.next}</button>
+                                        <Button type="button" size="lg" variant="secondary" onClick={prevStep}>
+                                            {t_form.back}
+                                        </Button>
+                                        <Button type="button" size="lg" onClick={nextStep} className="w-full sm:w-auto">
+                                            {t_form.next}
+                                        </Button>
                                     </div>
                                 </div>
                             )}
@@ -280,14 +286,14 @@ const RegisterPage: React.FC = () => {
                                         <FormField label={t_form.companyLogo} id="logo">
                                             <div className="flex items-center gap-4">
                                                 {logoPreview && <img src={logoPreview} alt="Logo preview" className="w-20 h-20 rounded-full object-cover border-2" />}
-                                                <input type="file" id="logo" onChange={handleLogoChange} accept="image/*" className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`} required />
+                                                <Input type="file" id="logo" onChange={handleLogoChange} accept="image/*" className="p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" required />
                                             </div>
                                         </FormField>
                                     </fieldset>
                                     <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
                                         <legend className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t_form.officialDocs}</legend>
                                         <FormField label={t_form.uploadDocs} id="documents">
-                                            <input type="file" id="documents" onChange={handleDocumentChange} multiple className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`} />
+                                            <Input type="file" id="documents" onChange={handleDocumentChange} multiple className="p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" />
                                         </FormField>
                                         {documents.length > 0 && (
                                             <ul className="mt-4 space-y-2">
@@ -308,10 +314,12 @@ const RegisterPage: React.FC = () => {
                                     </fieldset>
 
                                     <div className="pt-6 flex justify-between items-center">
-                                        <button type="button" onClick={prevStep} className="px-8 py-3 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold">{t_form.back}</button>
-                                        <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
-                                            {isSubmitting ? '...' : t_form.submitRequest}
-                                        </button>
+                                        <Button type="button" size="lg" variant="secondary" onClick={prevStep}>
+                                            {t_form.back}
+                                        </Button>
+                                        <Button type="submit" size="lg" isLoading={isSubmitting} className="w-full sm:w-auto">
+                                            {t_form.submitRequest}
+                                        </Button>
                                     </div>
                                 </div>
                             )}

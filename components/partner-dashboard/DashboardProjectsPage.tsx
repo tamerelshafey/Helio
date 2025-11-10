@@ -1,22 +1,23 @@
 
+
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Project } from '../../types';
 import { Role } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { BuildingIcon } from '../icons/Icons';
-import { translations } from '../../data/translations';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getProperties } from '../../api/properties';
 import UpgradePlanModal from '../UpgradePlanModal';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
+import { Card, CardContent } from '../ui/Card';
 
 const DashboardProjectsPage: React.FC = () => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
-    const t_proj = translations[language].projectDashboard;
+    const t_proj = t.projectDashboard;
 
     const { 
         data: partnerProjects, 
@@ -25,11 +26,11 @@ const DashboardProjectsPage: React.FC = () => {
         refetch: refetchProjects 
     } = useSubscriptionUsage('projects');
 
-    const { data: properties, isLoading: isLoadingProperties } = useApiQuery(
-        'all-dashboard-properties',
-        getProperties,
-        { enabled: !!currentUser && currentUser.role === Role.DEVELOPER_PARTNER }
-    );
+    const { data: properties, isLoading: isLoadingProperties } = useQuery({
+        queryKey: ['all-dashboard-properties'],
+        queryFn: getProperties,
+        enabled: !!currentUser && currentUser.role === Role.DEVELOPER_PARTNER,
+    });
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const loading = isLoadingProjects || isLoadingProperties;
 
@@ -68,24 +69,26 @@ const DashboardProjectsPage: React.FC = () => {
                             <Link 
                                 to={`/dashboard/projects/${project.id}`} 
                                 key={project.id} 
-                                className="block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 group"
+                                className="block transform hover:-translate-y-1 transition-transform duration-300 group"
                             >
-                                <div className="relative">
-                                    <img src={project.imageUrl} alt={project.name[language]} className="w-full h-48 object-cover" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                    <div className="absolute bottom-0 left-0 p-4">
-                                        <h2 className="text-xl font-bold text-white group-hover:text-amber-300 transition-colors">{project.name[language]}</h2>
+                                <Card className="overflow-hidden p-0 h-full flex flex-col">
+                                    <div className="relative">
+                                        <img src={project.imageUrl} alt={project.name[language]} className="w-full h-48 object-cover" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                        <div className="absolute bottom-0 left-0 p-4">
+                                            <h2 className="text-xl font-bold text-white group-hover:text-amber-300 transition-colors">{project.name[language]}</h2>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="p-4 flex justify-between items-center">
-                                    <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                                        <BuildingIcon className="w-5 h-5" />
-                                        <span>{projectPropertiesCount} {t_proj.units}</span>
-                                    </div>
-                                    <span className="text-sm font-semibold text-amber-600 dark:text-amber-500 group-hover:underline">
-                                        {t_proj.manageProject}
-                                    </span>
-                                </div>
+                                    <CardContent className="p-4 flex justify-between items-center">
+                                        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                            <BuildingIcon className="w-5 h-5" />
+                                            <span>{projectPropertiesCount} {t_proj.units}</span>
+                                        </div>
+                                        <span className="text-sm font-semibold text-amber-600 dark:text-amber-500 group-hover:underline">
+                                            {t_proj.manageProject}
+                                        </span>
+                                    </CardContent>
+                                </Card>
                             </Link>
                         )
                     })}

@@ -1,8 +1,9 @@
+
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus } from '../../../types';
-import { translations } from '../../../data/translations';
-import { useApiQuery } from '../../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllLeads, deleteLead as apiDeleteLead } from '../../../api/leads';
 import { inputClasses } from '../../shared/FormField';
 import Pagination from '../../shared/Pagination';
@@ -21,9 +22,9 @@ const statusColors: { [key in LeadStatus]: string } = {
 const ITEMS_PER_PAGE = 10;
 
 const RequestsManagement: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.decorationsManagement;
-    const { data: allLeads, refetch: refetchLeads, isLoading: loadingLeads } = useApiQuery('allLeads', getAllLeads);
+    const { language, t: i18n } = useLanguage();
+    const t = i18n.adminDashboard.decorationsManagement;
+    const { data: allLeads, refetch: refetchLeads, isLoading: loadingLeads } = useQuery({ queryKey: ['allLeads'], queryFn: getAllLeads });
     const loading = loadingLeads;
 
     const [startDate, setStartDate] = useState('');
@@ -99,10 +100,10 @@ const RequestsManagement: React.FC = () => {
                                         <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{lead.customerName}<br/><span className="font-normal text-gray-500">{lead.customerPhone}</span></td>
                                         <td className="px-6 py-4">{lead.serviceTitle}</td>
                                         <td className="px-6 py-4">{new Date(lead.createdAt).toLocaleDateString(language)}</td>
-                                        <td className="px-6 py-4"><span className={`px-2 py-1 text-xs rounded-full ${statusColors[lead.status]}`}>{translations[language].dashboard.leadStatus[lead.status]}</span></td>
+                                        <td className="px-6 py-4"><span className={`px-2 py-1 text-xs rounded-full ${statusColors[lead.status]}`}>{i18n.dashboard.leadStatus[lead.status]}</span></td>
                                         <td className="px-6 py-4 space-x-4">
                                             <Link to={`/admin/decoration-requests/${lead.id}`} className="font-medium text-blue-600 hover:underline">View</Link>
-                                            <button onClick={() => handleDelete(lead.id)} className="font-medium text-red-600 hover:underline">{translations[language].adminShared.delete}</button>
+                                            <button onClick={() => handleDelete(lead.id)} className="font-medium text-red-600 hover:underline">{i18n.adminShared.delete}</button>
                                         </td>
                                     </tr>
                                 ))

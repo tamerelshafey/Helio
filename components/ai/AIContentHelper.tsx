@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import type { Language, Property } from '../../types';
-import { translations } from '../../data/translations';
 import { CloseIcon, SparklesIcon } from '../icons/Icons';
+import { useLanguage } from '../shared/LanguageContext';
 
 interface AIContentHelperProps {
   isOpen: boolean;
   onClose: () => void;
   onApply: (newText: string) => void;
-  language: Language;
   originalText: string;
   propertyData: Partial<Property>;
   context: {
@@ -16,11 +15,10 @@ interface AIContentHelperProps {
   };
 }
 
-const AIContentHelper: React.FC<AIContentHelperProps> = ({
+const AIContentHelper: React.FC<Omit<AIContentHelperProps, 'language'>> = ({
   isOpen,
   onClose,
   onApply,
-  language,
   originalText,
   propertyData,
   context,
@@ -29,7 +27,7 @@ const AIContentHelper: React.FC<AIContentHelperProps> = ({
   const [generatedText, setGeneratedText] = useState('');
   const [currentAction, setCurrentAction] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-  const t = translations[language];
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     if (isOpen) {

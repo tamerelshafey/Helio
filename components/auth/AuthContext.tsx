@@ -38,7 +38,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             try {
                 const userId = localStorage.getItem('onlyhelio-auth-id');
                 if (userId) {
-                    // FIX: The `getPartnerById` function is async and must be awaited.
                     const user = await getPartnerById(userId);
                     if (user) {
                         setUserAndPermissions(user);
@@ -54,7 +53,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     const login = async (email: string, pass: string): Promise<Partner | null> => {
-        let user: Partner | undefined = getPartnerByEmail(email);
+        let user: Partner | undefined = await getPartnerByEmail(email);
 
         if (user) {
             localStorage.setItem('onlyhelio-auth-id', user.id);

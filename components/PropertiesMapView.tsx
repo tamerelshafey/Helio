@@ -1,11 +1,11 @@
 
+
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import type { Language, Property } from '../types';
-import { translations } from '../data/translations';
 import PropertyCard from './shared/PropertyCard';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 import { LocationMarkerIcon } from './icons/Icons';
-import { useApiQuery } from './shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getContent } from '../api/content';
 import { useLanguage } from './shared/LanguageContext';
 
@@ -37,9 +37,9 @@ const MAP_BOUNDS = {
 };
 
 const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loading, activePropertyId, setActivePropertyId }) => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const listRef = useRef<HTMLDivElement>(null);
-    const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
+    const { data: siteContent, isLoading: isLoadingContent } = useQuery({ queryKey: ['siteContent'], queryFn: getContent });
     
     // Function to convert geo-coords to pixel coords based on fixed bounds
     const convertToPixel = useCallback((lat: number, lng: number) => {
@@ -91,7 +91,7 @@ const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loadi
                     ))
                 ) : (
                     <div className="text-center p-8 text-gray-500 dark:text-gray-400 h-full flex items-center justify-center">
-                        {translations[language].propertiesPage.noResults}
+                        {t.propertiesPage.noResults}
                     </div>
                 )}
             </div>

@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus, AdminPartner } from '../../../types';
-import { translations } from '../../../data/translations';
 import { inputClasses } from '../../shared/FormField';
 import Pagination from '../../shared/Pagination';
-import { useApiQuery } from '../../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllLeads } from '../../../api/leads';
 import { getAllPartnersForAdmin } from '../../../api/partners';
 import { useLanguage } from '../../shared/LanguageContext';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 
 const statusColors: { [key in LeadStatus]?: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -29,12 +29,12 @@ interface ServiceRequestsManagementProps {
 }
 
 const ServiceRequestsManagement: React.FC<ServiceRequestsManagementProps> = ({ serviceType, title, subtitle, detailsUrlPrefix }) => {
-    const { language } = useLanguage();
-    const t_admin = translations[language].adminDashboard;
-    const t_dash = translations[language].dashboard;
+    const { language, t } = useLanguage();
+    const t_admin = t.adminDashboard;
+    const t_dash = t.dashboard;
 
-    const { data: allLeads, isLoading: isLoadingLeads } = useApiQuery('allLeadsAdmin', getAllLeads);
-    const { data: allPartners, isLoading: isLoadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { data: allLeads, isLoading: isLoadingLeads } = useQuery({ queryKey: ['allLeadsAdmin'], queryFn: getAllLeads });
+    const { data: allPartners, isLoading: isLoadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
     const isLoading = isLoadingLeads || isLoadingPartners;
 
     const [startDate, setStartDate] = useState('');
@@ -97,47 +97,45 @@ const ServiceRequestsManagement: React.FC<ServiceRequestsManagementProps> = ({ s
                 </div>
             </div>
             <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th className="px-6 py-3">{t_dash.leadTable.customer}</th>
-                                <th className="px-6 py-3">{t_dash.leadTable.service}</th>
-                                <th className="px-6 py-3">{t_dash.leadTable.date}</th>
-                                <th className="px-6 py-3">{t_dash.leadTable.status}</th>
-                                <th className="px-6 py-3">{t_admin.finishingRequests.assignedTo}</th>
-                                <th className="px-6 py-3">{t_dash.leadTable.actions}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {isLoading ? (
-                                <tr><td colSpan={6} className="text-center p-8">Loading...</td></tr>
-                            ) : paginatedLeads.length > 0 ? (
-                                paginatedLeads.map(lead => (
-                                    <tr key={lead.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{lead.customerName}<br/><span className="font-normal text-gray-500">{lead.customerPhone}</span></td>
-                                        <td className="px-6 py-4">{lead.serviceTitle}</td>
-                                        <td className="px-6 py-4">{new Date(lead.createdAt).toLocaleDateString(language)}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColors[lead.status] || ''}`}>
-                                                {t_dash.leadStatus[lead.status as keyof typeof t_dash.leadStatus] || lead.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 font-medium text-gray-800 dark:text-gray-200">{getAssignedToName(lead.assignedTo)}</td>
-                                        <td className="px-6 py-4">
-                                            <Link to={`${detailsUrlPrefix}/${lead.id}`} className="font-medium text-amber-600 hover:underline">
-                                                {t_admin.finishingRequests.manage}
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr><td colSpan={6} className="text-center p-8">{t_admin.decorationsManagement.noRequests}</td></tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} language={language} />
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>{t_dash.leadTable.customer}</TableHead>
+                            <TableHead>{t_dash.leadTable.service}</TableHead>
+                            <TableHead>{t_dash.leadTable.date}</TableHead>
+                            <TableHead>{t_dash.leadTable.status}</TableHead>
+                            <TableHead>{t_admin.finishingRequests.assignedTo}</TableHead>
+                            <TableHead>{t_dash.leadTable.actions}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            <TableRow><TableCell colSpan={6} className="text-center p-8">Loading...</TableCell></TableRow>
+                        ) : paginatedLeads.length > 0 ? (
+                            paginatedLeads.map(lead => (
+                                <TableRow key={lead.id}>
+                                    <TableCell className="font-medium text-gray-900 dark:text-white">{lead.customerName}<br/><span className="font-normal text-gray-500">{lead.customerPhone}</span></TableCell>
+                                    <TableCell>{lead.serviceTitle}</TableCell>
+                                    <TableCell>{new Date(lead.createdAt).toLocaleDateString(language)}</TableCell>
+                                    <TableCell>
+                                        <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColors[lead.status] || ''}`}>
+                                            {t_dash.leadStatus[lead.status as keyof typeof t_dash.leadStatus] || lead.status}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell className="font-medium text-gray-800 dark:text-gray-200">{getAssignedToName(lead.assignedTo)}</TableCell>
+                                    <TableCell>
+                                        <Link to={`${detailsUrlPrefix}/${lead.id}`} className="font-medium text-amber-600 hover:underline">
+                                            {t_admin.finishingRequests.manage}
+                                        </Link>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow><TableCell colSpan={6} className="text-center p-8">{t_admin.decorationsManagement.noRequests}</TableCell></TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

@@ -1,14 +1,16 @@
+
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon, SwimmingPoolIcon, ParkIcon, ShieldCheckIcon, ShoppingCartIcon, BuildingStorefrontIcon, ElevatorIcon } from './icons/Icons';
 import type { Property, Language } from '../types';
-import { translations } from '../data/translations';
 import { useFavorites } from './shared/FavoritesContext';
 import Lightbox from './shared/Lightbox';
 import { isCommercial } from '../utils/propertyUtils';
 import BannerDisplay from './shared/BannerDisplay';
 import { getPropertiesByProjectId } from '../api/properties';
-import { useApiQuery } from './shared/useApiQuery';
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+import { useQuery } from '@tanstack/react-query';
 import DetailItem from './shared/DetailItem';
 import ContactOptionsModal from './shared/ContactOptionsModal';
 import { useToast } from './shared/ToastContext';
@@ -34,24 +36,23 @@ const iconMap: { [key: string]: React.FC<{ className?: string }> } = {
 
 const ProjectDetailsPage: React.FC = () => {
     const { projectId } = useParams<{ projectId: string }>();
-    const { language } = useLanguage();
-    const t = translations[language];
-    const t_page = translations[language].propertyDetailsPage;
+    const { language, t } = useLanguage();
+    const t_page = t.propertyDetailsPage;
 
     const fetchProject = useCallback(() => getProjectById(projectId!), [projectId]);
-    const { data: project, isLoading: isLoadingProjs } = useApiQuery(`project-${projectId}`, fetchProject, { enabled: !!projectId });
+    const { data: project, isLoading: isLoadingProjs } = useQuery({ queryKey: [`project-${projectId}`], queryFn: fetchProject, enabled: !!projectId });
     
-    const { data: projectProperties, isLoading: isLoadingProps } = useApiQuery(
-        `project-properties-${projectId}`,
-        () => getPropertiesByProjectId(projectId!),
-        { enabled: !!projectId }
-    );
+    const { data: projectProperties, isLoading: isLoadingProps } = useQuery({
+        queryKey: [`project-properties-${projectId}`],
+        queryFn: () => getPropertiesByProjectId(projectId!),
+        enabled: !!projectId,
+    });
 
-    const { data: developer, isLoading: isLoadingPartner } = useApiQuery(
-        `partner-${project?.partnerId}`,
-        () => getPartnerById(project!.partnerId),
-        { enabled: !!project?.partnerId }
-    );
+    const { data: developer, isLoading: isLoadingPartner } = useQuery({
+        queryKey: [`partner-${project?.partnerId}`],
+        queryFn: () => getPartnerById(project!.partnerId),
+        enabled: !!project?.partnerId,
+    });
 
     const isLoading = isLoadingProjs || isLoadingProps || isLoadingPartner;
 

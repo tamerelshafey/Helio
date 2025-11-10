@@ -1,8 +1,8 @@
+
 import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Property, Lead } from '../../types';
-import { translations } from '../../data/translations';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllProjects, deleteProject as apiDeleteProject } from '../../api/projects';
 import { getPropertiesByPartnerId, deleteProperty as apiDeleteProperty } from '../../api/properties';
 import { getLeadsByPartnerId } from '../../api/leads';
@@ -12,29 +12,32 @@ import UpgradePlanModal from '../UpgradePlanModal';
 import StatCard from '../shared/StatCard';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
+import ConfirmationModal from '../shared/ConfirmationModal';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
 
 const DashboardProjectDetailsPage: React.FC = () => {
     const { projectId } = useParams<{ projectId: string }>();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
-    const { language } = useLanguage();
-    const t = translations[language];
+    const { language, t } = useLanguage();
     const t_proj = t.projectDashboard;
     const t_prop_table = t.dashboard.propertyTable;
     const t_analytics = t.dashboard.projectAnalytics;
 
-    const { data: projects, isLoading: loadingProjects, refetch: refetchProjects } = useApiQuery('allProjects', getAllProjects);
-    const { data: partnerProperties, isLoading: loadingProperties, refetch: refetchProperties } = useApiQuery(
-        `partner-properties-${currentUser?.id}`,
-        () => getPropertiesByPartnerId(currentUser!.id),
-        { enabled: !!currentUser }
-    );
-    const { data: leads, isLoading: loadingLeads, refetch: refetchLeads } = useApiQuery(`leads-${currentUser?.id}`, () => getLeadsByPartnerId(currentUser!.id), { enabled: !!currentUser });
+    const { data: projects, isLoading: loadingProjects, refetch: refetchProjects } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
+    const { data: partnerProperties, isLoading: loadingProperties, refetch: refetchProperties } = useQuery({
+        queryKey: [`partner-properties-${currentUser?.id}`],
+        queryFn: () => getPropertiesByPartnerId(currentUser!.id),
+        enabled: !!currentUser,
+    });
+    const { data: leads, isLoading: loadingLeads, refetch: refetchLeads } = useQuery({ queryKey: [`leads-${currentUser?.id}`], queryFn: () => getLeadsByPartnerId(currentUser!.id), enabled: !!currentUser });
     
     const { isLimitReached: isUnitsLimitReached } = useSubscriptionUsage('units');
     
     const [activeTab, setActiveTab] = useState('units');
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+    const [modalState, setModalState] = useState<{ type: 'deleteProject' | 'deleteProperty'; id: string } | null>(null);
+
 
     const project = useMemo(() => (projects || []).find(p => p.id === projectId), [projects, projectId]);
     const projectProperties = useMemo(() => (partnerProperties || []).filter(p => p.projectId === projectId), [partnerProperties, projectId]);
@@ -56,19 +59,21 @@ const DashboardProjectDetailsPage: React.FC = () => {
 
 
     const handleDeleteProject = async () => {
-        if (project && window.confirm(t_proj.confirmDelete)) {
+        if (project && modalState?.type === 'deleteProject') {
             const propertyDeletions = projectProperties.map(p => apiDeleteProperty(p.id));
             await Promise.all(propertyDeletions);
             await apiDeleteProject(project.id);
             refetchAll();
+            setModalState(null);
             navigate('/dashboard/projects');
         }
     };
     
-    const handleDeleteProperty = async (propertyId: string) => {
-        if (window.confirm(t_prop_table.confirmDelete)) {
-            await apiDeleteProperty(propertyId);
+    const handleDeleteProperty = async () => {
+        if (modalState?.type === 'deleteProperty') {
+            await apiDeleteProperty(modalState.id);
             refetchProperties();
+            setModalState(null);
         }
     };
     
@@ -129,6 +134,16 @@ const DashboardProjectDetailsPage: React.FC = () => {
     return (
         <div>
             {isUpgradeModalOpen && <UpgradePlanModal onClose={() => setIsUpgradeModalOpen(false)} />}
+            {modalState && (
+                <ConfirmationModal
+                    isOpen={!!modalState}
+                    onClose={() => setModalState(null)}
+                    onConfirm={modalState.type === 'deleteProject' ? handleDeleteProject : handleDeleteProperty}
+                    title={modalState.type === 'deleteProject' ? 'Delete Project' : 'Delete Property'}
+                    message={modalState.type === 'deleteProject' ? t_proj.confirmDelete : t_prop_table.confirmDelete}
+                    confirmText="Delete"
+                />
+            )}
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
                 <div className="flex flex-col sm:flex-row gap-6">
                     <img src={project.imageUrl} alt={project.name[language]} className="w-full sm:w-48 h-48 object-cover rounded-lg flex-shrink-0" />
@@ -141,7 +156,7 @@ const DashboardProjectDetailsPage: React.FC = () => {
                     </div>
                     <div className="flex-shrink-0 flex flex-col gap-2">
                         <Link to={`/dashboard/projects/edit/${project.id}`} className="text-center bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors">{t_proj.editProjectButton}</Link>
-                        <button onClick={handleDeleteProject} className="text-center bg-red-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">{t_proj.deleteProjectButton}</button>
+                        <button onClick={() => setModalState({ type: 'deleteProject', id: project.id })} className="text-center bg-red-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">{t_proj.deleteProjectButton}</button>
                     </div>
                 </div>
             </div>
@@ -164,38 +179,38 @@ const DashboardProjectDetailsPage: React.FC = () => {
                             {t_proj.addUnit}
                         </button>
                     </div>
-                     <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
-                        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                                <tr>
-                                    <th scope="col" className="px-6 py-3">{t_prop_table.image}</th>
-                                    <th scope="col" className="px-6 py-3">{t_prop_table.title}</th>
-                                    <th scope="col" className="px-6 py-3">{t_prop_table.status}</th>
-                                    <th scope="col" className="px-6 py-3">{t_prop_table.price}</th>
-                                    <th scope="col" className="px-6 py-3">{t_prop_table.actions}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                     <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>{t_prop_table.image}</TableHead>
+                                    <TableHead>{t_prop_table.title}</TableHead>
+                                    <TableHead>{t_prop_table.status}</TableHead>
+                                    <TableHead>{t_prop_table.price}</TableHead>
+                                    <TableHead>{t_prop_table.actions}</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {projectProperties.length > 0 ? projectProperties.map(prop => (
-                                     <tr key={prop.id} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="px-6 py-4">
+                                     <TableRow key={prop.id}>
+                                        <TableCell>
                                             <img src={prop.imageUrl} alt={prop.title[language]} className="w-16 h-16 object-cover rounded-md" />
-                                        </td>
-                                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        </TableCell>
+                                        <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                             {prop.title[language]}
-                                        </th>
-                                        <td className="px-6 py-4">{prop.status[language]}</td>
-                                        <td className="px-6 py-4">{prop.price[language]}</td>
-                                        <td className="px-6 py-4 space-x-2 whitespace-nowrap">
+                                        </TableCell>
+                                        <TableCell>{prop.status[language]}</TableCell>
+                                        <TableCell>{prop.price[language]}</TableCell>
+                                        <TableCell className="space-x-2 whitespace-nowrap">
                                             <Link to={`/dashboard/properties/edit/${prop.id}`} className="font-medium text-amber-600 dark:text-amber-500 hover:underline">{t_prop_table.edit}</Link>
-                                            <button onClick={() => handleDeleteProperty(prop.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t_prop_table.delete}</button>
-                                        </td>
-                                    </tr>
+                                            <button onClick={() => setModalState({ type: 'deleteProperty', id: prop.id })} className="font-medium text-red-600 dark:text-red-500 hover:underline">{t_prop_table.delete}</button>
+                                        </TableCell>
+                                    </TableRow>
                                 )) : (
-                                    <tr><td colSpan={5} className="text-center p-8">{t_prop_table.noProperties}</td></tr>
+                                    <TableRow><TableCell colSpan={5} className="text-center p-8">{t_prop_table.noProperties}</TableCell></TableRow>
                                 )}
-                            </tbody>
-                        </table>
+                            </TableBody>
+                        </Table>
                     </div>
                 </div>
             )}

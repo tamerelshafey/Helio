@@ -1,9 +1,9 @@
 
+
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { PortfolioItem, DecorationCategory } from '../../types';
-import { translations } from '../../data/translations';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllPortfolioItems, deletePortfolioItem as apiDeletePortfolioItem } from '../../api/portfolio';
 import { getAllPartnersForAdmin } from '../../api/partners';
 import { getDecorationCategories } from '../../api/decorations';
@@ -14,11 +14,11 @@ import { useLanguage } from '../shared/LanguageContext';
 const ITEMS_PER_PAGE = 8;
 
 const AdminDecorationsPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.decorationsManagement;
-    const { data: portfolio, refetch: refetchPortfolio, isLoading: loadingPortfolio } = useApiQuery('portfolio', getAllPortfolioItems);
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
-    const { data: decorationCategories, isLoading: loadingCategories } = useApiQuery('decorationCategories', getDecorationCategories);
+    const { language, t } = useLanguage();
+    const t_decor = t.adminDashboard.decorationsManagement;
+    const { data: portfolio, refetch: refetchPortfolio, isLoading: loadingPortfolio } = useQuery({ queryKey: ['portfolio'], queryFn: getAllPortfolioItems });
+    const { data: partners, isLoading: loadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
+    const { data: decorationCategories, isLoading: loadingCategories } = useQuery({ queryKey: ['decorationCategories'], queryFn: getDecorationCategories });
     const loading = loadingPortfolio || loadingPartners || loadingCategories;
 
     const [modalState, setModalState] = useState<{ isOpen: boolean; itemToEdit?: PortfolioItem }>({ isOpen: false });
@@ -54,7 +54,7 @@ const AdminDecorationsPage: React.FC = () => {
     }, [decorationCategories, language]);
 
     const handleDelete = async (itemId: string) => {
-        if (window.confirm(t.confirmDelete)) {
+        if (window.confirm(t_decor.confirmDelete)) {
             await apiDeletePortfolioItem(itemId);
             refetchPortfolio();
         }
@@ -68,8 +68,8 @@ const AdminDecorationsPage: React.FC = () => {
     return (
         <div>
              {modalState.isOpen && <AdminPortfolioItemFormModal itemToEdit={modalState.itemToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} />}
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.portfolioTab}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">{t.subtitle}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_decor.portfolioTab}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">{t_decor.subtitle}</p>
 
             <div className="flex justify-between items-center mb-4">
                 <div className="border-b border-gray-200 dark:border-gray-700">
@@ -90,7 +90,7 @@ const AdminDecorationsPage: React.FC = () => {
                     </nav>
                 </div>
                 <button onClick={() => setModalState({ isOpen: true })} className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600 h-fit">
-                    {t.addNewItem}
+                    {t_decor.addNewItem}
                 </button>
             </div>
             
@@ -110,8 +110,8 @@ const AdminDecorationsPage: React.FC = () => {
                                         <p className="text-sm text-gray-500 dark:text-gray-400">{item.category[language]}</p>
                                     </div>
                                     <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50">
-                                        <button onClick={() => setModalState({ isOpen: true, itemToEdit: item })} className="font-medium text-amber-600 dark:text-amber-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900/50">{t.editItem}</button>
-                                        <button onClick={() => handleDelete(item.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50">{translations[language].adminShared.delete}</button>
+                                        <button onClick={() => setModalState({ isOpen: true, itemToEdit: item })} className="font-medium text-amber-600 dark:text-amber-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900/50">{t_decor.editItem}</button>
+                                        <button onClick={() => handleDelete(item.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50">{t.adminShared.delete}</button>
                                     </div>
                                 </div>
                             ))}
@@ -119,7 +119,7 @@ const AdminDecorationsPage: React.FC = () => {
                         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                     </>
                 ) : (
-                    <div className="p-8 text-center">{t.noItems}</div>
+                    <div className="p-8 text-center">{t_decor.noItems}</div>
                 )}
             </div>
         </div>

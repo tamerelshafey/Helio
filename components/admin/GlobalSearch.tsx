@@ -1,9 +1,9 @@
 
+
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { AdminPartner, Property, Project } from '../../types';
-import { translations } from '../../data/translations';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../../api/partners';
 import { getAllProperties } from '../../api/properties';
 import { getAllProjects } from '../../api/projects';
@@ -19,9 +19,9 @@ const GlobalSearch: React.FC = () => {
     const navigate = useNavigate();
     const searchRef = useRef<HTMLDivElement>(null);
 
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartners', getAllPartnersForAdmin, { enabled: isFocused });
-    const { data: properties, isLoading: loadingProperties } = useApiQuery('allProperties', getAllProperties, { enabled: isFocused });
-    const { data: projects, isLoading: loadingProjects } = useApiQuery('allProjects', getAllProjects, { enabled: isFocused });
+    const { data: partners, isLoading: loadingPartners } = useQuery({ queryKey: ['allPartners'], queryFn: getAllPartnersForAdmin, enabled: isFocused });
+    const { data: properties, isLoading: loadingProperties } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties, enabled: isFocused });
+    const { data: projects, isLoading: loadingProjects } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects, enabled: isFocused });
 
     const isLoading = loadingPartners || loadingProperties || loadingProjects;
 

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useApiQuery } from './shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getContent } from '../api/content';
 import { useLanguage } from './shared/LanguageContext';
 
 const AboutCity: React.FC = () => {
     const { language } = useLanguage();
-    const { data: siteContent, isLoading } = useApiQuery('siteContent', getContent);
+    const { data: siteContent, isLoading } = useQuery({ queryKey: ['siteContent'], queryFn: getContent });
     const [currentSlide, setCurrentSlide] = useState(0);
     const timeoutRef = useRef<number | null>(null);
 
@@ -71,7 +71,10 @@ const AboutCity: React.FC = () => {
                      <div className="relative w-full h-[500px] rounded-2xl shadow-xl overflow-hidden border-4 border-white dark:border-gray-700">
                         {images.map((image, index) => (
                             <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
-                                <img src={image.src} alt={image.alt} className="w-full h-full object-cover" />
+                                <picture>
+                                    <source type="image/webp" srcSet={`${image.src}&fm=webp`} />
+                                    <img src={image.src} alt={image.alt} className="w-full h-full object-cover" />
+                                </picture>
                             </div>
                         ))}
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex space-x-2">

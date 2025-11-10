@@ -1,26 +1,25 @@
 
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { BellIcon } from '../icons/Icons';
 import type { Notification } from '../../types';
-import { useApiQuery } from './useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getNotificationsByUserId, markNotificationsAsRead } from '../../api/notifications';
-import { translations } from '../../data/translations';
 import { useLanguage } from './LanguageContext';
 
 const NotificationBell: React.FC = () => {
     const { currentUser } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
-    const { language } = useLanguage();
-    const t = translations[language];
+    const { language, t } = useLanguage();
 
-    const { data: notifications, refetch } = useApiQuery(
-        `notifications-${currentUser?.id}`,
-        () => currentUser ? getNotificationsByUserId(currentUser.id) : Promise.resolve([]),
-        { enabled: !!currentUser }
-    );
+    const { data: notifications, refetch } = useQuery({
+        queryKey: ['notifications', currentUser?.id],
+        queryFn: () => currentUser ? getNotificationsByUserId(currentUser.id) : Promise.resolve([]),
+        enabled: !!currentUser,
+    });
 
     const userNotifications = useMemo(() => notifications || [], [notifications]);
 

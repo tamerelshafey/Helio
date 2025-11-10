@@ -1,30 +1,31 @@
 
+
+
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Language, AddPropertyRequest, Property } from '../../types';
-import { translations } from '../../data/translations';
 import { ChevronLeftIcon } from '../icons/Icons';
 import { getAllPropertyRequests, updatePropertyRequestStatus } from '../../api/propertyRequests';
 import { addProperty } from '../../api/properties';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import DetailItem from '../shared/DetailItem';
 import DetailSection from '../shared/DetailSection';
 import { useLanguage } from '../shared/LanguageContext';
 
 const AdminPropertyRequestDetailsPage: React.FC = () => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const { requestId } = useParams<{ requestId: string }>();
     const navigate = useNavigate();
-    const { data: propertyRequests, isLoading: loading, refetch } = useApiQuery('propertyRequests', getAllPropertyRequests);
+    const { data: propertyRequests, isLoading: loading, refetch } = useQuery({ queryKey: ['propertyRequests'], queryFn: getAllPropertyRequests });
     const [actionLoading, setActionLoading] = useState(false);
 
     const request = useMemo(() => {
         return (propertyRequests || []).find(r => r.id === requestId);
     }, [propertyRequests, requestId]);
     
-    const t = translations[language].addPropertyPage;
-    const t_admin = translations[language].adminDashboard;
-    const t_shared = translations[language].adminShared;
+    const t_page = t.addPropertyPage;
+    const t_admin = t.adminDashboard;
+    const t_shared = t.adminShared;
 
     const handleApprove = async () => {
         if (!request) return;
@@ -115,7 +116,7 @@ const AdminPropertyRequestDetailsPage: React.FC = () => {
     }
 
     const details = request.propertyDetails;
-    const cooperationModelText = t.cooperation[request.cooperationType]?.title || request.cooperationType;
+    const cooperationModelText = t_page.cooperation[request.cooperationType]?.title || request.cooperationType;
 
     return (
         <div>
@@ -137,52 +138,52 @@ const AdminPropertyRequestDetailsPage: React.FC = () => {
 
              <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <DetailSection title={t.ownerInfo}>
-                        <DetailItem label={t.fullName} value={request.customerName} />
-                        <DetailItem label={t.phone} value={request.customerPhone} />
-                        <DetailItem label={t.contactTime} value={request.contactTime} />
-                        <DetailItem label={t_admin.adminRequests.cooperationType} value={cooperationModelText} />
+                    <DetailSection title={t_page.ownerInfo}>
+                        <DetailItem layout="grid" label={t_page.fullName} value={request.customerName} />
+                        <DetailItem layout="grid" label={t_page.phone} value={request.customerPhone} />
+                        <DetailItem layout="grid" label={t_page.contactTime} value={request.contactTime} />
+                        <DetailItem layout="grid" label={t_admin.adminRequests.cooperationType} value={cooperationModelText} />
                         {request.propertyDetails.contactMethod && (
-                            <DetailItem label={t.contactPreference.title} value={t.contactPreference[request.propertyDetails.contactMethod]} />
+                            <DetailItem layout="grid" label={t_page.contactPreference.title} value={t_page.contactPreference[request.propertyDetails.contactMethod]} />
                         )}
                     </DetailSection>
-                    <DetailSection title={t.propertyInfo}>
-                        <DetailItem label={t.purpose} value={details.purpose[language]} />
-                        <DetailItem label={t.propertyType} value={details.propertyType[language]} />
-                        <DetailItem label={t.finishingStatus} value={details.finishingStatus?.[language]} />
-                        <DetailItem label={t.area} value={`${details.area.toLocaleString(language)} m²`} />
-                        <DetailItem label={t.price} value={`${details.price.toLocaleString(language)} EGP`} />
+                    <DetailSection title={t_page.propertyInfo}>
+                        <DetailItem layout="grid" label={t_page.purpose} value={details.purpose[language]} />
+                        <DetailItem layout="grid" label={t_page.propertyType} value={details.propertyType[language]} />
+                        <DetailItem layout="grid" label={t_page.finishingStatus} value={details.finishingStatus?.[language]} />
+                        <DetailItem layout="grid" label={t_page.area} value={`${details.area.toLocaleString(language)} m²`} />
+                        <DetailItem layout="grid" label={t_page.price} value={`${details.price.toLocaleString(language)} EGP`} />
                     </DetailSection>
                 </div>
                  <DetailSection title="Key Details">
                     <dl className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                       <DetailItem label={t.bedrooms} value={details.bedrooms} />
-                       <DetailItem label={t.bathrooms} value={details.bathrooms} />
-                       <DetailItem label={t.floor} value={details.floor} />
-                       <DetailItem label={t.inCompound} value={details.isInCompound ? t.yes : t.no} />
+                       <DetailItem label={t_page.bedrooms} value={details.bedrooms} />
+                       <DetailItem label={t_page.bathrooms} value={details.bathrooms} />
+                       <DetailItem label={t_page.floor} value={details.floor} />
+                       <DetailItem label={t_page.inCompound} value={details.isInCompound ? t_page.yes : t_page.no} />
                     </dl>
                  </DetailSection>
                  <DetailSection title="Address & Description">
-                     <DetailItem label={t.address} value={details.address} />
-                     {details.description && <DetailItem label={t.description} value={details.description} />}
+                     <DetailItem layout="grid" label={t_page.address} value={details.address} />
+                     {details.description && <DetailItem layout="grid" label={t_page.description} value={<p className="whitespace-pre-line">{details.description}</p>} />}
                  </DetailSection>
                   <DetailSection title="Delivery & Listing">
-                    <DetailItem label={t.deliveryDate} value={details.deliveryType === 'immediate' ? t.immediate : `${t.future}: ${details.deliveryMonth}/${details.deliveryYear}`} />
-                    <DetailItem label={t_admin.editPropertyModal.listingStartDate} value={details.listingStartDate} />
-                    <DetailItem label={t_admin.editPropertyModal.listingEndDate} value={details.listingEndDate} />
+                    <DetailItem layout="grid" label={t_page.deliveryDate} value={details.deliveryType === 'immediate' ? t_page.immediate : `${t_page.future}: ${details.deliveryMonth}/${details.deliveryYear}`} />
+                    <DetailItem layout="grid" label={t_admin.editPropertyModal.listingStartDate} value={details.listingStartDate} />
+                    <DetailItem layout="grid" label={t_admin.editPropertyModal.listingEndDate} value={details.listingEndDate} />
                  </DetailSection>
                   {details.hasInstallments && (
-                    <DetailSection title={t.installments}>
+                    <DetailSection title={t_page.installments}>
                         <dl className="grid grid-cols-3 gap-4">
-                            <DetailItem label={t.downPayment} value={details.downPayment?.toLocaleString(language)} />
-                            <DetailItem label={t.monthlyInstallment} value={details.monthlyInstallment?.toLocaleString(language)} />
-                            <DetailItem label={t.years} value={details.years} />
+                            <DetailItem label={t_page.downPayment} value={details.downPayment?.toLocaleString(language)} />
+                            <DetailItem label={t_page.monthlyInstallment} value={details.monthlyInstallment?.toLocaleString(language)} />
+                            <DetailItem label={t_page.years} value={details.years} />
                         </dl>
                     </DetailSection>
                  )}
                  {request.images && request.images.length > 0 && (
-                     <DetailSection title={t.images}>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                     <DetailSection title={t_page.images}>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                             {request.images.map((imgSrc, index) => (
                                 <a key={index} href={imgSrc} target="_blank" rel="noopener noreferrer">
                                     <img src={imgSrc} alt={`Property image ${index + 1}`} className="w-full h-24 object-cover rounded-md" />

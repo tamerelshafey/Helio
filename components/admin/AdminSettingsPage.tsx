@@ -1,12 +1,14 @@
 
+
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, SiteContent } from '../../types';
 import { inputClasses } from '../shared/FormField';
-import { translations } from '../../data/translations';
 import { CloseIcon, PhotoIcon } from '../icons/Icons';
 import { getContent, updateContent as updateSiteContent } from '../../api/content';
-import { useApiQuery } from '../shared/useApiQuery';
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../shared/ToastContext';
 import { useLanguage } from '../shared/LanguageContext';
 
@@ -20,9 +22,8 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 const AdminSettingsPage: React.FC = () => {
-    const { language } = useLanguage();
-    const { data: siteContent, isLoading: dataLoading, refetch } = useApiQuery('siteContent', getContent);
-    const t = translations[language];
+    const { language, t } = useLanguage();
+    const { data: siteContent, isLoading: dataLoading, refetch } = useQuery({ queryKey: ['siteContent'], queryFn: getContent });
     const { showToast } = useToast();
     
     const { register, handleSubmit, reset, watch, setValue, formState: { isSubmitting, isDirty } } = useForm<SiteContent>();

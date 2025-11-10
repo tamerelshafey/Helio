@@ -21,25 +21,48 @@ export const usePropertyFilters = () => {
         beds: searchParams.get('beds') || '',
         baths: searchParams.get('baths') || '',
     }), [searchParams]);
+    
+    const page = useMemo(() => parseInt(searchParams.get('page') || '1', 10), [searchParams]);
 
     const setFilter = useCallback((filterName: string, value: string | string[]) => {
-        const newParams = new URLSearchParams(searchParams.toString());
-        
-        if (Array.isArray(value)) {
-             if (value.length > 0) {
-                newParams.set(filterName, value.join(','));
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            if (Array.isArray(value)) {
+                 if (value.length > 0) {
+                    newParams.set(filterName, value.join(','));
+                } else {
+                    newParams.delete(filterName);
+                }
             } else {
-                newParams.delete(filterName);
+                if (value === 'all' || !value) {
+                    newParams.delete(filterName);
+                } else {
+                    newParams.set(filterName, value);
+                }
             }
-        } else {
-            if (value === 'all' || !value) {
-                newParams.delete(filterName);
-            } else {
-                newParams.set(filterName, value);
-            }
-        }
-        setSearchParams(newParams, { replace: true });
-    }, [searchParams, setSearchParams]);
+            // Always reset to page 1 when a filter is changed
+            newParams.delete('page');
+            return newParams;
+        }, { replace: true });
+    }, [setSearchParams]);
+    
+    const setPage = useCallback((newPage: number) => {
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            newParams.set('page', String(newPage));
+            return newParams;
+        }, { replace: true });
+    }, [setSearchParams]);
 
-    return { ...filters, setFilter };
+    const resetFilters = useCallback(() => {
+        setSearchParams({}, { replace: true });
+    }, [setSearchParams]);
+
+    return useMemo(() => ({
+        ...filters,
+        page,
+        setFilter,
+        setPage,
+        resetFilters,
+    }), [filters, page, setFilter, setPage, resetFilters]);
 };

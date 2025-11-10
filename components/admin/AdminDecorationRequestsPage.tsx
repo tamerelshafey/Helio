@@ -1,12 +1,12 @@
 
+
 import React from 'react';
-import { translations } from '../../data/translations';
 import ServiceRequestsManagement from './shared/ServiceRequestsManagement';
 import { useLanguage } from '../shared/LanguageContext';
 
 const AdminDecorationRequestsPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t_admin = translations[language].adminDashboard;
+    const { language, t } = useLanguage();
+    const t_admin = t.adminDashboard;
 
     return (
         <ServiceRequestsManagement

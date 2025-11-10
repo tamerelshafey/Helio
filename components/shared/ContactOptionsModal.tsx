@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import type { AdminPartner, Language } from '../../types';
-import { translations } from '../../data/translations';
 import { CloseIcon, WhatsAppIcon, PhoneIcon } from '../icons/Icons';
 import { ClipboardDocumentListIcon } from '../icons/Icons';
 import { useLanguage } from './LanguageContext';
@@ -17,8 +16,8 @@ interface ContactOptionsModalProps {
 }
 
 const ContactOptionsModal: React.FC<ContactOptionsModalProps> = ({ isOpen, onClose, contactMethods, onSelectForm }) => {
-    const { language } = useLanguage();
-    const t = translations[language].contactOptionsModal;
+    const { language, t } = useLanguage();
+    const t_modal = t.contactOptionsModal;
     const modalRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -75,7 +74,7 @@ const ContactOptionsModal: React.FC<ContactOptionsModalProps> = ({ isOpen, onClo
             >
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                     <h3 id="contact-options-title" className="text-xl font-bold text-gray-900 dark:text-white">
-                        {t.title}
+                        {t_modal.title}
                     </h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white">
                         <CloseIcon className="w-6 h-6" />
@@ -89,7 +88,7 @@ const ContactOptionsModal: React.FC<ContactOptionsModalProps> = ({ isOpen, onClo
                             className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-colors"
                         >
                             <WhatsAppIcon className="w-6 h-6" />
-                            {t.whatsapp}
+                            {t_modal.whatsapp}
                         </button>
                     )}
                      {contactMethods.phone?.enabled && contactMethods.phone.number && (
@@ -98,7 +97,7 @@ const ContactOptionsModal: React.FC<ContactOptionsModalProps> = ({ isOpen, onClo
                             className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors"
                         >
                             <PhoneIcon className="w-6 h-6" />
-                            {t.phone}
+                            {t_modal.phone}
                         </button>
                     )}
                      {contactMethods.form?.enabled && (
@@ -107,7 +106,7 @@ const ContactOptionsModal: React.FC<ContactOptionsModalProps> = ({ isOpen, onClo
                             className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-amber-500 text-gray-900 font-bold rounded-lg hover:bg-amber-600 transition-colors"
                         >
                             <ClipboardDocumentListIcon className="w-6 h-6" />
-                            {t.form}
+                            {t_modal.form}
                         </button>
                     )}
                 </div>

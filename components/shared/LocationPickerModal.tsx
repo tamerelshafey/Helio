@@ -1,7 +1,9 @@
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import type { Language } from '../../types';
 import { LocationMarkerIcon, CloseIcon } from '../icons/Icons';
-import { useApiQuery } from './useApiQuery';
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+import { useQuery } from '@tanstack/react-query';
 import { getContent } from '../../api/content';
 import { useLanguage } from './LanguageContext';
 
@@ -24,7 +26,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ onClose, onLo
     const defaultCenter = { lat: 30.139407, lng: 31.678342 }; // Center of New Heliopolis
     const [pin, setPin] = useState<{ lat: number, lng: number } | null>(initialLocation || defaultCenter);
     const modalRef = useRef<HTMLDivElement>(null);
-    const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
+    const { data: siteContent, isLoading: isLoadingContent } = useQuery({ queryKey: ['siteContent'], queryFn: getContent });
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {

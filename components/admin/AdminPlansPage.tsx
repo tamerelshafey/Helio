@@ -1,11 +1,12 @@
 
+
+
 import React, { useState } from 'react';
 import type { SubscriptionPlan, SubscriptionPlanDetails, PlanCategory } from '../../types';
-import { translations } from '../../data/translations';
 import AdminPlanEditModal from './AdminPlanEditModal';
 import { CheckCircleIcon } from '../icons/Icons';
 import { getPlans } from '../../api/plans';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';
 
 const PlanCard: React.FC<{ 
@@ -13,6 +14,7 @@ const PlanCard: React.FC<{
     onEdit: () => void,
     language: 'ar' | 'en'
 }> = ({ plan, onEdit, language }) => {
+    const { t } = useLanguage();
     return (
         <div className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-6 flex flex-col">
             <h3 className="text-2xl font-bold text-amber-600 dark:text-amber-400">{plan.name}</h3>
@@ -20,7 +22,7 @@ const PlanCard: React.FC<{
             
             {plan.commissionRate !== undefined && plan.commissionRate > 0 && (
                 <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 my-2">
-                   {translations[language].adminDashboard.plans.commissionRate.replace('(%)', '')}: {plan.commissionRate}%
+                   {t.adminDashboard.plans.commissionRate.replace('(%)', '')}: {plan.commissionRate}%
                 </p>
             )}
 
@@ -39,7 +41,7 @@ const PlanCard: React.FC<{
                 onClick={onEdit}
                 className="w-full font-bold py-2 rounded-lg mt-auto bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-amber-500 hover:text-gray-900 transition-colors"
             >
-                {translations[language].adminShared.edit}
+                {t.adminShared.edit}
             </button>
         </div>
     );
@@ -47,18 +49,18 @@ const PlanCard: React.FC<{
 
 
 const AdminPlansPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.plans;
-    const { data: plans, isLoading: loading, refetch } = useApiQuery('plans', getPlans);
+    const { language, t } = useLanguage();
+    const t_plans = t.adminDashboard.plans;
+    const { data: plans, isLoading: loading, refetch } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
     
     const [activeTab, setActiveTab] = useState<PlanCategory>('developer');
     const [editingPlan, setEditingPlan] = useState<{ planType: PlanCategory, planKey: SubscriptionPlan } | null>(null);
     
     const tabs: { key: PlanCategory, name: string }[] = [
-        { key: 'developer', name: t.planCategories.developer },
-        { key: 'agency', name: t.planCategories.agency },
-        { key: 'finishing', name: t.planCategories.finishing },
-        { key: 'individual', name: t.planCategories.individual },
+        { key: 'developer', name: t_plans.planCategories.developer },
+        { key: 'agency', name: t_plans.planCategories.agency },
+        { key: 'finishing', name: t_plans.planCategories.finishing },
+        { key: 'individual', name: t_plans.planCategories.individual },
     ];
 
     const handleSave = () => {
@@ -76,8 +78,8 @@ const AdminPlansPage: React.FC = () => {
                     onSave={handleSave}
                 />
             )}
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.title}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">{t.subtitle}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_plans.title}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">{t_plans.subtitle}</p>
             
             <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
                 <nav className="-mb-px flex space-x-6" aria-label="Tabs">

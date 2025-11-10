@@ -1,14 +1,16 @@
 
+
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import type { Property, FilterOption } from '../../types';
-import { translations } from '../../data/translations';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CloseIcon, SparklesIcon } from '../icons/Icons';
 import { addProperty as apiAddProperty, updateProperty as apiUpdateProperty, getAllProperties } from '../../api/properties';
-import { useApiQuery } from '../shared/useApiQuery';
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+import { useQuery } from '@tanstack/react-query';
 import { getAllProjects } from '../../api/projects';
 import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../api/filters';
 import LocationPickerModal from '../shared/LocationPickerModal';
@@ -36,21 +38,20 @@ const PropertyFormPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { currentUser, hasPermission } = useAuth();
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const { showToast } = useToast();
     
     // Subscription check
     const usageType = currentUser?.type === 'developer' ? 'units' : 'properties';
     const { isLimitReached } = useSubscriptionUsage(usageType);
 
-    const { data: properties, isLoading: isLoadingProps } = useApiQuery('allProperties', getAllProperties);
-    const { data: projects, isLoading: isLoadingProjs } = useApiQuery('allProjects', getAllProjects);
-    const { data: propertyTypes, isLoading: isLoadingPropTypes } = useApiQuery('propertyTypes', getAllPropertyTypes);
-    const { data: finishingStatuses, isLoading: isLoadingFinishing } = useApiQuery('finishingStatuses', getAllFinishingStatuses);
-    const { data: amenities, isLoading: isLoadingAmenities } = useApiQuery('amenities', getAllAmenities);
+    const { data: properties, isLoading: isLoadingProps } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
+    const { data: projects, isLoading: isLoadingProjs } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
+    const { data: propertyTypes, isLoading: isLoadingPropTypes } = useQuery({ queryKey: ['propertyTypes'], queryFn: getAllPropertyTypes });
+    const { data: finishingStatuses, isLoading: isLoadingFinishing } = useQuery({ queryKey: ['finishingStatuses'], queryFn: getAllFinishingStatuses });
+    const { data: amenities, isLoading: isLoadingAmenities } = useQuery({ queryKey: ['amenities'], queryFn: getAllAmenities });
     const isLoadingContext = isLoadingProps || isLoadingProjs || isLoadingPropTypes || isLoadingFinishing || isLoadingAmenities;
 
-    const t = translations[language];
     const td = t.dashboard.propertyForm;
     const tp = t.propertiesPage;
     

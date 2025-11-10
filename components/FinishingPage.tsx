@@ -1,181 +1,199 @@
-import React, { useMemo, useState } from 'react';
+
+
+import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import type { Language, PortfolioItem } from '../types';
-import { translations } from '../data/translations';
+import type { Language, PortfolioItem, AdminPartner } from '../types';
 import BannerDisplay from './shared/BannerDisplay';
 import SEO from './shared/SEO';
-import { useApiQuery } from './shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllPortfolioItems } from '../api/portfolio';
 import { getAllPartnersForAdmin } from '../api/partners';
 import { getContent } from '../api/content';
 import { useLanguage } from './shared/LanguageContext';
+import { Card, CardContent } from './ui/Card';
+import { Button } from './ui/Button';
+import CTA from './CTA';
+
+const ServicePackageCard: React.FC<{
+    service: any; // Type from siteContent is complex
+    onRequest: (title: string) => void;
+    language: Language;
+    t: any;
+}> = ({ service, onRequest, language, t }) => (
+    <Card className="flex flex-col h-full p-0">
+        <CardContent className="p-8 flex flex-col flex-grow">
+            <h3 className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-4">{service.title[language]}</h3>
+            <p className="text-gray-600 dark:text-gray-400 flex-grow mb-6">{service.description[language]}</p>
+
+            <div className="space-y-3 mb-6">
+                {(service.pricingTiers || []).map((tier: any, index: number) => (
+                    <div key={index} className="flex justify-between items-baseline p-3 bg-gray-50 dark:bg-gray-800/50 rounded-md">
+                        <div>
+                            <p className="font-semibold text-gray-800 dark:text-gray-200">{tier.unitType[language]}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{tier.areaRange[language]}</p>
+                        </div>
+                        <p className="font-bold text-gray-900 dark:text-white">
+                            {tier.price.toLocaleString(language)} EGP
+                        </p>
+                    </div>
+                ))}
+            </div>
+
+            <Button onClick={() => onRequest(service.title[language])} className="w-full mt-auto">
+                {t.finishingPage.requestButton}
+            </Button>
+        </CardContent>
+    </Card>
+);
+
+const PortfolioCard: React.FC<{
+    item: PortfolioItem & { partnerName?: string };
+    onRequest: (partnerId: string, serviceTitle: string) => void;
+    language: Language;
+    t: any;
+}> = ({ item, onRequest, language, t }) => {
+    const serviceTitle = `${t.finishingPage.requestButton}: ${item.title[language]}`;
+    return (
+        <Card className="group flex flex-col p-0 overflow-hidden transform hover:-translate-y-2 transition-transform duration-300">
+            <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
+                <img src={item.imageUrl} alt={item.alt} className="w-full h-full object-cover" />
+            </div>
+            <CardContent className="p-4 flex flex-col flex-grow">
+                <h3 className="font-bold text-gray-900 dark:text-white truncate mb-1">{item.title[language]}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">By {item.partnerName}</p>
+                <Button onClick={() => onRequest(item.partnerId, serviceTitle)} variant="secondary" className="w-full mt-auto">
+                    {t.finishingPage.requestButton}
+                </Button>
+            </CardContent>
+        </Card>
+    );
+};
 
 const FinishingPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].finishingPage;
+    const { language, t } = useLanguage();
     const navigate = useNavigate();
 
-    const { data: portfolio, isLoading: isLoadingPortfolio } = useApiQuery('allPortfolioItems', getAllPortfolioItems);
-    const { data: partners, isLoading: isLoadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
-    const { data: siteContent, isLoading: isLoadingContent } = useApiQuery('siteContent', getContent);
+    const { data: portfolio, isLoading: isLoadingPortfolio } = useQuery({ queryKey: ['allPortfolioItems'], queryFn: getAllPortfolioItems });
+    const { data: partners, isLoading: isLoadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
+    const { data: siteContent, isLoading: isLoadingContent } = useQuery({ queryKey: ['siteContent'], queryFn: getContent });
 
     const isLoading = isLoadingPortfolio || isLoadingPartners || isLoadingContent;
 
-    const handleRequestService = (serviceTitle: string) => {
-        navigate('/request-service', { 
-            state: { 
-                serviceTitle, 
-                partnerId: 'admin-user', // Internal team for finishing
-                serviceType: 'finishing'
-            } 
+    const handleRequestService = (serviceTitle: string, partnerId: string = 'admin-user') => {
+        navigate('/request-service', {
+            state: {
+                serviceTitle,
+                partnerId: partnerId,
+                serviceType: 'finishing',
+            },
         });
     };
-    
+
     const services = useMemo(() => {
         if (!siteContent?.finishingServices) return [];
         return siteContent.finishingServices;
     }, [siteContent]);
 
+    const finishingPartnersPortfolio = useMemo(() => {
+        if (!portfolio || !partners) return [];
+        const finishingPartnerIds = partners.filter((p) => p.type === 'finishing' && p.status === 'active').map((p) => p.id);
+        return portfolio
+            .filter((item) => finishingPartnerIds.includes(item.partnerId))
+            .map((item) => ({
+                ...item,
+                partnerName: partners.find((p) => p.id === item.partnerId)?.name,
+            }));
+    }, [portfolio, partners]);
 
-    const finishingPartners = (partners || []).filter(p => p.type === 'finishing');
-
-    const uniquePartnerWorks = Array.from(
-        new Map(
-            (portfolio || [])
-            .filter(item => finishingPartners.some(p => p.id === item.partnerId))
-            .map(item => [item.partnerId, item])
-        ).values()
-    );
-    
     if (isLoading) {
-        return <div className="animate-pulse h-screen bg-gray-50 dark:bg-gray-800"></div>
+        return <div className="animate-pulse h-screen bg-gray-50 dark:bg-gray-800"></div>;
     }
 
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
-            <SEO 
-                title={`${translations[language].nav.finishing} | ONLY HELIO`}
-                description={t.heroSubtitle}
-            />
+            <SEO title={`${t.nav.finishing} | ONLY HELIO`} description={t.finishingPage.heroSubtitle} />
             {/* Hero Section */}
-            <section className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=1600&auto=format&fit=crop')" }}>
+            <section
+                className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center"
+                style={{
+                    backgroundImage:
+                        "url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?fm=webp&q=75&w=1600&auto=format&fit=crop')",
+                }}
+            >
                 <div className="absolute top-0 left-0 w-full h-full bg-black/70 z-10"></div>
                 <div className="relative z-20 px-4 container mx-auto text-white">
-                    <h1 className="text-4xl md:text-6xl font-extrabold">{t.heroTitle}</h1>
-                    <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-200 mt-4">{t.heroSubtitle}</p>
+                    <h1 className="text-4xl md:text-6xl font-extrabold">{t.finishingPage.heroTitle}</h1>
+                    <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-200 mt-4">
+                        {t.finishingPage.heroSubtitle}
+                    </p>
                 </div>
             </section>
-            
+
             <BannerDisplay location="finishing" />
 
             {/* AI Estimator CTA */}
             <section className="py-16 bg-amber-50 dark:bg-amber-900/10">
                 <div className="container mx-auto px-6 text-center">
-                    <h2 className="text-3xl font-bold text-amber-600 dark:text-amber-400">{translations[language].aiEstimator.ctaTitle}</h2>
-                    <p className="text-lg text-gray-600 dark:text-gray-300 mt-3 max-w-2xl mx-auto">{translations[language].aiEstimator.ctaSubtitle}</p>
+                    <h2 className="text-3xl font-bold text-amber-600 dark:text-amber-400">{t.aiEstimator.ctaTitle}</h2>
+                    <p className="text-lg text-gray-600 dark:text-gray-300 mt-3 max-w-2xl mx-auto">
+                        {t.aiEstimator.ctaSubtitle}
+                    </p>
                     <Link
                         to="/cost-estimator"
                         className="mt-6 inline-block bg-amber-500 text-gray-900 font-bold px-8 py-4 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20 transform hover:scale-105"
                     >
-                        {translations[language].aiEstimator.ctaButton}
+                        {t.aiEstimator.ctaButton}
                     </Link>
                 </div>
             </section>
-            
+
             {/* Services Packages Section */}
             <section className="py-20">
                 <div className="container mx-auto px-6">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl md:text-4xl font-bold">{t.servicesTitle}</h2>
-                        <p className="text-lg text-gray-500 dark:text-gray-400 mt-4 max-w-3xl mx-auto">{t.servicesIntro}</p>
+                    <div className="text-center mb-12 max-w-3xl mx-auto">
+                        <h2 className="text-3xl md:text-4xl font-bold">{t.finishingPage.servicesTitle}</h2>
+                        <p className="text-lg text-gray-500 dark:text-gray-400 mt-4">{t.finishingPage.servicesIntro}</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                        {services.map(service => (
-                            <div key={service.title[language]} className="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col text-center">
-                                <h3 className="text-2xl font-bold text-amber-500 mb-4">{service.title[language]}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 flex-grow mb-6">{service.description[language]}</p>
-                                
-                                {service.price && (
-                                    <>
-                                        <p className="text-3xl font-extrabold text-gray-900 dark:text-white mb-4">
-                                            {new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', { style: 'currency', currency: 'EGP', minimumFractionDigits: 0 }).format(service.price)}
-                                        </p>
-                                        <button
-                                            onClick={() => handleRequestService(service.title[language])}
-                                            className="w-full bg-amber-500 text-gray-900 font-semibold px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 mt-auto"
-                                        >
-                                            {t.requestButton}
-                                        </button>
-                                    </>
-                                )}
-
-                                {service.pricingTiers && (
-                                    <div className="mt-auto space-y-3">
-                                        <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">{language === 'ar' ? 'باقات التسعير' : 'Pricing Tiers'}</h4>
-                                        <ul className="divide-y divide-gray-200 dark:divide-gray-600 text-left">
-                                            {service.pricingTiers.map((tier, index) => (
-                                                <li key={index} className="py-3 sm:flex items-center justify-between">
-                                                    <div className="mb-2 sm:mb-0">
-                                                        <p className="font-semibold text-gray-900 dark:text-white">{tier.unitType[language]} <span className="text-gray-500 dark:text-gray-400">({tier.areaRange[language]})</span></p>
-                                                        <p className="text-amber-500 font-bold">{new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', { style: 'currency', currency: 'EGP', minimumFractionDigits: 0 }).format(tier.price)}</p>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => handleRequestService(`${service.title[language]} - ${tier.unitType[language]} (${tier.areaRange[language]})`)}
-                                                        className="w-full sm:w-auto bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600 transition-colors text-sm"
-                                                    >
-                                                        {t.requestButton}
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
+                        {services.map((service, index) => (
+                            <ServicePackageCard
+                                key={index}
+                                service={service}
+                                onRequest={handleRequestService}
+                                language={language}
+                                t={t}
+                            />
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Gallery Section */}
-            <section className="py-20 bg-gray-50 dark:bg-gray-800">
-                <div className="container mx-auto px-6">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl md:text-4xl font-bold">{t.galleryTitle}</h2>
-                        <p className="text-lg text-gray-500 dark:text-gray-400 mt-4 max-w-2xl mx-auto">{t.gallerySubtitle}</p>
+            {/* Partner Gallery */}
+            {finishingPartnersPortfolio.length > 0 && (
+                <section className="py-20 bg-gray-50 dark:bg-gray-800">
+                    <div className="container mx-auto px-6">
+                        <div className="text-center mb-12 max-w-3xl mx-auto">
+                            <h2 className="text-3xl md:text-4xl font-bold">{t.finishingPage.galleryTitle}</h2>
+                            <p className="text-lg text-gray-500 dark:text-gray-400 mt-4">
+                                {t.finishingPage.gallerySubtitle}
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {finishingPartnersPortfolio.map((item) => (
+                                <PortfolioCard
+                                    key={item.id}
+                                    item={item as PortfolioItem & { partnerName?: string }}
+                                    onRequest={handleRequestService}
+                                    language={language}
+                                    t={t}
+                                />
+                            ))}
+                        </div>
                     </div>
-                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {uniquePartnerWorks.slice(0, 8).map((item: PortfolioItem) => {
-                             const localizedPartner = (translations[language].partnerInfo as any)[item.partnerId];
-                             if (!localizedPartner) return null;
-                             return (
-                                <Link to={`/partners/${item.partnerId}`} key={item.partnerId} className="group relative overflow-hidden rounded-lg shadow-lg aspect-w-1 aspect-h-1 block">
-                                    <img src={item.imageUrl} alt={item.alt} className="w-full h-80 object-cover transform hover:scale-105 transition-transform duration-300" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                                    <div className="absolute bottom-0 left-0 p-4">
-                                        <h3 className="text-white text-lg font-bold">{localizedPartner?.name}</h3>
-                                        <p className="text-amber-400 text-sm">{language === 'ar' ? 'عرض الأعمال' : 'View Works'}</p>
-                                    </div>
-                                </Link>
-                            )
-                        })}
-                    </div>
-                </div>
-            </section>
+                </section>
+            )}
 
-            {/* CTA Section */}
-            <section className="py-20">
-                <div className="container mx-auto px-6 text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-                        {t.ctaTitle}
-                    </h2>
-                    <p className="max-w-2xl mx-auto text-lg text-gray-500 dark:text-gray-400 mb-8">
-                       {t.ctaSubtitle}
-                    </p>
-                    <Link to="/contact" className="bg-amber-500 text-gray-900 font-semibold px-8 py-3 rounded-lg text-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20">
-                        {t.ctaButton}
-                    </Link>
-                </div>
-            </section>
+            <CTA />
         </div>
     );
 };

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import type { PortfolioItem } from '../../types';
-import { translations } from '../../data/translations';
 import FormField, { inputClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { useAuth } from '../auth/AuthContext';
@@ -25,11 +24,11 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToEdit, onClose, onSave }) => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const { currentUser } = useAuth();
-    const t = translations[language].dashboard;
-    const t_form = translations[language].portfolioForm;
-    const t_shared = translations[language].adminShared;
+    const t_dash = t.dashboard;
+    const t_form = t.portfolioForm;
+    const t_shared = t.adminShared;
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
 
@@ -39,7 +38,6 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
     });
 
     const [imageFile, setImageFile] = useState<File | null>(null);
-    // FIX: Changed itemToEdit?.src to itemToEdit?.imageUrl to match PortfolioItem type.
     const [imagePreview, setImagePreview] = useState<string | null>(itemToEdit?.imageUrl || null);
 
     useEffect(() => {
@@ -73,7 +71,6 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
         if (!currentUser) return;
         setLoading(true);
 
-        // FIX: Changed itemToEdit?.src to itemToEdit?.imageUrl to match PortfolioItem type.
         let imageSrc = itemToEdit?.imageUrl || '';
         if (imageFile) {
             imageSrc = await fileToBase64(imageFile);
@@ -82,7 +79,6 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
         const dataToSave = {
             ...formData,
             partnerId: currentUser.id,
-            // FIX: Changed src to imageUrl to match PortfolioItem type.
             imageUrl: imageSrc,
             alt: formData.title.en || 'Portfolio work',
         };
@@ -106,13 +102,11 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
                         <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
                     </div>
                     <div className="flex-grow overflow-y-auto p-6 space-y-4">
-                        {/* FIX: Changed id from 'src' to 'imageUrl' for consistency. */}
-                        <FormField label={t.workImageURL} id="imageUrl">
+                        <FormField label={t_dash.workImageURL} id="imageUrl">
                             <div className="flex items-center gap-4">
                                 {imagePreview && <img src={imagePreview} alt="Preview" className="w-20 h-20 rounded-md object-cover border" />}
                                 <input
                                     type="file"
-                                    // FIX: Changed id from 'src' to 'imageUrl' for consistency.
                                     id="imageUrl"
                                     accept="image/*"
                                     onChange={handleFileChange}
@@ -122,18 +116,18 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
                             </div>
                         </FormField>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField label={t.workTitleAr} id="title.ar">
+                            <FormField label={t_dash.workTitleAr} id="title.ar">
                                 <input type="text" name="title.ar" value={formData.title.ar} onChange={handleChange} className={inputClasses} required />
                             </FormField>
-                            <FormField label={t.workTitleEn} id="title.en">
+                            <FormField label={t_dash.workTitleEn} id="title.en">
                                 <input type="text" name="title.en" value={formData.title.en} onChange={handleChange} className={inputClasses} required />
                             </FormField>
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField label={t.workCategoryAr} id="category.ar">
+                            <FormField label={t_dash.workCategoryAr} id="category.ar">
                                 <input type="text" name="category.ar" value={formData.category.ar} onChange={handleChange} className={inputClasses} required />
                             </FormField>
-                            <FormField label={t.workCategoryEn} id="category.en">
+                            <FormField label={t_dash.workCategoryEn} id="category.en">
                                 <input type="text" name="category.en" value={formData.category.en} onChange={handleChange} className={inputClasses} required />
                             </FormField>
                         </div>

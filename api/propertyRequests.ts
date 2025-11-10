@@ -1,4 +1,5 @@
 
+
 import { propertyRequestsData } from '../data/propertyRequests';
 import type { AddPropertyRequest, RequestStatus } from '../types';
 import { addNotification } from './notifications';
@@ -13,7 +14,6 @@ export const getAllPropertyRequests = (): Promise<AddPropertyRequest[]> => {
   });
 };
 
-// FIX: The managerId is assigned internally, so it should not be part of the input type.
 export const addPropertyRequest = (data: Omit<AddPropertyRequest, 'id' | 'status' | 'createdAt' | 'managerId'>): Promise<AddPropertyRequest> => {
   return new Promise((resolve) => {
     setTimeout(() => {

@@ -1,12 +1,11 @@
 
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getRolePermissions, updateRolePermissions } from '../../api/permissions';
 import { Role, Permission } from '../../types';
 import type { Language } from '../../types';
 import { useToast } from '../shared/ToastContext';
-import { translations } from '../../data/translations';
 import { useLanguage } from '../shared/LanguageContext';
 
 const permissionGroups = {
@@ -81,10 +80,10 @@ const RolePermissions: React.FC<{
 
 
 const AdminRolesPage: React.FC = () => {
-    const { language } = useLanguage();
-    const { data, isLoading, refetch } = useApiQuery('rolePermissions', getRolePermissions);
+    const { language, t } = useLanguage();
+    const { data, isLoading, refetch } = useQuery({ queryKey: ['rolePermissions'], queryFn: getRolePermissions });
     const { showToast } = useToast();
-    const t_admin = translations[language].adminDashboard;
+    const t_admin = t.adminDashboard;
     
     const [permissionsMap, setPermissionsMap] = useState<Map<Role, Permission[]>>(new Map());
     const [isSaving, setIsSaving] = useState(false);
@@ -127,7 +126,8 @@ const AdminRolesPage: React.FC = () => {
     const rolesToManage = Object.values(Role).filter(role => role !== Role.SUPER_ADMIN);
 
     const getRoleName = (role: Role) => {
-        return role.replace(/_/g, ' ').replace('PARTNER', '').toLowerCase();
+        const key = Object.keys(Role).find(k => (Role as any)[k] === role);
+        return t_admin.partnerTypes[key as keyof typeof t_admin.partnerTypes] || role;
     };
     
     if (isLoading) return <div>Loading roles and permissions...</div>;
@@ -139,7 +139,6 @@ const AdminRolesPage: React.FC = () => {
 
             <div className="space-y-6">
                 {rolesToManage.map(role => {
-                    // FIX: Find the uppercase key of the Role enum from its lowercase value to correctly access the translation object.
                     const roleKey = Object.keys(Role).find(key => (Role as any)[key] === role) as keyof typeof t_admin.roleDescriptions;
                     return (
                         <RolePermissions

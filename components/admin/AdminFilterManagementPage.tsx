@@ -1,10 +1,12 @@
 
+
+
 import React, { useState } from 'react';
 import type { FilterOption } from '../../types';
-import { translations } from '../../data/translations';
 import FilterItemFormModal from './FilterItemFormModal';
 import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities, deleteFilterOption as apiDeleteFilterOption } from '../../api/filters';
-import { useApiQuery } from '../shared/useApiQuery';
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';
 
 type DataType = 'propertyType' | 'finishingStatus' | 'amenity';
@@ -16,13 +18,13 @@ const FilterManagerSection: React.FC<{
     onEdit: (item: FilterOption) => void;
     onDelete: (id: string) => void;
 }> = ({ title, items, onAdd, onEdit, onDelete }) => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     return (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">{title}</h2>
                 <button onClick={onAdd} className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600">
-                    {translations[language].adminShared.add}
+                    {t.adminShared.add}
                 </button>
             </div>
             <ul className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -45,12 +47,12 @@ const FilterManagerSection: React.FC<{
 
 
 const AdminFilterManagementPage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard;
+    const { language, t } = useLanguage();
+    const t_admin = t.adminDashboard;
     
-    const { data: propertyTypes, isLoading: loadingPT, refetch: refetchPT } = useApiQuery('propertyTypes', getAllPropertyTypes);
-    const { data: finishingStatuses, isLoading: loadingFS, refetch: refetchFS } = useApiQuery('finishingStatuses', getAllFinishingStatuses);
-    const { data: amenities, isLoading: loadingAm, refetch: refetchAm } = useApiQuery('amenities', getAllAmenities);
+    const { data: propertyTypes, isLoading: loadingPT, refetch: refetchPT } = useQuery({ queryKey: ['propertyTypes'], queryFn: getAllPropertyTypes });
+    const { data: finishingStatuses, isLoading: loadingFS, refetch: refetchFS } = useQuery({ queryKey: ['finishingStatuses'], queryFn: getAllFinishingStatuses });
+    const { data: amenities, isLoading: loadingAm, refetch: refetchAm } = useQuery({ queryKey: ['amenities'], queryFn: getAllAmenities });
 
     const loading = loadingPT || loadingFS || loadingAm;
 
@@ -96,7 +98,7 @@ const AdminFilterManagementPage: React.FC = () => {
                     onSave={handleSave}
                 />
             )}
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.nav.propertyFilters}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_admin.nav.propertyFilters}</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-8">Manage the options available in property forms and search filters.</p>
             
             <div className="space-y-8">

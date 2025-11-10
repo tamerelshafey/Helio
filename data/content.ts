@@ -365,7 +365,7 @@ const quotesData: Quote[] = [
 
 export let siteContentData: SiteContent = {
   logoUrl: '',
-  locationPickerMapUrl: 'https://images.unsplash.com/photo-1589578228257-29283998b311?q=80&w=2070&auto=format&fit=crop',
+  locationPickerMapUrl: 'https://images.unsplash.com/photo-1589578228257-29283998b311?q=75&w=2070&auto=format&fit=crop',
   hero: {
     ar: {
       title: 'بوابتك الحصرية لأرقى العقارات في هليوبوليس الجديدة',
@@ -377,28 +377,28 @@ export let siteContentData: SiteContent = {
     },
     images: [
         {
-            src: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=1600&auto=format&fit=crop",
-            src_small: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=480&auto=format&fit=crop",
-            src_medium: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=800&auto=format&fit=crop",
-            src_large: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=1600&auto=format&fit=crop",
+            src: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=75&w=1600&auto=format&fit=crop",
+            src_small: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=75&w=480&auto=format&fit=crop",
+            src_medium: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=75&w=800&auto=format&fit=crop",
+            src_large: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=75&w=1600&auto=format&fit=crop",
         },
         {
-            src: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1600&auto=format&fit=crop",
-            src_small: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=480&auto=format&fit=crop",
-            src_medium: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800&auto=format&fit=crop",
-            src_large: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1600&auto=format&fit=crop",
+            src: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=1600&auto=format&fit=crop",
+            src_small: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=480&auto=format&fit=crop",
+            src_medium: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=800&auto=format&fit=crop",
+            src_large: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=1600&auto=format&fit=crop",
         },
         {
-            src: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1600&auto=format&fit=crop",
-            src_small: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=480&auto=format&fit=crop",
-            src_medium: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=800&auto=format&fit=crop",
-            src_large: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1600&auto=format&fit=crop",
+            src: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=1600&auto=format&fit=crop",
+            src_small: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=480&auto=format&fit=crop",
+            src_medium: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=800&auto=format&fit=crop",
+            src_large: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=1600&auto=format&fit=crop",
         },
         {
-            src: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=1600&auto=format&fit=crop",
-            src_small: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=480&auto=format&fit=crop",
-            src_medium: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=800&auto=format&fit=crop",
-            src_large: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=80&w=1600&auto=format&fit=crop",
+            src: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=1600&auto=format&fit=crop",
+            src_small: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=480&auto=format&fit=crop",
+            src_medium: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=800&auto=format&fit=crop",
+            src_large: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=1600&auto=format&fit=crop",
         }
     ],
     imageAlts: {
@@ -504,8 +504,8 @@ export let siteContentData: SiteContent = {
       }
     },
     images: [
-        { src: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=1200&auto=format&fit=crop", alt: "Map showing location of New Heliopolis" },
-        { src: "https://images.unsplash.com/photo-1595995449553-15104a3b3f9?q=80&w=1200&auto=format&fit=crop", alt: "Gate of New Heliopolis" }
+        { src: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=75&w=1200&auto=format&fit=crop", alt: "Map showing location of New Heliopolis" },
+        { src: "https://images.unsplash.com/photo-1595995449553-15104a3b3f9?q=75&w=1200&auto=format&fit=crop", alt: "Gate of New Heliopolis" }
     ]
   },
   finishingServices: [

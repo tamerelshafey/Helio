@@ -1,74 +1,54 @@
 
-import React, { useMemo, useState } from 'react';
+
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, Lead, AdminPartner } from '../../types';
-import { useApiQuery } from '../shared/useApiQuery';
+import type { Lead } from '../../types';
+import { useQuery } from '@tanstack/react-query';
 import { getAllLeads } from '../../api/leads';
-import { getAllPartnersForAdmin } from '../../api/partners';
-import { WrenchScrewdriverIcon, InboxIcon, CheckCircleIcon, ClipboardDocumentListIcon } from '../icons/Icons';
-import { translations } from '../../data/translations';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Doughnut } from 'react-chartjs-2';
+import { WrenchScrewdriverIcon, InboxIcon, SparklesIcon } from '../icons/Icons';
 import { useLanguage } from '../shared/LanguageContext';
-
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-interface StatCardProps {
-    title: string;
-    value: number | string;
-    icon: React.FC<{ className?: string }>;
-}
-
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon }) => (
-    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-4">
-            <div className="p-3 bg-amber-100 dark:bg-amber-900/50 rounded-full">
-                <Icon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-            </div>
-            <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{title}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
-            </div>
-        </div>
-    </div>
-);
+import { useAuth } from '../auth/AuthContext';
+import StatCard from '../shared/StatCard';
+import RequestList from './shared/RequestList';
 
 const ServiceManagerHomePage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.finishingRequests;
-    const t_leads = translations[language].dashboard.leadTable;
+    const { language, t } = useLanguage();
+    const { currentUser } = useAuth();
+    const t_home = t.adminDashboard.serviceManagerHome;
+    const t_nav = t.adminDashboard.nav;
 
-    const { data: allLeads, isLoading: loadingLeads } = useApiQuery('allLeads', getAllLeads);
-    const { data: allPartners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { data: allLeads, isLoading: loadingLeads } = useQuery({ queryKey: ['allLeads'], queryFn: getAllLeads });
 
-    const isLoading = loadingLeads || loadingPartners;
+    const isLoading = loadingLeads;
     
-    const finishingManagerId = 'finishing-manager-1';
+    const serviceData = useMemo(() => {
+        if (!allLeads || !currentUser) return null;
 
-    const finishingData = useMemo(() => {
-        if (!allLeads || !allPartners) return null;
+        const finishingLeads = allLeads.filter(lead => lead.serviceType === 'finishing');
+        const decorationLeads = allLeads.filter(lead => lead.serviceType === 'decorations');
 
-        const finishingLeads = allLeads.filter(lead => lead.managerId === finishingManagerId);
-
-        const now = new Date();
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-        const stats = {
+        const finishingStats = {
             new: finishingLeads.filter(l => l.status === 'new').length,
             inProgress: finishingLeads.filter(l => ['contacted', 'site-visit', 'quoted', 'in-progress'].includes(l.status)).length,
-            completedThisMonth: finishingLeads.filter(l => l.status === 'completed' && new Date(l.updatedAt) >= firstDayOfMonth).length,
-            total: finishingLeads.length,
+        };
+        const decorationStats = {
+            new: decorationLeads.filter(l => l.status === 'new').length,
+            inProgress: decorationLeads.filter(l => ['contacted', 'site-visit', 'quoted', 'in-progress'].includes(l.status)).length,
         };
 
-        const recentRequests = [...finishingLeads]
+        const recentFinishing = [...finishingLeads]
             .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-            .slice(0, 5);
+            .slice(0, 3);
+            
+        const recentDecorations = [...decorationLeads]
+            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+            .slice(0, 3);
         
-        return { stats, recentRequests };
+        return { finishingStats, decorationStats, recentFinishing, recentDecorations };
 
-    }, [allLeads, allPartners]);
+    }, [allLeads, currentUser]);
 
-    if (isLoading || !finishingData) {
+    if (isLoading || !serviceData) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
                 {Array.from({length: 4}).map((_, i) => <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>)}
@@ -76,50 +56,63 @@ const ServiceManagerHomePage: React.FC = () => {
         );
     }
     
-    const { stats, recentRequests } = finishingData;
+    const { finishingStats, decorationStats, recentFinishing, recentDecorations } = serviceData;
     
+    const renderRequestItem = (lead: Lead) => (
+        <li key={lead.id} className="py-3">
+            <Link to={`/admin/${lead.serviceType}-requests/${lead.id}`} className="flex justify-between items-center group">
+                <div>
+                    <p className="font-medium group-hover:text-amber-600">{lead.customerName}</p>
+                    <p className="text-sm text-gray-500 truncate max-w-xs" title={lead.serviceTitle}>{lead.serviceTitle}</p>
+                </div>
+                <p className="text-xs text-gray-400">{new Date(lead.updatedAt).toLocaleDateString(language, { day: 'numeric', month: 'short' })}</p>
+            </Link>
+        </li>
+    );
+
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Finishing Requests Dashboard</h1>
-                <p className="text-gray-500 dark:text-gray-400">Overview of finishing service requests.</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_home.title}</h1>
+                <p className="text-gray-500 dark:text-gray-400">{t_home.subtitle}</p>
             </div>
             
             <div className="space-y-8 animate-fadeIn">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard title={t.newRequests} value={stats.new} icon={InboxIcon} />
-                    <StatCard title={t.inProgress} value={stats.inProgress} icon={WrenchScrewdriverIcon} />
-                    <StatCard title={t.completedThisMonth} value={stats.completedThisMonth} icon={CheckCircleIcon} />
-                    <StatCard title={t.totalRequests} value={stats.total} icon={ClipboardDocumentListIcon} />
-                </div>
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t.recentActivity}</h2>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead className="text-left text-gray-500 dark:text-gray-400">
-                                <tr>
-                                    <th className="py-2">{t_leads.customer}</th>
-                                    <th className="py-2">{t_leads.service}</th>
-                                    <th className="py-2">{translations[language].adminDashboard.decorationsManagement.lastUpdated}</th>
-                                    <th className="py-2">{t_leads.actions}</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                {recentRequests.map(lead => (
-                                    <tr key={lead.id}>
-                                        <td className="py-3 font-medium text-gray-800 dark:text-gray-200">{lead.customerName}</td>
-                                        <td className="py-3 text-gray-600 dark:text-gray-300 truncate max-w-xs" title={lead.serviceTitle}>{lead.serviceTitle}</td>
-                                        <td className="py-3 text-gray-500 dark:text-gray-400">{new Date(lead.updatedAt).toLocaleDateString(language, { day: 'numeric', month: 'short' })}</td>
-                                        <td className="py-3">
-                                            <Link to={`/admin/finishing-requests/${lead.id}`} className="font-medium text-amber-600 hover:underline">
-                                                {t.manage}
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                        <WrenchScrewdriverIcon className="w-6 h-6 text-gray-500"/>
+                        {t_nav.finishingRequests}
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <StatCard title={t_home.newRequests} value={finishingStats.new} icon={InboxIcon} linkTo="/admin/finishing-requests" />
+                        <StatCard title={t_home.inProgress} value={finishingStats.inProgress} icon={WrenchScrewdriverIcon} linkTo="/admin/finishing-requests" />
                     </div>
+                </div>
+
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                        <SparklesIcon className="w-6 h-6 text-gray-500"/>
+                        {t_nav.decorationsRequests}
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <StatCard title={t_home.newRequests} value={decorationStats.new} icon={InboxIcon} linkTo="/admin/decoration-requests" />
+                        <StatCard title={t_home.inProgress} value={decorationStats.inProgress} icon={WrenchScrewdriverIcon} linkTo="/admin/decoration-requests" />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <RequestList<Lead>
+                        title={t_home.recentFinishing}
+                        requests={recentFinishing}
+                        linkTo="/admin/finishing-requests"
+                        itemRenderer={renderRequestItem}
+                    />
+                    <RequestList<Lead>
+                        title={t_home.recentDecorations}
+                        requests={recentDecorations}
+                        linkTo="/admin/decoration-requests"
+                        itemRenderer={renderRequestItem}
+                    />
                 </div>
             </div>
         </div>

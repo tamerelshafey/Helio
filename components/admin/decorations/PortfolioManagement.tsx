@@ -1,8 +1,9 @@
+
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, PortfolioItem } from '../../../types';
-import { translations } from '../../../data/translations';
-import { useApiQuery } from '../../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllPortfolioItems, deletePortfolioItem as apiDeletePortfolioItem } from '../../../api/portfolio';
 import { getAllPartnersForAdmin } from '../../../api/partners';
 import { getDecorationCategories } from '../../../api/decorations';
@@ -19,11 +20,11 @@ type SortConfig = {
 const ITEMS_PER_PAGE = 8;
 
 const PortfolioManagement: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.decorationsManagement;
-    const { data: portfolio, refetch: refetchPortfolio, isLoading: loadingPortfolio } = useApiQuery('portfolio', getAllPortfolioItems);
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
-    const { data: decorationCategories, isLoading: loadingCategories } = useApiQuery('decorationCategories', getDecorationCategories);
+    const { language, t: i18n } = useLanguage();
+    const t = i18n.adminDashboard.decorationsManagement;
+    const { data: portfolio, refetch: refetchPortfolio, isLoading: loadingPortfolio } = useQuery({ queryKey: ['portfolio'], queryFn: getAllPortfolioItems });
+    const { data: partners, isLoading: loadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
+    const { data: decorationCategories, isLoading: loadingCategories } = useQuery({ queryKey: ['decorationCategories'], queryFn: getDecorationCategories });
     const loading = loadingPortfolio || loadingPartners || loadingCategories;
 
     const [modalState, setModalState] = useState<{ isOpen: boolean; itemToEdit?: PortfolioItem }>({ isOpen: false });
@@ -108,7 +109,7 @@ const PortfolioManagement: React.FC = () => {
                                     </div>
                                     <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50">
                                         <button onClick={() => setModalState({ isOpen: true, itemToEdit: item })} className="font-medium text-amber-600 dark:text-amber-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900/50">{t.editItem}</button>
-                                        <button onClick={() => handleDelete(item.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50">{translations[language].adminShared.delete}</button>
+                                        <button onClick={() => handleDelete(item.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50">{i18n.adminShared.delete}</button>
                                     </div>
                                 </div>
                             ))}

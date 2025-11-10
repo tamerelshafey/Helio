@@ -1,8 +1,6 @@
-
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Lead, AdminPartner, Property, AddPropertyRequest, ContactRequest, PartnerRequest, PropertyInquiryRequest, Project, Language } from '../../types';
-import { translations } from '../../data/translations';
 import { UserPlusIcon, ClipboardDocumentListIcon, InboxIcon, BuildingIcon, UsersIcon, ChartBarIcon, CubeIcon } from '../icons/Icons';
 import { isListingActive } from '../../utils/propertyUtils';
 import { getAllPartnerRequests } from '../../api/partnerRequests';
@@ -12,38 +10,45 @@ import { getAllPartnersForAdmin } from '../../api/partners';
 import { getAllProperties } from '../../api/properties';
 import { getAllLeads } from '../../api/leads';
 import { getAllProjects } from '../../api/projects';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import StatCard from '../shared/StatCard';
 import { useLanguage } from '../shared/LanguageContext';
+import { Card, CardContent } from '../ui/Card';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 
-const ActionCard: React.FC<{ title: string; count: number; linkTo: string; icon: React.FC<{className?: string}>; language: Language }> = ({ title, count, linkTo, icon: Icon, language }) => (
-    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6 flex flex-col justify-between">
-        <div className="flex items-start justify-between">
-            <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{title}</h3>
-                <p className="text-4xl font-bold text-amber-600 dark:text-amber-400">{count}</p>
+const ActionCard: React.FC<{ title: string; count: number; linkTo: string; icon: React.FC<{className?: string}>; t: any }> = ({ title, count, linkTo, icon: Icon, t }) => (
+    <Card className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 p-0">
+        <CardContent className="p-6 flex flex-col justify-between h-full">
+            <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{title}</h3>
+                    <p className="text-4xl font-bold text-amber-600 dark:text-amber-400">{count}</p>
+                </div>
+                <Icon className="w-8 h-8 text-amber-500" />
             </div>
-            <Icon className="w-8 h-8 text-amber-500" />
-        </div>
-        <Link to={linkTo} className="mt-4 text-center font-semibold text-amber-600 dark:text-amber-500 bg-amber-200/50 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 rounded-md py-2 transition-colors">
-            {translations[language].adminDashboard.home.review}
-        </Link>
-    </div>
+            <Link to={linkTo} className="mt-4 text-center font-semibold text-amber-600 dark:text-amber-500 bg-amber-200/50 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 rounded-md py-2 transition-colors">
+                {t.adminDashboard.home.review}
+            </Link>
+        </CardContent>
+    </Card>
 );
 
 const SuperAdminHomePage: React.FC = () => {
-    const { language } = useLanguage();
-    const t = translations[language].adminDashboard.home;
-    const t_analytics = translations[language].adminAnalytics;
+    const { language, t } = useLanguage();
+    const t_home = t.adminDashboard.home;
+    const t_analytics = t.adminAnalytics;
     
-    const { data: partnerRequests, isLoading: loadingPartnerRequests } = useApiQuery('partnerRequests', getAllPartnerRequests);
-    const { data: propertyRequests, isLoading: loadingPropertyRequests } = useApiQuery('propertyRequests', getAllPropertyRequests);
-    const { data: contactRequests, isLoading: loadingContactRequests } = useApiQuery('contactRequests', getAllContactRequests);
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartners', getAllPartnersForAdmin);
-    const { data: properties, isLoading: loadingProperties } = useApiQuery('allProperties', getAllProperties);
-    const { data: projects, isLoading: loadingProjects } = useApiQuery('allProjects', getAllProjects);
-    const { data: leads, isLoading: loadingLeads } = useApiQuery('allLeads', getAllLeads);
+    const { data: partnerRequests, isLoading: loadingPartnerRequests } = useQuery({ queryKey: ['partnerRequests'], queryFn: getAllPartnerRequests });
+    const { data: propertyRequests, isLoading: loadingPropertyRequests } = useQuery({ queryKey: ['propertyRequests'], queryFn: getAllPropertyRequests });
+    const { data: contactRequests, isLoading: loadingContactRequests } = useQuery({ queryKey: ['contactRequests'], queryFn: getAllContactRequests });
+    const { data: partners, isLoading: loadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
+    const { data: properties, isLoading: loadingProperties } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
+    const { data: projects, isLoading: loadingProjects } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
+    const { data: leads, isLoading: loadingLeads } = useQuery({ queryKey: ['allLeads'], queryFn: getAllLeads });
 
     const loading = loadingPartnerRequests || loadingPropertyRequests || loadingContactRequests || loadingPartners || loadingProperties || loadingLeads || loadingProjects;
 
@@ -91,28 +96,62 @@ const SuperAdminHomePage: React.FC = () => {
         pendingPartners, pendingProperties, newContacts, activePartnersCount, 
         activePropertiesCount, totalProjectsCount, totalLeadsCount, topPartners, topProperties 
     } = memoizedData;
+    
+    const commonChartOptions = {
+        indexAxis: 'y' as const,
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+             x: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#6B7280' } },
+             y: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#6B7280' } },
+        }
+    };
+    
+    const topPartnersChartData = {
+        labels: topPartners.map(p => p.partner ? (language === 'ar' ? p.partner.nameAr : p.partner.name) : 'N/A'),
+        datasets: [{
+            label: t_analytics.leads,
+            data: topPartners.map(p => p.count),
+            backgroundColor: 'rgba(245, 158, 11, 0.6)',
+            borderColor: 'rgba(245, 158, 11, 1)',
+            borderWidth: 1,
+        }]
+    };
+
+    const topPropertiesChartData = {
+        labels: topProperties.map(p => p.property ? p.property.title[language] : 'N/A'),
+        datasets: [{
+            label: t_home.inquiries,
+            data: topProperties.map(p => p.count),
+            backgroundColor: 'rgba(217, 119, 6, 0.6)',
+            borderColor: 'rgba(217, 119, 6, 1)',
+            borderWidth: 1,
+        }]
+    };
+
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.title}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">{t.subtitle}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_home.title}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">{t_home.subtitle}</p>
             
             <div className="mb-10">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">{t.actionableItems}</h2>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">{t_home.actionableItems}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <ActionCard title={t.pendingPartnerRequests} count={pendingPartners} linkTo="/admin/partner-requests" icon={UserPlusIcon} language={language} />
-                    <ActionCard title={t.pendingPropertyRequests} count={pendingProperties} linkTo="/admin/property-requests" icon={ClipboardDocumentListIcon} language={language} />
-                    <ActionCard title={t.newContactMessages} count={newContacts} linkTo="/admin/contact-requests" icon={InboxIcon} language={language} />
+                    <ActionCard title={t_home.pendingPartnerRequests} count={pendingPartners} linkTo="/admin/partner-requests" icon={UserPlusIcon} t={t} />
+                    <ActionCard title={t_home.pendingPropertyRequests} count={pendingProperties} linkTo="/admin/property-requests" icon={ClipboardDocumentListIcon} t={t} />
+                    <ActionCard title={t_home.newContactMessages} count={newContacts} linkTo="/admin/contact-requests" icon={InboxIcon} t={t} />
                 </div>
             </div>
 
              <div className="mb-10">
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Key Metrics</h2>
                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard title={t.activePartners} value={activePartnersCount} icon={UsersIcon} linkTo="/admin/partners" />
-                    <StatCard title={t.activeProperties} value={activePropertiesCount} icon={BuildingIcon} linkTo="/admin/properties" />
-                    <StatCard title={translations[language].adminDashboard.listingsManagerHome.totalProjects} value={totalProjectsCount} icon={CubeIcon} linkTo="/admin/projects" />
-                    <StatCard title={t.totalLeads} value={totalLeadsCount} icon={ChartBarIcon} linkTo="/admin/leads" />
+                    <StatCard title={t_home.activePartners} value={activePartnersCount} icon={UsersIcon} linkTo="/admin/partners" />
+                    <StatCard title={t_home.activeProperties} value={activePropertiesCount} icon={BuildingIcon} linkTo="/admin/properties" />
+                    <StatCard title={t.adminDashboard.listingsManagerHome.totalProjects} value={totalProjectsCount} icon={CubeIcon} linkTo="/admin/projects" />
+                    <StatCard title={t_home.totalLeads} value={totalLeadsCount} icon={ChartBarIcon} linkTo="/admin/leads" />
                 </div>
             </div>
 
@@ -120,44 +159,16 @@ const SuperAdminHomePage: React.FC = () => {
                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Performance Analytics</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t.topPerformingPartners}</h2>
-                        <ul className="space-y-4">
-                            {topPartners.map(({ partner, count }) => partner && (
-                                <li key={partner.id}>
-                                     <Link to={`/admin/partners?edit=${partner.id}`} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <img src={partner.imageUrl} alt={partner.name} className="w-10 h-10 rounded-full object-cover"/>
-                                        <div className="flex-grow">
-                                            <p className="font-semibold text-gray-800 dark:text-gray-200">{partner.name}</p>
-                                            <p className="text-xs text-gray-500">{partner.type}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-bold text-lg text-amber-500">{count}</p>
-                                            <p className="text-xs text-gray-500">{t_analytics.leads}</p>
-                                        </div>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t_home.topPerformingPartners}</h2>
+                        <div className="h-80">
+                            <Bar data={topPartnersChartData} options={commonChartOptions} />
+                        </div>
                     </div>
                      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t.topPerformingProperties}</h2>
-                        <ul className="space-y-4">
-                            {topProperties.map(({ property, count }) => property && (
-                                <li key={property.id}>
-                                    <Link to={`/admin/properties/edit/${property.id}`} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                        <img src={property.imageUrl} alt={property.title[language]} className="w-10 h-10 rounded-md object-cover"/>
-                                        <div className="flex-grow overflow-hidden">
-                                            <p className="font-semibold text-gray-800 dark:text-gray-200 truncate block">{property.title[language]}</p>
-                                            <p className="text-xs text-gray-500">{property.partnerName}</p>
-                                        </div>
-                                        <div className="text-right flex-shrink-0">
-                                            <p className="font-bold text-lg text-amber-500">{count}</p>
-                                            <p className="text-xs text-gray-500">{t.inquiries}</p>
-                                        </div>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t_home.topPerformingProperties}</h2>
+                        <div className="h-80">
+                            <Bar data={topPropertiesChartData} options={commonChartOptions} />
+                        </div>
                     </div>
                 </div>
             </div>

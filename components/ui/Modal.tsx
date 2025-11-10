@@ -1,0 +1,87 @@
+import React, { useEffect, useRef } from 'react';
+import { CloseIcon } from '../icons/Icons';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './Card';
+
+interface ModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    children: React.ReactNode;
+    className?: string;
+    'aria-labelledby': string;
+}
+
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, className, ...props }) => {
+    const dialogRef = useRef<HTMLDialogElement>(null);
+
+    useEffect(() => {
+        const dialog = dialogRef.current;
+        if (dialog) {
+            if (isOpen) {
+                dialog.showModal();
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            } else {
+                dialog.close();
+                document.body.style.overflow = '';
+            }
+        }
+
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        const dialog = dialogRef.current;
+        dialog?.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            dialog?.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [onClose]);
+
+    const handleBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
+        if (event.target === dialogRef.current) {
+            onClose();
+        }
+    };
+
+    return (
+        <dialog
+            ref={dialogRef}
+            onClick={handleBackdropClick}
+            onClose={onClose}
+            className="p-0 bg-transparent backdrop:bg-black/70 backdrop:backdrop-blur-sm rounded-lg shadow-xl max-w-lg w-full"
+            {...props}
+        >
+            <Card className={`w-full animate-fadeIn ${className}`}>{children}</Card>
+        </dialog>
+    );
+};
+
+const ModalHeader: React.FC<{ children: React.ReactNode; onClose: () => void; id: string }> = ({
+    children,
+    onClose,
+    id,
+}) => (
+    <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle id={id}>{children}</CardTitle>
+        <button
+            onClick={onClose}
+            className="p-1 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+            aria-label="Close"
+        >
+            <CloseIcon className="w-5 h-5" />
+        </button>
+    </CardHeader>
+);
+
+const ModalContent = CardContent;
+const ModalFooter = CardFooter;
+
+export { Modal, ModalHeader, ModalContent, ModalFooter };

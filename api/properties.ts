@@ -4,7 +4,7 @@
 import { propertiesData } from '../data/properties';
 import { getPartnerById } from './partners';
 import { projectsData } from '../data/projects';
-import type { Property } from '../types';
+import type { Property, PropertyFiltersType } from '../types';
 import { isListingActive } from '../utils/propertyUtils';
 
 const SIMULATED_DELAY = 300;
@@ -50,7 +50,7 @@ export const getProperties = (): Promise<Property[]> => {
 export const getPaginatedProperties = (options: {
   page: number;
   limit: number;
-  filters: any; // The filters object from usePropertyFilters
+  filters: PropertyFiltersType;
 }): Promise<{ properties: Property[]; total: number }> => {
   return new Promise((resolve) => {
     setTimeout(() => {

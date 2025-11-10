@@ -1,26 +1,26 @@
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Language, PartnerRequest } from '../../types';
-import { translations } from '../../data/translations';
 import { ChevronLeftIcon } from '../icons/Icons';
 import { getAllPartnerRequests, updatePartnerRequestStatus } from '../../api/partnerRequests';
 import { addPartner } from '../../api/partners';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import DetailItem from '../shared/DetailItem';
 import DetailSection from '../shared/DetailSection';
 import { useLanguage } from '../shared/LanguageContext';
 
 const AdminPartnerRequestDetailsPage: React.FC = () => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const { requestId } = useParams<{ requestId: string }>();
     const navigate = useNavigate();
-    const { data: partnerRequests, isLoading: dataLoading, refetch } = useApiQuery('partnerRequests', getAllPartnerRequests);
+    const { data: partnerRequests, isLoading: dataLoading, refetch } = useQuery({ queryKey: ['partnerRequests'], queryFn: getAllPartnerRequests });
     const [actionLoading, setActionLoading] = useState(false);
     
-    const t = translations[language].adminDashboard.adminRequests;
-    const t_shared = translations[language].adminShared;
-    const t_plans = translations[language].subscriptionPlans;
+    const t_req = t.adminDashboard.adminRequests;
+    const t_shared = t.adminShared;
+    const t_plans = t.subscriptionPlans;
 
     const request = useMemo(() => {
         return (partnerRequests || []).find(r => r.id === requestId);
@@ -74,50 +74,50 @@ const AdminPartnerRequestDetailsPage: React.FC = () => {
                         {t_shared.backToRequests}
                     </Link>
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {t.table.details}: {request.companyName}
+                        {t_req.table.details}: {request.companyName}
                     </h3>
                 </div>
                 {request.status === 'pending' && (
                     <div className="flex gap-3">
-                         <button onClick={handleReject} className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600" disabled={actionLoading}>{t.table.reject}</button>
-                         <button onClick={handleApprove} className="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600" disabled={actionLoading}>{t.table.approve}</button>
+                         <button onClick={handleReject} className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600" disabled={actionLoading}>{t_req.table.reject}</button>
+                         <button onClick={handleApprove} className="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600" disabled={actionLoading}>{t_req.table.approve}</button>
                     </div>
                 )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div>
-                    <DetailSection title={t.table.companyInfo}>
-                        <div className="flex items-start gap-4">
+                    <DetailSection title={t_req.table.companyInfo}>
+                        <div className="flex items-start gap-4 mb-4">
                             <img src={request.logo} alt={`${request.companyName} logo`} className="w-20 h-20 rounded-full object-cover border"/>
                             <div className="flex-grow space-y-1">
-                                <DetailItem layout="grid" label={translations[language].partnerRequestForm.companyName} value={request.companyName} />
-                                <DetailItem layout="grid" label={translations[language].partnerRequestForm.companyType} value={request.companyType} />
-                                <DetailItem layout="grid" label={t.subscriptionPlan} value={planName} />
-                                <DetailItem layout="grid" label={translations[language].partnerRequestForm.companyAddress} value={request.companyAddress} />
-                                <DetailItem layout="grid" label={translations[language].partnerRequestForm.website} value={request.website ? <a href={request.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{request.website}</a> : '-'} />
-                                <DetailItem layout="grid" label={translations[language].partnerRequestForm.companyDescription} value={request.description} />
+                                <h4 className="font-bold text-lg">{request.companyName}</h4>
+                                <p className="text-sm text-gray-500">{request.companyType}</p>
                             </div>
                         </div>
+                        <DetailItem layout="grid" label={t.subscriptionPlan} value={planName} />
+                        <DetailItem layout="grid" label={t.partnerRequestForm.companyAddress} value={request.companyAddress} />
+                        <DetailItem layout="grid" label={t.partnerRequestForm.website} value={request.website ? <a href={request.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{request.website}</a> : '-'} />
+                        <DetailItem layout="grid" label={t.partnerRequestForm.companyDescription} value={<p className="whitespace-pre-line">{request.description}</p>} />
                     </DetailSection>
 
-                    <DetailSection title={t.table.primaryContact}>
-                        <DetailItem layout="grid" label={translations[language].partnerRequestForm.contactName} value={request.contactName} />
-                        <DetailItem layout="grid" label={translations[language].partnerRequestForm.contactEmail} value={request.contactEmail} />
-                        <DetailItem layout="grid" label={translations[language].partnerRequestForm.contactPhone} value={request.contactPhone} />
+                    <DetailSection title={t_req.table.primaryContact}>
+                        <DetailItem layout="grid" label={t.partnerRequestForm.contactName} value={request.contactName} />
+                        <DetailItem layout="grid" label={t.partnerRequestForm.contactEmail} value={request.contactEmail} />
+                        <DetailItem layout="grid" label={t.partnerRequestForm.contactPhone} value={request.contactPhone} />
                     </DetailSection>
                 </div>
                 <div>
                      {request.managementContacts.length > 0 && (
-                        <DetailSection title={t.table.managementContacts}>
+                        <DetailSection title={t_req.table.managementContacts}>
                            <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead className="text-left text-gray-500 dark:text-gray-400">
                                         <tr>
-                                            <th className="py-1 font-medium">{translations[language].partnerRequestForm.managementName}</th>
-                                            <th className="py-1 font-medium">{translations[language].partnerRequestForm.managementPosition}</th>
-                                            <th className="py-1 font-medium">{translations[language].partnerRequestForm.managementEmail}</th>
-                                            <th className="py-1 font-medium">{translations[language].partnerRequestForm.managementPhone}</th>
+                                            <th className="py-1 font-medium">{t.partnerRequestForm.managementName}</th>
+                                            <th className="py-1 font-medium">{t.partnerRequestForm.managementPosition}</th>
+                                            <th className="py-1 font-medium">{t.partnerRequestForm.managementEmail}</th>
+                                            <th className="py-1 font-medium">{t.partnerRequestForm.managementPhone}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
@@ -136,12 +136,12 @@ const AdminPartnerRequestDetailsPage: React.FC = () => {
                     )}
 
                      {request.documents.length > 0 && (
-                         <DetailSection title={t.table.documents}>
+                         <DetailSection title={t_req.table.documents}>
                              <ul className="space-y-2">
                                 {request.documents.map((doc, index) => (
                                     <li key={index}>
                                         <a href={doc.fileContent} download={doc.fileName} className="text-blue-500 hover:underline flex items-center gap-2">
-                                           {doc.fileName} ({t.table.download})
+                                           {doc.fileName} ({t_req.table.download})
                                         </a>
                                     </li>
                                 ))}

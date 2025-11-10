@@ -7,7 +7,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     // Developers
     {
         id: 'united-development',
-        imageUrl: 'https://images.unsplash.com/photo-1542361303-334a16de71b1?q=80&w=2070&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1542361303-334a16de71b1?q=75&w=2070&auto=format&fit=crop',
         email: 'dev1@onlyhelio.com',
         password: 'password',
         type: 'developer', status: 'active', subscriptionPlan: 'elite',
@@ -16,7 +16,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     },
     {
         id: 'modern-construction-group',
-        imageUrl: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=80&w=2071&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=75&w=2071&auto=format&fit=crop',
         email: 'dev2@onlyhelio.com',
         password: 'password',
         type: 'developer', status: 'active', subscriptionPlan: 'professional',
@@ -25,7 +25,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     },
     {
         id: 'sodic',
-        imageUrl: 'https://images.unsplash.com/photo-1605146769283-4a23588950c6?q=80&w=2070&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1605146769283-4a23588950c6?q=75&w=2070&auto=format&fit=crop',
         email: 'sodic@onlyhelio.com',
         password: 'password',
         type: 'developer', status: 'active', subscriptionPlan: 'elite',
@@ -34,7 +34,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     },
     {
         id: 'capital-group-properties',
-        imageUrl: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=80&w=2070&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1599809275661-059052824c04?q=75&w=2070&auto=format&fit=crop',
         email: 'cgp@onlyhelio.com',
         password: 'password',
         type: 'developer', status: 'active', subscriptionPlan: 'elite',
@@ -43,7 +43,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     },
     {
         id: 'heliopolis-developers-group',
-        imageUrl: 'https://images.unsplash.com/photo-1560185893-a55d88652353?q=80&w=2070&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1560185893-a55d88652353?q=75&w=2070&auto=format&fit=crop',
         email: 'hdg@onlyhelio.com',
         password: 'password',
         type: 'developer', status: 'active', subscriptionPlan: 'professional',
@@ -53,7 +53,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     // Finishing Companies
     {
         id: 'el-mottaheda-group',
-        imageUrl: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2070&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=75&w=2070&auto=format&fit=crop',
         email: 'fin1@onlyhelio.com',
         password: 'password',
         type: 'finishing', status: 'active', subscriptionPlan: 'professional',
@@ -62,7 +62,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     },
     {
         id: 'design-hub',
-        imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=2158&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=75&w=2158&auto=format&fit=crop',
         email: 'fin2@onlyhelio.com',
         password: 'password',
         type: 'finishing', status: 'active', subscriptionPlan: 'professional',
@@ -71,7 +71,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     },
     {
         id: 'ebdaa-integrated-finishes',
-        imageUrl: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=2074&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?q=75&w=2074&auto=format&fit=crop',
         email: 'fin4@onlyhelio.com',
         password: 'password',
         type: 'finishing', status: 'active', subscriptionPlan: 'commission',
@@ -81,7 +81,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     // Agencies
     {
         id: 'future-real-estate',
-        imageUrl: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1973&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=75&w=1973&auto=format&fit=crop',
         email: 'agency1@onlyhelio.com',
         password: 'password',
         type: 'agency', status: 'active', subscriptionPlan: 'professional',
@@ -91,7 +91,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     // Admins & System Users
     {
         id: 'admin-user',
-        imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=75&w=2070&auto=format&fit=crop',
         email: 'admin@onlyhelio.com',
         password: 'password',
         type: 'admin', status: 'active', subscriptionPlan: 'elite',
@@ -100,7 +100,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     },
     {
         id: 'service-manager-1',
-        imageUrl: 'https://images.unsplash.com/photo-1531891437562-b1a5b0648509?q=80&w=1974&auto.format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1531891437562-b1a5b0648509?q=75&w=1974&auto.format&fit=crop',
         email: 'service-manager@onlyhelio.com',
         password: 'password',
         type: 'service_manager', status: 'active', subscriptionPlan: 'basic',
@@ -109,7 +109,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     },
      {
         id: 'customer-relations-manager-1',
-        imageUrl: 'https://images.unsplash.com/photo-1543462378-94183658e3e4?q=80&w=1974&auto.format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1543462378-94183658e3e4?q=75&w=1974&auto.format&fit=crop',
         email: 'customer-relations-manager@onlyhelio.com',
         password: 'password',
         type: 'customer_relations_manager', status: 'active', subscriptionPlan: 'basic',
@@ -118,7 +118,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     },
     {
         id: 'listings-manager-1',
-        imageUrl: 'https://images.unsplash.com/photo-1599948058230-787cd7a5f629?q=80&w=1974&auto.format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1599948058230-787cd7a5f629?q=75&w=1974&auto.format&fit=crop',
         email: 'listings-manager@onlyhelio.com',
         password: 'password',
         type: 'listings_manager', status: 'active', subscriptionPlan: 'basic',
@@ -127,7 +127,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     },
     {
         id: 'partner-relations-manager-1',
-        imageUrl: 'https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?q=80&w=1974&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?q=75&w=1974&auto.format&fit=crop',
         email: 'partner-relations-manager@onlyhelio.com',
         password: 'password',
         type: 'partner_relations_manager', status: 'active', subscriptionPlan: 'basic',
@@ -136,7 +136,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     },
     {
         id: 'content-manager-1',
-        imageUrl: 'https://images.unsplash.com/photo-1587614295999-6c1c13675127?q=80&w=1974&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1587614295999-6c1c13675127?q=75&w=1974&auto.format&fit=crop',
         email: 'content-manager@onlyhelio.com',
         password: 'password',
         type: 'content_manager', status: 'active', subscriptionPlan: 'basic',
@@ -146,7 +146,7 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
     // Individual Listings (system partner)
     {
         id: 'individual-listings',
-        imageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=75&w=2070&auto=format&fit=crop',
         email: 'individual@onlyhelio.com',
         password: 'password',
         type: 'agency', status: 'active', subscriptionPlan: 'elite',

@@ -1,19 +1,18 @@
 
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import PropertyCard from './shared/PropertyCard';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 import type { Project } from '../types';
-import { translations } from '../data/translations';
 import { isListingActive } from '../utils/propertyUtils';
-import { useApiQuery } from './shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllProperties } from '../api/properties';
 import { useLanguage } from './shared/LanguageContext';
 
 const LatestProperties: React.FC = () => {
-  const { language } = useLanguage();
-  const t = translations[language];
-  const { data: properties, isLoading } = useApiQuery('allProperties', getAllProperties);
+  const { language, t } = useLanguage();
+  const { data: properties, isLoading } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
 
   const featuredProperties = useMemo(() => {
     if (!properties) return [];

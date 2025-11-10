@@ -1,12 +1,13 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { PartnerStatus, AdminPartner, PartnerType } from '../../types';
-import { translations } from '../../data/translations';
-import FormField, { inputClasses, selectClasses } from '../shared/FormField';
+import FormField from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { addInternalUser, updateUser } from '../../api/partners';
 import { useLanguage } from '../shared/LanguageContext';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Select } from '../ui/Select';
 
 interface AdminUserFormModalProps {
     userToEdit?: AdminPartner;
@@ -15,10 +16,10 @@ interface AdminUserFormModalProps {
 }
 
 const AdminUserFormModal: React.FC<AdminUserFormModalProps> = ({ userToEdit, onClose, onSave }) => {
-    const { language } = useLanguage();
-    const t_admin = translations[language].adminDashboard;
+    const { language, t } = useLanguage();
+    const t_admin = t.adminDashboard;
     const t_um = t_admin.userManagement;
-    const t_shared = translations[language].adminShared;
+    const t_shared = t.adminShared;
 
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
@@ -67,33 +68,33 @@ const AdminUserFormModal: React.FC<AdminUserFormModalProps> = ({ userToEdit, onC
                     </div>
                     <div className="flex-grow overflow-y-auto p-6 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             <FormField label={t_um.form.nameAr} id="nameAr"><input name="nameAr" value={formData.nameAr} onChange={handleChange} className={inputClasses} required /></FormField>
-                             <FormField label={t_um.form.nameEn} id="name"><input name="name" value={formData.name} onChange={handleChange} className={inputClasses} required /></FormField>
+                             <FormField label={t_um.form.nameAr} id="nameAr"><Input name="nameAr" value={formData.nameAr} onChange={handleChange} required /></FormField>
+                             <FormField label={t_um.form.nameEn} id="name"><Input name="name" value={formData.name} onChange={handleChange} required /></FormField>
                         </div>
-                        <FormField label={t_um.form.email} id="email"><input type="email" name="email" value={formData.email} onChange={handleChange} className={inputClasses} required /></FormField>
+                        <FormField label={t_um.form.email} id="email"><Input type="email" name="email" value={formData.email} onChange={handleChange} required /></FormField>
                         {!userToEdit && (
                             <FormField label={t_um.form.password} id="password">
-                                <input type="password" name="password" value={formData.password} onChange={handleChange} className={inputClasses} placeholder={t_um.form.passwordHelp} />
+                                <Input type="password" name="password" value={formData.password} onChange={handleChange} placeholder={t_um.form.passwordHelp} />
                             </FormField>
                         )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField label={t_um.role} id="type">
-                                <select name="type" value={formData.type} onChange={handleChange} className={selectClasses}>
+                                <Select name="type" value={formData.type} onChange={handleChange}>
                                     {allPartnerTypes.map(([key, value]) => <option key={key} value={key}>{value}</option>)}
-                                </select>
+                                </Select>
                             </FormField>
                             <FormField label={t_um.status} id="status">
-                                <select name="status" value={formData.status} onChange={handleChange} className={selectClasses}>
-                                    {Object.entries(t_admin.partnerStatuses).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
-                                </select>
+                                <Select name="status" value={formData.status} onChange={handleChange}>
+                                    {Object.entries(t_admin.partnerStatuses).map(([key, value]) => <option key={key} value={key}>{value}</option>))}
+                                </Select>
                             </FormField>
                         </div>
                     </div>
                     <div className="p-4 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                        <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">{t_shared.cancel}</button>
-                        <button type="submit" disabled={loading} className="px-6 py-2 rounded-lg bg-amber-500 text-gray-900 font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50">
-                            {loading ? '...' : t_shared.save}
-                        </button>
+                        <Button type="button" variant="secondary" onClick={onClose}>{t_shared.cancel}</Button>
+                        <Button type="submit" isLoading={loading}>
+                            {t_shared.save}
+                        </Button>
                     </div>
                 </form>
             </div>
@@ -101,5 +102,4 @@ const AdminUserFormModal: React.FC<AdminUserFormModalProps> = ({ userToEdit, onC
     );
 };
 
-// FIX: Added default export to resolve module import error.
 export default AdminUserFormModal;

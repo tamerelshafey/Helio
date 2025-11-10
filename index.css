@@ -1,17 +1,30 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 body {
   font-family: 'Tajawal', sans-serif;
 }
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.5s ease-out forwards;
 }
+
+@keyframes slideInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slideInUp {
+  animation: slideInUp 0.6s ease-out forwards;
+}
+
+.card-glow:hover {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+}
+.dark .card-glow:hover {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
+}
+
+
 @keyframes calm-background {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -121,4 +134,18 @@ details[open] > summary .rotate-on-open {
     linear-gradient(225deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
     linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
     linear-gradient(315deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%);
+}
+
+.dashboard-sidebar nav::-webkit-scrollbar {
+  width: 6px;
+}
+.dashboard-sidebar nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dashboard-sidebar nav::-webkit-scrollbar-thumb {
+  background-color: #d1d5db; /* gray-300 */
+  border-radius: 3px;
+}
+.dark .dashboard-sidebar nav::-webkit-scrollbar-thumb {
+  background-color: #4b5563; /* gray-600 */
 }

@@ -1,15 +1,18 @@
+
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, PortfolioItem, DecorationCategory } from '../../types';
-import { useApiQuery } from '../shared/useApiQuery';
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+import { useQuery } from '@tanstack/react-query';
 import { getAllLeads } from '../../api/leads';
 import { getAllPortfolioItems } from '../../api/portfolio';
 import { getDecorationCategories } from '../../api/decorations';
 import { getAllPartnersForAdmin } from '../../api/partners';
 import { SparklesIcon, InboxIcon, WrenchScrewdriverIcon, CheckCircleIcon } from '../icons/Icons';
-import { translations } from '../../data/translations';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
+import { useLanguage } from '../shared/LanguageContext';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -27,14 +30,15 @@ const StatCard: React.FC<{ title: string; value: number | string; icon: React.FC
     </div>
 );
 
-const DecorationsManagerHomePage: React.FC<{ language: Language }> = ({ language }) => {
-    const t = translations[language].adminDashboard.decorationsManagement;
-    const t_leads = translations[language].dashboard.leadTable;
+const DecorationsManagerHomePage: React.FC = () => {
+    const { language, t: i18n } = useLanguage();
+    const t = i18n.adminDashboard.decorationsManagement;
+    const t_leads = i18n.dashboard.leadTable;
 
-    const { data: allLeads, isLoading: loadingLeads } = useApiQuery('allLeads', getAllLeads);
-    const { data: portfolio, isLoading: loadingPortfolio } = useApiQuery('portfolio', getAllPortfolioItems);
-    const { data: decorationCategories, isLoading: loadingCategories } = useApiQuery('decorationCategories', getDecorationCategories);
-    const { data: partners, isLoading: loadingPartners } = useApiQuery('allPartnersAdmin', getAllPartnersForAdmin);
+    const { data: allLeads, isLoading: loadingLeads } = useQuery({ queryKey: ['allLeads'], queryFn: getAllLeads });
+    const { data: portfolio, isLoading: loadingPortfolio } = useQuery({ queryKey: ['portfolio'], queryFn: getAllPortfolioItems });
+    const { data: decorationCategories, isLoading: loadingCategories } = useQuery({ queryKey: ['decorationCategories'], queryFn: getDecorationCategories });
+    const { data: partners, isLoading: loadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
 
     const isLoading = loadingLeads || loadingPortfolio || loadingCategories || loadingPartners;
 

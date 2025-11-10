@@ -1,12 +1,12 @@
 
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Language, PortfolioItem } from '../../types';
-import { translations } from '../../data/translations';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { getDecorationCategories } from '../../api/decorations';
 import { addPortfolioItem, updatePortfolioItem } from '../../api/portfolio';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminPortfolioItemFormModalProps {
@@ -25,11 +25,11 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = ({ itemToEdit, onClose, onSave }) => {
-    const { language } = useLanguage();
-    const t = translations[language].dashboard;
-    const t_admin = translations[language].adminDashboard.decorationsManagement;
-    const t_shared = translations[language].adminShared;
-    const { data: decorationCategories, isLoading: categoriesLoading } = useApiQuery('decorationCategories', getDecorationCategories);
+    const { language, t } = useLanguage();
+    const t_dash = t.dashboard;
+    const t_admin = t.adminDashboard.decorationsManagement;
+    const t_shared = t.adminShared;
+    const { data: decorationCategories, isLoading: categoriesLoading } = useQuery({ queryKey: ['decorationCategories'], queryFn: getDecorationCategories });
     const modalRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
 
@@ -113,15 +113,15 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
                         <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
                     </div>
                     <div className="flex-grow overflow-y-auto p-6 space-y-6">
-                        <FormField label={t.workImageURL} id="imageUrl">
+                        <FormField label={t_dash.workImageURL} id="imageUrl">
                             <div className="flex items-center gap-4">
                                 {imagePreview && <img src={imagePreview} alt="Preview" className="w-20 h-20 rounded-md object-cover border-2" />}
                                 <input type="file" id="imageUrl" accept="image/*" onChange={handleFileChange} className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`} required={!itemToEdit} />
                             </div>
                         </FormField>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField label={t.workTitleAr} id="title.ar"><input type="text" name="title.ar" value={formData.title.ar} onChange={handleChange} className={inputClasses} required /></FormField>
-                            <FormField label={t.workTitleEn} id="title.en"><input type="text" name="title.en" value={formData.title.en} onChange={handleChange} className={inputClasses} required /></FormField>
+                            <FormField label={t_dash.workTitleAr} id="title.ar"><input type="text" name="title.ar" value={formData.title.ar} onChange={handleChange} className={inputClasses} required /></FormField>
+                            <FormField label={t_dash.workTitleEn} id="title.en"><input type="text" name="title.en" value={formData.title.en} onChange={handleChange} className={inputClasses} required /></FormField>
                         </div>
                          <div>
                             <FormField label={t_admin.itemCategory} id="categoryId">
@@ -139,8 +139,8 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
                             </FormField>
                             <FormField label="Availability" id="availability">
                                 <select name="availability" value={formData.availability} onChange={handleChange} className={selectClasses}>
-                                    <option value="In Stock">{translations[language].decorationsPage.inStock}</option>
-                                    <option value="Made to Order">{translations[language].decorationsPage.madeToOrder}</option>
+                                    <option value="In Stock">{t.decorationsPage.inStock}</option>
+                                    <option value="Made to Order">{t.decorationsPage.madeToOrder}</option>
                                 </select>
                             </FormField>
                         </div>

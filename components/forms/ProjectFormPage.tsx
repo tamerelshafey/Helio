@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import type { Project } from '../../types';
-import { translations } from '../../data/translations';
+import type { Language, Project } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses } from '../shared/FormField';
 import { addProject, updateProject } from '../../api/projects';
-import { useApiQuery } from '../shared/useApiQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getAllProjects } from '../../api/projects';
 import { Role, Permission } from '../../types';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
@@ -24,12 +23,12 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 const ProjectFormPage: React.FC = () => {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
     const { projectId } = useParams();
     const navigate = useNavigate();
     const { currentUser, hasPermission } = useAuth();
-    const { data: projects, isLoading: projectsLoading } = useApiQuery('allProjects', getAllProjects);
-    const t_form = translations[language].projectDashboard.projectForm;
+    const { data: projects, isLoading: projectsLoading } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects, enabled: !!projectId });
+    const t_form = t.projectDashboard.projectForm;
 
     const { isLimitReached } = useSubscriptionUsage('projects');
 
@@ -43,7 +42,6 @@ const ProjectFormPage: React.FC = () => {
     useEffect(() => {
         if (projectId && projects) {
             const project = projects.find(p => p.id === projectId);
-            // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
             if (project && currentUser && 'type' in currentUser && (project.partnerId === currentUser.id || hasPermission(Permission.MANAGE_ALL_PROJECTS))) {
                 setFormData({
                     name: project.name,
@@ -92,7 +90,6 @@ const ProjectFormPage: React.FC = () => {
         }
         
         setFormLoading(false);
-        // FIX: Add type guard to ensure currentUser is a Partner before accessing partner-specific properties.
         const redirectPath = currentUser && 'type' in currentUser && hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
         navigate(redirectPath);
     };
