@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ArrowUpIcon, ArrowDownIcon } from '../../icons/Icons';
 import { useDebounce } from '../../hooks/useDebounce';
