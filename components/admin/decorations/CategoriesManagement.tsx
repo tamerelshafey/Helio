@@ -1,19 +1,19 @@
 
 import React, { useState } from 'react';
-import type { Language, DecorationCategory } from '../../../types';
+import type { DecorationCategory } from '../../../types';
 import { useQuery } from '@tanstack/react-query';
 import { getDecorationCategories, deleteDecorationCategory as apiDeleteDecorationCategory } from '../../../services/decorations';
 import AdminDecorationCategoryFormModal from '../AdminDecorationCategoryFormModal';
 import { useLanguage } from '../../shared/LanguageContext';
 
 const CategoriesManagement: React.FC = () => {
-    const { language, t: i18n } = useLanguage();
-    const t = i18n.adminDashboard.decorationsManagement;
+    const { language, t } = useLanguage();
+    const t_decor = t.adminDashboard.decorationsManagement;
     const { data: categories, refetch: refetchCategories, isLoading: loading } = useQuery({ queryKey: ['decorationCategories'], queryFn: getDecorationCategories });
     const [modalState, setModalState] = useState<{ isOpen: boolean; categoryToEdit?: DecorationCategory }>({ isOpen: false });
 
     const handleDelete = async (categoryId: string) => {
-        if (window.confirm(t.confirmDelete.replace('item', 'category'))) {
+        if (window.confirm(t_decor.confirmDelete.replace('item', 'category'))) {
             await apiDeleteDecorationCategory(categoryId);
             refetchCategories();
         }
@@ -27,10 +27,14 @@ const CategoriesManagement: React.FC = () => {
     return (
         <div className="animate-fadeIn">
             {modalState.isOpen && <AdminDecorationCategoryFormModal categoryToEdit={modalState.categoryToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} />}
+            
             <div className="flex justify-end mb-4">
-                <button onClick={() => setModalState({ isOpen: true })} className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600">{t.addNewCategory}</button>
+                <button onClick={() => setModalState({ isOpen: true })} className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600">
+                    {t_decor.addNewCategory}
+                </button>
             </div>
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
+            
+            <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <ul className="divide-y divide-gray-200 dark:divide-gray-700">
                     {loading ? (
                         <li className="p-8 text-center">Loading...</li>
@@ -41,11 +45,14 @@ const CategoriesManagement: React.FC = () => {
                                 <p className="text-sm text-gray-500 dark:text-gray-400">{cat.description[language]}</p>
                             </div>
                             <div className="space-x-4">
-                                <button onClick={() => setModalState({ isOpen: true, categoryToEdit: cat })} className="font-medium text-amber-600 hover:underline">{i18n.adminShared.edit}</button>
-                                <button onClick={() => handleDelete(cat.id)} className="font-medium text-red-600 hover:underline">{i18n.adminShared.delete}</button>
+                                <button onClick={() => setModalState({ isOpen: true, categoryToEdit: cat })} className="font-medium text-amber-600 hover:underline">{t.adminShared.edit}</button>
+                                <button onClick={() => handleDelete(cat.id)} className="font-medium text-red-600 hover:underline">{t.adminShared.delete}</button>
                             </div>
                         </li>
                     ))}
+                     {(categories || []).length === 0 && !loading && (
+                        <li className="p-8 text-center text-gray-500">No categories found.</li>
+                    )}
                 </ul>
             </div>
         </div>

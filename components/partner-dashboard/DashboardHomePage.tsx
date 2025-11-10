@@ -1,3 +1,4 @@
+
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Role, Project, Property, Lead, PortfolioItem } from '../../types';
@@ -10,73 +11,8 @@ import { getAllPortfolioItems } from '../../services/portfolio';
 import StatCard from '../shared/StatCard';
 import { CubeIcon, BuildingIcon, InboxIcon, ClipboardDocumentListIcon, PhotoIcon } from '../icons/Icons';
 import { useLanguage } from '../shared/LanguageContext';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import RequestList from '../shared/RequestList';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
-
-const LeadsChart: React.FC<{ leads: Lead[] | undefined }> = ({ leads }) => {
-    const { language, t } = useLanguage();
-
-    const chartData = useMemo(() => {
-        const labels: string[] = [];
-        const data: number[] = [];
-        const now = new Date();
-
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(now);
-            date.setDate(now.getDate() - i);
-            labels.push(date.toLocaleDateString(language, { weekday: 'short', day: 'numeric' }));
-            
-            const dateString = date.toISOString().split('T')[0];
-            const leadsOnDate = (leads || []).filter(lead => lead.createdAt.startsWith(dateString)).length;
-            data.push(leadsOnDate);
-        }
-
-        return {
-            labels,
-            datasets: [
-                {
-                    label: t.dashboardHome.newLeads,
-                    data,
-                    fill: true,
-                    backgroundColor: 'rgba(245, 158, 11, 0.2)',
-                    borderColor: '#F59E0B',
-                    tension: 0.3,
-                },
-            ],
-        };
-    }, [leads, language, t.dashboardHome.newLeads]);
-    
-    const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-        },
-        scales: {
-             x: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#6B7280' } },
-             y: { beginAtZero: true, ticks: { stepSize: 1, color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#6B7280' } },
-        }
-    };
-
-    return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <InboxIcon className="w-6 h-6 text-amber-500" />
-                    {t.dashboardHome.recentLeads}
-                </h2>
-                <Link to="/dashboard/leads" className="text-sm font-semibold text-amber-600 hover:underline">
-                    {t.dashboardHome.viewAllLeads}
-                </Link>
-            </div>
-            <div className="h-64">
-                <Line options={chartOptions} data={chartData} />
-            </div>
-        </div>
-    );
-};
 
 const DashboardHomePage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -133,6 +69,22 @@ const DashboardHomePage: React.FC = () => {
 
     }, [isLoading, projects, properties, portfolio, leads, currentUser, language, t_home, t.subscriptionPlans]);
 
+    const renderLeadItem = (lead: Lead) => (
+         <li key={lead.id} className="py-3">
+            <div className="flex items-center justify-between">
+                <div>
+                    <p className="font-semibold text-gray-800 dark:text-gray-200">{lead.customerName}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs" title={lead.serviceTitle}>
+                        {lead.serviceTitle}
+                    </p>
+                </div>
+                <div className="text-right text-sm text-gray-400">
+                    {new Date(lead.createdAt).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short' })}
+                </div>
+            </div>
+        </li>
+    );
+
     if (isLoading || !currentUser || !('type' in currentUser)) {
         return <div className="text-center p-8">Loading Dashboard...</div>;
     }
@@ -149,9 +101,14 @@ const DashboardHomePage: React.FC = () => {
             </div>
 
             <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="lg:col-span-2">
-                    <LeadsChart leads={leads as Lead[]} />
-                </div>
+                 <div className="lg:col-span-2">
+                    <RequestList
+                        title={t_home.recentLeads}
+                        requests={leads as Lead[]}
+                        linkTo="/dashboard/leads"
+                        itemRenderer={renderLeadItem}
+                    />
+                 </div>
 
                 {currentUser.role === Role.DEVELOPER_PARTNER && (
                     <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">

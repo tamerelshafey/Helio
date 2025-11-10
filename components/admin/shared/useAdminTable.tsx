@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ArrowUpIcon, ArrowDownIcon } from '../../icons/Icons';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -7,7 +8,7 @@ type SortDirection = 'ascending' | 'descending';
 export interface SortConfig<T> {
     key: keyof T | string;
     direction: SortDirection;
-}
+} | null;
 
 // Using unknown is more type-safe. The sorting logic below correctly handles this.
 const getNestedValue = (obj: Record<string, any>, path: string): unknown => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
@@ -61,8 +62,9 @@ export function useAdminTable<T extends Record<string, any>>({
                 if (typeof aValue === 'number' && typeof bValue === 'number') {
                     compareResult = aValue - bValue;
                 } else {
-                    // Fix: Safely convert both `unknown` values to strings before locale comparison.
-                    // The error indicates `localeCompare` received an `unknown` type instead of a `string`.
+                    // FIX: The error "Argument of type 'unknown' is not assignable to parameter of type 'string'"
+                    // likely stems from a type inference issue. Explicitly converting both values to strings
+                    // for comparison resolves this.
                     compareResult = String(aValue).localeCompare(String(bValue));
                 }
 

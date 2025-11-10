@@ -1,16 +1,16 @@
 
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, SiteContent } from '../../types';
 import { inputClasses } from '../shared/FormField';
 import { CloseIcon, PhotoIcon } from '../icons/Icons';
-// FIX: Corrected import path from `api` to `services`.
 import { getContent, updateContent as updateSiteContent } from '../../services/content';
-// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../shared/ToastContext';
 import { useLanguage } from '../shared/LanguageContext';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Textarea } from '../ui/Textarea';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -87,11 +87,58 @@ const AdminSettingsPage: React.FC = () => {
                              <div className="space-y-6 animate-fadeIn">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Site Description (in Footer) (AR)</label>
-                                    <textarea {...register('footer.ar.description')} className={inputClasses} rows={3}/>
+                                    <Textarea {...register('footer.ar.description')} className={inputClasses} rows={3}/>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Site Description (in Footer) (EN)</label>
-                                    <textarea {...register('footer.en.description')} className={inputClasses} rows={3}/>
+                                    <Textarea {...register('footer.en.description')} className={inputClasses} rows={3}/>
                                 </div>
                                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <label htmlFor="logoUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-30
+                                    <label htmlFor="logoUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Site Logo</label>
+                                    <div className="flex items-center gap-4">
+                                        {watchLogoUrl ? <img src={watchLogoUrl} alt="Logo Preview" className="h-12 bg-gray-200 dark:bg-gray-700 p-1 rounded-md" /> : <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center"><PhotoIcon className="w-6 h-6 text-gray-400" /></div>}
+                                        <Input type="file" id="logoUrl" onChange={handleLogoChange} accept="image/*" className="p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" />
+                                    </div>
+                                </div>
+                                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                    <label htmlFor="locationPickerMapUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location Picker Map Image URL</label>
+                                    <Input id="locationPickerMapUrl" {...register('locationPickerMapUrl')} />
+                                </div>
+                             </div>
+                        )}
+
+                        {activeTab === 'contact' && (
+                            <div className="space-y-4 animate-fadeIn">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label className="block text-sm font-medium">Phone Number</label><Input {...register('footer.phone')} /></div>
+                                    <div><label className="block text-sm font-medium">Email Address</label><Input type="email" {...register('footer.email')} /></div>
+                                    <div><label className="block text-sm font-medium">Address (AR)</label><Input {...register('footer.ar.address')} /></div>
+                                    <div><label className="block text-sm font-medium">Address (EN)</label><Input {...register('footer.en.address')} /></div>
+                                    <div><label className="block text-sm font-medium">Working Hours (AR)</label><Input {...register('footer.ar.hours')} /></div>
+                                    <div><label className="block text-sm font-medium">Working Hours (EN)</label><Input {...register('footer.en.hours')} /></div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'social' && (
+                             <div className="space-y-4 animate-fadeIn">
+                                <div><label className="block text-sm font-medium">Facebook URL</label><Input {...register('footer.social.facebook')} /></div>
+                                <div><label className="block text-sm font-medium">Twitter URL</label><Input {...register('footer.social.twitter')} /></div>
+                                <div><label className="block text-sm font-medium">Instagram URL</label><Input {...register('footer.social.instagram')} /></div>
+                                <div><label className="block text-sm font-medium">LinkedIn URL</label><Input {...register('footer.social.linkedin')} /></div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className="mt-8 flex justify-end items-center gap-4">
+                    {isDirty && <span className="text-sm text-yellow-600 dark:text-yellow-400">You have unsaved changes.</span>}
+                    <Button type="submit" isLoading={isSubmitting} disabled={!isDirty}>
+                        {isSubmitting ? 'Saving...' : 'Save Settings'}
+                    </Button>
+                </div>
+            </form>
+        </div>
+    );
+};
+
+export default AdminSettingsPage;

@@ -1,54 +1,36 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, PortfolioItem } from '../../../types';
+import type { PortfolioItem, DecorationCategory } from '../../../types';
 import { useQuery } from '@tanstack/react-query';
 import { getAllPortfolioItems, deletePortfolioItem as apiDeletePortfolioItem } from '../../../services/portfolio';
 import { getAllPartnersForAdmin } from '../../../services/partners';
 import { getDecorationCategories } from '../../../services/decorations';
 import AdminPortfolioItemFormModal from '../AdminPortfolioItemFormModal';
-import { ArrowDownIcon, ArrowUpIcon } from '../../icons/Icons';
 import Pagination from '../../shared/Pagination';
 import { useLanguage } from '../../shared/LanguageContext';
-
-type SortConfig = {
-    key: 'title' | 'partnerName';
-    direction: 'ascending' | 'descending';
-} | null;
 
 const ITEMS_PER_PAGE = 8;
 
 const PortfolioManagement: React.FC = () => {
-    const { language, t: i18n } = useLanguage();
-    const t = i18n.adminDashboard.decorationsManagement;
+    const { language, t } = useLanguage();
+    const t_decor = t.adminDashboard.decorationsManagement;
     const { data: portfolio, refetch: refetchPortfolio, isLoading: loadingPortfolio } = useQuery({ queryKey: ['portfolio'], queryFn: getAllPortfolioItems });
     const { data: partners, isLoading: loadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
     const { data: decorationCategories, isLoading: loadingCategories } = useQuery({ queryKey: ['decorationCategories'], queryFn: getDecorationCategories });
     const loading = loadingPortfolio || loadingPartners || loadingCategories;
 
     const [modalState, setModalState] = useState<{ isOpen: boolean; itemToEdit?: PortfolioItem }>({ isOpen: false });
-    const [sortConfig, setSortConfig] = useState<SortConfig>(null);
     const [currentPage, setCurrentPage] = useState(1);
-
+    
     const decorationCategoryNames = useMemo(() => (decorationCategories || []).flatMap(c => [c.name.en, c.name.ar]), [decorationCategories]);
 
     const decorationItems = useMemo(() => {
-        let items = (portfolio || []).filter(item => 
+        return (portfolio || []).filter(item => 
             decorationCategoryNames.includes(item.category.en) || 
             decorationCategoryNames.includes(item.category.ar)
         ).map(item => ({...item, partnerName: (partners || []).find(p => p.id === item.partnerId)?.name || 'N/A' }));
-
-        if (sortConfig) {
-            items.sort((a, b) => {
-                const aValue = a[sortConfig.key][language as 'ar' | 'en'];
-                const bValue = b[sortConfig.key][language as 'ar' | 'en'];
-                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
-                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
-                return 0;
-            });
-        }
-        return items;
-    }, [portfolio, partners, decorationCategoryNames, sortConfig, language]);
+    }, [portfolio, partners, decorationCategoryNames]);
     
     const totalPages = Math.ceil(decorationItems.length / ITEMS_PER_PAGE);
     const paginatedItems = decorationItems.slice(
@@ -56,25 +38,8 @@ const PortfolioManagement: React.FC = () => {
         currentPage * ITEMS_PER_PAGE
     );
 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [sortConfig]);
-
-    const requestSort = (key: 'title' | 'partnerName') => {
-        let direction: 'ascending' | 'descending' = 'ascending';
-        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    const getSortIcon = (key: 'title' | 'partnerName') => {
-        if (!sortConfig || sortConfig.key !== key) return <span className="w-4 h-4 ml-1"></span>;
-        return sortConfig.direction === 'ascending' ? <ArrowUpIcon className="w-4 h-4 ml-1" /> : <ArrowDownIcon className="w-4 h-4 ml-1" />;
-    };
-
     const handleDelete = async (itemId: string) => {
-        if (window.confirm(t.confirmDelete)) {
+        if (window.confirm(t_decor.confirmDelete)) {
             await apiDeletePortfolioItem(itemId);
             refetchPortfolio();
         }
@@ -86,11 +51,14 @@ const PortfolioManagement: React.FC = () => {
     };
 
     return (
-        <div className="animate-fadeIn">
-            {modalState.isOpen && <AdminPortfolioItemFormModal itemToEdit={modalState.itemToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} />}
+        <div>
+             {modalState.isOpen && <AdminPortfolioItemFormModal itemToEdit={modalState.itemToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} />}
             <div className="flex justify-end mb-4">
-                <button onClick={() => setModalState({ isOpen: true })} className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600">{t.addNewItem}</button>
+                <button onClick={() => setModalState({ isOpen: true })} className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600 h-fit">
+                    {t_decor.addNewItem}
+                </button>
             </div>
+            
             <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
                  {loading ? (
                     <div className="p-8 text-center">Loading...</div>
@@ -107,8 +75,8 @@ const PortfolioManagement: React.FC = () => {
                                         <p className="text-sm text-gray-500 dark:text-gray-400">{item.category[language]}</p>
                                     </div>
                                     <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50">
-                                        <button onClick={() => setModalState({ isOpen: true, itemToEdit: item })} className="font-medium text-amber-600 dark:text-amber-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900/50">{t.editItem}</button>
-                                        <button onClick={() => handleDelete(item.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50">{i18n.adminShared.delete}</button>
+                                        <button onClick={() => setModalState({ isOpen: true, itemToEdit: item })} className="font-medium text-amber-600 dark:text-amber-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900/50">{t_decor.editItem}</button>
+                                        <button onClick={() => handleDelete(item.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50">{t.adminShared.delete}</button>
                                     </div>
                                 </div>
                             ))}
@@ -116,7 +84,7 @@ const PortfolioManagement: React.FC = () => {
                         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                     </>
                 ) : (
-                    <div className="p-8 text-center">{t.noItems}</div>
+                    <div className="p-8 text-center">{t_decor.noItems}</div>
                 )}
             </div>
         </div>

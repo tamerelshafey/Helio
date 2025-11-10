@@ -4,13 +4,11 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, AddPropertyRequest, RequestStatus } from '../../types';
 import { ClipboardDocumentListIcon } from '../icons/Icons';
-// FIX: Corrected import path from `api` to `services`.
 import { addProperty } from '../../services/properties';
 import { useAuth } from '../auth/AuthContext';
 import Pagination from '../shared/Pagination';
 import TableSkeleton from '../shared/TableSkeleton';
 import EmptyState from '../shared/EmptyState';
-// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query` and corrected import path.
 import { useQuery } from '@tanstack/react-query';
 import { getAllPropertyRequests, updatePropertyRequestStatus } from '../../services/propertyRequests';
 import { useAdminTable } from './shared/useAdminTable';
@@ -32,9 +30,9 @@ const ITEMS_PER_PAGE = 10;
 
 const AdminPropertyRequestsPage: React.FC = () => {
     const { language, t } = useLanguage();
-    const t_req = t.adminDashboard.adminRequests;
+    const t_admin = t.adminDashboard;
+    const t_req = t_admin.adminRequests;
     const { currentUser } = useAuth();
-    // FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
     const { data: propertyRequests, isLoading, refetch: refetchAll } = useQuery({ queryKey: ['propertyRequests'], queryFn: getAllPropertyRequests });
 
     const {

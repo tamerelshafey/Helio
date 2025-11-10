@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Permission, Role } from '../types';
 import {
@@ -25,8 +26,8 @@ export const adminNavLinks: NavLinkItem[] = [
   // --- Group: Requests ---
   { name: t => t.nav.partnerRequests, href: '/admin/partner-requests', icon: UserPlusIcon, permission: Permission.MANAGE_PARTNER_REQUESTS, roles: [Role.SUPER_ADMIN, Role.PARTNER_RELATIONS_MANAGER], group: 'Requests' },
   { name: t => t.nav.propertyRequests, href: '/admin/property-requests', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_PROPERTY_REQUESTS, roles: [Role.SUPER_ADMIN, Role.CUSTOMER_RELATIONS_MANAGER], group: 'Requests' },
-  { name: t => t.nav.finishingRequests, href: '/admin/finishing-requests', icon: WrenchScrewdriverIcon, permission: Permission.MANAGE_FINISHING_LEADS, roles: [Role.SUPER_ADMIN, Role.SERVICE_MANAGER], group: 'Requests' },
-  { name: t => t.nav.decorationsRequests, href: '/admin/decoration-requests', icon: QuoteIcon, permission: Permission.MANAGE_DECORATIONS_LEADS, roles: [Role.SUPER_ADMIN, Role.SERVICE_MANAGER], group: 'Requests' },
+  { name: t => t.nav.finishingRequests, href: '/admin/leads?tab=finishing', icon: WrenchScrewdriverIcon, permission: Permission.MANAGE_FINISHING_LEADS, roles: [Role.SUPER_ADMIN, Role.SERVICE_MANAGER], group: 'Requests' },
+  { name: t => t.nav.decorationsRequests, href: '/admin/leads?tab=decorations', icon: QuoteIcon, permission: Permission.MANAGE_DECORATIONS_LEADS, roles: [Role.SUPER_ADMIN, Role.SERVICE_MANAGER], group: 'Requests' },
   { name: t => t.nav.propertyInquiries, href: '/admin/property-inquiries', icon: SearchIcon, permission: Permission.MANAGE_PROPERTY_INQUIRIES, roles: [Role.SUPER_ADMIN, Role.CUSTOMER_RELATIONS_MANAGER], group: 'Requests' },
   { name: t => t.nav.contactRequests, href: '/admin/contact-requests', icon: InboxIcon, permission: Permission.MANAGE_CONTACT_REQUESTS, roles: [Role.SUPER_ADMIN, Role.CUSTOMER_RELATIONS_MANAGER], group: 'Requests' },
   
@@ -37,8 +38,7 @@ export const adminNavLinks: NavLinkItem[] = [
   { name: t => t.nav.allLeads, href: '/admin/leads', icon: QuoteIcon, permission: Permission.MANAGE_ALL_LEADS, roles: [Role.SUPER_ADMIN], group: 'Entities' },
 
   // --- Group: Website Content ---
-  { name: t => t.nav.decorationWorks, href: '/admin/decoration-works', icon: SparklesIcon, permission: Permission.MANAGE_DECORATIONS_CONTENT, roles: [Role.SUPER_ADMIN, Role.SERVICE_MANAGER], group: 'Content' },
-  { name: t => t.nav.decorationsCategories, href: '/admin/decorations-categories', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_DECORATIONS_CONTENT, roles: [Role.SUPER_ADMIN, Role.SERVICE_MANAGER], group: 'Content' },
+  { name: t => t.nav.decorationsManagement, href: '/admin/decorations-management', icon: SparklesIcon, permission: Permission.MANAGE_DECORATIONS_CONTENT, roles: [Role.SUPER_ADMIN, Role.SERVICE_MANAGER], group: 'Content' },
   { name: t => t.nav.banners, href: '/admin/banners', icon: PhotoIcon, permission: Permission.MANAGE_BANNERS, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },
   { name: t => t.nav.siteContent, href: '/admin/content', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_SITE_CONTENT, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },
   { name: t => t.nav.finishingServices, href: '/admin/finishing-services', icon: WrenchScrewdriverIcon, permission: Permission.MANAGE_SITE_CONTENT, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },

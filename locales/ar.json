@@ -1,3 +1,4 @@
+
 {
     "addProperty": "أضف عقارك",
     "joinAsPartner": "انضم كشريك",
@@ -598,17 +599,7 @@
         "manageSubscription": "إدارة الاشتراك",
         "upgradePlan": "ترقية الباقة",
         "leadTable": {
-            "customer": "العميل",
-            "phone": "الهاتف",
-            "service": "الخدمة المطلوبة",
-            "date": "التاريخ",
-            "status": "الحالة",
-            "actions": "إجراءات",
-            "notes": "الملاحظات",
-            "contactTime": "وقت التواصل",
-            "delete": "حذف",
-            "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الطلب؟",
-            "noLeads": "لا توجد طلبات واردة حاليًا."
+            "customer": "العميل", "phone": "الهاتف", "service": "الخدمة المطلوبة", "date": "التاريخ", "status": "الحالة", "actions": "إجراءات", "notes": "الملاحظات", "contactTime": "وقت التواصل", "delete": "حذف", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الطلب؟", "noLeads": "لا توجد طلبات واردة حاليًا."
         },
         "leadStatus": {
             "new": "جديد", "contacted": "تم التواصل", "site-visit": "تحديد معاينة", "quoted": "تم إرسال عرض سعر", "in-progress": "قيد التنفيذ", "completed": "مكتمل", "cancelled": "ملغى"
@@ -646,7 +637,7 @@
     "adminDashboard": {
         "title": "لوحة تحكم المسؤول",
         "nav": {
-            "dashboard": "لوحة التحكم", "analytics": "التحليلات", "reports": "التقارير", "partnerRequests": "طلبات الشركاء", "propertyRequests": "طلبات العرض", "propertyInquiries": "طلبات البحث", "contactRequests": "رسائل التواصل", "partners": "الشركاء", "users": "المستخدمين", "rolesAndPermissions": "الأدوار والصلاحيات", "properties": "العقارات", "projects": "المشاريع", "allLeads": "كل الطلبات", "subscriptionPlans": "باقات الاشتراك", "propertyFilters": "فلاتر العقارات", "decorationWorks": "أعمال الديكور", "decorationsRequests": "طلبات الديكور", "decorationsCategories": "أقسام الديكور", "banners": "الإعلانات", "siteContent": "محتوى الموقع", "settings": "الإعدادات", "finishingRequests": "طلبات التشطيب", "finishingServices": "خدمات التشطيب", "aiEstimatorSettings": "إعدادات المقدّر الذكي"
+            "dashboard": "لوحة التحكم", "analytics": "التحليلات", "reports": "التقارير", "partnerRequests": "طلبات الشركاء", "propertyRequests": "طلبات العرض", "propertyInquiries": "طلبات البحث", "contactRequests": "رسائل التواصل", "partners": "الشركاء", "users": "المستخدمين", "rolesAndPermissions": "الأدوار والصلاحيات", "properties": "العقارات", "projects": "المشاريع", "allLeads": "كل الطلبات", "subscriptionPlans": "باقات الاشتراك", "propertyFilters": "فلاتر العقارات", "decorationsManagement": "إدارة الديكورات", "banners": "الإعلانات", "siteContent": "محتوى الموقع", "settings": "الإعدادات", "finishingRequests": "طلبات التشطيب", "decorationsRequests": "طلبات الديكور", "finishingServices": "خدمات التشطيب", "aiEstimatorSettings": "إعدادات المقدّر الذكي"
         },
         "aiEstimatorSettings": {
             "title": "إعدادات المقدّر الذكي", "subtitle": "تحكم في سلوك وخيارات مقدّر التكاليف الذكي.", "promptTitle": "Prompt الذكاء الاصطناعي", "promptDescription": "هذا هو الأمر الرئيسي الذي يتم إرساله إلى الذكاء الاصطناعي. قم بتعديله لتغيير شخصيته أو تعليماته.", "modelTitle": "موديل الذكاء الاصطناعي", "optionsTitle": "خيارات التشطيب", "optionsDescription": "إدارة الخيارات التي تظهر للمستخدم في خطوة \"التشطيبات والمواد\".", "optionKey": "المفتاح (انجليزي، بدون مسافات)", "optionAr": "الاسم بالعربية", "optionEn": "الاسم بالإنجليزية", "addNewOption": "إضافة خيار جديد"
@@ -732,7 +723,39 @@
             }
         },
         "decorationsManagement": {
-            "title": "إدارة الديكورات", "subtitle": "إدارة محتوى صفحة الديكورات والطلبات الواردة.", "portfolioTab": "أعمال الديكور", "requestsTab": "طلبات الديكور", "categoriesTab": "أقسام الديكور", "addNewItem": "إضافة عمل جديد", "editItem": "تعديل العمل", "itemPartner": "الشريك", "itemImage": "الصورة", "itemTitle": "العنوان", "itemCategory": "التصنيف", "itemActions": "إجراءات", "noItems": "لا توجد أعمال ديكور حاليًا.", "noRequests": "لا توجد طلبات ديكور حاليًا.", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا العنصر؟", "lastUpdated": "آخر تحديث", "internalNotes": "ملاحظات داخلية", "filterByDate": "فلترة بالتاريخ", "startDate": "تاريخ البدء", "endDate": "تاريخ الانتهاء", "backToRequests": "العودة للطلبات", "requestDetails": "تفاصيل الطلب", "customerInformation": "بيانات العميل", "requestInformation": "بيانات الطلب", "management": "إدارة الطلب", "newRequests": "New Requests", "inProgress": "In Progress", "completedThisMonth": "Completed This Month", "totalPortfolioItems": "Total Portfolio Items", "recentActivity": "Recent Activity", "categoryOverview": "Category Overview", "portfolioDistribution": "Portfolio Distribution", "leadsByCategory": "Open Leads by Category", "addNewCategory": "إضافة قسم جديد", "editCategory": "تعديل القسم"
+            "title": "إدارة الديكورات", "subtitle": "إدارة محتوى صفحة الديكورات والطلبات الواردة.",
+            "portfolioTab": "معرض الأعمال",
+            "categoriesTab": "الأقسام",
+            "addNewItem": "إضافة عمل جديد",
+            "editItem": "تعديل العمل",
+            "itemPartner": "الشريك",
+            "itemImage": "الصورة",
+            "itemTitle": "العنوان",
+            "itemCategory": "التصنيف",
+            "itemActions": "إجراءات",
+            "noItems": "لا توجد أعمال ديكور حاليًا.",
+            "noRequests": "لا توجد طلبات ديكور حاليًا.",
+            "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا العنصر؟",
+            "lastUpdated": "آخر تحديث",
+            "internalNotes": "ملاحظات داخلية",
+            "filterByDate": "فلترة بالتاريخ",
+            "startDate": "تاريخ البدء",
+            "endDate": "تاريخ الانتهاء",
+            "backToRequests": "العودة للطلبات",
+            "requestDetails": "تفاصيل الطلب",
+            "customerInformation": "بيانات العميل",
+            "requestInformation": "بيانات الطلب",
+            "management": "إدارة الطلب",
+            "newRequests": "طلبات جديدة",
+            "inProgress": "قيد التنفيذ",
+            "completedThisMonth": "مكتملة هذا الشهر",
+            "totalPortfolioItems": "إجمالي الأعمال",
+            "recentActivity": "أحدث الطلبات",
+            "categoryOverview": "نظرة عامة على الأقسام",
+            "portfolioDistribution": "توزيع الأعمال",
+            "leadsByCategory": "الطلبات المفتوحة حسب القسم",
+            "addNewCategory": "إضافة قسم جديد",
+            "editCategory": "تعديل القسم"
         },
         "adminRequests": {
             "partnerRequestsTitle": "طلبات انضمام الشركاء", "partnerRequestsSubtitle": "مراجعة طلبات الشركاء الجدد واتخاذ إجراء بشأنها.", "propertyRequestsTitle": "طلبات عرض العقارات", "propertyRequestsSubtitle": "مراجعة طلبات عرض العقارات من الملاك والموافقة عليها.", "contactRequestsTitle": "رسائل التواصل", "contactRequestsSubtitle": "عرض وإدارة الرسائل الواردة من نموذج التواصل العام.", "table": {
@@ -749,7 +772,10 @@
         }
     },
     "adminAnalytics": {
-        "title": "التحليلات المتقدمة", "subtitle": "نظرة معمقة على أداء المنصة والبيانات الرئيسية.", "timeFilter": "الفترة الزمنية", "last7Days": "آخر 7 أيام", "last30Days": "آخر 30 يومًا", "thisMonth": "هذا الشهر", "thisYear": "هذه السنة", "userGrowth": "نمو المستخدمين والشركاء", "users": "المستخدمين", "partners": "الشركاء", "propertyPerformance": "أداء العقارات", "leads": "الطلبات", "topPerformingProperties": "العقارات الأكثر تلقيًا للطلبات", "topPerformingPartners": "الشركاء الأكثر تلقيًا للطلبات", "conversionRate": "معدل التحويل", "leadsPerProperty": "طلب / عقار", "propertyHotspots": "المناطق الأكثر طلبًا للعقارات", "newLeads": "الطلبات الجديدة", "newPartners": "شركاء جدد", "newProperties": "عقارات جديدة"
+        "title": "التحليلات المتقدمة", "subtitle": "نظرة معمقة على أداء المنصة والبيانات الرئيسية.", "timeFilter": "الفترة الزمنية", "last7days": "آخر 7 أيام", "last30days": "آخر 30 يومًا", "thismonth": "هذا الشهر", "thisyear": "هذه السنة", "userGrowth": "نمو المستخدمين والشركاء", "users": "المستخدمين", "partners": "الشركاء", "propertyPerformance": "أداء العقارات", "leads": "الطلبات", "topPerformingProperties": "العقارات الأكثر تلقيًا للطلبات", "topPerformingPartners": "الشركاء الأكثر تلقيًا للطلبات", "conversionRate": "معدل التحويل", "leadsPerProperty": "طلب / عقار", "propertyHotspots": "المناطق الأكثر طلبًا للعقارات", "newLeads": "الطلبات الجديدة", "newPartners": "شركاء جدد", "newProperties": "عقارات جديدة",
+        "leadsOverTime": "الطلبات عبر الزمن",
+        "leadStatusDistribution": "توزيع حالات الطلبات",
+        "propertyTypeDistribution": "توزيع أنواع العقارات"
     },
     "adminReports": {
         "title": "نظام التقارير المخصصة", "subtitle": "أنشئ وصَدّر تقارير مخصصة بناءً على بيانات المنصة.", "step1": "الخطوة 1: اختر مصدر البيانات", "selectDataSource": "اختر مصدرًا...", "dataSources": {

@@ -1,4 +1,5 @@
 
+
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, Property, AdminPartner } from '../../types';
@@ -230,18 +231,18 @@ const AdminAnalyticsPage: React.FC = () => {
             
             <Card>
                 <CardHeader>
-                    <CardTitle>Leads Over Time</CardTitle>
+                    <CardTitle>{t_analytics.leadsOverTime}</CardTitle>
                 </CardHeader>
                 <CardContent className="h-80"><Line data={lineChartData} options={commonChartOptions('')}/></CardContent>
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <Card className="lg:col-span-1">
-                     <CardHeader><CardTitle>Lead Status Distribution</CardTitle></CardHeader>
+                     <CardHeader><CardTitle>{t_analytics.leadStatusDistribution}</CardTitle></CardHeader>
                      <CardContent className="h-80"><Bar data={barChartData} options={{...commonChartOptions(''), indexAxis: 'y'}}/></CardContent>
                 </Card>
                  <Card className="lg:col-span-1">
-                     <CardHeader><CardTitle>Property Type Distribution</CardTitle></CardHeader>
+                     <CardHeader><CardTitle>{t_analytics.propertyTypeDistribution}</CardTitle></CardHeader>
                      <CardContent className="h-80"><Doughnut data={doughnutChartData} options={doughnutOptions} /></CardContent>
                 </Card>
                 <Card>
@@ -250,7 +251,7 @@ const AdminAnalyticsPage: React.FC = () => {
                         <ul className="space-y-3">
                             {analyticsData.topPartners.map(({ partner, count }) => partner && (
                                 <li key={partner.id}>
-                                     <Link to={`/admin/partners?edit=${partner.id}`} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                     <Link to={`/admin/partners?edit=${partner.id}&highlight=${partner.id}`} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                         <img src={partner.imageUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
                                         <div className="flex-grow">
                                             <p className="font-semibold text-sm truncate">{partner.name}</p>

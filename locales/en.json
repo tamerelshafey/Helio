@@ -1,3 +1,4 @@
+
 {
     "addProperty": "Add Property",
     "joinAsPartner": "Join as a Partner",
@@ -607,7 +608,7 @@
     "adminDashboard": {
         "title": "Admin Panel",
         "nav": {
-            "dashboard": "Dashboard", "analytics": "Analytics", "reports": "Reports", "partnerRequests": "Partner Requests", "propertyRequests": "Listing Requests", "propertyInquiries": "Search Requests", "contactRequests": "Contact Messages", "partners": "Partners", "users": "Users", "rolesAndPermissions": "Roles & Permissions", "properties": "Properties", "projects": "Projects", "allLeads": "All Leads", "subscriptionPlans": "Subscription Plans", "propertyFilters": "Property Filters", "decorationWorks": "Decoration Works", "decorationsRequests": "Decoration Requests", "decorationsCategories": "Decoration Categories", "banners": "Banners", "siteContent": "Site Content", "settings": "Settings", "finishingRequests": "Finishing Requests", "finishingServices": "Finishing Services", "aiEstimatorSettings": "AI Estimator Settings"
+            "dashboard": "Dashboard", "analytics": "Analytics", "reports": "Reports", "partnerRequests": "Partner Requests", "propertyRequests": "Listing Requests", "propertyInquiries": "Search Requests", "contactRequests": "Contact Messages", "partners": "Partners", "users": "Users", "rolesAndPermissions": "Roles & Permissions", "properties": "Properties", "projects": "Projects", "allLeads": "All Leads", "subscriptionPlans": "Subscription Plans", "propertyFilters": "Property Filters", "decorationsManagement": "Decorations Mgmt", "banners": "Banners", "siteContent": "Site Content", "settings": "Settings", "finishingRequests": "Finishing Requests", "decorationsRequests": "Decoration Requests", "finishingServices": "Finishing Services", "aiEstimatorSettings": "AI Estimator Settings"
         },
         "aiEstimatorSettings": {
             "title": "AI Estimator Settings", "subtitle": "Control the behavior and options of the AI Cost Estimator.", "promptTitle": "AI Prompt", "promptDescription": "This is the main instruction sent to the AI. Modify it to change its persona or instructions.", "modelTitle": "AI Model", "optionsTitle": "Finishing Options", "optionsDescription": "Manage the choices that appear to the user in the \"Finishes & Materials\" step.", "optionKey": "Key (English, no spaces)", "optionAr": "Name (AR)", "optionEn": "Name (EN)", "addNewOption": "Add New Option"
@@ -693,7 +694,39 @@
             }
         },
         "decorationsManagement": {
-            "title": "إدارة الديكورات", "subtitle": "إدارة محتوى صفحة الديكورات والطلبات الواردة.", "portfolioTab": "أعمال الديكور", "requestsTab": "طلبات الديكور", "categoriesTab": "أقسام الديكور", "addNewItem": "إضافة عمل جديد", "editItem": "تعديل العمل", "itemPartner": "الشريك", "itemImage": "الصورة", "itemTitle": "العنوان", "itemCategory": "التصنيف", "itemActions": "إجراءات", "noItems": "لا توجد أعمال ديكور حاليًا.", "noRequests": "لا توجد طلبات ديكور حاليًا.", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا العنصر؟", "lastUpdated": "آخر تحديث", "internalNotes": "ملاحظات داخلية", "filterByDate": "فلترة بالتاريخ", "startDate": "تاريخ البدء", "endDate": "تاريخ الانتهاء", "backToRequests": "العودة للطلبات", "requestDetails": "تفاصيل الطلب", "customerInformation": "بيانات العميل", "requestInformation": "بيانات الطلب", "management": "إدارة الطلب", "newRequests": "New Requests", "inProgress": "In Progress", "completedThisMonth": "Completed This Month", "totalPortfolioItems": "Total Portfolio Items", "recentActivity": "Recent Activity", "categoryOverview": "Category Overview", "portfolioDistribution": "Portfolio Distribution", "leadsByCategory": "Open Leads by Category", "addNewCategory": "Add New Category", "editCategory": "Edit Category"
+            "title": "Decorations Management", "subtitle": "Manage decoration content and incoming service requests.",
+            "portfolioTab": "Portfolio",
+            "categoriesTab": "Categories",
+            "addNewItem": "Add New Item",
+            "editItem": "Edit Item",
+            "itemPartner": "Partner",
+            "itemImage": "Image",
+            "itemTitle": "Title",
+            "itemCategory": "Category",
+            "itemActions": "Actions",
+            "noItems": "No decoration items currently.",
+            "noRequests": "No decoration requests currently.",
+            "confirmDelete": "Are you sure you want to delete this item?",
+            "lastUpdated": "Last Updated",
+            "internalNotes": "Internal Notes",
+            "filterByDate": "Filter by Date",
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "backToRequests": "Back to Requests",
+            "requestDetails": "Request Details",
+            "customerInformation": "Customer Information",
+            "requestInformation": "Request Information",
+            "management": "Request Management",
+            "newRequests": "New Requests",
+            "inProgress": "In Progress",
+            "completedThisMonth": "Completed This Month",
+            "totalPortfolioItems": "Total Portfolio Items",
+            "recentActivity": "Recent Activity",
+            "categoryOverview": "Category Overview",
+            "portfolioDistribution": "Portfolio Distribution",
+            "leadsByCategory": "Open Leads by Category",
+            "addNewCategory": "Add New Category",
+            "editCategory": "Edit Category"
         },
         "adminRequests": {
             "partnerRequestsTitle": "Partner Join Requests", "partnerRequestsSubtitle": "Review and take action on new partner applications.", "propertyRequestsTitle": "Property Listing Requests", "propertyRequestsSubtitle": "Review and approve property listing requests from owners.", "contactRequestsTitle": "Contact Messages", "contactRequestsSubtitle": "View and manage messages from the public contact form.", "table": {
@@ -710,7 +743,10 @@
         }
     },
     "adminAnalytics": {
-        "title": "Advanced Analytics", "subtitle": "An in-depth look at platform performance and key data.", "timeFilter": "Time Period", "last7Days": "Last 7 Days", "last30Days": "Last 30 Days", "thisMonth": "This Month", "thisYear": "This Year", "userGrowth": "User & Partner Growth", "users": "Users", "partners": "Partners", "propertyPerformance": "Property Performance", "leads": "Leads", "topPerformingProperties": "Top Performing Properties", "topPerformingPartners": "Top Performing Partners", "conversionRate": "Conversion Rate", "leadsPerProperty": "Lead/Property", "propertyHotspots": "Property Hotspots", "newLeads": "New Leads", "newPartners": "New Partners", "newProperties": "New Properties"
+        "title": "Advanced Analytics", "subtitle": "An in-depth look at platform performance and key data.", "timeFilter": "Time Period", "last7days": "Last 7 Days", "last30days": "Last 30 Days", "thismonth": "This Month", "thisyear": "This Year", "userGrowth": "User & Partner Growth", "users": "Users", "partners": "Partners", "propertyPerformance": "Property Performance", "leads": "Leads", "topPerformingProperties": "Top Performing Properties", "topPerformingPartners": "Top Performing Partners", "conversionRate": "Conversion Rate", "leadsPerProperty": "Lead/Property", "propertyHotspots": "Property Hotspots", "newLeads": "New Leads", "newPartners": "New Partners", "newProperties": "New Properties",
+        "leadsOverTime": "Leads Over Time",
+        "leadStatusDistribution": "Lead Status Distribution",
+        "propertyTypeDistribution": "Property Type Distribution"
     },
     "adminReports": {
         "title": "Custom Reporting System", "subtitle": "Generate and export custom reports based on platform data.", "step1": "Step 1: Choose Data Source", "selectDataSource": "Select a source...", "dataSources": {

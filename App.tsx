@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { Header } from './components/Header';
 import Footer from './components/Footer';
@@ -44,9 +45,6 @@ const AdminContactRequestsPage = React.lazy(() => import('./components/admin/Adm
 const AdminHomePage = React.lazy(() => import('./components/admin/AdminHomePage'));
 const AdminPartnerRequestDetailsPage = React.lazy(() => import('./components/admin/AdminPartnerRequestDetailsPage'));
 const AdminPropertyRequestDetailsPage = React.lazy(() => import('./components/admin/AdminPropertyRequestDetailsPage'));
-const AdminDecorationsPage = React.lazy(() => import('./components/admin/AdminDecorationsPage'));
-const AdminDecorationsCategoriesPage = React.lazy(() => import('./components/admin/AdminDecorationsCategoriesPage'));
-const AdminDecorationRequestDetailsPage = React.lazy(() => import('./components/admin/AdminDecorationRequestDetailsPage'));
 const AdminPlansPage = React.lazy(() => import('./components/admin/AdminPlansPage'));
 const ProjectFormPage = React.lazy(() => import('./components/forms/ProjectFormPage'));
 const AdminFilterManagementPage = React.lazy(() => import('./components/admin/AdminFilterManagementPage'));
@@ -63,14 +61,17 @@ const AdminContentManagementPage = React.lazy(() => import('./components/admin/A
 const AdminSettingsPage = React.lazy(() => import('./components/admin/AdminSettingsPage'));
 const ServiceRequestPage = React.lazy(() => import('./components/ServiceRequestPage'));
 const AdminUsersPage = React.lazy(() => import('./components/admin/AdminUsersPage'));
-const AdminFinishingRequestsPage = React.lazy(() => import('./components/admin/AdminFinishingRequestsPage'));
-const AdminFinishingRequestDetailsPage = React.lazy(() => import('./components/admin/AdminFinishingRequestDetailsPage'));
-const AdminDecorationRequestsPage = React.lazy(() => import('./components/admin/AdminDecorationRequestsPage'));
 const AdminRolesPage = React.lazy(() => import('./components/admin/AdminRolesPage'));
 const AdminFinishingServicesPage = React.lazy(() => import('./components/admin/AdminFinishingServicesPage'));
 const AdminAIEstimatorPage = React.lazy(() => import('./components/admin/AdminAIEstimatorPage'));
 const AIEstimatorPage = React.lazy(() => import('./components/AIEstimatorPage'));
 const NotFoundPage = React.lazy(() => import('./components/NotFoundPage'));
+
+// New lazy imports for refactored decorations management
+const DecorationsLayout = React.lazy(() => import('./components/admin/decorations/DecorationsLayout'));
+const PortfolioManagement = React.lazy(() => import('./components/admin/decorations/PortfolioManagement'));
+const CategoriesManagement = React.lazy(() => import('./components/admin/decorations/CategoriesManagement'));
+
 
 const LoadingFallback = () => (
     <div className="flex justify-center items-center" style={{ minHeight: 'calc(100vh - 200px)' }}>
@@ -173,20 +174,16 @@ const App: React.FC = () => {
                                 <Route path="banners" element={<AdminBannersPage />} />
                                 <Route path="content" element={<AdminContentManagementPage />} />
                                 <Route path="settings" element={<AdminSettingsPage />} />
-                                <Route path="decoration-works" element={<AdminDecorationsPage />} />
-                                <Route path="decorations-categories" element={<AdminDecorationsCategoriesPage />} />
                                 <Route path="finishing-services" element={<AdminFinishingServicesPage />} />
-                                <Route path="finishing-requests" element={<AdminFinishingRequestsPage />} />
-                                <Route
-                                    path="finishing-requests/:requestId"
-                                    element={<AdminFinishingRequestDetailsPage />}
-                                />
-                                <Route path="decoration-requests" element={<AdminDecorationRequestsPage />} />
-                                <Route
-                                    path="decoration-requests/:requestId"
-                                    element={<AdminDecorationRequestDetailsPage />}
-                                />
                                 <Route path="ai-estimator-settings" element={<AdminAIEstimatorPage />} />
+                                
+                                {/* Refactored Decorations Management */}
+                                <Route path="decorations-management" element={<DecorationsLayout />}>
+                                    <Route index element={<Navigate to="portfolio" replace />} />
+                                    <Route path="portfolio" element={<PortfolioManagement />} />
+                                    <Route path="categories" element={<CategoriesManagement />} />
+                                </Route>
+                                
                             </Route>
                             {/* 404 Not Found Route */}
                             <Route path="*" element={<NotFoundPage />} />

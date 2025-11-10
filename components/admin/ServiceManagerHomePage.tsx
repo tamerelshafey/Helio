@@ -10,7 +10,8 @@ import { WrenchScrewdriverIcon, InboxIcon, SparklesIcon } from '../icons/Icons';
 import { useLanguage } from '../shared/LanguageContext';
 import { useAuth } from '../auth/AuthContext';
 import StatCard from '../shared/StatCard';
-import RequestList from './shared/RequestList';
+// FIX: Corrected import path for RequestList to point to the correct shared directory.
+import RequestList from '../shared/RequestList';
 
 const ServiceManagerHomePage: React.FC = () => {
     const { language, t } = useLanguage();

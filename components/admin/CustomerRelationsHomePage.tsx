@@ -9,7 +9,8 @@ import { getAllPropertyRequests } from '../../services/propertyRequests';
 import { getAllPropertyInquiries } from '../../services/propertyInquiries';
 import { getAllContactRequests } from '../../services/contactRequests';
 import { InboxIcon, ClipboardDocumentListIcon, SearchIcon } from '../icons/Icons';
-import RequestList from './shared/RequestList';
+// FIX: Corrected import path for RequestList to point to the correct shared directory.
+import RequestList from '../shared/RequestList';
 import { useLanguage } from '../shared/LanguageContext';
 
 const StatCard: React.FC<{ title: string; value: number | string; icon: React.FC<{ className?: string }>; linkTo: string; }> = ({ title, value, icon: Icon, linkTo }) => (

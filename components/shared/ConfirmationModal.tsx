@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, ModalContent, ModalFooter, ModalHeader } from '../ui/Modal';
 import { Button } from '../ui/Button';
+import { useLanguage } from './LanguageContext';
 
 interface ConfirmationModalProps {
     isOpen: boolean;
@@ -18,9 +19,13 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     onConfirm,
     title,
     message,
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    confirmText,
+    cancelText,
 }) => {
+    const { t } = useLanguage();
+    const finalConfirmText = confirmText || t.adminShared.delete;
+    const finalCancelText = cancelText || t.adminShared.cancel;
+
     return (
         <Modal isOpen={isOpen} onClose={onClose} aria-labelledby="confirmation-title">
             <ModalHeader onClose={onClose} id="confirmation-title">
@@ -31,10 +36,10 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             </ModalContent>
             <ModalFooter className="justify-end gap-3">
                 <Button variant="secondary" onClick={onClose}>
-                    {cancelText}
+                    {finalCancelText}
                 </Button>
                 <Button variant="danger" onClick={onConfirm}>
-                    {confirmText}
+                    {finalConfirmText}
                 </Button>
             </ModalFooter>
         </Modal>
