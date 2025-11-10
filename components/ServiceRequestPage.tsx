@@ -1,13 +1,12 @@
-
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import type { Language } from '../types';
 import FormField, { inputClasses, selectClasses } from './shared/FormField';
-import { addLead } from '../api/leads';
+import { addLead } from '../services/leads';
 import { HelioLogo } from './HelioLogo';
 import { useToast } from './shared/ToastContext';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPartnersForAdmin } from '../api/partners';
+import { getAllPartnersForAdmin } from '../services/partners';
 import { useLanguage } from './shared/LanguageContext';
 
 const ServiceRequestPage: React.FC = () => {
@@ -134,27 +133,4 @@ const ServiceRequestPage: React.FC = () => {
                                 </select>
                             </FormField>
                             
-                            <FormField label={isCustom ? t_custom_decor_modal.ideaDescription : t_modal.notes} id="customerNotes">
-                                <textarea id="customerNotes" name="customerNotes" rows={4} value={formData.customerNotes} onChange={handleChange} placeholder={isCustom ? t_custom_decor_modal.ideaPlaceholder : t_decor_modal.notesPlaceholder} className={inputClasses} required={isCustom}></textarea>
-                            </FormField>
-                            
-                            {isCustom && (
-                                <FormField label={t_custom_decor_modal.referenceImage} id="referenceImage">
-                                    <input type="file" id="referenceImage" onChange={handleFileChange} className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`}/>
-                                </FormField>
-                            )}
-
-                            <div className="pt-4 flex justify-end">
-                                <button type="submit" disabled={loading} className="w-full bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
-                                    {loading ? '...' : t_modal.submitButton}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default ServiceRequestPage;
+                            <FormField label={isCustom ?

@@ -1,13 +1,11 @@
 
-
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import type { SubscriptionPlan } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { inputClasses } from '../shared/FormField';
-import { updatePartner } from '../../api/partners';
+import { updatePartner } from '../../services/partners';
 import { useToast } from '../shared/ToastContext';
 import { useLanguage } from '../shared/LanguageContext';
 

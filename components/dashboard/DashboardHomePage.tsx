@@ -1,16 +1,15 @@
 
 
-
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Role, Project, Property, Lead, PortfolioItem } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query` and corrected import paths.
 import { useQuery } from '@tanstack/react-query';
-import { getAllProperties } from '../../api/properties';
-import { getAllProjects } from '../../api/projects';
-import { getAllLeads } from '../../api/leads';
-import { getAllPortfolioItems } from '../../api/portfolio';
+import { getAllProperties } from '../../services/properties';
+import { getAllProjects } from '../../services/projects';
+import { getAllLeads } from '../../services/leads';
+import { getAllPortfolioItems } from '../../services/portfolio';
 import StatCard from '../shared/StatCard';
 import { CubeIcon, BuildingIcon, InboxIcon, ClipboardDocumentListIcon, PhotoIcon } from '../icons/Icons';
 import { useLanguage } from '../shared/LanguageContext';

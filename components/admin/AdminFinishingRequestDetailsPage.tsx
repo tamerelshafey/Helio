@@ -1,13 +1,13 @@
 
 
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { LeadStatus, Lead, AdminPartner } from '../../types';
 import { ChevronLeftIcon } from '../icons/Icons';
 import { selectClasses } from '../shared/FormField';
-import { updateLead, getAllLeads } from '../../api/leads';
-import { getAllPartnersForAdmin } from '../../api/partners';
+// FIX: Corrected import path from `api` to `services`.
+import { updateLead, getAllLeads } from '../../services/leads';
+import { getAllPartnersForAdmin } from '../../services/partners';
 import DetailItem from '../shared/DetailItem';
 import { useToast } from '../shared/ToastContext';
 import ConversationThread from '../shared/ConversationThread';

@@ -1,16 +1,17 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import type { Language, ManagementContact, OfficialDocument, PartnerRequest, SubscriptionPlan, PartnerType } from '../types';
 import FormField from './shared/FormField';
 import { CheckCircleIcon, CloseIcon, ClipboardDocumentListIcon } from './icons/Icons';
-import { addPartnerRequest } from '../api/partnerRequests';
+import { addPartnerRequest } from '../services/partnerRequests';
 import SubscriptionPlanSelector from './SubscriptionPlanSelector';
 import { HelioLogo } from './HelioLogo';
 import { useLanguage } from './shared/LanguageContext';
 import { useToast } from './shared/ToastContext';
 import { useQuery } from '@tanstack/react-query';
-import { getPlans } from '../api/plans';
+import { getPlans } from '../services/plans';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Select } from './ui/Select';

@@ -5,10 +5,11 @@ import { Link } from 'react-router-dom';
 import type { Language, Lead, PortfolioItem, DecorationCategory } from '../../types';
 // FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
 import { useQuery } from '@tanstack/react-query';
-import { getAllLeads } from '../../api/leads';
-import { getAllPortfolioItems } from '../../api/portfolio';
-import { getDecorationCategories } from '../../api/decorations';
-import { getAllPartnersForAdmin } from '../../api/partners';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllLeads } from '../../services/leads';
+import { getAllPortfolioItems } from '../../services/portfolio';
+import { getDecorationCategories } from '../../services/decorations';
+import { getAllPartnersForAdmin } from '../../services/partners';
 import { SparklesIcon, InboxIcon, WrenchScrewdriverIcon, CheckCircleIcon } from '../icons/Icons';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';

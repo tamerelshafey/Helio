@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { Language } from '../types';
 import { CloseIcon } from './icons/Icons';
 import { useQuery } from '@tanstack/react-query';
-import { getContent } from '../api/content';
+import { getContent } from '../services/content';
 import { useLanguage } from './shared/LanguageContext';
 import { Button } from './ui/Button';
 

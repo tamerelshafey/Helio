@@ -1,10 +1,9 @@
 
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus } from '../../../types';
 import { useQuery } from '@tanstack/react-query';
-import { getAllLeads, deleteLead as apiDeleteLead } from '../../../api/leads';
+import { getAllLeads, deleteLead as apiDeleteLead } from '../../../services/leads';
 import { inputClasses } from '../../shared/FormField';
 import Pagination from '../../shared/Pagination';
 import { useLanguage } from '../../shared/LanguageContext';

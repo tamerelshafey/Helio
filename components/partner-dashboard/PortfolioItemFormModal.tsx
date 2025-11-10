@@ -5,7 +5,7 @@ import type { PortfolioItem } from '../../types';
 import FormField, { inputClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
 import { useAuth } from '../auth/AuthContext';
-import { addPortfolioItem, updatePortfolioItem } from '../../api/portfolio';
+import { addPortfolioItem, updatePortfolioItem } from '../../services/portfolio';
 import { useLanguage } from '../shared/LanguageContext';
 
 interface PortfolioItemFormModalProps {

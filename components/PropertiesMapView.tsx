@@ -6,7 +6,7 @@ import PropertyCard from './shared/PropertyCard';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 import { LocationMarkerIcon } from './icons/Icons';
 import { useQuery } from '@tanstack/react-query';
-import { getContent } from '../api/content';
+import { getContent } from '../services/content';
 import { useLanguage } from './shared/LanguageContext';
 
 interface PropertiesMapViewProps {

@@ -1,10 +1,9 @@
 
-
 import React, { useState, useMemo } from 'react';
 import type { PartnerStatus, AdminPartner, PartnerType } from '../../types';
-import { deletePartner as apiDeletePartner } from '../../api/partners';
+import { deletePartner as apiDeletePartner } from '../../services/partners';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPartnersForAdmin } from '../../api/partners';
+import { getAllPartnersForAdmin } from '../../services/partners';
 import AdminUserFormModal from './AdminUserFormModal';
 import { useToast } from '../shared/ToastContext';
 import ConfirmationModal from '../shared/ConfirmationModal';

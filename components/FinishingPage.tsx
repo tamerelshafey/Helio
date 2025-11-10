@@ -1,14 +1,12 @@
-
-
 import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem, AdminPartner } from '../types';
 import BannerDisplay from './shared/BannerDisplay';
 import SEO from './shared/SEO';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPortfolioItems } from '../api/portfolio';
-import { getAllPartnersForAdmin } from '../api/partners';
-import { getContent } from '../api/content';
+import { getAllPortfolioItems } from '../services/portfolio';
+import { getAllPartnersForAdmin } from '../services/partners';
+import { getContent } from '../services/content';
 import { useLanguage } from './shared/LanguageContext';
 import { Card, CardContent } from './ui/Card';
 import { Button } from './ui/Button';

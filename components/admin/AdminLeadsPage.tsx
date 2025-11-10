@@ -7,9 +7,11 @@ import { useAuth } from '../auth/AuthContext';
 import { ChevronRightIcon } from '../icons/Icons';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
-import { updateLead, deleteLead as apiDeleteLead, getAllLeads } from '../../api/leads';
+// FIX: Corrected import path from `api` to `services`.
+import { updateLead, deleteLead as apiDeleteLead, getAllLeads } from '../../services/leads';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPartnersForAdmin } from '../../api/partners';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllPartnersForAdmin } from '../../services/partners';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';
 import ConversationThread from '../shared/ConversationThread';

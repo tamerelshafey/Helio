@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, PartnerRequest } from '../../types';
@@ -7,9 +8,9 @@ import { useAuth } from '../auth/AuthContext';
 import Pagination from '../shared/Pagination';
 import TableSkeleton from '../shared/TableSkeleton';
 import EmptyState from '../shared/EmptyState';
-// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query` and corrected import path.
 import { useQuery } from '@tanstack/react-query';
-import { getAllPartnerRequests } from '../../api/partnerRequests';
+import { getAllPartnerRequests } from '../../services/partnerRequests';
 import { useAdminTable } from './shared/useAdminTable';
 import { useLanguage } from '../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';

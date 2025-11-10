@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { PartnerStatus, AdminPartner, PartnerType } from '../../types';
 import FormField from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
-import { addInternalUser, updateUser } from '../../api/partners';
+import { addInternalUser, updateUser } from '../../services/partners';
 import { useLanguage } from '../shared/LanguageContext';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';

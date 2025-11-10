@@ -1,11 +1,11 @@
 
 
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getAllBanners } from '../../api/banners';
-import { getContent } from '../../api/content';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllBanners } from '../../services/banners';
+import { getContent } from '../../services/content';
 import { PhotoIcon, QuoteIcon, CogIcon, ClipboardDocumentListIcon, WrenchScrewdriverIcon } from '../icons/Icons';
 import StatCard from '../shared/StatCard';
 import { useLanguage } from '../shared/LanguageContext';

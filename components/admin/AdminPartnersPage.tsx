@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { PartnerStatus, SubscriptionPlan, AdminPartner, PartnerType } from '../../types';
@@ -6,9 +7,9 @@ import { inputClasses, selectClasses } from '../shared/FormField';
 import AdminPartnerEditModal from './AdminPartnerEditModal';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPartnersForAdmin } from '../../api/partners';
-import { getAllProperties } from '../../api/properties';
-import { getAllPortfolioItems } from '../../api/portfolio';
+import { getAllPartnersForAdmin } from '../../services/partners';
+import { getAllProperties } from '../../services/properties';
+import { getAllPortfolioItems } from '../../services/portfolio';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';
 import { useLanguage } from '../shared/LanguageContext';

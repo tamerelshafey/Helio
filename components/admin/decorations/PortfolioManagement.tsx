@@ -1,12 +1,11 @@
 
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, PortfolioItem } from '../../../types';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPortfolioItems, deletePortfolioItem as apiDeletePortfolioItem } from '../../../api/portfolio';
-import { getAllPartnersForAdmin } from '../../../api/partners';
-import { getDecorationCategories } from '../../../api/decorations';
+import { getAllPortfolioItems, deletePortfolioItem as apiDeletePortfolioItem } from '../../../services/portfolio';
+import { getAllPartnersForAdmin } from '../../../services/partners';
+import { getDecorationCategories } from '../../../services/decorations';
 import AdminPortfolioItemFormModal from '../AdminPortfolioItemFormModal';
 import { ArrowDownIcon, ArrowUpIcon } from '../../icons/Icons';
 import Pagination from '../../shared/Pagination';

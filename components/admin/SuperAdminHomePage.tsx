@@ -1,15 +1,17 @@
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Lead, AdminPartner, Property, AddPropertyRequest, ContactRequest, PartnerRequest, PropertyInquiryRequest, Project, Language } from '../../types';
 import { UserPlusIcon, ClipboardDocumentListIcon, InboxIcon, BuildingIcon, UsersIcon, ChartBarIcon, CubeIcon } from '../icons/Icons';
 import { isListingActive } from '../../utils/propertyUtils';
-import { getAllPartnerRequests } from '../../api/partnerRequests';
-import { getAllPropertyRequests } from '../../api/propertyRequests';
-import { getAllContactRequests } from '../../api/contactRequests';
-import { getAllPartnersForAdmin } from '../../api/partners';
-import { getAllProperties } from '../../api/properties';
-import { getAllLeads } from '../../api/leads';
-import { getAllProjects } from '../../api/projects';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllPartnerRequests } from '../../services/partnerRequests';
+import { getAllPropertyRequests } from '../../services/propertyRequests';
+import { getAllContactRequests } from '../../services/contactRequests';
+import { getAllPartnersForAdmin } from '../../services/partners';
+import { getAllProperties } from '../../services/properties';
+import { getAllLeads } from '../../services/leads';
+import { getAllProjects } from '../../services/projects';
 import { useQuery } from '@tanstack/react-query';
 import StatCard from '../shared/StatCard';
 import { useLanguage } from '../shared/LanguageContext';

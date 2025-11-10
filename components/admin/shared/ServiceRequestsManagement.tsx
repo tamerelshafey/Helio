@@ -4,8 +4,9 @@ import type { Language, Lead, LeadStatus, AdminPartner } from '../../../types';
 import { inputClasses } from '../../shared/FormField';
 import Pagination from '../../shared/Pagination';
 import { useQuery } from '@tanstack/react-query';
-import { getAllLeads } from '../../../api/leads';
-import { getAllPartnersForAdmin } from '../../../api/partners';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllLeads } from '../../../services/leads';
+import { getAllPartnersForAdmin } from '../../../services/partners';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 

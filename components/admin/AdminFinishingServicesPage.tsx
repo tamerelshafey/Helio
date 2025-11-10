@@ -1,12 +1,10 @@
 
-
-
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { SiteContent } from '../../types';
 import { inputClasses } from '../shared/FormField';
 import { TrashIcon } from '../icons/Icons';
-import { getContent, updateContent as updateSiteContent } from '../../api/content';
+import { getContent, updateContent as updateSiteContent } from '../../services/content';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../shared/ToastContext';
 import { useLanguage } from '../shared/LanguageContext';

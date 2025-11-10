@@ -1,8 +1,7 @@
 
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getRolePermissions, updateRolePermissions } from '../../api/permissions';
+import { getRolePermissions, updateRolePermissions } from '../../services/permissions';
 import { Role, Permission } from '../../types';
 import type { Language } from '../../types';
 import { useToast } from '../shared/ToastContext';

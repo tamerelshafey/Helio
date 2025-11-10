@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { GoogleGenAI, Chat } from "@google/genai";
 import { useQuery } from '@tanstack/react-query';
-import { getProperties } from '../api/properties';
+import { getProperties } from '../services/properties';
 import { useLanguage } from './shared/LanguageContext';
 import { CloseIcon, SparklesIcon } from './icons/Icons';
 import type { Property } from '../types';

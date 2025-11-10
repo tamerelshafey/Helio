@@ -1,12 +1,12 @@
 
 
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, SiteContent } from '../../types';
 import { inputClasses } from '../shared/FormField';
 import { CloseIcon, PhotoIcon } from '../icons/Icons';
-import { getContent, updateContent as updateSiteContent } from '../../api/content';
+// FIX: Corrected import path from `api` to `services`.
+import { getContent, updateContent as updateSiteContent } from '../../services/content';
 // FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../shared/ToastContext';
@@ -94,94 +94,4 @@ const AdminSettingsPage: React.FC = () => {
                                     <textarea {...register('footer.en.description')} className={inputClasses} rows={3}/>
                                 </div>
                                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <label htmlFor="logoUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Site Logo</label>
-                                    <div className="flex items-center gap-4">
-                                        {watchLogoUrl ? 
-                                            <img src={watchLogoUrl} alt="Logo preview" className="w-20 h-20 rounded-full object-contain border p-1 bg-gray-100 dark:bg-gray-700" />
-                                            : <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-400">No Logo</div>
-                                        }
-                                        <input 
-                                            type="file" 
-                                            id="logoUrl" 
-                                            accept="image/*"
-                                            onChange={handleLogoChange}
-                                            className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`}
-                                        />
-                                    </div>
-                                </div>
-                                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <label htmlFor="locationPickerMapUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location Picker Map URL</label>
-                                    <input type="url" {...register('locationPickerMapUrl')} className={inputClasses} />
-                                </div>
-                            </div>
-                        )}
-                        {activeTab === 'contact' && (
-                             <div className="space-y-4 animate-fadeIn">
-                                <p className="text-sm p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 rounded-md border border-blue-200 dark:border-blue-700">
-                                    This information is used across the site, including the footer and the contact page.
-                                </p>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address (AR)</label>
-                                    <input {...register('footer.ar.address')} className={inputClasses} />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address (EN)</label>
-                                    <input {...register('footer.en.address')} className={inputClasses} />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Working Hours (AR)</label>
-                                    <input {...register('footer.ar.hours')} className={inputClasses} />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Working Hours (EN)</label>
-                                    <input {...register('footer.en.hours')} className={inputClasses} />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
-                                        <input {...register('footer.phone')} className={inputClasses} />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
-                                        <input type="email" {...register('footer.email')} className={inputClasses} />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        {activeTab === 'social' && (
-                            <div className="space-y-4 animate-fadeIn">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Facebook URL</label>
-                                        <input type="url" {...register('footer.social.facebook')} className={inputClasses} />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Twitter URL</label>
-                                        <input type="url" {...register('footer.social.twitter')} className={inputClasses} />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Instagram URL</label>
-                                        <input type="url" {...register('footer.social.instagram')} className={inputClasses} />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">LinkedIn URL</label>
-                                        <input type="url" {...register('footer.social.linkedin')} className={inputClasses} />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                <div className="mt-8 flex justify-end items-center gap-4">
-                    {isDirty && <span className="text-sm text-yellow-600 dark:text-yellow-400">You have unsaved changes.</span>}
-                    <button type="submit" disabled={isSubmitting || !isDirty} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
-                        {isSubmitting ? 'Saving...' : 'Save All Settings'}
-                    </button>
-                </div>
-            </form>
-        </div>
-    );
-};
-
-export default AdminSettingsPage;
+                                    <label htmlFor="logoUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-30

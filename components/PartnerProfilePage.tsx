@@ -3,10 +3,10 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem, Property, AdminPartner, Project } from '../types';
 import Lightbox from './shared/Lightbox';
 import PropertyCard from './shared/PropertyCard';
-import { getPortfolioByPartnerId } from '../api/portfolio';
-import { getPropertiesByPartnerId } from '../api/properties';
+import { getPortfolioByPartnerId } from '../services/portfolio';
+import { getPropertiesByPartnerId } from '../services/properties';
 import { useQuery } from '@tanstack/react-query';
-import { getPartnerById } from '../api/partners';
+import { getPartnerById } from '../services/partners';
 import { useLanguage } from './shared/LanguageContext';
 
 

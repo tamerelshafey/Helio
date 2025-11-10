@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, AddPropertyRequest } from '../types';
-import { addPropertyRequest } from '../api/propertyRequests';
+import { addPropertyRequest } from '../services/propertyRequests';
 import FormField from './shared/FormField';
 import { CloseIcon } from './icons/Icons';
 import CooperationCard from './shared/CooperationCard';
 import LocationPickerModal from './shared/LocationPickerModal';
 import { useToast } from './shared/ToastContext';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPropertyTypes, getAllFinishingStatuses } from '../api/filters';
-import { getPlans } from '../api/plans';
+import { getAllPropertyTypes, getAllFinishingStatuses } from '../services/filters';
+import { getPlans } from '../services/plans';
 import { useLanguage } from './shared/LanguageContext';
 import { Select } from './ui/Select';
 import { Input } from './ui/Input';

@@ -2,9 +2,8 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import type { Language } from '../../types';
 import { LocationMarkerIcon, CloseIcon } from '../icons/Icons';
-// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
 import { useQuery } from '@tanstack/react-query';
-import { getContent } from '../../api/content';
+import { getContent } from '../../services/content';
 import { useLanguage } from './LanguageContext';
 
 interface LocationPickerModalProps {

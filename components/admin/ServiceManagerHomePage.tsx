@@ -4,7 +4,8 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Lead } from '../../types';
 import { useQuery } from '@tanstack/react-query';
-import { getAllLeads } from '../../api/leads';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllLeads } from '../../services/leads';
 import { WrenchScrewdriverIcon, InboxIcon, SparklesIcon } from '../icons/Icons';
 import { useLanguage } from '../shared/LanguageContext';
 import { useAuth } from '../auth/AuthContext';

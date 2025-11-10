@@ -1,6 +1,5 @@
 
 
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
@@ -8,11 +7,10 @@ import type { Property, FilterOption } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CloseIcon, SparklesIcon } from '../icons/Icons';
-import { addProperty as apiAddProperty, updateProperty as apiUpdateProperty, getAllProperties } from '../../api/properties';
-// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+import { addProperty as apiAddProperty, updateProperty as apiUpdateProperty, getAllProperties } from '../../services/properties';
 import { useQuery } from '@tanstack/react-query';
-import { getAllProjects } from '../../api/projects';
-import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../api/filters';
+import { getAllProjects } from '../../services/projects';
+import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../services/filters';
 import LocationPickerModal from '../shared/LocationPickerModal';
 import { Role, Permission } from '../../types';
 import AIContentHelper from '../ai/AIContentHelper';

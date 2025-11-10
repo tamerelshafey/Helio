@@ -1,12 +1,11 @@
 
-
 import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray, Control, UseFormRegister, UseFormSetValue, UseFormGetValues } from 'react-hook-form';
 import { GoogleGenAI, Type } from "@google/genai";
 import type { AIEstimatorConfig, AIEstimatorStage, AIEstimatorItem } from '../../types';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../shared/ToastContext';
-import { getAIEstimatorConfig, updateAIEstimatorConfig } from '../../api/aiConfig';
+import { getAIEstimatorConfig, updateAIEstimatorConfig } from '../../services/aiConfig';
 import { inputClasses } from '../shared/FormField';
 import { TrashIcon, SparklesIcon, ArrowUpIcon, ArrowDownIcon } from '../icons/Icons';
 import { useLanguage } from '../shared/LanguageContext';

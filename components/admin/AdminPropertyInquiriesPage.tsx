@@ -1,15 +1,17 @@
 
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { PropertyInquiryRequest, RequestStatus } from '../../types';
 import { SearchIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
-import { updatePropertyInquiryStatus, deletePropertyInquiry } from '../../api/propertyInquiries';
+// FIX: Corrected import path from `api` to `services`.
+import { updatePropertyInquiryStatus, deletePropertyInquiry } from '../../services/propertyInquiries';
 import Pagination from '../shared/Pagination';
 import TableSkeleton from '../shared/TableSkeleton';
 import EmptyState from '../shared/EmptyState';
-// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query` and corrected import path.
 import { useQuery } from '@tanstack/react-query';
-import { getAllPropertyInquiries } from '../../api/propertyInquiries';
+import { getAllPropertyInquiries } from '../../services/propertyInquiries';
 import { useAdminTable } from './shared/useAdminTable';
 import { useLanguage } from '../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';

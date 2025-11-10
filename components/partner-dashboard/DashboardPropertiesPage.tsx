@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Property } from '../../types';
@@ -9,7 +8,7 @@ import { BuildingIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
 import UpgradePlanModal from '../UpgradePlanModal';
 import ExportDropdown from '../shared/ExportDropdown';
-import { deleteProperty as apiDeleteProperty } from '../../api/properties';
+import { deleteProperty as apiDeleteProperty } from '../../services/properties';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
 import { Select } from '../ui/Select';

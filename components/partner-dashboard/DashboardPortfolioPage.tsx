@@ -8,7 +8,7 @@ import { ArrowUpIcon, ArrowDownIcon, CubeIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
 import PortfolioItemFormModal from './PortfolioItemFormModal';
 import UpgradePlanModal from '../UpgradePlanModal';
-import { deletePortfolioItem as apiDeletePortfolioItem } from '../../api/portfolio';
+import { deletePortfolioItem as apiDeletePortfolioItem } from '../../services/portfolio';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
 import { Card, CardContent, CardFooter } from '../ui/Card';

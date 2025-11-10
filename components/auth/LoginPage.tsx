@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { Role, Permission } from '../../types';
 import type { Language, Partner } from '../../types';
-import { getPartnerByEmail } from '../../api/partners';
+import { getPartnerByEmail } from '../../services/partners';
 import { Input } from '../ui/Input';
 import { HelioLogo } from '../HelioLogo';
 import { partnersData } from '../../data/partners';

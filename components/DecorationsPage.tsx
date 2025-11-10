@@ -1,13 +1,11 @@
-
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem } from '../types';
 import BannerDisplay from './shared/BannerDisplay';
 import SEO from './shared/SEO';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPortfolioItems } from '../api/portfolio';
-import { getDecorationCategories } from '../api/decorations';
+import { getAllPortfolioItems } from '../services/portfolio';
+import { getDecorationCategories } from '../services/decorations';
 import { useLanguage } from './shared/LanguageContext';
 
 const DecorationsPage: React.FC = () => {

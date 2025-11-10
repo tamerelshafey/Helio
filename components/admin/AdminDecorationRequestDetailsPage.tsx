@@ -5,7 +5,8 @@ import { useParams, Link } from 'react-router-dom';
 import type { LeadStatus, Lead } from '../../types';
 import { ChevronLeftIcon } from '../icons/Icons';
 import { selectClasses } from '../shared/FormField';
-import { getAllLeads, updateLead } from '../../api/leads';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllLeads, updateLead } from '../../services/leads';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../shared/ToastContext';
 import ConversationThread from '../shared/ConversationThread';

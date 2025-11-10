@@ -4,8 +4,10 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { Language, SubscriptionPlan, AdminPartner, PlanCategory } from '../../types';
 import { CloseIcon } from '../icons/Icons';
 import FormField, { selectClasses, inputClasses } from '../shared/FormField';
-import { getPlans } from '../../api/plans';
-import { updatePartnerAdmin } from '../../api/partners';
+// FIX: Corrected import path from `api` to `services`.
+import { getPlans } from '../../services/plans';
+// FIX: Corrected import path from `api` to `services`.
+import { updatePartnerAdmin } from '../../services/partners';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';
 

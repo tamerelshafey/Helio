@@ -1,16 +1,18 @@
 
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, AddPropertyRequest, RequestStatus } from '../../types';
 import { ClipboardDocumentListIcon } from '../icons/Icons';
-import { addProperty } from '../../api/properties';
+// FIX: Corrected import path from `api` to `services`.
+import { addProperty } from '../../services/properties';
 import { useAuth } from '../auth/AuthContext';
 import Pagination from '../shared/Pagination';
 import TableSkeleton from '../shared/TableSkeleton';
 import EmptyState from '../shared/EmptyState';
-// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
+// FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query` and corrected import path.
 import { useQuery } from '@tanstack/react-query';
-import { getAllPropertyRequests, updatePropertyRequestStatus } from '../../api/propertyRequests';
+import { getAllPropertyRequests, updatePropertyRequestStatus } from '../../services/propertyRequests';
 import { useAdminTable } from './shared/useAdminTable';
 import { useLanguage } from '../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';

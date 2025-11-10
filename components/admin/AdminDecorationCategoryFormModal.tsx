@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { Language, DecorationCategory } from '../../types';
 import FormField, { inputClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
-import { addDecorationCategory, updateDecorationCategory } from '../../api/decorations';
+// FIX: Corrected import path from `api` to `services`.
+import { addDecorationCategory, updateDecorationCategory } from '../../services/decorations';
 import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminDecorationCategoryFormModalProps {

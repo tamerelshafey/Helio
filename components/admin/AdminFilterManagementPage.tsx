@@ -1,10 +1,10 @@
 
 
-
 import React, { useState } from 'react';
 import type { FilterOption } from '../../types';
 import FilterItemFormModal from './FilterItemFormModal';
-import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities, deleteFilterOption as apiDeleteFilterOption } from '../../api/filters';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities, deleteFilterOption as apiDeleteFilterOption } from '../../services/filters';
 // FIX: Replaced deprecated `useApiQuery` with `useQuery` from `@tanstack/react-query`.
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';

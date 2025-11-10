@@ -7,7 +7,7 @@ import { Role } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { BuildingIcon } from '../icons/Icons';
 import { useQuery } from '@tanstack/react-query';
-import { getProperties } from '../../api/properties';
+import { getProperties } from '../../services/properties';
 import UpgradePlanModal from '../UpgradePlanModal';
 import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';

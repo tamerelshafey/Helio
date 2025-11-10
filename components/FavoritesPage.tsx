@@ -6,7 +6,7 @@ import { useFavorites } from './shared/FavoritesContext';
 import { HeartIcon } from './icons/Icons';
 import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 import { useQuery } from '@tanstack/react-query';
-import { getAllProperties } from '../api/properties';
+import { getAllProperties } from '../services/properties';
 import { useLanguage } from './shared/LanguageContext';
 
 const FavoritesPage: React.FC = () => {

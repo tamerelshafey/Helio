@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 import { ArrowUpIcon, ArrowDownIcon, ChevronRightIcon } from '../icons/Icons';
 import { inputClasses } from '../shared/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
-import { getLeadsByPartnerId, updateLead, deleteLead as apiDeleteLead } from '../../api/leads';
+import { getLeadsByPartnerId, updateLead, deleteLead as apiDeleteLead } from '../../services/leads';
 import { useQuery } from '@tanstack/react-query';
 import ConversationThread from '../shared/ConversationThread';
 import { useLanguage } from '../shared/LanguageContext';

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ArrowUpIcon, ArrowDownIcon } from '../../icons/Icons';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -61,8 +62,11 @@ export function useAdminTable<T extends Record<string, any>>({
                 if (typeof aValue === 'number' && typeof bValue === 'number') {
                     compareResult = aValue - bValue;
                 } else {
-                    // FIX: Explicitly convert bValue to a string before comparison to resolve TypeScript error.
-                    compareResult = String(aValue).localeCompare(String(bValue));
+                    // FIX: Explicitly cast to string to satisfy TypeScript's strictness
+                    // regarding the `localeCompare` method's argument type.
+                    const strA: string = String(aValue);
+                    const strB: string = String(bValue);
+                    compareResult = strA.localeCompare(strB);
                 }
 
                 return sortConfig.direction === 'ascending' ? compareResult : -compareResult;

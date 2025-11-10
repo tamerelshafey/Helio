@@ -1,13 +1,16 @@
 
+
 import React, { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Property, AdminPartner } from '../../types';
 import { inputClasses, selectClasses } from '../shared/FormField';
 import { isListingActive } from '../../utils/propertyUtils';
 import ExportDropdown from '../shared/ExportDropdown';
-import { getAllProperties, deleteProperty as apiDeleteProperty, updateProperty as apiUpdateProperty } from '../../api/properties';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllProperties, deleteProperty as apiDeleteProperty, updateProperty as apiUpdateProperty } from '../../services/properties';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPartnersForAdmin } from '../../api/partners';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllPartnersForAdmin } from '../../services/partners';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';
 import { useLanguage } from '../shared/LanguageContext';

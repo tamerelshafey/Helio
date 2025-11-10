@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon } from './icons/Icons';
@@ -8,16 +6,16 @@ import { useFavorites } from './shared/FavoritesContext';
 import Lightbox from './shared/Lightbox';
 import { isCommercial } from '../utils/propertyUtils';
 import BannerDisplay from './shared/BannerDisplay';
-import { getPropertyById } from '../api/properties';
+import { getPropertyById } from '../services/properties';
 import { useQuery } from '@tanstack/react-query';
 import DetailItem from './shared/DetailItem';
 import ContactOptionsModal from './shared/ContactOptionsModal';
 import { useToast } from './shared/ToastContext';
 import SEO from './shared/SEO';
 import DetailSection from './shared/DetailSection';
-import { getProjectById } from '../api/projects';
-import { getAllAmenities } from '../api/filters';
-import { getPartnerById } from '../api/partners';
+import { getProjectById } from '../services/projects';
+import { getAllAmenities } from '../services/filters';
+import { getPartnerById } from '../services/partners';
 import { useLanguage } from './shared/LanguageContext';
 import PropertyDetailsSkeleton from './shared/PropertyDetailsSkeleton';
 

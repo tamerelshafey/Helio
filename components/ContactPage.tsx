@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, PartnerType } from '../types';
-import { addContactRequest } from '../api/contactRequests';
+import { addContactRequest } from '../services/contactRequests';
 import { useToast } from './shared/ToastContext';
 import SEO from './shared/SEO';
 import { useQuery } from '@tanstack/react-query';
-import { getContent } from '../api/content';
+import { getContent } from '../services/content';
 import { useLanguage } from './shared/LanguageContext';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';

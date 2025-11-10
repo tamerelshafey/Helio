@@ -3,8 +3,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Language, PartnerRequest } from '../../types';
 import { CloseIcon } from '../icons/Icons';
-import { addPartner } from '../../api/partners';
-import { updatePartnerRequestStatus } from '../../api/partnerRequests';
+// FIX: Corrected import path from `api` to `services`.
+import { addPartner } from '../../services/partners';
+// FIX: Corrected import path from `api` to `services`.
+import { updatePartnerRequestStatus } from '../../services/partnerRequests';
 import { useLanguage } from '../shared/LanguageContext';
 
 interface AdminPartnerRequestModalProps {

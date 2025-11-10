@@ -3,7 +3,7 @@
 import React from 'react';
 import type { SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../types';
 import { CheckCircleIcon } from './icons/Icons';
-import { getPlans } from '../api/plans';
+import { getPlans } from '../services/plans';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from './shared/LanguageContext';
 

@@ -1,13 +1,13 @@
 
 
-
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { PartnerRequest, PropertyInquiryRequest, AddPropertyRequest, ContactRequest } from '../../types';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPropertyRequests } from '../../api/propertyRequests';
-import { getAllPropertyInquiries } from '../../api/propertyInquiries';
-import { getAllContactRequests } from '../../api/contactRequests';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllPropertyRequests } from '../../services/propertyRequests';
+import { getAllPropertyInquiries } from '../../services/propertyInquiries';
+import { getAllContactRequests } from '../../services/contactRequests';
 import { InboxIcon, ClipboardDocumentListIcon, SearchIcon } from '../icons/Icons';
 import RequestList from './shared/RequestList';
 import { useLanguage } from '../shared/LanguageContext';

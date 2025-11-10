@@ -1,9 +1,8 @@
 
-
 import React, { useState } from 'react';
 import type { DecorationCategory } from '../../types';
 import { useQuery } from '@tanstack/react-query';
-import { getDecorationCategories, deleteDecorationCategory as apiDeleteDecorationCategory } from '../../api/decorations';
+import { getDecorationCategories, deleteDecorationCategory as apiDeleteDecorationCategory } from '../../services/decorations';
 import AdminDecorationCategoryFormModal from './AdminDecorationCategoryFormModal';
 import { useLanguage } from '../shared/LanguageContext';
 

@@ -4,9 +4,12 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { PortfolioItem, DecorationCategory } from '../../types';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPortfolioItems, deletePortfolioItem as apiDeletePortfolioItem } from '../../api/portfolio';
-import { getAllPartnersForAdmin } from '../../api/partners';
-import { getDecorationCategories } from '../../api/decorations';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllPortfolioItems, deletePortfolioItem as apiDeletePortfolioItem } from '../../services/portfolio';
+// FIX: Corrected import path from `api` to `services`.
+import { getAllPartnersForAdmin } from '../../services/partners';
+// FIX: Corrected import path from `api` to `services`.
+import { getDecorationCategories } from '../../services/decorations';
 import AdminPortfolioItemFormModal from './AdminPortfolioItemFormModal';
 import Pagination from '../shared/Pagination';
 import { useLanguage } from '../shared/LanguageContext';
