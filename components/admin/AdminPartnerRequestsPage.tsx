@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, PartnerRequest } from '../../types';
@@ -104,4 +103,36 @@ const AdminPartnerRequestsPage: React.FC = () => {
                                     <div className="flex items-center gap-3">
                                         <img src={req.logo} alt={req.companyName} className="w-10 h-10 rounded-full object-cover"/>
                                         <div>
-                               
+                                            <div className="font-medium text-gray-900 dark:text-white">{req.companyName}</div>
+                                            <div className="text-xs text-gray-500">{req.contactEmail}</div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell>{getPartnerTypeName(req.companyType)}</TableCell>
+                                <TableCell>{new Date(req.createdAt).toLocaleDateString(language)}</TableCell>
+                                <TableCell>{getStatusName(req.status)}</TableCell>
+                                <TableCell>
+                                    <Link to={`/admin/partner-requests/${req.id}`} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">{t_req.table.details}</Link>
+                                </TableCell>
+                            </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={5}>
+                                    <EmptyState
+                                        icon={<UserPlusIcon className="w-12 h-12" />}
+                                        title={t_req.noPartnerRequests}
+                                        subtitle="When new partners apply, their requests will appear here."
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            </div>
+        </div>
+    );
+};
+
+export default AdminPartnerRequestsPage;

@@ -61,7 +61,8 @@ export function useAdminTable<T extends Record<string, any>>({
                 if (typeof aValue === 'number' && typeof bValue === 'number') {
                     compareResult = aValue - bValue;
                 } else {
-                    // FIX: Safely convert both `unknown` values to strings before locale comparison.
+                    // Fix: Safely convert both `unknown` values to strings before locale comparison.
+                    // The error indicates `localeCompare` received an `unknown` type instead of a `string`.
                     compareResult = String(aValue).localeCompare(String(bValue));
                 }
 
