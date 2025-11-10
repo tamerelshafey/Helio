@@ -67,7 +67,8 @@ export function useAdminTable<T extends Record<string, any>>({
                     // likely stems from a type inference issue. Explicitly converting both values to strings
                     // for comparison resolves this.
                     // FIX: Using .toString() is safer after null/undefined checks and can help the type checker.
-                    compareResult = aValue.toString().localeCompare(bValue.toString());
+                    // FIX: Use String() constructor to safely convert 'unknown' type to string for localeCompare.
+                    compareResult = String(aValue).localeCompare(String(bValue));
                 }
 
                 return sortConfig.direction === 'ascending' ? compareResult : -compareResult;
