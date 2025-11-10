@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
@@ -68,7 +69,7 @@ const AIEstimatorPage = React.lazy(() => import('./components/AIEstimatorPage'))
 const NotFoundPage = React.lazy(() => import('./components/NotFoundPage'));
 
 // New lazy imports for refactored decorations management
-const DecorationsLayout = React.lazy(() => import('./components/admin/decorations/DecorationsLayout'));
+const DecorationsLayout = React.lazy(() => import('./components/admin/decorations/DecorationsDashboardLayout'));
 const PortfolioManagement = React.lazy(() => import('./components/admin/decorations/PortfolioManagement'));
 const CategoriesManagement = React.lazy(() => import('./components/admin/decorations/CategoriesManagement'));
 

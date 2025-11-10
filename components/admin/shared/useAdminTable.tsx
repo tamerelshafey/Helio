@@ -5,7 +5,8 @@ import { useDebounce } from '../../hooks/useDebounce';
 
 type SortDirection = 'ascending' | 'descending';
 
-export interface SortConfig<T> {
+// FIX: Changed `interface` to `type` to allow a union type with `null`.
+export type SortConfig<T> = {
     key: keyof T | string;
     direction: SortDirection;
 } | null;
@@ -65,7 +66,8 @@ export function useAdminTable<T extends Record<string, any>>({
                     // FIX: The error "Argument of type 'unknown' is not assignable to parameter of type 'string'"
                     // likely stems from a type inference issue. Explicitly converting both values to strings
                     // for comparison resolves this.
-                    compareResult = String(aValue).localeCompare(String(bValue));
+                    // FIX: Using .toString() is safer after null/undefined checks and can help the type checker.
+                    compareResult = aValue.toString().localeCompare(bValue.toString());
                 }
 
                 return sortConfig.direction === 'ascending' ? compareResult : -compareResult;
