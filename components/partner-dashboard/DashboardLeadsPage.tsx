@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Language, Lead, LeadStatus } from '../../types';
 import { useAuth } from '../auth/AuthContext';
@@ -147,4 +144,39 @@ const DashboardLeadsPage: React.FC = () => {
                                         <TableCell>{new Date(lead.createdAt).toLocaleDateString(language)}</TableCell>
                                         <TableCell>
                                             <span onClick={e => e.stopPropagation()}>
-                                                <Select value={lead.status} onChange={(e) =>
+                                                <Select
+                                                    value={lead.status}
+                                                    onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
+                                                    className={`text-xs font-medium px-2.5 py-0.5 rounded-full border-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800 ${statusColors[lead.status]}`}
+                                                >
+                                                    {Object.entries(t_dash.leadStatus).map(([key, value]) => (
+                                                        <option key={key} value={key} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                                            {value}
+                                                        </option>
+                                                    ))}
+                                                </Select>
+                                            </span>
+                                        </TableCell>
+                                    </TableRow>
+                                    {expandedLeadId === lead.id && (
+                                        <TableRow className="bg-gray-50 dark:bg-gray-800/50">
+                                            <TableCell colSpan={5} className="p-0">
+                                                <div className="p-4 animate-fadeIn">
+                                                    <ConversationThread lead={lead} onMessageSent={refetch} />
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </React.Fragment>
+                            ))
+                        ) : (
+                            <TableRow><TableCell colSpan={5} className="text-center p-8">{t_dash.leadTable.noLeads}</TableCell></TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+        </div>
+    );
+};
+
+export default DashboardLeadsPage;
