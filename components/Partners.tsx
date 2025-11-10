@@ -1,9 +1,10 @@
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { AdminPartner } from '../types';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPartnersForAdmin } from '../api/partners';
-import { getContent } from '../api/content';
+import { getAllPartnersForAdmin } from '../services/partners';
+import { getContent } from '../services/content';
 import { useLanguage } from './shared/LanguageContext';
 import { Card, CardContent } from './ui/Card';
 

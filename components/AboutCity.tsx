@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getContent } from '../api/content';
+import { getContent } from '../services/content';
 import { useLanguage } from './shared/LanguageContext';
 
 const AboutCity: React.FC = () => {

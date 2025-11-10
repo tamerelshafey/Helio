@@ -7,7 +7,7 @@ import type { Lead, LeadMessage } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { inputClasses } from './FormField';
 import { useToast } from './ToastContext';
-import { addMessageToLead } from '../../api/leads';
+import { addMessageToLead } from '../../services/leads';
 import { useLanguage } from './LanguageContext';
 import { Role } from '../../types';
 

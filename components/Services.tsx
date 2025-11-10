@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BuildingIcon, DecorationIcon, FinishingIcon, SparklesIcon } from './icons/Icons';
 import { useQuery } from '@tanstack/react-query';
-import { getContent } from '../api/content';
+import { getContent } from '../services/content';
 import { useLanguage } from './shared/LanguageContext';
 import { Card, CardContent } from './ui/Card';
 

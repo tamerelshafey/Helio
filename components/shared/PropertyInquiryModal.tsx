@@ -1,7 +1,8 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import type { Language } from '../../types';
 import FormField, { inputClasses, selectClasses } from './FormField';
-import { addPropertyInquiry } from '../../api/propertyInquiries';
+import { addPropertyInquiry } from '../../services/propertyInquiries';
 import { useToast } from './ToastContext';
 import { useLanguage } from './LanguageContext';
 

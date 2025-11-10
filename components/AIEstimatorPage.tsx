@@ -1,7 +1,8 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getAIEstimatorConfig } from '../api/aiConfig';
+import { getAIEstimatorConfig } from '../services/aiConfig';
 import { useLanguage } from './shared/LanguageContext';
 import SEO from './shared/SEO';
 import { ChevronRightIcon } from './icons/Icons';

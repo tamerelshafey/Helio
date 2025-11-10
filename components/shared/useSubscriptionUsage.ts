@@ -1,11 +1,12 @@
+
 import { useMemo, useCallback } from 'react';
 import type { PartnerType, SubscriptionPlan, Property, Project, PortfolioItem } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { getPlanLimit } from '../../utils/subscriptionUtils';
 import { useQuery } from '@tanstack/react-query';
-import { getAllProperties } from '../../api/properties';
-import { getAllProjects } from '../../api/projects';
-import { getAllPortfolioItems } from '../../api/portfolio';
+import { getAllProperties } from '../../services/properties';
+import { getAllProjects } from '../../services/projects';
+import { getAllPortfolioItems } from '../../services/portfolio';
 
 type UsageType = 'properties' | 'projects' | 'units' | 'portfolio';
 

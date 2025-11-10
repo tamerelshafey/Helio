@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { TwitterIcon, LinkedInIcon, FacebookIcon, InstagramIcon } from './icons/Icons';
 import { HelioLogo } from './HelioLogo';
 import { useQuery } from '@tanstack/react-query';
-import { getContent } from '../api/content';
+import { getContent } from '../services/content';
 import { useLanguage } from './shared/LanguageContext';
 
 const FooterLink: React.FC<{ to: string; children: React.ReactNode }> = ({ to, children }) => (

@@ -1,5 +1,6 @@
 
 
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import PropertyCard from './shared/PropertyCard';
@@ -7,7 +8,7 @@ import PropertyCardSkeleton from './shared/PropertyCardSkeleton';
 import type { Project } from '../types';
 import { isListingActive } from '../utils/propertyUtils';
 import { useQuery } from '@tanstack/react-query';
-import { getAllProperties } from '../api/properties';
+import { getAllProperties } from '../services/properties';
 import { useLanguage } from './shared/LanguageContext';
 
 const LatestProperties: React.FC = () => {

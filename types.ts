@@ -136,7 +136,7 @@ export interface Property {
     price: { [key in Language]: string };
     priceNumeric: number;
     pricePerMeter?: { [key in Language]: string };
-    type: { [key in Language]: string; en: 'Apartment' | 'Villa' | 'Commercial' | 'Land' };
+    type: { ar: string; en: 'Apartment' | 'Villa' | 'Commercial' | 'Land' };
     title: { [key in Language]: string };
     address: { [key in Language]: string };
     description: { [key in Language]: string };
@@ -181,7 +181,7 @@ export interface PortfolioItem {
     imageUrl: string;
     alt: string;
     title: { [key in Language]: string };
-    category: { [key in Language]: string; en: string; ar: string; };
+    category: { [key in Language]: string };
     price?: number;
     dimensions?: string;
     availability?: 'In Stock' | 'Made to Order';
@@ -189,7 +189,7 @@ export interface PortfolioItem {
 
 export interface DecorationCategory {
     id: string;
-    name: { [key in Language]: string, en: string, ar: string };
+    name: { [key in Language]: string };
     description: { [key in Language]: string };
 }
 
