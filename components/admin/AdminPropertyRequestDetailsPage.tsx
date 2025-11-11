@@ -4,9 +4,7 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Language, AddPropertyRequest, Property } from '../../types';
 import { ChevronLeftIcon } from '../icons/Icons';
-// FIX: Corrected import path from `api` to `services`.
 import { getAllPropertyRequests, updatePropertyRequestStatus } from '../../services/propertyRequests';
-// FIX: Corrected import path from `api` to `services`.
 import { addProperty } from '../../services/properties';
 import { useQuery } from '@tanstack/react-query';
 import DetailItem from '../shared/DetailItem';

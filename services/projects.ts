@@ -64,9 +64,7 @@ export const deleteProject = (projectId: string): Promise<boolean> => {
             const initialLength = projectsData.length;
             const newData = projectsData.filter(p => p.id !== projectId);
             if (newData.length < initialLength) {
-                // HACK: This is to mutate the imported array in-place. In a real app, this would be a DELETE API call.
-                projectsData.length = 0;
-                Array.prototype.push.apply(projectsData, newData);
+                projectsData.splice(0, projectsData.length, ...newData);
                 resolve(true);
             } else {
                 resolve(false);

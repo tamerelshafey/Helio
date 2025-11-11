@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -25,24 +26,29 @@ const Hero: React.FC = () => {
     return (
         <section className="relative h-[85vh] flex items-center justify-center text-center text-white overflow-hidden">
             {heroImages.map((image, index) => (
-                 <picture key={image.src_large}>
-                    <source
-                        type="image/webp"
-                        srcSet={`${image.src_small}&fm=webp 480w, ${image.src_medium}&fm=webp 800w, ${image.src_large}&fm=webp 1600w`}
-                        sizes="100vw"
-                    />
-                    <img
-                        src={image.src_large}
-                        srcSet={`${image.src_small} 480w, ${image.src_medium} 800w, ${image.src_large} 1600w`}
-                        sizes="100vw"
-                        alt={siteContent?.hero?.imageAlts?.[language]?.[index] || ''}
-                        className={`slider-image ${index === currentImageIndex ? 'active' : ''}`}
-                        loading="lazy"
-                        decoding="async"
-                        aria-hidden={index !== currentImageIndex}
-                        role="img"
-                    />
-                </picture>
+                 <div key={image.src_large} className={`slider-image ${index === currentImageIndex ? 'active' : ''}`}>
+                    <div className="watermarked w-full h-full">
+                        <picture>
+                            <source
+                                type="image/webp"
+                                srcSet={`${image.src_small}&fm=webp 480w, ${image.src_medium}&fm=webp 800w, ${image.src_large}&fm=webp 1600w`}
+                                sizes="100vw"
+                            />
+                            <img
+                                src={image.src_large}
+                                srcSet={`${image.src_small} 480w, ${image.src_medium} 800w, ${image.src_large} 1600w`}
+                                sizes="100vw"
+                                alt={siteContent?.hero?.imageAlts?.[language]?.[index] || ''}
+                                className="w-full h-full object-cover disable-image-interaction"
+                                onContextMenu={(e) => e.preventDefault()}
+                                loading="lazy"
+                                decoding="async"
+                                aria-hidden={index !== currentImageIndex}
+                                role="img"
+                            />
+                        </picture>
+                    </div>
+                </div>
             ))}
             <div className="absolute top-0 left-0 w-full h-full bg-black/60 z-10"></div>
 

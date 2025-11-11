@@ -1,9 +1,7 @@
-
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { AdminPartner, Property, Project } from '../../types';
 import { useQuery } from '@tanstack/react-query';
-// FIX: Corrected import path from `api` to `services`.
 import { getAllPartnersForAdmin } from '../../services/partners';
 import { getAllProperties } from '../../services/properties';
 import { getAllProjects } from '../../services/projects';

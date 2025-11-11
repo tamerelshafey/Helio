@@ -149,3 +149,28 @@ details[open] > summary .rotate-on-open {
 .dark .dashboard-sidebar nav::-webkit-scrollbar-thumb {
   background-color: #4b5563; /* gray-600 */
 }
+
+.disable-image-interaction {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.watermarked {
+    position: relative;
+    overflow: hidden; /* To contain the pseudo-element */
+}
+
+.watermarked::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-repeat: repeat;
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMjAiIGhlaWdodD0iMTUwIj48dGV4dCB4PSIxMCIgeT0iNzAiIGZvbnQtZmFtaWx5PSJUYWphd2FsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iYmxhY2siIGZpbGwtb3BhY2l0eT0iMC4wNyIgdHJhbnNmb3JtPSJyb3RhdGUoLTMwLCA1MCwgNTApIj5PTkxZIEhFTElPPC90ZXh0Pjwvc3ZnPg==");
+}
+
+.dark .watermarked::after {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMjAiIGhlaWdodD0iMTUwIj48dGV4dCB4PSIxMCIgeT0iNzAiIGZvbnQtZmFtaWx5PSJUYWphd2FsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC4wNyIgdHJhbnNmb3JtPSJyb3RhdGUoLTMwLCA1MCwgNTApIj5PTkxZIEhFTElPPC90ZXh0Pjwvc3ZnPg==");
+}

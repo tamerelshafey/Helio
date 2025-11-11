@@ -4,14 +4,10 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Project, AdminPartner, Property } from '../../types';
 import { inputClasses, selectClasses } from '../shared/FormField';
-// FIX: Corrected import path from `api` to `services`.
 import { deleteProject as apiDeleteProject } from '../../services/projects';
 import { useQuery } from '@tanstack/react-query';
-// FIX: Corrected import path from `api` to `services`.
 import { getAllProjects } from '../../services/projects';
-// FIX: Corrected import path from `api` to `services`.
 import { getAllPartnersForAdmin } from '../../services/partners';
-// FIX: Corrected import path from `api` to `services`.
 import { getAllProperties } from '../../services/properties';
 import Pagination from '../shared/Pagination';
 import { useAdminTable } from './shared/useAdminTable';

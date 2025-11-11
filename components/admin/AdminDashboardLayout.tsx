@@ -19,7 +19,6 @@ const AdminDashboardLayout: React.FC = () => {
                 user={user}
                 navLinks={adminNavLinks}
                 onLogout={onLogout}
-                pageTitle={t.adminDashboard.title}
                 hasPermission={hasPermission}
             />
             <div className="flex-1 flex flex-col min-w-0">

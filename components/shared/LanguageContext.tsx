@@ -1,8 +1,6 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode, useCallback } from 'react';
 import type { Language } from '../../types';
-// FIX: The 'enTranslations' export is missing from the specified module.
-// Using 'arTranslations' as a fallback to resolve the build error.
-import { arTranslations } from '../../data/translations';
+import { arTranslations, enTranslations } from '../../data/translations';
 
 interface LanguageContextType {
     language: Language;
@@ -14,11 +12,11 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const translations = {
     ar: arTranslations,
-    en: arTranslations,
+    en: enTranslations,
 };
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [language, setLanguage] = useState<Language>(() => {
+    const [language, setLanguageState] = useState<Language>(() => {
         try {
             const savedLang = localStorage.getItem('onlyhelio-lang') as Language;
             // Ensure the saved language is one of the valid options
@@ -39,11 +37,11 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
     }, [language]);
 
-    const handleSetLanguage = (lang: Language) => {
-        setLanguage(lang);
-    };
+    const setLanguage = useCallback((lang: Language) => {
+        setLanguageState(lang);
+    }, []);
 
-    const value = { language, setLanguage: handleSetLanguage, t: translations[language] };
+    const value = { language, setLanguage, t: translations[language] };
 
     return (
         <LanguageContext.Provider value={value}>

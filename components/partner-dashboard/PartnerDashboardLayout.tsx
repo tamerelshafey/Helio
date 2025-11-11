@@ -18,7 +18,6 @@ const PartnerDashboardLayout: React.FC = () => {
                 user={user}
                 navLinks={partnerNavLinks}
                 onLogout={onLogout}
-                pageTitle={t.dashboard.title}
                 hasPermission={hasPermission}
             />
             <main className="flex-1 p-6 lg:p-10 overflow-y-auto">

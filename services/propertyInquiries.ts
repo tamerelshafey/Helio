@@ -1,4 +1,3 @@
-
 import { propertyInquiriesData } from '../data/propertyInquiries';
 import type { PropertyInquiryRequest, RequestStatus } from '../types';
 
@@ -46,8 +45,7 @@ export const deletePropertyInquiry = (id: string): Promise<boolean> => {
             const initialLength = propertyInquiriesData.length;
             const newData = propertyInquiriesData.filter(r => r.id !== id);
             if (newData.length < initialLength) {
-                propertyInquiriesData.length = 0;
-                Array.prototype.push.apply(propertyInquiriesData, newData);
+                propertyInquiriesData.splice(0, propertyInquiriesData.length, ...newData);
                 resolve(true);
             } else {
                 resolve(false);

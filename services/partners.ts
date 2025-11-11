@@ -5,38 +5,21 @@ import { partnersData } from '../data/partners';
 import type { Partner, PartnerStatus, PartnerRequest, AdminPartner, PartnerType, SubscriptionPlan, PartnerDisplayType } from '../types';
 import { mapPartnerTypeToRole } from '../data/permissions';
 import { addNotification } from './notifications';
+import { arTranslations, enTranslations } from '../data/translations';
 
 const SIMULATED_DELAY = 300;
 
-// In-memory cache to simulate a database for translations
-let translationsCache: { ar?: any; en?: any } | null = null;
-
-const fetchAndCacheTranslations = async () => {
-    if (translationsCache) return translationsCache;
-    try {
-        const [arResponse, enResponse] = await Promise.all([
-            fetch('/locales/ar.json'),
-            fetch('/locales/en.json')
-        ]);
-        if (!arResponse.ok || !enResponse.ok) {
-            throw new Error('Failed to fetch translation files');
-        }
-        const arData = await arResponse.json();
-        const enData = await enResponse.json();
-        translationsCache = { ar: arData, en: enData };
-        return translationsCache;
-    } catch (error) {
-        console.error("Failed to fetch and cache partner translations", error);
-        // Return an empty structure on failure to prevent crashes
-        return { ar: { partnerInfo: {} }, en: { partnerInfo: {} } };
-    }
+const getPartnerTranslations = () => {
+    return {
+        ar: arTranslations.partnerInfo,
+        en: enTranslations.partnerInfo
+    };
 };
 
-
 export const getAllPartners = async (): Promise<Partner[]> => {
-    const translations = await fetchAndCacheTranslations();
+    const translations = getPartnerTranslations();
     return partnersData.map(basePartner => {
-        const trans = translations.en.partnerInfo[basePartner.id] || { name: basePartner.id, description: '' };
+        const trans = translations.en[basePartner.id] || { name: basePartner.id, description: '' };
         return {
             ...basePartner,
             ...trans,
@@ -47,12 +30,12 @@ export const getAllPartners = async (): Promise<Partner[]> => {
 
 export const getAllPartnersForAdmin = (): Promise<AdminPartner[]> => {
     return new Promise((resolve) => {
-        setTimeout(async () => {
-            const translations = await fetchAndCacheTranslations();
+        setTimeout(() => {
+            const translations = getPartnerTranslations();
             
             const result = partnersData.map(basePartner => {
-                 const enTrans = translations.en.partnerInfo[basePartner.id] || { name: basePartner.id, description: '' };
-                 const arTrans = translations.ar.partnerInfo[basePartner.id] || { name: basePartner.id, description: '' };
+                 const enTrans = translations.en[basePartner.id] || { name: basePartner.id, description: '' };
+                 const arTrans = translations.ar[basePartner.id] || { name: basePartner.id, description: '' };
                  return {
                      ...basePartner,
                      name: enTrans.name,
@@ -69,15 +52,15 @@ export const getAllPartnersForAdmin = (): Promise<AdminPartner[]> => {
 
 export const getPartnerById = (id: string): Promise<Partner | undefined> => {
   return new Promise((resolve) => {
-    setTimeout(async () => {
+    setTimeout(() => {
       const basePartner = partnersData.find(p => p.id === id);
       if (!basePartner) {
         resolve(undefined);
         return;
       }
       
-      const translations = await fetchAndCacheTranslations();
-      const enTrans = translations.en.partnerInfo[basePartner.id] || { name: basePartner.id, description: '' };
+      const translations = getPartnerTranslations();
+      const enTrans = translations.en[basePartner.id] || { name: basePartner.id, description: '' };
       resolve({
           ...basePartner,
           ...enTrans,
@@ -91,8 +74,8 @@ export const getPartnerByEmail = async (email: string): Promise<Partner | undefi
     const basePartner = partnersData.find(p => p.email.toLowerCase() === email.toLowerCase());
     if (!basePartner) return undefined;
 
-    const translations = await fetchAndCacheTranslations();
-    const enTrans = translations.en.partnerInfo[basePartner.id] || { name: basePartner.id, description: '' };
+    const translations = getPartnerTranslations();
+    const enTrans = translations.en[basePartner.id] || { name: basePartner.id, description: '' };
     return {
         ...basePartner,
         ...enTrans,
@@ -108,30 +91,14 @@ export const updatePartner = (id: string, updates: {
     imageUrl?: string;
 }): Promise<boolean> => {
     return new Promise((resolve) => {
-        setTimeout(async () => {
-            if (!translationsCache) {
-                await fetchAndCacheTranslations();
-            }
-            if (!translationsCache) {
-                resolve(false);
-                return;
-            }
+        setTimeout(() => {
+            // This is now a critical limitation of the mock. In a real app, you'd post this to a server
+            // which would update the database, and the data would be refetched.
+            // For now, we cannot update the imported translations directly.
+            // We will just update the partnerData for image changes.
+            console.warn("Mock API: Partner text content (name, description) stored in translation files cannot be updated at runtime in this demo.");
 
             let found = false;
-
-            const arTransToUpdate = translationsCache.ar.partnerInfo[id];
-            if (arTransToUpdate) {
-                arTransToUpdate.name = updates.nameAr;
-                arTransToUpdate.description = updates.descriptionAr;
-                found = true;
-            }
-            const enTransToUpdate = translationsCache.en.partnerInfo[id];
-            if (enTransToUpdate) {
-                enTransToUpdate.name = updates.nameEn;
-                enTransToUpdate.description = updates.descriptionEn;
-                found = true;
-            }
-
             if (updates.imageUrl) {
                 const partnerIndex = partnersData.findIndex(p => p.id === id);
                 if (partnerIndex > -1) {
@@ -205,14 +172,8 @@ export const updatePartnerAdmin = (id: string, updates: Partial<Pick<AdminPartne
 export const addPartner = (request: PartnerRequest): Promise<Partner> => {
     return new Promise((resolve, reject) => {
         setTimeout(async () => {
-            if (!translationsCache) {
-                await fetchAndCacheTranslations();
-            }
-            if (!translationsCache) {
-                reject(new Error("Translations not available"));
-                return;
-            }
-
+            console.warn("Mock API: Adding a partner in this demo does not persist their translations in the source files. This is a runtime addition only.");
+            
             const { companyName, companyType, description, logo, contactEmail, subscriptionPlan } = request;
             const newPartnerId = `partner-${Date.now()}`;
 
@@ -228,9 +189,6 @@ export const addPartner = (request: PartnerRequest): Promise<Partner> => {
             };
             partnersData.push(newPartnerBaseData);
             
-            translationsCache.en.partnerInfo[newPartnerId] = { name: companyName, description: description };
-            translationsCache.ar.partnerInfo[newPartnerId] = { name: companyName, description: description };
-
             const newPartner: Partner = {
                 ...newPartnerBaseData,
                 name: companyName,
@@ -255,13 +213,7 @@ export const addPartner = (request: PartnerRequest): Promise<Partner> => {
 export const addInternalUser = (userData: { name: string, nameAr: string, email: string, password?: string, type: PartnerType }): Promise<AdminPartner> => {
     return new Promise((resolve, reject) => {
         setTimeout(async () => {
-             if (!translationsCache) {
-                await fetchAndCacheTranslations();
-            }
-            if (!translationsCache) {
-                reject(new Error("Translations not available"));
-                return;
-            }
+             console.warn("Mock API: Adding an internal user does not persist their translations in the source files. This is a runtime addition only.");
 
             const newUserId = `user-${Date.now()}`;
             const newPartnerBaseData = {
@@ -277,9 +229,6 @@ export const addInternalUser = (userData: { name: string, nameAr: string, email:
             };
             partnersData.push(newPartnerBaseData);
             
-            translationsCache.en.partnerInfo[newUserId] = { name: userData.name, description: `Internal user with role: ${userData.type}` };
-            translationsCache.ar.partnerInfo[newUserId] = { name: userData.nameAr, description: `مستخدم داخلي بصلاحية: ${userData.type}` };
-            
             const partner = await getPartnerById(newUserId);
             resolve(partner as AdminPartner);
         }, SIMULATED_DELAY);
@@ -289,19 +238,10 @@ export const addInternalUser = (userData: { name: string, nameAr: string, email:
 export const updateUser = (userId: string, updates: { name: string, nameAr: string, email: string, type: PartnerType, status: PartnerStatus }): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(async () => {
-             if (!translationsCache) {
-                await fetchAndCacheTranslations();
-            }
-            if (!translationsCache) {
-                resolve(false);
-                return;
-            }
-            
+            console.warn("Mock API: Updating user translations does not persist in source files.");
             const partnerIndex = partnersData.findIndex(p => p.id === userId);
             if (partnerIndex > -1) {
                 partnersData[partnerIndex] = { ...partnersData[partnerIndex], email: updates.email, type: updates.type, status: updates.status };
-                translationsCache.en.partnerInfo[userId].name = updates.name;
-                translationsCache.ar.partnerInfo[userId].name = updates.nameAr;
                 resolve(true);
             } else {
                 resolve(false);
@@ -313,21 +253,11 @@ export const updateUser = (userId: string, updates: { name: string, nameAr: stri
 export const deletePartner = (userId: string): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(async () => {
-             if (!translationsCache) {
-                await fetchAndCacheTranslations();
-            }
-            
+             console.warn("Mock API: Deleting a user does not remove them from source files.");
             const initialLength = partnersData.length;
             const newData = partnersData.filter(p => p.id !== userId);
             if (newData.length < initialLength) {
-                partnersData.length = 0;
-                Array.prototype.push.apply(partnersData, newData);
-                
-                if (translationsCache) {
-                    delete translationsCache.en.partnerInfo[userId];
-                    delete translationsCache.ar.partnerInfo[userId];
-                }
-
+                partnersData.splice(0, partnersData.length, ...newData);
                 resolve(true);
             } else {
                 resolve(false);

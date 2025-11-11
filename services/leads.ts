@@ -116,8 +116,7 @@ export const deleteLead = (leadId: string): Promise<boolean> => {
             const initialLength = leadsData.length;
             const newData = leadsData.filter(l => l.id !== leadId);
             if (newData.length < initialLength) {
-                leadsData.length = 0;
-                Array.prototype.push.apply(leadsData, newData);
+                leadsData.splice(0, leadsData.length, ...newData);
                 resolve(true);
             } else {
                 resolve(false);

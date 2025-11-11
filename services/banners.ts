@@ -1,4 +1,3 @@
-
 import { bannersData } from '../data/banners';
 import type { Banner } from '../types';
 
@@ -45,9 +44,7 @@ export const deleteBanner = (bannerId: string): Promise<boolean> => {
             const initialLength = bannersData.length;
             const newData = bannersData.filter(b => b.id !== bannerId);
             if (newData.length < initialLength) {
-                // HACK: This is to mutate the imported array in-place. In a real app, this would be a DELETE API call.
-                bannersData.length = 0;
-                Array.prototype.push.apply(bannersData, newData);
+                bannersData.splice(0, bannersData.length, ...newData);
                 resolve(true);
             } else {
                 resolve(false);

@@ -60,10 +60,8 @@ export function useAdminTable<T extends Record<string, any>>({
                 if (typeof aValue === 'number' && typeof bValue === 'number') {
                     compareResult = aValue - bValue;
                 } else {
-                    // FIX: Explicitly convert unknown values to strings before using localeCompare.
-                    const stringA = String(aValue);
-                    const stringB = String(bValue);
-                    compareResult = stringA.localeCompare(stringB);
+                    // FIX: Explicitly cast unknown values to string for localeCompare.
+                    compareResult = String(aValue).localeCompare(String(bValue));
                 }
 
                 return sortConfig.direction === 'ascending' ? compareResult : -compareResult;

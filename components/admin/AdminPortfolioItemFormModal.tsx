@@ -4,9 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Language, PortfolioItem } from '../../types';
 import FormField, { inputClasses, selectClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
-// FIX: Corrected import path from `api` to `services`.
 import { getDecorationCategories } from '../../services/decorations';
-// FIX: Corrected import path from `api` to `services`.
 import { addPortfolioItem, updatePortfolioItem } from '../../services/portfolio';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';

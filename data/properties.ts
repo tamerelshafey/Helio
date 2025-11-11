@@ -168,5 +168,212 @@ export let propertiesData: Property[] = [
       contactMethod: 'direct',
       ownerPhone: '01012345678',
       isInCompound: false,
+    },
+    {
+        id: 'apartment-heliopolis-5',
+        partnerId: 'sodic',
+        projectId: 'proj-3',
+        imageUrl: "https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=75&w=2070&auto=format&fit=crop",
+        imageUrl_small: "https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=75&w=480&auto=format&fit=crop",
+        imageUrl_medium: "https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=75&w=800&auto=format&fit=crop",
+        imageUrl_large: "https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=75&w=1200&auto=format&fit=crop",
+        gallery: [
+            "https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=75&w=2070&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1600607687939-ce8a69d67e20?q=75&w=2070&auto=format&fit=crop",
+        ],
+        status: { en: 'For Sale', ar: 'للبيع' },
+        price: { en: 'EGP 4,200,000', ar: '4,200,000 ج.م' },
+        priceNumeric: 4200000,
+        type: { en: 'Apartment', ar: 'شقة' },
+        title: {
+          ar: 'شقة فاخرة بتشطيب كامل في سوديك إيست',
+          en: 'Luxury Fully Finished Apartment in SODIC East'
+        },
+        address: {
+          ar: 'سوديك إيست، هليوبوليس الجديدة',
+          en: 'SODIC East, New Heliopolis'
+        },
+        description: {
+          ar: 'شقة عصرية في قلب سوديك إيست، تتميز بتشطيبات عالية الجودة وإطلالة مفتوحة. جاهزة للسكن الفوري وتوفر جميع وسائل الراحة والرفاهية.',
+          en: 'A modern apartment in the heart of SODIC East, featuring high-quality finishes and an open view. Ready for immediate occupancy and offers all modern comforts and luxuries.'
+        },
+        beds: 3,
+        baths: 3,
+        area: 195,
+        floor: 5,
+        amenities: {
+          ar: ['نادي رياضي', 'أمن 24/7', 'مصعد', 'إطلالة مفتوحة'],
+          en: ['Shared Health Club', '24/7 Security', 'Elevator', 'Open View']
+        },
+        finishingStatus: { en: 'Fully Finished', ar: 'تشطيب كامل' },
+        installmentsAvailable: true,
+        isInCompound: true,
+        realEstateFinanceAvailable: true,
+        delivery: { isImmediate: true },
+        installments: { downPayment: 420000, monthlyInstallment: 31500, years: 10 },
+        location: { lat: 30.13, lng: 31.67 },
+        listingStartDate: '2024-07-20',
+    },
+    {
+        id: 'villa-heliopolis-6',
+        partnerId: 'capital-group-properties',
+        projectId: 'proj-4',
+        imageUrl: "https://images.unsplash.com/photo-1570129477492-45c003edd2e0?q=75&w=2070&auto=format&fit=crop",
+        imageUrl_small: "https://images.unsplash.com/photo-1570129477492-45c003edd2e0?q=75&w=480&auto=format&fit=crop",
+        imageUrl_medium: "https://images.unsplash.com/photo-1570129477492-45c003edd2e0?q=75&w=800&auto=format&fit=crop",
+        imageUrl_large: "https://images.unsplash.com/photo-1570129477492-45c003edd2e0?q=75&w=1200&auto=format&fit=crop",
+        gallery: [
+            "https://images.unsplash.com/photo-1570129477492-45c003edd2e0?q=75&w=2070&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=75&w=2070&auto=format&fit=crop",
+        ],
+        status: { en: 'For Rent', ar: 'إيجار' },
+        price: { en: 'EGP 55,000 / month', ar: '55,000 ج.م / شهرياً' },
+        priceNumeric: 55000,
+        type: { en: 'Villa', ar: 'فيلا' },
+        title: {
+          ar: 'فيلا مفروشة مع حديقة للإيجار في البروج',
+          en: 'Furnished Villa with Garden for Rent in Al Burouj'
+        },
+        address: {
+          ar: 'كمبوند البروج، طريق الإسماعيلية',
+          en: 'Al Burouj Compound, Ismailia Road'
+        },
+        description: {
+          ar: 'فيلا أنيقة مفروشة بالكامل بأثاث راقٍ وجاهزة للسكن. تتميز بحديقة واسعة وموقع هادئ داخل كمبوند البروج المتكامل.',
+          en: 'An elegant, fully furnished villa with high-end furniture, ready for occupancy. It features a spacious garden and a quiet location within the integrated Al Burouj compound.'
+        },
+        beds: 4,
+        baths: 5,
+        area: 380,
+        amenities: {
+          ar: ['مفروشة بالكامل', 'حديقة خاصة', 'أمن وحراسة', 'جراج خاص'],
+          en: ['Fully Furnished', 'Private Garden', 'Security', 'Private Garage']
+        },
+        finishingStatus: { en: 'Fully Furnished', ar: 'مفروشة بالكامل' },
+        isInCompound: true,
+        delivery: { isImmediate: true },
+        location: { lat: 30.125, lng: 31.65 },
+        listingStartDate: '2024-06-25',
+    },
+    {
+      id: 'apartment-heliopolis-7',
+      partnerId: 'future-real-estate',
+      imageUrl: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=75&w=2070&auto=format&fit=crop",
+      imageUrl_small: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=75&w=480&auto=format&fit=crop",
+      imageUrl_medium: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=75&w=800&auto=format&fit=crop",
+      imageUrl_large: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=75&w=1200&auto=format&fit=crop",
+      gallery: [],
+      status: { en: 'For Sale', ar: 'للبيع' },
+      price: { en: 'EGP 2,100,000', ar: '2,100,000 ج.م' },
+      priceNumeric: 2100000,
+      type: { en: 'Apartment', ar: 'شقة' },
+      title: {
+        ar: 'شقة استلام فوري بسعر مميز',
+        en: 'Apartment with Immediate Delivery at a Great Price'
+      },
+      address: {
+        ar: 'الحي الخامس، هليوبوليس الجديدة',
+        en: '5th District, New Heliopolis'
+      },
+      description: {
+        ar: 'شقة نصف تشطيب بمساحة 165 متر، جاهزة للاستلام الفوري. موقع مميز بالقرب من منطقة الخدمات.',
+        en: 'A semi-finished 165m apartment, ready for immediate delivery. Prime location near the service area.'
+      },
+      beds: 3,
+      baths: 2,
+      area: 165,
+      floor: 4,
+      amenities: {
+        ar: ['مصعد', 'قريبة من الخدمات', 'عدادات منفصلة'],
+        en: ['Elevator', 'Close to Services', 'Separate Meters']
+      },
+      finishingStatus: { en: 'Semi-finished', ar: 'نصف تشطيب' },
+      installmentsAvailable: false,
+      isInCompound: false,
+      realEstateFinanceAvailable: true,
+      delivery: { isImmediate: true },
+      location: { lat: 30.132, lng: 31.67 },
+      listingStartDate: '2024-07-05',
+    },
+    {
+      id: 'duplex-heliopolis-8',
+      partnerId: 'individual-listings',
+      imageUrl: "https://images.unsplash.com/photo-1628744448842-1b8265089602?q=75&w=2070&auto=format&fit=crop",
+      imageUrl_small: "https://images.unsplash.com/photo-1628744448842-1b8265089602?q=75&w=480&auto=format&fit=crop",
+      imageUrl_medium: "https://images.unsplash.com/photo-1628744448842-1b8265089602?q=75&w=800&auto=format&fit=crop",
+      imageUrl_large: "https://images.unsplash.com/photo-1628744448842-1b8265089602?q=75&w=1200&auto=format&fit=crop",
+      gallery: [],
+      status: { en: 'For Sale', ar: 'للبيع' },
+      price: { en: 'EGP 3,500,000', ar: '3,500,000 ج.م' },
+      priceNumeric: 3500000,
+      type: { en: 'Apartment', ar: 'شقة' },
+      title: {
+        ar: 'دوبلكس بحديقة خاصة للبيع',
+        en: 'Duplex with Private Garden for Sale'
+      },
+      address: {
+        ar: 'الحي الثالث، هليوبوليس الجديدة',
+        en: '3rd District, New Heliopolis'
+      },
+      description: {
+        ar: 'دوبلكس أرضي وأول بمساحة 250 متر وحديقة خاصة 80 متر. تشطيب سوبر لوكس، موقع هادئ ومميز.',
+        en: 'Ground and first-floor duplex with an area of 250m and a private 80m garden. Super Lux finishing, in a quiet and distinguished location.'
+      },
+      beds: 4,
+      baths: 3,
+      area: 250,
+      floor: 0,
+      amenities: {
+        ar: ['حديقة خاصة', 'تشطيب سوبر لوكس', 'خصوصية تامة'],
+        en: ['Private Garden', 'Super Lux', 'Complete Privacy']
+      },
+      finishingStatus: { en: 'Super Lux', ar: 'سوبر لوكس' },
+      installmentsAvailable: false,
+      isInCompound: false,
+      realEstateFinanceAvailable: false,
+      delivery: { isImmediate: true },
+      location: { lat: 30.139, lng: 31.665 },
+      listingStartDate: '2024-07-15',
+    },
+     {
+      id: 'villa-heliopolis-9',
+      partnerId: 'heliopolis-developers-group',
+      projectId: 'proj-5',
+      imageUrl: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=75&w=1965&auto=format&fit=crop",
+      imageUrl_small: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=75&w=480&auto=format&fit=crop",
+      imageUrl_medium: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=75&w=800&auto=format&fit=crop",
+      imageUrl_large: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=75&w=1200&auto=format&fit=crop",
+      gallery: [],
+      status: { en: 'For Sale', ar: 'للبيع' },
+      price: { en: 'EGP 6,800,000', ar: '6,800,000 ج.م' },
+      priceNumeric: 6800000,
+      type: { en: 'Villa', ar: 'فيلا' },
+      title: {
+        ar: 'تاون هاوس كورنر في كمبوند قرطبة هايتس',
+        en: 'Corner Townhouse in Korba Heights Compound'
+      },
+      address: {
+        ar: 'كمبوند قرطبة هايتس، هليوبوليس الجديدة',
+        en: 'Korba Heights Compound, New Heliopolis'
+      },
+      description: {
+        ar: 'تاون هاوس كورنر بموقع مميز داخل الكمبوند، نصف تشطيب، مع حديقة جانبية وخلفية. تصميم يضمن الخصوصية الكاملة.',
+        en: 'A corner townhouse in a prime location within the compound, semi-finished, with a side and back garden. Designed for complete privacy.'
+      },
+      beds: 4,
+      baths: 4,
+      area: 320,
+      amenities: {
+        ar: ['حديقة خاصة', 'موقع مميز', 'أمن 24/7'],
+        en: ['Private Garden', 'Prime Location', '24/7 Security']
+      },
+      finishingStatus: { en: 'Semi-finished', ar: 'نصف تشطيب' },
+      installmentsAvailable: true,
+      isInCompound: true,
+      realEstateFinanceAvailable: true,
+      delivery: { isImmediate: false, date: '2025-06' },
+       installments: { downPayment: 1360000, monthlyInstallment: 45333, years: 10 },
+      location: { lat: 30.128, lng: 31.678 },
+      listingStartDate: '2024-05-28',
     }
 ];

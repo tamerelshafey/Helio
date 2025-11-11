@@ -1,6 +1,3 @@
-
-
-
 import { propertyRequestsData } from '../data/propertyRequests';
 import type { AddPropertyRequest, RequestStatus } from '../types';
 import { addNotification } from './notifications';
@@ -60,9 +57,7 @@ export const deletePropertyRequest = (id: string): Promise<boolean> => {
             const initialLength = propertyRequestsData.length;
             const newData = propertyRequestsData.filter(r => r.id !== id);
             if (newData.length < initialLength) {
-                // HACK: This is to mutate the imported array in-place. In a real app, this would be a DELETE API call.
-                propertyRequestsData.length = 0;
-                Array.prototype.push.apply(propertyRequestsData, newData);
+                propertyRequestsData.splice(0, propertyRequestsData.length, ...newData);
                 resolve(true);
             } else {
                 resolve(false);

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { BedIcon, BathIcon, AreaIcon, HeartIcon, HeartIconSolid, FloorIcon, CompoundIcon, TagIcon, BanknotesIcon } from '../icons/Icons';
+import { BedIcon, BathIcon, AreaIcon, HeartIcon, HeartIconSolid, FloorIcon, CompoundIcon, WalletIcon, BanknotesIcon } from '../icons/Icons';
 import type { Property, Language } from '../../types';
 import { useFavorites } from './FavoritesContext';
 import { isCommercial } from '../../utils/propertyUtils';
@@ -20,6 +20,7 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
     imageUrl_large,
     status,
     price,
+    priceNumeric,
     pricePerMeter,
     title,
     beds,
@@ -53,11 +54,30 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
     }
   };
 
+  const displayPricePerMeter = useMemo(() => {
+      // If price per meter is already provided, use it.
+      if (pricePerMeter?.[language]) {
+          return pricePerMeter[language];
+      }
+
+      // Only calculate for properties that are for sale and have valid data.
+      if (status?.en === 'For Sale' && priceNumeric && area && area > 0) {
+          const perMeter = Math.round(priceNumeric / area);
+          if (language === 'ar') {
+              return `${perMeter.toLocaleString('ar-EG')} ج.م/م²`;
+          }
+          return `EGP ${perMeter.toLocaleString('en-US')}/m²`;
+      }
+
+      // Otherwise, don't show anything.
+      return null;
+  }, [pricePerMeter, status, priceNumeric, area, language]);
+
 
   return (
     <Link to={`/properties/${id}`} className="block h-full">
       <Card className="transform hover:-translate-y-2 transition-transform duration-300 group h-full flex flex-col overflow-hidden p-0">
-        <div className="relative">
+        <div className="relative watermarked">
             <picture>
                 <source
                     type="image/webp"
@@ -69,7 +89,8 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
                     srcSet={`${imageUrl_small} 480w, ${imageUrl_medium} 800w, ${imageUrl_large || imageUrl} 1200w`}
                     sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 22vw"
                     alt={title[language]} 
-                    className="w-full h-56 object-cover"
+                    className="w-full h-56 object-cover disable-image-interaction"
+                    onContextMenu={(e) => e.preventDefault()}
                     loading="lazy"
                 />
             </picture>
@@ -95,7 +116,7 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
             </button>
             {installmentsAvailable && isForSale && (
                 <div className="p-2 rounded-full bg-black/50" title={t.propertiesPage.installments}>
-                    <TagIcon className="w-6 h-6 text-white" />
+                    <WalletIcon className="w-6 h-6 text-white" />
                 </div>
             )}
              {realEstateFinanceAvailable && isForSale && (
@@ -107,8 +128,8 @@ const PropertyCard: React.FC<PropertyCardProps> = (props) => {
         </div>
         <CardContent className="p-5 flex flex-col flex-grow">
           <p className="text-2xl font-bold text-amber-500 mb-1">{price[language]}</p>
-          {isForSale && pricePerMeter && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{pricePerMeter[language]}</p>
+          {displayPricePerMeter && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{displayPricePerMeter}</p>
           )}
           <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate mb-1 group-hover:text-amber-500 transition-colors">{title[language]}</h3>
           

@@ -55,9 +55,7 @@ export const deletePortfolioItem = (itemId: string): Promise<boolean> => {
             const initialLength = portfolioData.length;
             const newData = portfolioData.filter(p => p.id !== itemId);
             if (newData.length < initialLength) {
-                // HACK: This is to mutate the imported array in-place. In a real app, this would be a DELETE API call.
-                portfolioData.length = 0;
-                Array.prototype.push.apply(portfolioData, newData);
+                portfolioData.splice(0, portfolioData.length, ...newData);
                 resolve(true);
             } else {
                 resolve(false);

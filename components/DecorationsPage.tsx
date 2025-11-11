@@ -111,20 +111,6 @@ const DecorationsPage: React.FC = () => {
                         </button>
                     </div>
 
-                     {/* AI Estimator CTA */}
-                    <section className="py-16 bg-amber-50 dark:bg-amber-900/10 rounded-lg">
-                        <div className="container mx-auto px-6 text-center">
-                            <h2 className="text-3xl font-bold text-amber-600 dark:text-amber-400">{t.aiEstimator.ctaTitle}</h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 mt-3 max-w-2xl mx-auto">{t.aiEstimator.ctaSubtitle}</p>
-                            <Link
-                                to="/cost-estimator"
-                                className="mt-6 inline-block bg-amber-500 text-gray-900 font-bold px-8 py-4 rounded-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20 transform hover:scale-105"
-                            >
-                                {t.aiEstimator.ctaButton}
-                            </Link>
-                        </div>
-                    </section>
-
                     <BannerDisplay location="decorations" />
                    
                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 animate-fadeIn mt-12">

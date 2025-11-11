@@ -13,9 +13,6 @@ const Lightbox: React.FC<LightboxProps> = ({ images, startIndex, onClose }) => {
     const { language } = useLanguage();
     const [currentIndex, setCurrentIndex] = useState(startIndex);
     const modalRef = useRef<HTMLDivElement>(null);
-    const watermarkText = "ONLY HELIO";
-    const watermarkSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150"><text x="10" y="50" font-size="16" fill="white" fill-opacity="0.2" transform="rotate(-30, 50, 50)">${watermarkText}</text></svg>`;
-    const watermarkUrl = `data:image/svg+xml;base64,${btoa(watermarkSvg)}`;
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -87,20 +84,13 @@ const Lightbox: React.FC<LightboxProps> = ({ images, startIndex, onClose }) => {
             )}
 
             <div className="relative w-full h-full flex items-center justify-center">
-                <div className="relative">
+                <div className="relative watermarked">
                     <img
                         src={images[currentIndex]}
                         alt={`View ${currentIndex + 1} of ${images.length}`}
-                        className="max-w-[90vw] max-h-[90vh] object-contain select-none"
+                        className="max-w-[90vw] max-h-[90vh] object-contain select-none disable-image-interaction"
                         onContextMenu={(e) => e.preventDefault()}
                     />
-                    <div
-                        className="absolute inset-0 pointer-events-none"
-                        style={{
-                            backgroundImage: `url('${watermarkUrl}')`,
-                            backgroundRepeat: 'repeat',
-                        }}
-                    ></div>
                 </div>
             </div>
             

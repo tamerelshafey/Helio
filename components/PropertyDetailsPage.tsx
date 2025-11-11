@@ -161,6 +161,29 @@ const PropertyDetailsPage: React.FC = () => {
         return new Map((amenities || []).map(a => [a.en, a[language]]));
     }, [amenities, language]);
 
+    const isForSale = useMemo(() => property?.status.en === 'For Sale', [property]);
+
+    const displayPricePerMeter = useMemo(() => {
+        if (!property) return null;
+        
+        // If price per meter is already provided, use it.
+        if (property.pricePerMeter?.[language]) {
+            return property.pricePerMeter[language];
+        }
+
+        // Only calculate for properties that are for sale and have valid data.
+        if (isForSale && property.priceNumeric && property.area && property.area > 0) {
+            const perMeter = Math.round(property.priceNumeric / property.area);
+            if (language === 'ar') {
+                return `${perMeter.toLocaleString('ar-EG')} ج.م/م²`;
+            }
+            return `EGP ${perMeter.toLocaleString('en-US')}/m²`;
+        }
+
+        // Otherwise, don't show anything.
+        return null;
+    }, [property, isForSale, language]);
+
     if (isLoading) {
         return <PropertyDetailsSkeleton />;
     }
@@ -182,8 +205,7 @@ const PropertyDetailsPage: React.FC = () => {
     const pageDescription = property.description[language].substring(0, 160);
     const pageUrl = window.location.href;
     const imageUrl = property.imageUrl_large || property.imageUrl;
-
-    const isForSale = property.status.en === 'For Sale';
+    
     const isCommercialProp = isCommercial(property);
     const currentGallery = [property.imageUrl, ...property.gallery].filter((url, index, self) => url && self.indexOf(url) === index);
     const isDefaultImage = mainImage === property.imageUrl;
@@ -201,7 +223,6 @@ const PropertyDetailsPage: React.FC = () => {
     }
     
     const displayedAmenities = property.amenities.en.map(amenityEn => amenityMap.get(amenityEn) || amenityEn);
-
 
     return (
         <>
@@ -234,7 +255,7 @@ const PropertyDetailsPage: React.FC = () => {
                     <div className="lg:col-span-2 space-y-8">
                         {/* Image Gallery */}
                         <div>
-                            <div className="relative mb-4">
+                            <div className="relative mb-4 watermarked rounded-lg shadow-lg">
                                <button 
                                     onClick={() => openLightbox(currentGallery.indexOf(mainImage ?? currentGallery[0]))}
                                     className="w-full block"
@@ -253,7 +274,8 @@ const PropertyDetailsPage: React.FC = () => {
                                             srcSet={isDefaultImage ? `${property.imageUrl_small} 480w, ${property.imageUrl_medium} 800w, ${property.imageUrl_large || property.imageUrl} 1200w` : undefined}
                                             sizes={isDefaultImage ? "(max-width: 1024px) 90vw, 60vw" : undefined}
                                             alt={property.title[language]} 
-                                            className="w-full h-[500px] object-cover rounded-lg shadow-lg hover:opacity-90 transition-opacity"
+                                            className="w-full h-[500px] object-cover rounded-lg hover:opacity-90 transition-opacity disable-image-interaction"
+                                            onContextMenu={(e) => e.preventDefault()}
                                             loading="lazy"
                                         />
                                     </picture>
@@ -264,18 +286,20 @@ const PropertyDetailsPage: React.FC = () => {
                             </div>
                             <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
                                 {currentGallery.map((img, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => setMainImage(img)}
-                                        className="block"
-                                        aria-label={language === 'ar' ? `عرض الصورة المصغرة ${index + 1}` : `View thumbnail ${index + 1}`}
-                                    >
-                                        <img 
-                                            src={img}
-                                            alt={`Thumbnail ${index + 1}`}
-                                            className={`w-full h-24 object-cover rounded-md cursor-pointer border-2 transition-all ${mainImage === img ? 'border-amber-500' : 'border-transparent hover:border-amber-400'}`}
-                                        />
-                                    </button>
+                                    <div key={index} className="relative watermarked rounded-md">
+                                        <button
+                                            onClick={() => setMainImage(img)}
+                                            className="block w-full h-full"
+                                            aria-label={language === 'ar' ? `عرض الصورة المصغرة ${index + 1}` : `View thumbnail ${index + 1}`}
+                                        >
+                                            <img 
+                                                src={img}
+                                                alt={`Thumbnail ${index + 1}`}
+                                                className={`w-full h-24 object-cover rounded-md cursor-pointer border-2 transition-all disable-image-interaction ${mainImage === img ? 'border-amber-500' : 'border-transparent hover:border-amber-400'}`}
+                                                onContextMenu={(e) => e.preventDefault()}
+                                            />
+                                        </button>
+                                    </div>
                                 ))}
                             </div>
                         </div>
@@ -371,8 +395,8 @@ const PropertyDetailsPage: React.FC = () => {
                                 <div className="flex justify-between items-start mb-4">
                                     <div>
                                         <p className="text-3xl font-bold text-amber-500">{property.price[language]}</p>
-                                        {isForSale && property.pricePerMeter && (
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">{property.pricePerMeter[language]}</p>
+                                        {displayPricePerMeter && (
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{displayPricePerMeter}</p>
                                         )}
                                     </div>
                                     <div className="flex items-center gap-2 flex-shrink-0">

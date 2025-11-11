@@ -16,8 +16,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onToggleQuietZone }) => {
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
     const { currentUser, logout, hasPermission } = useAuth();
-    const { language, setLanguage: onLanguageChange, t } = useLanguage();
-    const { theme, toggleTheme: onThemeChange } = useTheme();
+    const { language, setLanguage, t } = useLanguage();
+    const { theme, toggleTheme } = useTheme();
 
     const dashboardPath = useMemo(() => {
         if (!currentUser) return '/login';
@@ -87,14 +87,14 @@ export const Header: React.FC<HeaderProps> = ({ onToggleQuietZone }) => {
                             <QuoteIcon className="h-6 w-6" />
                         </button>
                         <button
-                            onClick={onThemeChange}
+                            onClick={toggleTheme}
                             className="text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors"
                             aria-label="Toggle theme"
                         >
                             {theme === 'light' ? <MoonIcon className="h-6 w-6" /> : <SunIcon className="h-6 w-6" />}
                         </button>
                         <button
-                            onClick={() => onLanguageChange(language === 'en' ? 'ar' : 'en')}
+                            onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
                             className="hidden lg:flex items-center justify-center h-10 w-10 rounded-full border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 font-semibold text-lg hover:border-amber-500 hover:text-amber-500 transition-colors"
                             aria-label="Toggle language"
                         >

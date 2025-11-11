@@ -43,7 +43,7 @@ export const adminNavLinks: NavLinkItem[] = [
   { name: t => t.nav.siteContent, href: '/admin/content', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_SITE_CONTENT, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },
   { name: t => t.nav.finishingServices, href: '/admin/finishing-services', icon: WrenchScrewdriverIcon, permission: Permission.MANAGE_SITE_CONTENT, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },
   { name: t => t.nav.propertyFilters, href: '/admin/filters', icon: CogIcon, permission: Permission.MANAGE_FILTERS, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },
-  { name: t => t.nav.aiEstimatorSettings, href: '/admin/ai-estimator-settings', icon: SparklesIcon, permission: Permission.MANAGE_SITE_CONTENT, roles: [Role.SUPER_ADMIN, Role.CONTENT_MANAGER], group: 'Content' },
+  { name: t => t.nav.aiEstimatorSettings, href: '/admin/ai-estimator-settings', icon: SparklesIcon, permission: Permission.MANAGE_SITE_CONTENT, roles: [Role.SUPER_ADMIN], group: 'Content' },
 
 
   // --- Group: System ---

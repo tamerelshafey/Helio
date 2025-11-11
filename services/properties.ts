@@ -190,9 +190,7 @@ export const deleteProperty = (propertyId: string): Promise<boolean> => {
             const initialLength = propertiesData.length;
             const newData = propertiesData.filter(p => p.id !== propertyId);
             if (newData.length < initialLength) {
-                // HACK: This is to mutate the imported array in-place. In a real app, this would be a DELETE API call.
-                propertiesData.length = 0;
-                Array.prototype.push.apply(propertiesData, newData);
+                propertiesData.splice(0, propertiesData.length, ...newData);
                 resolve(true);
             } else {
                 resolve(false);

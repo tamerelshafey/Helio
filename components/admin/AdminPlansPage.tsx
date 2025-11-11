@@ -1,10 +1,7 @@
-
-
 import React, { useState } from 'react';
 import type { SubscriptionPlan, SubscriptionPlanDetails, PlanCategory } from '../../types';
 import AdminPlanEditModal from './AdminPlanEditModal';
 import { CheckCircleIcon } from '../icons/Icons';
-// FIX: Corrected import path from `api` to `services`.
 import { getPlans } from '../../services/plans';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';

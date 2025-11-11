@@ -1,4 +1,3 @@
-
 import { decorationCategoriesData } from '../data/decorationCategories';
 import type { DecorationCategory } from '../types';
 
@@ -45,8 +44,7 @@ export const deleteDecorationCategory = (categoryId: string): Promise<boolean> =
             const initialLength = decorationCategoriesData.length;
             const newData = decorationCategoriesData.filter(c => c.id !== categoryId);
             if (newData.length < initialLength) {
-                decorationCategoriesData.length = 0;
-                Array.prototype.push.apply(decorationCategoriesData, newData);
+                decorationCategoriesData.splice(0, decorationCategoriesData.length, ...newData);
                 resolve(true);
             } else {
                 resolve(false);

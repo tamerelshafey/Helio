@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../../types';
 import FormField, { inputClasses } from '../shared/FormField';
 import { CloseIcon } from '../icons/Icons';
-// FIX: Corrected import path from `api` to `services`.
 import { getPlans, updatePlan as apiUpdatePlan } from '../../services/plans';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';

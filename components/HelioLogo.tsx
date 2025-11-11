@@ -30,11 +30,11 @@ export const HelioLogo: React.FC<LogoProps> = ({ className }) => {
                 stroke="currentColor"
                 strokeWidth="10"
                 fill="none"
-                strokeLinecap="round"
+                strokeLineCap="round"
             />
 
             {/* Base line */}
-            <line x1="10" y1="90" x2="90" y2="90" stroke="currentColor" strokeWidth="10" strokeLinecap="round" />
+            <line x1="10" y1="90" x2="90" y2="90" stroke="currentColor" strokeWidth="10" strokeLineCap="round" />
         </svg>
     );
 };

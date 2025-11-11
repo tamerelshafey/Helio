@@ -306,20 +306,24 @@ const PropertyFormPage: React.FC = () => {
                      <div className="md:col-span-2">
                         <FormField label={td.descriptionAr} id="description.ar">
                             <div className="relative">
-                                <textarea {...register("description.ar")} className={`${inputClasses} pr-12`} rows={4} />
-                                <button type="button" onClick={() => openAiHelper('description.ar')} className="absolute top-2 right-2 p-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full hover:bg-amber-200">
-                                    <SparklesIcon className="w-5 h-5" />
-                                </button>
+                                <textarea {...register("description.ar")} className={`${inputClasses} ${currentUser?.role === Role.SUPER_ADMIN ? 'pr-12' : ''}`} rows={4} />
+                                {currentUser?.role === Role.SUPER_ADMIN && (
+                                    <button type="button" onClick={() => openAiHelper('description.ar')} className="absolute top-2 right-2 p-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full hover:bg-amber-200">
+                                        <SparklesIcon className="w-5 h-5" />
+                                    </button>
+                                )}
                             </div>
                         </FormField>
                     </div>
                      <div className="md:col-span-2">
                         <FormField label={td.descriptionEn} id="description.en">
                              <div className="relative">
-                                <textarea {...register("description.en")} className={`${inputClasses} pr-12`} rows={4} />
-                                <button type="button" onClick={() => openAiHelper('description.en')} className="absolute top-2 right-2 p-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full hover:bg-amber-200">
-                                    <SparklesIcon className="w-5 h-5" />
-                                </button>
+                                <textarea {...register("description.en")} className={`${inputClasses} ${currentUser?.role === Role.SUPER_ADMIN ? 'pr-12' : ''}`} rows={4} />
+                                {currentUser?.role === Role.SUPER_ADMIN && (
+                                    <button type="button" onClick={() => openAiHelper('description.en')} className="absolute top-2 right-2 p-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full hover:bg-amber-200">
+                                        <SparklesIcon className="w-5 h-5" />
+                                    </button>
+                                )}
                             </div>
                         </FormField>
                     </div>

@@ -1,6 +1,6 @@
-
 import React, { useState, useMemo } from 'react';
-import type { PartnerStatus, AdminPartner, PartnerType } from '../../types';
+// FIX: Import `Role` as a value, not a type.
+import { type PartnerStatus, type AdminPartner, type PartnerType, Role } from '../../types';
 import { deletePartner as apiDeletePartner } from '../../services/partners';
 import { useQuery } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../../services/partners';
@@ -35,7 +35,7 @@ const AdminUsersPage: React.FC = () => {
     const [modalState, setModalState] = useState<{ isOpen: boolean; userToEdit?: AdminPartner }>({ isOpen: false });
     const [userToDelete, setUserToDelete] = useState<AdminPartner | null>(null);
 
-    const users = useMemo(() => (partners || []).filter(p => p.id !== 'admin-user'), [partners]);
+    const users = useMemo(() => (partners || []).filter(p => p.role !== Role.SUPER_ADMIN), [partners]);
 
     const {
         paginatedItems: paginatedUsers,

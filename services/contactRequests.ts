@@ -1,5 +1,3 @@
-
-
 import { contactRequestsData } from '../data/contactRequests';
 import type { ContactRequest, RequestStatus } from '../types';
 import { addNotification } from './notifications';
@@ -59,9 +57,7 @@ export const deleteContactRequest = (id: string): Promise<boolean> => {
             const initialLength = contactRequestsData.length;
             const newData = contactRequestsData.filter(r => r.id !== id);
             if (newData.length < initialLength) {
-                // HACK: This is to mutate the imported array in-place. In a real app, this would be a DELETE API call.
-                contactRequestsData.length = 0;
-                Array.prototype.push.apply(contactRequestsData, newData);
+                contactRequestsData.splice(0, contactRequestsData.length, ...newData);
                 resolve(true);
             } else {
                 resolve(false);

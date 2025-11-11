@@ -12,7 +12,6 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Permission } from './types';
 import ToastContainer from './components/shared/ToastContainer';
 import BackToTopButton from './components/shared/BackToTopButton';
-import Chatbot from './components/Chatbot';
 
 // Lazy load all page components for code splitting
 const HomePage = React.lazy(() => import('./components/HomePage'));
@@ -65,7 +64,6 @@ const AdminUsersPage = React.lazy(() => import('./components/admin/AdminUsersPag
 const AdminRolesPage = React.lazy(() => import('./components/admin/AdminRolesPage'));
 const AdminFinishingServicesPage = React.lazy(() => import('./components/admin/AdminFinishingServicesPage'));
 const AdminAIEstimatorPage = React.lazy(() => import('./components/admin/AdminAIEstimatorPage'));
-const AIEstimatorPage = React.lazy(() => import('./components/AIEstimatorPage'));
 const NotFoundPage = React.lazy(() => import('./components/NotFoundPage'));
 
 // New lazy imports for refactored decorations management
@@ -108,7 +106,6 @@ const App: React.FC = () => {
                             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                             <Route path="/terms-of-use" element={<TermsOfUsePage />} />
                             <Route path="/request-service" element={<ServiceRequestPage />} />
-                            <Route path="/cost-estimator" element={<AIEstimatorPage />} />
 
                             {/* ================================================================== */}
                             {/*                          Authentication Routes                     */}
@@ -194,7 +191,6 @@ const App: React.FC = () => {
                 <Footer />
                 {isQuietZoneActive && <QuietZone onClose={() => setIsQuietZoneActive(false)} />}
                 <ToastContainer />
-                <Chatbot />
                 <BackToTopButton />
             </div>
         </FavoritesProvider>

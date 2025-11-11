@@ -2,7 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
 import { ChevronDoubleLeftIcon, ChevronDoubleRightIcon, LogoutIcon } from '../icons/Icons';
-import type { Partner, Permission } from '../../types';
+// FIX: Import `Permission` as a value, not a type.
+import { type Partner, Permission } from '../../types';
+import GlobalSearch from '../admin/GlobalSearch';
 
 interface NavLinkItem {
   name: (t: any) => string;
@@ -10,17 +12,17 @@ interface NavLinkItem {
   icon: React.FC<{ className?: string }>;
   exact?: boolean;
   group: string;
+  permission: Permission;
 }
 
 interface DashboardSidebarProps {
   user: Partner;
   navLinks: NavLinkItem[];
   onLogout: () => void;
-  pageTitle: string;
   hasPermission: (permission: Permission) => boolean;
 }
 
-const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ user, navLinks, onLogout, pageTitle, hasPermission }) => {
+const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ user, navLinks, onLogout, hasPermission }) => {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem('sidebarCollapsed') === 'true');
     const { language, t } = useLanguage();
     const isRTL = language === 'ar';
@@ -51,11 +53,10 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ user, navLinks, onL
     }, [visibleNavLinks]);
 
     const partnerName = t.partnerInfo[user.id]?.name || user.name;
-    const dashboardTitle = isFullAdmin(pageTitle) ? (t.partnerInfo[user.id]?.name || user.name) : t.dashboard.title;
-
-    function isFullAdmin(title: string): boolean {
-        return title === t.adminDashboard.title;
-    }
+    
+    // Determine if it's an admin dashboard by checking for a core admin permission
+    const isAdminDashboard = hasPermission(Permission.MANAGE_USERS);
+    const dashboardTitle = isAdminDashboard ? (t.partnerInfo[user.id]?.name || user.name) : t.dashboard.title;
 
     return (
         <aside className={`dashboard-sidebar flex-shrink-0 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-4 flex flex-col h-[calc(100vh-80px)] sticky top-20 transition-all duration-300 ${isSidebarCollapsed ? 'w-24' : 'w-72'} ${isRTL ? 'border-l' : 'border-r'}`}>

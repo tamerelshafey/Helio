@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { PartnerStatus, SubscriptionPlan, AdminPartner, PartnerType } from '../../types';

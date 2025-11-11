@@ -46,8 +46,8 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, ...props }) => {
     const { 
       id, onToggleQuietZone, currentUser, dashboardPath, logout, hasPermission 
     } = props;
-    const { language, setLanguage: onLanguageChange, t } = useLanguage();
-    const { theme, toggleTheme: onThemeChange } = useTheme();
+    const { language, setLanguage, t } = useLanguage();
+    const { theme, toggleTheme } = useTheme();
     const isRTL = language === 'ar';
     
     useEffect(() => {
@@ -141,10 +141,10 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, ...props }) => {
                 
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
                      <div className="flex justify-around items-center pt-2">
-                        <button onClick={() => onLanguageChange(language === 'en' ? 'ar' : 'en')} className="font-semibold text-lg text-gray-600 dark:text-gray-300 hover:text-amber-500">
+                        <button onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')} className="font-semibold text-lg text-gray-600 dark:text-gray-300 hover:text-amber-500">
                             {language === 'en' ? 'العربية' : 'English'}
                         </button>
-                        <button onClick={onThemeChange} className="text-gray-500 dark:text-gray-400 hover:text-amber-500">
+                        <button onClick={toggleTheme} className="text-gray-500 dark:text-gray-400 hover:text-amber-500">
                             {theme === 'light' ? <MoonIcon className="h-7 w-7" /> : <SunIcon className="h-7 w-7" />}
                         </button>
                      </div>

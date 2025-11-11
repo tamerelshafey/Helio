@@ -1,4 +1,3 @@
-
 import { propertyTypesData, finishingStatusesData, amenitiesData } from '../data/filterOptions';
 import type { FilterOption } from '../types';
 
@@ -44,9 +43,7 @@ const mutateOptions = (
                     const initialLength = dataArray.length;
                     const newData = dataArray.filter(i => i.id !== itemId);
                     if (newData.length < initialLength) {
-                        // HACK: This is to mutate the imported array in-place. In a real app, this would be a DELETE API call.
-                        dataArray.length = 0;
-                        Array.prototype.push.apply(dataArray, newData);
+                        dataArray.splice(0, dataArray.length, ...newData);
                         resolve(true);
                     } else {
                         resolve(false);
