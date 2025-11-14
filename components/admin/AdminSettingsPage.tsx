@@ -1,9 +1,11 @@
 
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, SiteContent } from '../../types';
-import { inputClasses } from '../shared/FormField';
-import { CloseIcon, PhotoIcon } from '../icons/Icons';
+import { inputClasses } from '../ui/FormField';
+// FIX: Corrected import path for Icons
+import { CloseIcon, PhotoIcon } from '../ui/Icons';
 import { getContent, updateContent as updateSiteContent } from '../../services/content';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../shared/ToastContext';

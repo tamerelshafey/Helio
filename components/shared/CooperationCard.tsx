@@ -1,6 +1,7 @@
+
 import React from 'react';
 import type { Language, SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../../types';
-import { CheckCircleIcon } from '../icons/Icons';
+import { CheckCircleIcon } from '../ui/Icons';
 import { useLanguage } from './LanguageContext';
 import { Card, CardContent } from '../ui/Card';
 

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getAllProperties } from '../../services/properties';
 import { getAllProjects } from '../../services/projects';
-import { ClipboardDocumentListIcon, BuildingIcon, CubeIcon } from '../icons/Icons';
+import { ClipboardDocumentListIcon, BuildingIcon, CubeIcon } from '../ui/Icons';
 import StatCard from '../shared/StatCard';
 import { isListingActive } from '../../utils/propertyUtils';
 import { useLanguage } from '../shared/LanguageContext';

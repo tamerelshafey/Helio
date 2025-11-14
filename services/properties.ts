@@ -1,10 +1,17 @@
+
 // Note: This is a mock API. In a real application, these functions would make network requests
 // to a backend service. The data is modified in-memory for simulation purposes.
 
-import { propertiesData } from '../data/properties';
+import { propertiesData as initialPropertiesData } from '../data/properties';
 import { projectsData } from '../data/projects';
+import { partnersData } from '../data/partners';
+import { enTranslations } from '../data/translations';
 import type { Property, PropertyFiltersType } from '../types';
 import { isListingActive } from '../utils/propertyUtils';
+
+// Create a mutable, in-memory copy of the data to simulate a database.
+let propertiesData: Property[] = [...initialPropertiesData];
+
 
 const SIMULATED_DELAY = 300;
 
@@ -12,11 +19,12 @@ const populatePropertyDetails = (property: Property): Property => {
   let populatedProperty = { ...property };
 
   // Populate partner info
-  // Note: getPartnerById is async now, but for this internal sync function, we'll adapt
-  // In a real backend, this would be a JOIN query.
-  // For the mock, we assume partner data is available synchronously for this helper.
-  // A proper async populate would require changing all getters.
-  // This approach is a practical compromise for the mock setup.
+  const partner = partnersData.find(p => p.id === property.partnerId);
+  if (partner) {
+      const partnerInfo = (enTranslations.partnerInfo as any)[partner.id];
+      populatedProperty.partnerName = partnerInfo ? partnerInfo.name : partner.id;
+      populatedProperty.partnerImageUrl = partner.imageUrl;
+  }
 
   // Populate project info
   if (property.projectId) {
@@ -41,7 +49,7 @@ export const getAllProperties = (): Promise<Property[]> => {
 export const getProperties = (): Promise<Property[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(propertiesData.filter(isListingActive).map(populatePropertyDetails));
+      resolve(propertiesData.filter(p => p.listingStatus === 'active').map(populatePropertyDetails));
     }, SIMULATED_DELAY);
   });
 };
@@ -57,7 +65,7 @@ export const getPaginatedProperties = (options: {
 
       // Start with all active properties
       const activeProperties = propertiesData
-        .filter(isListingActive)
+        .filter(p => p.listingStatus === 'active')
         .map(populatePropertyDetails);
 
       // Apply filters from PropertiesPage
@@ -138,8 +146,6 @@ export const getPropertyById = (id: string): Promise<Property | undefined> => {
     setTimeout(() => {
       const property = propertiesData.find(p => p.id === id);
       if (property) {
-        // For public view, we might only want to show active listings, but for direct links,
-        // it's better to show the details regardless of active status.
         resolve(populatePropertyDetails(property));
       } else {
         resolve(undefined)
@@ -151,7 +157,7 @@ export const getPropertyById = (id: string): Promise<Property | undefined> => {
 export const getFeaturedProperties = (): Promise<Property[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(propertiesData.filter(isListingActive).slice(0, 4).map(populatePropertyDetails));
+      resolve(propertiesData.filter(p => p.listingStatus === 'active').slice(0, 4).map(populatePropertyDetails));
     }, SIMULATED_DELAY);
   });
 };
@@ -188,9 +194,8 @@ export const deleteProperty = (propertyId: string): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             const initialLength = propertiesData.length;
-            const newData = propertiesData.filter(p => p.id !== propertyId);
-            if (newData.length < initialLength) {
-                propertiesData.splice(0, propertiesData.length, ...newData);
+            propertiesData = propertiesData.filter(p => p.id !== propertyId);
+            if (propertiesData.length < initialLength) {
                 resolve(true);
             } else {
                 resolve(false);

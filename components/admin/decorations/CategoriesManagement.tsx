@@ -1,27 +1,40 @@
 
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { DecorationCategory } from '../../../types';
-import { useQuery } from '@tanstack/react-query';
 import { getDecorationCategories, deleteDecorationCategory as apiDeleteDecorationCategory } from '../../../services/decorations';
 import AdminDecorationCategoryFormModal from '../AdminDecorationCategoryFormModal';
 import { useLanguage } from '../../shared/LanguageContext';
+import { useToast } from '../../shared/ToastContext';
 
 const CategoriesManagement: React.FC = () => {
     const { language, t } = useLanguage();
     const t_decor = t.adminDashboard.decorationsManagement;
-    const { data: categories, refetch: refetchCategories, isLoading: loading } = useQuery({ queryKey: ['decorationCategories'], queryFn: getDecorationCategories });
+    const { data: categories, isLoading: loading } = useQuery({ queryKey: ['decorationCategories'], queryFn: getDecorationCategories });
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
     const [modalState, setModalState] = useState<{ isOpen: boolean; categoryToEdit?: DecorationCategory }>({ isOpen: false });
+
+    const deleteMutation = useMutation({
+        mutationFn: apiDeleteDecorationCategory,
+        onSuccess: () => {
+            showToast('Category deleted successfully!', 'success');
+            queryClient.invalidateQueries({ queryKey: ['decorationCategories'] });
+        },
+        onError: () => {
+            showToast('Failed to delete category.', 'error');
+        }
+    });
 
     const handleDelete = async (categoryId: string) => {
         if (window.confirm(t_decor.confirmDelete.replace('item', 'category'))) {
-            await apiDeleteDecorationCategory(categoryId);
-            refetchCategories();
+            deleteMutation.mutate(categoryId);
         }
     };
 
     const handleSave = () => {
         setModalState({ isOpen: false });
-        refetchCategories();
+        queryClient.invalidateQueries({ queryKey: ['decorationCategories'] });
     };
 
     return (
@@ -46,7 +59,7 @@ const CategoriesManagement: React.FC = () => {
                             </div>
                             <div className="space-x-4">
                                 <button onClick={() => setModalState({ isOpen: true, categoryToEdit: cat })} className="font-medium text-amber-600 hover:underline">{t.adminShared.edit}</button>
-                                <button onClick={() => handleDelete(cat.id)} className="font-medium text-red-600 hover:underline">{t.adminShared.delete}</button>
+                                <button onClick={() => handleDelete(cat.id)} disabled={deleteMutation.isPending} className="font-medium text-red-600 hover:underline disabled:opacity-50">{t.adminShared.delete}</button>
                             </div>
                         </li>
                     ))}

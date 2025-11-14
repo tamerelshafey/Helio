@@ -1,8 +1,6 @@
-
-
 import React from 'react';
 import type { SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../types';
-import { CheckCircleIcon } from './icons/Icons';
+import { CheckCircleIcon } from './ui/Icons';
 import { getPlans } from '../services/plans';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from './shared/LanguageContext';

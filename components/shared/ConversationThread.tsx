@@ -1,19 +1,19 @@
 
 
-
-
 import React, { useState, useRef, useEffect } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import type { Lead, LeadMessage } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import { inputClasses } from './FormField';
+import { inputClasses } from '../ui/FormField';
 import { useToast } from './ToastContext';
 import { addMessageToLead } from '../../services/leads';
 import { useLanguage } from './LanguageContext';
 import { Role } from '../../types';
+import { Button } from '../ui/Button';
 
 interface ConversationThreadProps {
   lead: Lead;
-  onMessageSent: () => void; // Callback to trigger refetch
+  onMessageSent: () => void;
 }
 
 const ConversationThread: React.FC<ConversationThreadProps> = ({ lead, onMessageSent }) => {
@@ -23,34 +23,35 @@ const ConversationThread: React.FC<ConversationThreadProps> = ({ lead, onMessage
     
     const [newMessage, setNewMessage] = useState('');
     const [messageType, setMessageType] = useState<'message' | 'note'>('message');
-    const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [lead.messages]);
 
+    const mutation = useMutation({
+        mutationFn: (messageData: Omit<LeadMessage, 'id' | 'timestamp'>) => addMessageToLead(lead.id, messageData),
+        onSuccess: () => {
+            setNewMessage('');
+            onMessageSent();
+        },
+        onError: () => {
+            showToast('Failed to send message.', 'error');
+        }
+    });
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim() || !currentUser) return;
         
-        setIsSending(true);
-        try {
-            const senderType = currentUser.role === Role.SUPER_ADMIN || currentUser.role.includes('_manager') ? 'admin' : 'partner';
-
-            await addMessageToLead(lead.id, {
-                sender: senderType,
-                senderId: currentUser.id,
-                type: messageType,
-                content: newMessage,
-            });
-            setNewMessage('');
-            onMessageSent(); // Trigger parent refetch
-        } catch (error) {
-            showToast('Failed to send message.', 'error');
-        } finally {
-            setIsSending(false);
-        }
+        const senderType = currentUser.role === Role.SUPER_ADMIN || currentUser.role.includes('_manager') ? 'admin' : 'partner';
+        
+        mutation.mutate({
+            sender: senderType,
+            senderId: currentUser.id,
+            type: messageType,
+            content: newMessage,
+        });
     };
     
     const isPartnerView = currentUser?.role.includes('PARTNER');
@@ -109,7 +110,7 @@ const ConversationThread: React.FC<ConversationThreadProps> = ({ lead, onMessage
                     placeholder={messageType === 'message' ? 'Message to client...' : 'Internal note...'}
                     className={`${inputClasses} mb-2`}
                     rows={3}
-                    disabled={isSending}
+                    disabled={mutation.isPending}
                 />
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-4 text-sm">
@@ -122,9 +123,9 @@ const ConversationThread: React.FC<ConversationThreadProps> = ({ lead, onMessage
                             Internal Note
                         </label>
                     </div>
-                    <button type="submit" disabled={isSending || !newMessage.trim()} className="bg-amber-500 text-gray-900 font-semibold px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
-                        {isSending ? 'Sending...' : 'Send'}
-                    </button>
+                    <Button type="submit" isLoading={mutation.isPending} disabled={!newMessage.trim()}>
+                        Send
+                    </Button>
                 </div>
             </form>
         </div>

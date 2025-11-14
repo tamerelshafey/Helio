@@ -1,15 +1,18 @@
 
 import React from 'react';
-import { NavLink, Outlet, Navigate } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { useLanguage } from '../../shared/LanguageContext';
 
 const DecorationsLayout: React.FC = () => {
     const { language, t } = useLanguage();
     const t_decor = t.adminDashboard.decorationsManagement;
+    const t_nav = t.adminDashboard.nav;
 
     const tabs = [
-        { name: t_decor.portfolioTab, href: 'portfolio' },
-        { name: t_decor.categoriesTab, href: 'categories' },
+        { name: t_nav.dashboard, href: '/admin/decorations-management', exact: true },
+        { name: t_nav.decorationsRequests, href: '/admin/decorations-management/requests', exact: false },
+        { name: t_decor.portfolioTab, href: '/admin/decorations-management/portfolio', exact: false },
+        { name: t_decor.categoriesTab, href: '/admin/decorations-management/categories', exact: false },
     ];
 
     const baseClasses = "px-4 py-3 font-semibold text-md border-b-4 transition-colors duration-200";
@@ -27,6 +30,7 @@ const DecorationsLayout: React.FC = () => {
                         <NavLink
                             key={tab.href}
                             to={tab.href}
+                            end={tab.exact}
                             className={({ isActive }) => `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
                         >
                             {tab.name}

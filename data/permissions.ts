@@ -60,6 +60,7 @@ export const rolePermissions: Map<Role, Permission[]> = new Map([
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_ALL_PROPERTIES,
       Permission.MANAGE_ALL_PROJECTS,
+      Permission.MANAGE_FILTERS,
     ],
   ],
   [
@@ -68,6 +69,9 @@ export const rolePermissions: Map<Role, Permission[]> = new Map([
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_ALL_PARTNERS,
       Permission.MANAGE_PARTNER_REQUESTS,
+      Permission.MANAGE_INQUIRY_ROUTING,
+      Permission.MANAGE_PLANS,
+      Permission.MANAGE_AUTOMATION,
     ],
   ],
    [
@@ -77,6 +81,7 @@ export const rolePermissions: Map<Role, Permission[]> = new Map([
       Permission.MANAGE_BANNERS,
       Permission.MANAGE_SITE_CONTENT,
       Permission.MANAGE_FILTERS,
+      Permission.MANAGE_PLANS,
     ],
   ],
 ]);

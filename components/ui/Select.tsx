@@ -1,5 +1,7 @@
+
+
 import React from 'react';
-import { ChevronDownIcon } from '../icons/Icons';
+import { ChevronDownIcon } from './Icons';
 
 const selectWrapperVariants = 'relative';
 const selectVariants =
@@ -15,7 +17,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({ className, ch
             <select className={classes} ref={ref} {...props}>
                 {children}
             </select>
-            <ChevronDownIcon className="absolute top-1/2 -translate-y-1/2 right-3 h-5 w-5 text-gray-400 pointer-events-none" />
+            <ChevronDownIcon className="absolute top-1/2 -translate-y-1/2 right-3 h-5 w-5 text-gray-400 dark:text-gray-500 pointer-events-none" />
         </div>
     );
 });

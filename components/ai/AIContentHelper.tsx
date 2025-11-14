@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import type { Language, Property } from '../../types';
-import { CloseIcon, SparklesIcon } from '../icons/Icons';
+import { CloseIcon, SparklesIcon } from '../ui/Icons';
 import { useLanguage } from '../shared/LanguageContext';
 
 interface AIContentHelperProps {

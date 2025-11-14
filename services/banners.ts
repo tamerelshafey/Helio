@@ -1,5 +1,8 @@
-import { bannersData } from '../data/banners';
+import { bannersData as initialBannersData } from '../data/banners';
 import type { Banner } from '../types';
+
+// Create a mutable, in-memory copy of the data to simulate a database.
+let bannersData: Banner[] = [...initialBannersData];
 
 const SIMULATED_DELAY = 300;
 
@@ -42,9 +45,8 @@ export const deleteBanner = (bannerId: string): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             const initialLength = bannersData.length;
-            const newData = bannersData.filter(b => b.id !== bannerId);
-            if (newData.length < initialLength) {
-                bannersData.splice(0, bannersData.length, ...newData);
+            bannersData = bannersData.filter(b => b.id !== bannerId);
+            if (bannersData.length < initialLength) {
                 resolve(true);
             } else {
                 resolve(false);

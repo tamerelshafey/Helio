@@ -1,8 +1,9 @@
 
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Project, Partner } from '../../types';
-import { BuildingIcon } from '../icons/Icons';
+import { BuildingIcon } from '../ui/Icons';
 import { useLanguage } from './LanguageContext';
 
 interface ProjectListItemProps {
@@ -11,7 +12,7 @@ interface ProjectListItemProps {
     unitsCount: number;
 }
 
-const ProjectListItem: React.FC<ProjectListItemProps> = ({ project, developer, unitsCount }) => {
+const ProjectListItem: React.FC<ProjectListItemProps> = React.memo(({ project, developer, unitsCount }) => {
     const { language, t } = useLanguage();
     const unitsText = unitsCount === 1 ? t.projectsPage.unitsAvailable : t.projectsPage.unitsAvailablePlural;
 
@@ -36,6 +37,6 @@ const ProjectListItem: React.FC<ProjectListItemProps> = ({ project, developer, u
             </div>
         </Link>
     );
-};
+});
 
 export default ProjectListItem;

@@ -1,5 +1,8 @@
-import { propertyInquiriesData } from '../data/propertyInquiries';
+import { propertyInquiriesData as initialPropertyInquiriesData } from '../data/propertyInquiries';
 import type { PropertyInquiryRequest, RequestStatus } from '../types';
+
+// Create a mutable, in-memory copy of the data to simulate a database.
+let propertyInquiriesData: PropertyInquiryRequest[] = [...initialPropertyInquiriesData];
 
 const SIMULATED_DELAY = 300;
 
@@ -43,9 +46,8 @@ export const deletePropertyInquiry = (id: string): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             const initialLength = propertyInquiriesData.length;
-            const newData = propertyInquiriesData.filter(r => r.id !== id);
-            if (newData.length < initialLength) {
-                propertyInquiriesData.splice(0, propertyInquiriesData.length, ...newData);
+            propertyInquiriesData = propertyInquiriesData.filter(r => r.id !== id);
+            if (propertyInquiriesData.length < initialLength) {
                 resolve(true);
             } else {
                 resolve(false);

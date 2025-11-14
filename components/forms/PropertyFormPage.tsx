@@ -1,23 +1,24 @@
-
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Property, FilterOption } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import FormField, { inputClasses, selectClasses } from '../shared/FormField';
-import { CloseIcon, SparklesIcon } from '../icons/Icons';
+import FormField, { inputClasses, selectClasses } from '../ui/FormField';
+import { CloseIcon, SparklesIcon } from '../ui/Icons';
 import { addProperty as apiAddProperty, updateProperty as apiUpdateProperty, getAllProperties } from '../../services/properties';
-import { useQuery } from '@tanstack/react-query';
 import { getAllProjects } from '../../services/projects';
 import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../services/filters';
 import LocationPickerModal from '../shared/LocationPickerModal';
 import { Role, Permission } from '../../types';
 import AIContentHelper from '../ai/AIContentHelper';
 import { useToast } from '../shared/ToastContext';
-import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import UpgradeNotice from '../shared/UpgradeNotice';
 import { useLanguage } from '../shared/LanguageContext';
+import { RadioGroup, RadioGroupItem } from '../ui/RadioGroup';
+import { Checkbox } from '../ui/Checkbox';
+import { Button } from '../ui/Button';
 
 
 const fileToBase64 = (file: File): Promise<string> => {
@@ -38,8 +39,8 @@ const PropertyFormPage: React.FC = () => {
     const { currentUser, hasPermission } = useAuth();
     const { language, t } = useLanguage();
     const { showToast } = useToast();
+    const queryClient = useQueryClient();
     
-    // Subscription check
     const usageType = currentUser?.type === 'developer' ? 'units' : 'properties';
     const { isLimitReached } = useSubscriptionUsage(usageType);
 
@@ -53,18 +54,16 @@ const PropertyFormPage: React.FC = () => {
     const td = t.dashboard.propertyForm;
     const tp = t.propertiesPage;
     
-    const { register, handleSubmit, control, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<Partial<Property>>();
+    const { register, handleSubmit, control, watch, setValue, reset, formState: { errors } } = useForm<any>();
     
     const [mainImage, setMainImage] = useState<string>('');
     const [galleryImages, setGalleryImages] = useState<string[]>([]);
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-    const [aiHelperState, setAiHelperState] = useState<{
-        isOpen: boolean;
-        field: 'description.ar' | 'description.en' | null;
-    }>({ isOpen: false, field: null });
+    const [aiHelperState, setAiHelperState] = useState<{ isOpen: boolean; field: 'description.ar' | 'description.en' | null; }>({ isOpen: false, field: null });
 
     const watchType = watch('type');
     const watchStatus = watch('status');
+    const watchFinishingStatus = watch('finishingStatus');
     const watchDelivery = watch('delivery');
     const watchInstallments = watch('installmentsAvailable');
     const watchPrice = watch('priceNumeric');
@@ -72,6 +71,7 @@ const PropertyFormPage: React.FC = () => {
     const watchAmenities = watch('amenities');
     const watchLocation = watch('location');
     const watchContactMethod = watch('contactMethod');
+    const watchListingStatus = watch('listingStatus');
 
     const partnerProjects = useMemo(() => (projects || []).filter(p => p.partnerId === currentUser?.id), [projects, currentUser]);
 
@@ -79,6 +79,44 @@ const PropertyFormPage: React.FC = () => {
         if (!watchPrice || !watchArea || watchArea === 0) return 0;
         return Math.round(watchPrice / watchArea);
     }, [watchPrice, watchArea]);
+
+    const handleNavigationSuccess = (property?: Property) => {
+        queryClient.invalidateQueries({ queryKey: ['allProperties'] });
+        queryClient.invalidateQueries({ queryKey: [`partner-properties-${currentUser?.id}`] });
+        if (propertyId) {
+            queryClient.invalidateQueries({ queryKey: [`property-${propertyId}`] });
+        }
+        
+        const projectId = property?.projectId || watch('projectId');
+        
+        if (hasPermission(Permission.VIEW_ADMIN_DASHBOARD)) {
+            navigate('/admin/properties');
+        } else if (currentUser?.role === Role.DEVELOPER_PARTNER && projectId) {
+            navigate(`/dashboard/projects/${projectId}`);
+        } else if (currentUser?.role === Role.DEVELOPER_PARTNER && !projectId) {
+            navigate('/dashboard/projects');
+        } else {
+            navigate('/dashboard/properties');
+        }
+    };
+    
+    const addMutation = useMutation({
+        mutationFn: apiAddProperty,
+        onSuccess: (newProperty) => {
+            showToast(td.addSuccess, 'success');
+            handleNavigationSuccess(newProperty);
+        },
+        onError: () => showToast('Failed to add property.', 'error'),
+    });
+
+    const updateMutation = useMutation({
+        mutationFn: ({ propertyId, updates }: { propertyId: string; updates: Partial<Property> }) => apiUpdateProperty(propertyId, updates),
+        onSuccess: (updatedProperty) => {
+            showToast(td.updateSuccess, 'success');
+            handleNavigationSuccess(updatedProperty);
+        },
+        onError: () => showToast('Failed to update property.', 'error'),
+    });
 
     useEffect(() => {
         if (propertyId && properties) {
@@ -88,7 +126,11 @@ const PropertyFormPage: React.FC = () => {
             if (prop && userCanEdit) {
                 reset({
                     ...prop,
-                    delivery: prop.delivery || { isImmediate: true, date: '' },
+                    isInCompound: String(prop.isInCompound),
+                    realEstateFinanceAvailable: String(prop.realEstateFinanceAvailable),
+                    installmentsAvailable: String(prop.installmentsAvailable),
+                    delivery: { ...prop.delivery, isImmediate: String(prop.delivery.isImmediate) },
+                    finishingStatus: prop.finishingStatus || { en: '', ar: '' },
                     installments: prop.installments || { downPayment: 0, monthlyInstallment: 0, years: 0 },
                     contactMethod: prop.contactMethod || 'platform',
                     ownerPhone: prop.ownerPhone || '',
@@ -104,21 +146,21 @@ const PropertyFormPage: React.FC = () => {
                 projectId: searchParams.get('projectId') || undefined,
                 status: { en: 'For Sale', ar: 'للبيع' },
                 type: { en: 'Apartment', ar: 'شقة' },
-                beds: 3,
-                baths: 2,
-                area: 150,
-                floor: 1,
+                beds: 3, baths: 2, area: 150, floor: 1,
                 location: { lat: 30.129, lng: 31.621 },
                 amenities: { ar: [], en: [] },
-                installmentsAvailable: false,
-                isInCompound: false,
-                delivery: { isImmediate: true, date: '' },
+                installmentsAvailable: 'false',
+                isInCompound: 'false',
+                realEstateFinanceAvailable: 'false',
+                delivery: { isImmediate: 'true', date: '' },
                 installments: { downPayment: 0, monthlyInstallment: 0, years: 0 },
-                contactMethod: 'platform',
-                ownerPhone: '',
+                contactMethod: 'platform', ownerPhone: '',
+                listingStatus: 'active',
             });
         }
     }, [propertyId, currentUser, navigate, properties, reset, searchParams, hasPermission, isLoadingContext]);
+    
+    // ... (keep all other handler functions like handleImageChange, handleAmenityChange, etc. the same) ...
 
     const handleMainImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -204,9 +246,9 @@ const PropertyFormPage: React.FC = () => {
         }
     };
 
-    const onSubmit = async (formData: Partial<Property>) => {
+    const onSubmit = async (formData: any) => {
         if (!currentUser || !('type' in currentUser) || !amenities) return;
-
+        
         const priceNumeric = Number(formData.priceNumeric) || 0;
         const formattedPriceAr = `${priceNumeric.toLocaleString('ar-EG')} ج.م`;
         const formattedPriceEn = `EGP ${priceNumeric.toLocaleString('en-US')}`;
@@ -217,66 +259,48 @@ const PropertyFormPage: React.FC = () => {
             en: `EGP ${pricePerMeterNumeric.toLocaleString('en-US')}/m²`,
         } : undefined;
 
-        const propertyData: any = {
+        const propertyData = {
             ...formData,
+            isInCompound: formData.isInCompound === 'true',
+            realEstateFinanceAvailable: formData.realEstateFinanceAvailable === 'true',
+            installmentsAvailable: formData.installmentsAvailable === 'true',
+            delivery: {
+                isImmediate: formData.delivery?.isImmediate === 'true',
+                date: formData.delivery?.isImmediate !== 'true' ? formData.delivery.date : undefined,
+            },
             partnerId: propertyId ? properties?.find(p => p.id === propertyId)?.partnerId || currentUser.id : currentUser.id,
             price: { ar: formattedPriceAr, en: formattedPriceEn },
             pricePerMeter,
             imageUrl: mainImage,
             gallery: galleryImages,
         };
-
+        
         if (propertyId) {
-            await apiUpdateProperty(propertyId, propertyData);
-            showToast(td.updateSuccess, 'success');
+            updateMutation.mutate({ propertyId, updates: propertyData });
         } else {
-            await apiAddProperty(propertyData);
-            showToast(td.addSuccess, 'success');
-        }
-        const projectId = propertyData.projectId;
-        if (hasPermission(Permission.VIEW_ADMIN_DASHBOARD)) {
-            navigate('/admin/properties');
-        } else if (currentUser.role === Role.DEVELOPER_PARTNER && projectId) {
-            navigate(`/dashboard/projects/${projectId}`);
-        } else if (currentUser.role === Role.DEVELOPER_PARTNER) {
-            navigate('/dashboard/projects');
-        } else {
-            navigate('/dashboard/properties');
+            addMutation.mutate(propertyData);
         }
     };
 
     if (isLoadingContext && !projects) return <div>Loading options...</div>;
 
-    const isAdmin = currentUser && 'type' in currentUser && hasPermission(Permission.MANAGE_ALL_PROPERTIES);
-
+    const isAdmin = hasPermission(Permission.MANAGE_ALL_PROPERTIES);
     if (isLimitReached && !propertyId && !isAdmin) {
         return <UpgradeNotice />;
     }
+    
+    const isSubmitting = addMutation.isPending || updateMutation.isPending;
 
     return (
         <div>
-            {isLocationModalOpen && (
-                <LocationPickerModal
-                    onClose={() => setIsLocationModalOpen(false)}
-                    onLocationSelect={handleLocationSelect}
-                    initialLocation={watchLocation}
-                />
-            )}
-            {aiHelperState.isOpen && aiHelperState.field && (
-                <AIContentHelper
-                    isOpen={aiHelperState.isOpen}
-                    onClose={() => setAiHelperState({ isOpen: false, field: null })}
-                    onApply={handleApplyAiText}
-                    originalText={watch(aiHelperState.field) || ''}
-                    propertyData={watch()}
-                    context={{ field: aiHelperState.field }}
-                />
-            )}
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                {propertyId ? td.editTitle : td.addTitle}
-            </h1>
+            {isLocationModalOpen && ( <LocationPickerModal onClose={() => setIsLocationModalOpen(false)} onLocationSelect={handleLocationSelect} initialLocation={watchLocation} /> )}
+            {aiHelperState.isOpen && aiHelperState.field && ( <AIContentHelper isOpen={aiHelperState.isOpen} onClose={() => setAiHelperState({ isOpen: false, field: null })} onApply={handleApplyAiText} originalText={watch(aiHelperState.field) || ''} propertyData={watch()} context={{ field: aiHelperState.field }} /> )}
+            
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">{propertyId ? td.editTitle : td.addTitle}</h1>
+            
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                {currentUser && 'type' in currentUser && (currentUser.role === Role.DEVELOPER_PARTNER || currentUser.role === Role.SUPER_ADMIN) && (
+                {/* ... The rest of the form JSX remains the same ... */}
+                 {currentUser && 'type' in currentUser && (currentUser.role === Role.DEVELOPER_PARTNER || currentUser.role === Role.SUPER_ADMIN) && (
                     <FormField label="Project" id="projectId">
                         <select {...register("projectId")} className={selectClasses} >
                             <option value="">Select a project (optional)</option>
@@ -329,209 +353,188 @@ const PropertyFormPage: React.FC = () => {
                     </div>
                 </div>
 
-                <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
-                    <legend className="text-lg font-semibold text-amber-500 mb-2">Location</legend>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <FormField label="Latitude" id="latitude">
-                            <input type="number" step="any" {...register("location.lat", { valueAsNumber: true })} className={inputClasses} />
-                        </FormField>
-                        <FormField label="Longitude" id="longitude">
-                            <input type="number" step="any" {...register("location.lng", { valueAsNumber: true })} className={inputClasses} />
-                        </FormField>
-                    </div>
-                    <button type="button" onClick={() => setIsLocationModalOpen(true)} className="w-full text-center font-medium text-sm text-amber-600 dark:text-amber-500 hover:underline p-2 rounded-md border border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/50">
-                        Select on Map
-                    </button>
-                </fieldset>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 border-t border-gray-200 dark:border-gray-700 pt-6">
-                     <FormField label={tp.allStatuses} id="status">
-                        <select value={watchStatus?.en} onChange={e => handleComplexChange('status', e.target.value)} className={selectClasses} required>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <FormField label={tp.statusLabel} id="status.en">
+                        <select
+                            value={watchStatus?.en || 'For Sale'}
+                            onChange={e => handleComplexChange('status', e.target.value)}
+                            className={selectClasses}
+                        >
                             <option value="For Sale">{tp.forSale}</option>
                             <option value="For Rent">{tp.forRent}</option>
                         </select>
                     </FormField>
-                    <FormField label={tp.allTypes} id="type">
-                         <select value={watchType?.en} onChange={e => handleComplexChange('type', e.target.value)} className={selectClasses} required>
-                            {(propertyTypes || []).map(opt => (
-                                <option key={opt.id} value={opt.en}>{opt[language]}</option>
-                            ))}
-                        </select>
-                    </FormField>
-                    <FormField label={t.addPropertyPage.price} id="priceNumeric">
-                        <input type="number" {...register("priceNumeric", { required: true, valueAsNumber: true })} className={inputClasses} />
-                    </FormField>
-                     <FormField label={tp.finishing} id="finishingStatus">
-                        <select 
-                           value={watch('finishingStatus')?.en || ''}
-                           onChange={e => handleComplexChange('finishingStatus', e.target.value)}
-                           className={selectClasses}
-                           disabled={!watchType?.en || watchType.en === 'Land' || availableFinishingStatuses.length === 0}
+                     <FormField label={tp.typeLabel} id="type.en">
+                        <select
+                            value={watchType?.en || ''}
+                            onChange={e => handleComplexChange('type', e.target.value)}
+                            className={selectClasses}
                         >
-                            <option value="">None</option>
-                             {availableFinishingStatuses.map(opt => (
-                                <option key={opt.id} value={opt.en}>{opt[language]}</option>
-                            ))}
+                            {(propertyTypes || []).map(opt => <option key={opt.id} value={opt.en}>{opt[language]}</option>)}
                         </select>
                     </FormField>
-                     <FormField label={t.addPropertyPage.area} id="area">
+                     <FormField label={tp.finishing} id="finishingStatus.en">
+                        <select
+                            value={watchFinishingStatus?.en || ''}
+                            onChange={e => handleComplexChange('finishingStatus', e.target.value)}
+                            className={selectClasses}
+                            disabled={watchType?.en === 'Land' || availableFinishingStatuses.length === 0}
+                        >
+                             <option value="">{tp.allFinishes}</option>
+                             {availableFinishingStatuses.map(opt => <option key={opt.id} value={opt.en}>{opt[language]}</option>)}
+                        </select>
+                    </FormField>
+                    <FormField label="Area (m²)" id="area">
                         <input type="number" {...register("area", { required: true, valueAsNumber: true })} className={inputClasses} />
                     </FormField>
-                    <FormField label={td.pricePerMeter} id="pricePerMeter">
-                        <input type="text" value={pricePerMeter > 0 ? pricePerMeter.toLocaleString(language) : ''} className={`${inputClasses} bg-gray-100 dark:bg-gray-800`} disabled />
+                    <FormField label={t.propertyDetailsPage.bedrooms} id="beds">
+                        <input type="number" {...register("beds", { valueAsNumber: true })} className={inputClasses} disabled={watchType?.en === 'Land' || watchType?.en === 'Commercial'} />
                     </FormField>
-                     <div className="flex items-center gap-2 pt-5">
-                        <input type="checkbox" id="isInCompound" {...register("isInCompound")} className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"/>
-                        <label htmlFor="isInCompound" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
-                           {td.isInCompound}
-                        </label>
-                    </div>
-                     <div className="flex items-center gap-2 pt-5">
-                        <input type="checkbox" id="realEstateFinanceAvailable" {...register("realEstateFinanceAvailable")} className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"/>
-                        <label htmlFor="realEstateFinanceAvailable" className="block text-sm font-medium text-gray-900 dark:text-gray-300">
-                           {td.realEstateFinanceAvailable}
-                        </label>
-                    </div>
-
-                    { watchType?.en !== 'Commercial' && watchType?.en !== 'Land' && <>
-                        <FormField label={t.addPropertyPage.bedrooms} id="beds">
-                            <input type="number" {...register("beds", { valueAsNumber: true })} className={inputClasses} />
-                        </FormField>
-                        <FormField label={t.addPropertyPage.bathrooms} id="baths">
-                            <input type="number" {...register("baths", { valueAsNumber: true })} className={inputClasses} />
-                        </FormField>
-                    </>}
-                    <FormField label={t.addPropertyPage.floor} id="floor">
-                        <input type="number" {...register("floor", { valueAsNumber: true })} className={inputClasses} />
+                    <FormField label={t.propertyDetailsPage.bathrooms} id="baths">
+                        <input type="number" {...register("baths", { valueAsNumber: true })} className={inputClasses} disabled={watchType?.en === 'Land'} />
+                    </FormField>
+                    <FormField label={t.propertyDetailsPage.floor} id="floor">
+                        <input type="number" {...register("floor", { valueAsNumber: true })} className={inputClasses} disabled={watchType?.en === 'Land' || watchType?.en === 'Villa'} />
+                    </FormField>
+                    <FormField label="Listing Status" id="listingStatus">
+                        <select {...register("listingStatus")} className={selectClasses} >
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="draft">Draft</option>
+                            <option value="sold">Sold/Rented</option>
+                        </select>
                     </FormField>
                 </div>
-
-                <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
-                    <legend className="text-lg font-semibold text-amber-500">{t.addPropertyPage.contactPreference.title}</legend>
-                    <div className="flex gap-6">
-                        <div className="flex items-center gap-2">
-                            <input type="radio" id="contactPlatform" {...register("contactMethod")} value="platform" className="h-4 w-4 text-amber-600 border-gray-300 focus:ring-amber-500" />
-                            <label htmlFor="contactPlatform" className="block text-sm text-gray-900 dark:text-gray-300">{t.addPropertyPage.contactPreference.platform}</label>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <input type="radio" id="contactDirect" {...register("contactMethod")} value="direct" className="h-4 w-4 text-amber-600 border-gray-300 focus:ring-amber-500" />
-                            <label htmlFor="contactDirect" className="block text-sm text-gray-900 dark:text-gray-300">{t.addPropertyPage.contactPreference.direct}</label>
-                        </div>
-                    </div>
-                    {watchContactMethod === 'direct' && (
-                        <div className="animate-fadeIn">
-                            <FormField label={t.addPropertyPage.phone} id="ownerPhone">
-                                <input type="tel" {...register("ownerPhone")} className={inputClasses} dir="ltr" placeholder="Enter phone number for direct inquiries" />
-                            </FormField>
-                        </div>
-                    )}
-                </fieldset>
+                <div className="grid grid-cols-2 gap-6">
+                     <FormField label={td.pricePerMeter} id="pricePerMeter">
+                        <input type="text" value={`${pricePerMeter.toLocaleString(language)} EGP/m²`} readOnly className={`${inputClasses} bg-gray-100 dark:bg-gray-800 cursor-not-allowed`} />
+                    </FormField>
+                     <FormField label="Price" id="priceNumeric">
+                        <input type="number" {...register("priceNumeric", { required: true, valueAsNumber: true })} className={inputClasses} />
+                    </FormField>
+                </div>
                 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                    <h3 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{td.amenities}</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 border border-gray-200 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800/50">
+                <div className="space-y-4">
+                    <FormField label={td.mainImage} id="imageUrl">
+                        <div className="flex items-center gap-4">
+                            {mainImage && <img src={mainImage} alt="Main preview" className="w-24 h-24 rounded-lg object-cover border"/>}
+                            <input type="file" id="imageUrl" accept="image/*" onChange={handleMainImageChange} className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`} />
+                        </div>
+                    </FormField>
+                    <FormField label={td.galleryImages} id="gallery">
+                        <input type="file" id="gallery" multiple accept="image/*" onChange={handleGalleryImagesChange} className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`} />
+                        <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                            {galleryImages.map((img, index) => (
+                                <div key={index} className="relative">
+                                    <img src={img} alt={`Gallery ${index+1}`} className="w-full h-24 object-cover rounded-md"/>
+                                    <button type="button" onClick={() => removeGalleryImage(index)} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 leading-none" aria-label="Remove image">
+                                        <CloseIcon className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </FormField>
+                </div>
+                 <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Location</label>
+                    <input type="hidden" {...register("location.lat")} />
+                    <input type="hidden" {...register("location.lng")} />
+                    <div className="flex items-center gap-4">
+                        <p className="text-sm font-mono p-3 bg-gray-100 dark:bg-gray-800 rounded-md">
+                            Lat: {watchLocation?.lat?.toFixed(6) || 'N/A'}, Lng: {watchLocation?.lng?.toFixed(6) || 'N/A'}
+                        </p>
+                        <button type="button" onClick={() => setIsLocationModalOpen(true)} className="font-semibold text-amber-600 hover:underline">Select on Map</button>
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{td.amenities}</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                         {availableAmenities.map(amenity => (
-                            <label key={amenity.id} className="flex items-center gap-2 text-sm text-gray-800 dark:text-gray-200">
-                                <input
-                                    type="checkbox"
-                                    checked={watchAmenities?.en?.includes(amenity.en) || false}
-                                    onChange={() => handleAmenityChange(amenity.en)}
-                                    className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                            <label key={amenity.id} className="flex items-center gap-2">
+                                <Checkbox
+                                    checked={(watchAmenities?.en || []).includes(amenity.en)}
+                                    onCheckedChange={() => handleAmenityChange(amenity.en)}
+                                    id={`amenity-${amenity.id}`}
                                 />
-                                {amenity[language]}
+                                <span className="text-sm text-gray-700 dark:text-gray-300">{amenity[language]}</span>
                             </label>
                         ))}
                     </div>
                 </div>
                 
-                 <div className="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
-                    <h3 className="text-lg font-semibold text-amber-500">{td.deliveryInfo}</h3>
-                    <div className="flex gap-6">
-                        <div className="flex items-center gap-2">
-                            <input type="radio" id="immediateDelivery" {...register("delivery.isImmediate")} value="true" checked={watchDelivery?.isImmediate === true} onChange={() => setValue('delivery.isImmediate', true)} className="h-4 w-4 text-amber-600 border-gray-300 focus:ring-amber-500" />
-                            <label htmlFor="immediateDelivery" className="block text-sm text-gray-900 dark:text-gray-300">{td.immediateDelivery}</label>
-                        </div>
-                         <div className="flex items-center gap-2">
-                            <input type="radio" id="futureDelivery" {...register("delivery.isImmediate")} value="false" checked={watchDelivery?.isImmediate === false} onChange={() => setValue('delivery.isImmediate', false)} className="h-4 w-4 text-amber-600 border-gray-300 focus:ring-amber-500" />
-                            <label htmlFor="futureDelivery" className="block text-sm text-gray-900 dark:text-gray-300">{td.futureDelivery}</label>
-                        </div>
-                    </div>
-                    {watchDelivery?.isImmediate === false && (
-                        <FormField label={td.deliveryDate} id="deliveryDate">
-                            <input type="text" placeholder="YYYY-MM" {...register("delivery.date")} className={inputClasses} />
+                 <div className="space-y-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        <FormField label={td.isInCompound} id="isInCompound">
+                            <RadioGroup className="flex gap-4 pt-2">
+                                <label className="flex items-center gap-2"><RadioGroupItem {...register("isInCompound")} value="true" id="compound-yes" /> Yes</label>
+                                <label className="flex items-center gap-2"><RadioGroupItem {...register("isInCompound")} value="false" id="compound-no" /> No</label>
+                            </RadioGroup>
                         </FormField>
-                    )}
-                </div>
-
-                 <div className="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
-                     <h3 className="text-lg font-semibold text-amber-500">{td.installmentsInfo}</h3>
-                     <div className="flex items-center gap-2">
-                        <input type="checkbox" id="installmentsAvailable" {...register("installmentsAvailable")} className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"/>
-                        <label htmlFor="installmentsAvailable" className="block text-sm text-gray-900 dark:text-gray-300">
-                           {td.installmentsAvailable}
-                        </label>
+                         <FormField label={td.realEstateFinanceAvailable} id="realEstateFinanceAvailable">
+                            <RadioGroup className="flex gap-4 pt-2">
+                                <label className="flex items-center gap-2"><RadioGroupItem {...register("realEstateFinanceAvailable")} value="true" id="finance-yes" /> Yes</label>
+                                <label className="flex items-center gap-2"><RadioGroupItem {...register("realEstateFinanceAvailable")} value="false" id="finance-no" /> No</label>
+                            </RadioGroup>
+                        </FormField>
                     </div>
-                    {watchInstallments && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                             <FormField label={td.downPayment} id="downPayment">
-                                <input type="number" {...register("installments.downPayment", { valueAsNumber: true })} className={inputClasses} />
-                            </FormField>
-                             <FormField label={td.monthlyInstallment} id="monthlyInstallment">
-                                <input type="number" {...register("installments.monthlyInstallment", { valueAsNumber: true })} className={inputClasses} />
-                            </FormField>
-                             <FormField label={td.years} id="years">
-                                <input type="number" {...register("installments.years", { valueAsNumber: true })} className={inputClasses} />
-                            </FormField>
-                        </div>
-                    )}
-                </div>
-
-                 <div className="border-t border-gray-200 dark:border-gray-700 pt-6 space-y-4">
-                     <FormField label={td.mainImage} id="mainImage">
-                        <div className="flex items-center gap-4">
-                            {mainImage && <img src={mainImage} alt="Main preview" className="w-24 h-24 rounded-md object-cover border-2 border-gray-300 dark:border-gray-600" />}
-                             <input 
-                                type="file" 
-                                id="mainImage" 
-                                accept="image/*"
-                                onChange={handleMainImageChange} 
-                                className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`}
-                            />
-                        </div>
-                    </FormField>
-                    <FormField label={td.galleryImages} id="gallery">
-                         <input 
-                            type="file" 
-                            id="gallery" 
-                            accept="image/*"
-                            multiple
-                            onChange={handleGalleryImagesChange} 
-                            className={`${inputClasses} p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100`}
-                        />
-                        {galleryImages.length > 0 && (
-                            <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                                {galleryImages.map((img, index) => (
-                                    <div key={index} className="relative">
-                                        <img src={img} alt={`Gallery preview ${index + 1}`} className="w-full h-24 object-cover rounded-md" />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeGalleryImage(index)}
-                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 leading-none"
-                                            aria-label="Remove image"
-                                        >
-                                            <CloseIcon className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                ))}
+                    <div>
+                        <FormField label={td.deliveryInfo} id="delivery.isImmediate">
+                             <RadioGroup className="flex gap-4 pt-2">
+                                <label className="flex items-center gap-2"><RadioGroupItem {...register("delivery.isImmediate")} value="true" id="delivery-immediate"/> {td.immediateDelivery}</label>
+                                <label className="flex items-center gap-2"><RadioGroupItem {...register("delivery.isImmediate")} value="false" id="delivery-future"/> {td.futureDelivery}</label>
+                            </RadioGroup>
+                        </FormField>
+                        {watchDelivery && watchDelivery.isImmediate === 'false' && (
+                            <div className="mt-2">
+                                <input type="month" {...register("delivery.date")} className={inputClasses} />
                             </div>
                         )}
-                    </FormField>
+                    </div>
+                    <div>
+                        <FormField label={td.installmentsInfo} id="installmentsAvailable">
+                             <RadioGroup className="flex gap-4 pt-2">
+                                <label className="flex items-center gap-2"><RadioGroupItem {...register("installmentsAvailable")} value="true" id="installments-yes" /> {td.installmentsAvailable}</label>
+                                <label className="flex items-center gap-2"><RadioGroupItem {...register("installmentsAvailable")} value="false" id="installments-no" /> Not Available</label>
+                            </RadioGroup>
+                        </FormField>
+                        {watchInstallments === 'true' && (
+                            <div className="grid grid-cols-3 gap-4 mt-2">
+                                <FormField label={td.downPayment} id="installments.downPayment"><input type="number" {...register("installments.downPayment")} className={inputClasses}/></FormField>
+                                <FormField label={td.monthlyInstallment} id="installments.monthlyInstallment"><input type="number" {...register("installments.monthlyInstallment")} className={inputClasses}/></FormField>
+                                <FormField label={td.years} id="installments.years"><input type="number" {...register("installments.years")} className={inputClasses}/></FormField>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                <div className="flex justify-end pt-6">
-                    <button type="submit" disabled={isSubmitting} className="bg-amber-500 text-gray-900 font-semibold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
-                        {isSubmitting ? '...' : td.saveProperty}
-                    </button>
+                 {(isAdmin || (currentUser?.subscriptionPlan === 'paid_listing' && currentUser.type !== 'developer')) && (
+                    <fieldset className="space-y-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <legend className="font-semibold text-amber-500">{td.inquiryRouting}</legend>
+                        <RadioGroup className="flex gap-4 pt-2">
+                            <label className="flex items-center gap-2">
+                                <RadioGroupItem {...register("contactMethod")} value="platform" id="contact-platform" />
+                                <span>{td.useDefaultSettings}</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <RadioGroupItem {...register("contactMethod")} value="direct" id="contact-direct" />
+                                <span>{td.customizeForProperty}</span>
+                            </label>
+                        </RadioGroup>
+                        {watchContactMethod === 'direct' && (
+                             <div className="pt-2 animate-fadeIn">
+                                <FormField label={td.directContactPhone} id="ownerPhone">
+                                    <input type="tel" {...register("ownerPhone", { required: watchContactMethod === 'direct' })} className={inputClasses} dir="ltr" />
+                                </FormField>
+                             </div>
+                        )}
+                    </fieldset>
+                )}
+
+                <div className="flex justify-end pt-4">
+                    <Button type="submit" isLoading={isSubmitting}>
+                        {td.saveProperty}
+                    </Button>
                 </div>
             </form>
         </div>

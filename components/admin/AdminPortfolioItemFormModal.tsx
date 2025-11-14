@@ -1,13 +1,17 @@
 
 
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Language, PortfolioItem } from '../../types';
-import FormField, { inputClasses, selectClasses } from '../shared/FormField';
-import { CloseIcon } from '../icons/Icons';
+import FormField, { inputClasses, selectClasses } from '../ui/FormField';
+import { CloseIcon } from '../ui/Icons';
 import { getDecorationCategories } from '../../services/decorations';
 import { addPortfolioItem, updatePortfolioItem } from '../../services/portfolio';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';
+import { Button } from '../ui/Button';
+import { useToast } from '../shared/ToastContext';
 
 interface AdminPortfolioItemFormModalProps {
     itemToEdit?: PortfolioItem;
@@ -30,8 +34,9 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
     const t_admin = t.adminDashboard.decorationsManagement;
     const t_shared = t.adminShared;
     const { data: decorationCategories, isLoading: categoriesLoading } = useQuery({ queryKey: ['decorationCategories'], queryFn: getDecorationCategories });
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
     const modalRef = useRef<HTMLDivElement>(null);
-    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         title: { ar: itemToEdit?.title?.ar || '', en: itemToEdit?.title?.en || '' },
@@ -43,12 +48,29 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
 
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(itemToEdit?.imageUrl || null);
-
+    
     useEffect(() => {
         if (decorationCategories && decorationCategories.length > 0 && !formData.categoryId) {
             setFormData(prev => ({...prev, categoryId: decorationCategories[0].id}));
         }
     }, [decorationCategories, formData.categoryId]);
+
+    const handleSuccess = () => {
+        showToast(`Portfolio item ${itemToEdit ? 'updated' : 'added'} successfully!`, 'success');
+        onSave();
+    };
+
+    const addMutation = useMutation({
+        mutationFn: addPortfolioItem,
+        onSuccess: handleSuccess,
+        onError: () => showToast('Failed to add item.', 'error'),
+    });
+    
+    const updateMutation = useMutation({
+        mutationFn: (data: { id: string, updates: Partial<PortfolioItem> }) => updatePortfolioItem(data.id, data.updates),
+        onSuccess: handleSuccess,
+        onError: () => showToast('Failed to update item.', 'error'),
+    });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -70,7 +92,6 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
 
         let imageSrc = itemToEdit?.imageUrl || '';
         if (imageFile) {
@@ -79,14 +100,13 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
         
         const selectedCategory = decorationCategories?.find(c => c.id === formData.categoryId);
         if (!selectedCategory) {
-            setLoading(false);
             alert("Please select a valid category.");
             return;
         }
 
-        const dataToSave: Omit<PortfolioItem, 'id'> = {
+        const dataToSave = {
             title: formData.title,
-            partnerId: 'admin-user', // All decoration items are managed internally
+            partnerId: 'admin-user',
             category: selectedCategory.name,
             imageUrl: imageSrc,
             alt: formData.title.en || 'Decoration work',
@@ -96,13 +116,13 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
         };
 
         if (itemToEdit) {
-            await updatePortfolioItem(itemToEdit.id, dataToSave);
+            updateMutation.mutate({ id: itemToEdit.id, updates: dataToSave });
         } else {
-            await addPortfolioItem(dataToSave);
+            addMutation.mutate(dataToSave as Omit<PortfolioItem, 'id'>);
         }
-        setLoading(false);
-        onSave();
     };
+    
+    const isLoading = addMutation.isPending || updateMutation.isPending;
 
     return (
         <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={onClose}>
@@ -146,10 +166,10 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
                         </div>
                     </div>
                     <div className="p-4 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                        <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">{t_shared.cancel}</button>
-                        <button type="submit" disabled={loading} className="px-6 py-2 rounded-lg bg-amber-500 text-gray-900 font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50">
-                            {loading ? '...' : t_shared.save}
-                        </button>
+                        <Button type="button" variant="secondary" onClick={onClose}>{t_shared.cancel}</Button>
+                        <Button type="submit" isLoading={isLoading}>
+                            {t_shared.save}
+                        </Button>
                     </div>
                 </form>
             </div>

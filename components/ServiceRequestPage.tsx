@@ -1,12 +1,11 @@
-
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import type { Language } from '../types';
-import FormField, { inputClasses, selectClasses } from './shared/FormField';
+import type { Language } from '../../types';
+import FormField, { inputClasses, selectClasses } from './ui/FormField';
 import { addLead } from '../services/leads';
-import { HelioLogo } from './HelioLogo';
+import { HelioLogo } from './ui/Icons';
 import { useToast } from './shared/ToastContext';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../services/partners';
 import { useLanguage } from './shared/LanguageContext';
 
@@ -18,6 +17,7 @@ const ServiceRequestPage: React.FC = () => {
     const t_decor_modal = t.decorationRequestModal;
     const t_custom_decor_modal = t.customDecorationRequestModal;
     const t_decor = t.decorationsPage;
+    const queryClient = useQueryClient();
 
     const { serviceTitle, partnerId, propertyId, workItem, isCustom, serviceType } = location.state || {};
     const { data: allPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
@@ -30,7 +30,22 @@ const ServiceRequestPage: React.FC = () => {
         customerNotes: '',
     });
     const [referenceImage, setReferenceImage] = useState<File | null>(null);
-    const [loading, setLoading] = useState(false);
+    
+    const mutation = useMutation({
+        mutationFn: addLead,
+        onSuccess: () => {
+            showToast(t_modal.successMessage, 'success');
+            setFormData({ customerName: '', customerPhone: '', contactTime: '', customerNotes: '' });
+            setReferenceImage(null);
+            queryClient.invalidateQueries({ queryKey: ['allLeadsAdmin'] });
+            queryClient.invalidateQueries({ queryKey: [`partner-leads-${partnerId}`] });
+            setTimeout(() => navigate(-1), 2000);
+        },
+        onError: (error) => {
+            console.error("Failed to submit lead:", error);
+            showToast('Submission failed. Please try again.', 'error');
+        }
+    });
 
     React.useEffect(() => {
         if (!serviceTitle || !partnerId) {
@@ -53,10 +68,9 @@ const ServiceRequestPage: React.FC = () => {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-
+        
         let finalNotes = formData.customerNotes;
         if (isCustom && referenceImage) {
             finalNotes += `\n\n(Reference Image Uploaded: ${referenceImage.name})`;
@@ -69,18 +83,8 @@ const ServiceRequestPage: React.FC = () => {
                 managerId = manager.id;
             }
         }
-
-        await addLead({ ...formData, customerNotes: finalNotes, partnerId, serviceTitle, managerId, propertyId, serviceType });
-        setLoading(false);
-        showToast(t_modal.successMessage, 'success');
-        setFormData({
-            customerName: '',
-            customerPhone: '',
-            contactTime: '',
-            customerNotes: '',
-        });
-        setReferenceImage(null);
-        setTimeout(() => navigate(-1), 2000);
+        
+        mutation.mutate({ ...formData, customerNotes: finalNotes, partnerId, serviceTitle, managerId, propertyId, serviceType });
     };
 
     return (
@@ -161,8 +165,8 @@ const ServiceRequestPage: React.FC = () => {
                             )}
                             
                             <div className="pt-4 flex justify-end">
-                                <button type="submit" disabled={loading} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
-                                    {loading ? '...' : (isCustom ? t_custom_decor_modal.submitButton : t_modal.submitButton)}
+                                <button type="submit" disabled={mutation.isPending} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
+                                    {mutation.isPending ? '...' : (isCustom ? t_custom_decor_modal.submitButton : t_modal.submitButton)}
                                 </button>
                             </div>
                         </form>

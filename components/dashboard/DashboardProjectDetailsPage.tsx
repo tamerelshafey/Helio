@@ -1,13 +1,14 @@
 
+
 import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Property, Lead } from '../../types';
 import { useQuery } from '@tanstack/react-query';
-// FIX: Corrected import path from `api` to `services`.
 import { getAllProjects, deleteProject as apiDeleteProject } from '../../services/projects';
 import { getPropertiesByPartnerId, deleteProperty as apiDeleteProperty } from '../../services/properties';
 import { getLeadsByPartnerId } from '../../services/leads';
-import { BuildingIcon, ChartBarIcon, InboxIcon } from '../icons/Icons';
+// FIX: Corrected import path for Icons
+import { BuildingIcon, ChartBarIcon, InboxIcon } from '../ui/Icons';
 import { useAuth } from '../auth/AuthContext';
 import UpgradePlanModal from '../UpgradePlanModal';
 import StatCard from '../shared/StatCard';
@@ -227,7 +228,7 @@ const DashboardProjectDetailsPage: React.FC = () => {
                             <ul className="divide-y divide-gray-200 dark:divide-gray-700">
                                 {projectAnalytics.topUnits.map(({ property, count }) => (
                                     property && (
-                                        <li key={property.id} className="py-3">
+                                        <li key={property.id}>
                                             <Link to={`/properties/${property.id}`} target="_blank" className="flex items-center justify-between p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                                 <div className="flex items-center gap-4 overflow-hidden">
                                                     <img src={property.imageUrl} alt={property.title[language]} className="w-12 h-12 object-cover rounded-md flex-shrink-0" />

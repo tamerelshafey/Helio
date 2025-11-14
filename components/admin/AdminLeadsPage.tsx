@@ -1,16 +1,17 @@
 
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Language, Lead, LeadStatus, AdminPartner } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import { ChevronRightIcon } from '../icons/Icons';
-import { inputClasses, selectClasses } from '../shared/FormField';
+import { ChevronRightIcon } from '../ui/Icons';
+import { inputClasses, selectClasses } from '../ui/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
 import { updateLead, deleteLead as apiDeleteLead, getAllLeads } from '../../services/leads';
 import { useQuery } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../../services/partners';
 import Pagination from '../shared/Pagination';
-import { useAdminTable } from './shared/useAdminTable';
+import { useAdminTable } from '../../hooks/useAdminTable';
 import ConversationThread from '../shared/ConversationThread';
 import { useLanguage } from '../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
@@ -32,7 +33,6 @@ const AdminLeadsPage: React.FC = () => {
     const { currentUser } = useAuth();
     const t_admin = t.adminDashboard;
     const t_dash = t.dashboard;
-    const [searchParams] = useSearchParams();
     
     const { data: leads, isLoading: isLoadingLeads, refetch: refetchLeads } = useQuery({ queryKey: ['allLeadsAdmin'], queryFn: getAllLeads });
     const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
@@ -43,9 +43,6 @@ const AdminLeadsPage: React.FC = () => {
     }, [refetchLeads, refetchPartners]);
     
     const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
-    
-    const initialTab = searchParams.get('tab') as 'all' | 'finishing' | 'decorations' | 'other' | null;
-    const [activeTab, setActiveTab] = useState<'all' | 'finishing' | 'decorations' | 'other'>(initialTab || 'all');
     const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
 
     const partnerOptions = useMemo(() => {
@@ -72,19 +69,8 @@ const AdminLeadsPage: React.FC = () => {
             partner: (l: Lead, v: string) => l.partnerId === v,
             startDate: (l: Lead, v: string) => new Date(l.createdAt) >= new Date(v),
             endDate: (l: Lead, v: string) => new Date(l.createdAt) <= new Date(v),
-            tab: (l: Lead, v: string) => {
-                 if (v === 'all') return true;
-                 if (v === 'finishing') return l.serviceType === 'finishing';
-                 if (v === 'decorations') return l.serviceType === 'decorations';
-                 if (v === 'other') return l.serviceType !== 'finishing' && l.serviceType !== 'decorations';
-                 return true;
-            }
         }
     });
-    
-    useEffect(() => {
-        setFilter('tab', activeTab);
-    }, [activeTab, setFilter]);
 
     const handleStatusChange = async (leadId: string, status: LeadStatus) => {
         await updateLead(leadId, { status });
@@ -92,7 +78,7 @@ const AdminLeadsPage: React.FC = () => {
     };
     
     const toggleExpand = (leadId: string) => {
-        setExpandedLeadId(prevId => (prevId === leadId ? null : leadId));
+        setExpandedLeadId(prevId => (prevId === leadId ? null : prevId));
     };
     
     const handleSelect = (leadId: string) => {
@@ -135,16 +121,6 @@ const AdminLeadsPage: React.FC = () => {
         createdAt: t_dash.leadTable.date,
     };
 
-    const TabButton: React.FC<{tabKey: 'all' | 'finishing' | 'decorations' | 'other', label: string}> = ({tabKey, label}) => (
-        <button
-            type="button"
-            onClick={() => setActiveTab(tabKey)}
-            className={`px-4 py-2 font-medium rounded-md text-sm ${activeTab === tabKey ? 'bg-amber-500 text-white shadow' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
-        >
-            {label}
-        </button>
-    );
-
     return (
         <div>
             <div className="flex justify-between items-start mb-8">
@@ -157,12 +133,6 @@ const AdminLeadsPage: React.FC = () => {
                     columns={exportColumns}
                     filename="all-leads"
                 />
-            </div>
-            <div className="mb-6 flex space-x-2 border-b border-gray-200 dark:border-gray-700 pb-4">
-                 <TabButton tabKey="all" label={t_admin.filter.all} />
-                 <TabButton tabKey="finishing" label={t_admin.nav.finishingRequests} />
-                 <TabButton tabKey="decorations" label={t_admin.nav.decorationsRequests} />
-                 <TabButton tabKey="other" label={language === 'ar' ? 'أخرى' : 'Other'} />
             </div>
 
              <div className="my-8 p-6 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">

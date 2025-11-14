@@ -1,6 +1,9 @@
-import { contactRequestsData } from '../data/contactRequests';
+import { contactRequestsData as initialContactRequestsData } from '../data/contactRequests';
 import type { ContactRequest, RequestStatus } from '../types';
 import { addNotification } from './notifications';
+
+// Create a mutable, in-memory copy of the data to simulate a database.
+let contactRequestsData: ContactRequest[] = [...initialContactRequestsData];
 
 const SIMULATED_DELAY = 300;
 
@@ -55,9 +58,8 @@ export const deleteContactRequest = (id: string): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             const initialLength = contactRequestsData.length;
-            const newData = contactRequestsData.filter(r => r.id !== id);
-            if (newData.length < initialLength) {
-                contactRequestsData.splice(0, contactRequestsData.length, ...newData);
+            contactRequestsData = contactRequestsData.filter(r => r.id !== id);
+            if (contactRequestsData.length < initialLength) {
                 resolve(true);
             } else {
                 resolve(false);

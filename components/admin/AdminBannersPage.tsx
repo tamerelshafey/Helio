@@ -1,8 +1,10 @@
 
+
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Banner } from '../../types';
 import AdminBannerFormModal from './AdminBannerFormModal';
-import { ArrowDownIcon, ArrowUpIcon } from '../icons/Icons';
+import { ArrowDownIcon, ArrowUpIcon } from '../ui/Icons';
 import { getAllBanners, deleteBanner as apiDeleteBanner } from '../../services/banners';
 import { useQuery } from '@tanstack/react-query';
 import Pagination from '../shared/Pagination';

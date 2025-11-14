@@ -5,7 +5,6 @@ import App from './App';
 import { AuthProvider } from './components/auth/AuthContext';
 import { ToastProvider } from './components/shared/ToastContext';
 import { LanguageProvider } from './components/shared/LanguageContext';
-import { ThemeProvider } from './components/shared/ThemeContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
@@ -24,9 +23,7 @@ root.render(
                 <ToastProvider>
                     <AuthProvider>
                         <LanguageProvider>
-                            <ThemeProvider>
-                                <App />
-                            </ThemeProvider>
+                            <App />
                         </LanguageProvider>
                     </AuthProvider>
                 </ToastProvider>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useToastManager } from './ToastContext';
-import { CheckCircleIcon, XCircleIcon, CloseIcon } from '../icons/Icons';
+import { CheckCircleIcon, XCircleIcon, CloseIcon } from '../ui/Icons';
 import type { ToastMessage } from './ToastContext';
 
 const Toast: React.FC<{ toast: ToastMessage; onDismiss: (id: number) => void }> = ({ toast, onDismiss }) => {

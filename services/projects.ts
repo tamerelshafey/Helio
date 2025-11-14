@@ -1,8 +1,11 @@
 // Note: This is a mock API. In a real application, these functions would make network requests
 // to a backend service. The data is modified in-memory for simulation purposes.
 
-import { projectsData } from '../data/projects';
+import { projectsData as initialProjectsData } from '../data/projects';
 import type { Project } from '../types';
+
+// Create a mutable, in-memory copy of the data to simulate a database.
+let projectsData: Project[] = [...initialProjectsData];
 
 const SIMULATED_DELAY = 300;
 
@@ -62,9 +65,8 @@ export const deleteProject = (projectId: string): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             const initialLength = projectsData.length;
-            const newData = projectsData.filter(p => p.id !== projectId);
-            if (newData.length < initialLength) {
-                projectsData.splice(0, projectsData.length, ...newData);
+            projectsData = projectsData.filter(p => p.id !== projectId);
+            if (projectsData.length < initialLength) {
                 resolve(true);
             } else {
                 resolve(false);

@@ -1,11 +1,14 @@
+
+
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Language, Lead, LeadStatus } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import { ArrowUpIcon, ArrowDownIcon, ChevronRightIcon } from '../icons/Icons';
-import { inputClasses } from '../shared/FormField';
+import { ArrowUpIcon, ArrowDownIcon, ChevronRightIcon } from '../ui/Icons';
+import { inputClasses } from '../ui/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
 import { getLeadsByPartnerId, updateLead, deleteLead as apiDeleteLead } from '../../services/leads';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ConversationThread from '../shared/ConversationThread';
 import { useLanguage } from '../shared/LanguageContext';
 import { Select } from '../ui/Select';
@@ -30,7 +33,9 @@ const DashboardLeadsPage: React.FC = () => {
     const { language, t } = useLanguage();
     const t_dash = t.dashboard;
     const { currentUser } = useAuth();
-    const { data: partnerLeads, isLoading: loading, refetch } = useQuery({
+    const queryClient = useQueryClient();
+
+    const { data: partnerLeads, isLoading: loading } = useQuery({
         queryKey: [`partner-leads-${currentUser?.id}`],
         queryFn: () => getLeadsByPartnerId(currentUser!.id),
         enabled: !!currentUser,
@@ -40,6 +45,13 @@ const DashboardLeadsPage: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
     const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
+
+    const updateStatusMutation = useMutation({
+        mutationFn: ({ leadId, status }: { leadId: string, status: LeadStatus }) => updateLead(leadId, { status }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: [`partner-leads-${currentUser?.id}`] });
+        }
+    });
 
     const sortedAndFilteredLeads = useMemo(() => {
         if (!partnerLeads) return [];
@@ -61,22 +73,16 @@ const DashboardLeadsPage: React.FC = () => {
             filteredLeads.sort((a, b) => {
                 const aValue = a[sortConfig.key];
                 const bValue = b[sortConfig.key];
-
-                if (aValue < bValue) {
-                    return sortConfig.direction === 'ascending' ? -1 : 1;
-                }
-                if (aValue > bValue) {
-                    return sortConfig.direction === 'ascending' ? 1 : -1;
-                }
+                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
+                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
                 return 0;
             });
         }
         return filteredLeads;
     }, [partnerLeads, searchTerm, statusFilter, sortConfig]);
 
-    const handleStatusChange = async (leadId: string, status: LeadStatus) => {
-        await updateLead(leadId, { status });
-        refetch();
+    const handleStatusChange = (leadId: string, status: LeadStatus) => {
+        updateStatusMutation.mutate({ leadId, status });
     };
     
     const toggleExpand = (leadId: string) => {
@@ -111,7 +117,7 @@ const DashboardLeadsPage: React.FC = () => {
                 <input type="text" placeholder={t_dash.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={inputClasses + " max-w-xs"} />
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="max-w-xs">
                     <option value="all">{t_dash.filter.filterByStatus} ({t_dash.filter.all})</option>
-                    {Object.entries(t_dash.leadStatus).map(([key, value]) => (<option key={key} value={key}>{value}</option>))}
+                    {Object.entries(t_dash.leadStatus).map(([key, value]) => (<option key={key} value={key}>{value as string}</option>))}
                 </Select>
             </div>
             
@@ -128,41 +134,39 @@ const DashboardLeadsPage: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                         {loading ? (
-                            <TableRow><TableCell colSpan={5} className="text-center p-8">Loading...</TableCell></TableRow>
+                            <TableRow><TableCell colSpan={5} className="text-center p-8">Loading leads...</TableCell></TableRow>
                         ) : sortedAndFilteredLeads.length > 0 ? (
                             sortedAndFilteredLeads.map(lead => (
                                 <React.Fragment key={lead.id}>
-                                    <TableRow className="cursor-pointer" onClick={() => toggleExpand(lead.id)}>
+                                    <TableRow>
                                         <TableCell>
-                                            <ChevronRightIcon className={`w-5 h-5 transition-transform ${expandedLeadId === lead.id ? 'rotate-90' : ''}`} />
+                                            <button onClick={() => toggleExpand(lead.id)} className="p-2">
+                                                <ChevronRightIcon className={`w-5 h-5 transition-transform ${expandedLeadId === lead.id ? 'rotate-90' : ''}`} />
+                                            </button>
                                         </TableCell>
-                                        <TableCell>
-                                            <div className="font-medium text-gray-900 whitespace-nowrap dark:text-white">{lead.customerName}</div>
-                                            <div className="text-xs text-gray-500 dark:text-gray-400" dir="ltr">{lead.customerPhone}</div>
+                                        <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                            <div>{lead.customerName}</div>
+                                            <div className="font-normal text-gray-500 dark:text-gray-400" dir="ltr">{lead.customerPhone}</div>
                                         </TableCell>
                                         <TableCell className="max-w-xs truncate" title={lead.serviceTitle}>{lead.serviceTitle}</TableCell>
                                         <TableCell>{new Date(lead.createdAt).toLocaleDateString(language)}</TableCell>
                                         <TableCell>
-                                            <span onClick={e => e.stopPropagation()}>
-                                                <Select
-                                                    value={lead.status}
-                                                    onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
-                                                    className={`text-xs font-medium px-2.5 py-0.5 rounded-full border-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800 ${statusColors[lead.status]}`}
-                                                >
-                                                    {Object.entries(t_dash.leadStatus).map(([key, value]) => (
-                                                        <option key={key} value={key} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                                                            {value}
-                                                        </option>
-                                                    ))}
-                                                </Select>
-                                            </span>
+                                            <Select
+                                                value={lead.status}
+                                                onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
+                                                className={`text-xs font-medium w-32 ${statusColors[lead.status]}`}
+                                            >
+                                                {Object.entries(t_dash.leadStatus).map(([key, value]) => (
+                                                    <option key={key} value={key} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">{value as string}</option>
+                                                ))}
+                                            </Select>
                                         </TableCell>
                                     </TableRow>
                                     {expandedLeadId === lead.id && (
                                         <TableRow className="bg-gray-50 dark:bg-gray-800/50">
                                             <TableCell colSpan={5} className="p-0">
                                                 <div className="p-4 animate-fadeIn">
-                                                    <ConversationThread lead={lead} onMessageSent={refetch} />
+                                                     <ConversationThread lead={lead} onMessageSent={() => queryClient.invalidateQueries({queryKey: [`partner-leads-${currentUser?.id}`]})} />
                                                 </div>
                                             </TableCell>
                                         </TableRow>

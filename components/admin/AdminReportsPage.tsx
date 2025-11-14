@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import type { Lead, Property, AdminPartner } from '../../types';
@@ -7,7 +8,7 @@ import { getAllLeads } from '../../services/leads';
 import { getAllProperties } from '../../services/properties';
 import { getAllPartnersForAdmin } from '../../services/partners';
 import { exportToCsv, exportToPdf } from '../../utils/exportUtils';
-import { inputClasses, selectClasses } from '../shared/FormField';
+import { inputClasses, selectClasses } from '../ui/FormField';
 import { useLanguage } from '../shared/LanguageContext';
 import { Checkbox } from '../ui/Checkbox';
 

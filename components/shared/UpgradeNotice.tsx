@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Language } from '../../types';
-import { SparklesIcon } from '../icons/Icons';
+import { SparklesIcon } from '../ui/Icons';
 import { useLanguage } from './LanguageContext';
 
 const UpgradeNotice: React.FC = () => {

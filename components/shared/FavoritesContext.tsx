@@ -1,17 +1,18 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import { FavoriteItem } from '../../types';
 
 interface FavoritesContextType {
-    favorites: string[];
-    isFavorite: (id: string) => boolean;
-    toggleFavorite: (id: string) => void;
+    favorites: FavoriteItem[];
+    isFavorite: (id: string, type: 'property' | 'service' | 'portfolio') => boolean;
+    toggleFavorite: (id: string, type: 'property' | 'service' | 'portfolio') => void;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
 export const FavoritesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [favorites, setFavorites] = useState<string[]>(() => {
+    const [favorites, setFavorites] = useState<FavoriteItem[]>(() => {
         try {
-            const item = window.localStorage.getItem('onlyhelio-favorites');
+            const item = window.localStorage.getItem('onlyhelio-favorites-v2');
             return item ? JSON.parse(item) : [];
         } catch (error) {
             console.error("Error reading favorites from localStorage", error);
@@ -21,23 +22,26 @@ export const FavoritesProvider: React.FC<{ children: ReactNode }> = ({ children 
 
     useEffect(() => {
         try {
-            window.localStorage.setItem('onlyhelio-favorites', JSON.stringify(favorites));
+            window.localStorage.setItem('onlyhelio-favorites-v2', JSON.stringify(favorites));
         } catch (error) {
             console.error("Error saving favorites to localStorage", error);
         }
     }, [favorites]);
 
-    const toggleFavorite = (id: string) => {
+    const toggleFavorite = (id: string, type: 'property' | 'service' | 'portfolio') => {
         setFavorites(prevFavorites => {
-            if (prevFavorites.includes(id)) {
-                return prevFavorites.filter(favId => favId !== id);
+            const existingIndex = prevFavorites.findIndex(fav => fav.id === id && fav.type === type);
+            if (existingIndex > -1) {
+                return prevFavorites.filter((_, index) => index !== existingIndex);
             } else {
-                return [...prevFavorites, id];
+                return [...prevFavorites, { id, type }];
             }
         });
     };
 
-    const isFavorite = (id: string) => favorites.includes(id);
+    const isFavorite = (id: string, type: 'property' | 'service' | 'portfolio') => {
+        return favorites.some(fav => fav.id === id && fav.type === type);
+    };
 
     return (
         <FavoritesContext.Provider value={{ favorites, isFavorite, toggleFavorite }}>

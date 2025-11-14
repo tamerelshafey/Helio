@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Banner } from '../../types';
 import { getAllBanners } from '../../services/banners';
-import { ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons';
+import { ChevronLeftIcon, ChevronRightIcon } from '../ui/Icons';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from './LanguageContext';
 

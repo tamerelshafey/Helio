@@ -1,6 +1,8 @@
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { Language } from '../../types';
-import { CloseIcon, ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons';
+import { CloseIcon, ChevronLeftIcon, ChevronRightIcon } from '../ui/Icons';
 import { useLanguage } from './LanguageContext';
 
 interface LightboxProps {

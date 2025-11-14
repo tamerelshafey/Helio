@@ -1,5 +1,8 @@
-import { decorationCategoriesData } from '../data/decorationCategories';
+import { decorationCategoriesData as initialDecorationCategoriesData } from '../data/decorationCategories';
 import type { DecorationCategory } from '../types';
+
+// Create a mutable, in-memory copy of the data to simulate a database.
+let decorationCategoriesData: DecorationCategory[] = [...initialDecorationCategoriesData];
 
 const SIMULATED_DELAY = 300;
 
@@ -42,9 +45,8 @@ export const deleteDecorationCategory = (categoryId: string): Promise<boolean> =
     return new Promise((resolve) => {
         setTimeout(() => {
             const initialLength = decorationCategoriesData.length;
-            const newData = decorationCategoriesData.filter(c => c.id !== categoryId);
-            if (newData.length < initialLength) {
-                decorationCategoriesData.splice(0, decorationCategoriesData.length, ...newData);
+            decorationCategoriesData = decorationCategoriesData.filter(c => c.id !== categoryId);
+            if (decorationCategoriesData.length < initialLength) {
                 resolve(true);
             } else {
                 resolve(false);

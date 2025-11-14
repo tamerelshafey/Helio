@@ -1,18 +1,20 @@
 
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { PortfolioItem } from '../../types';
 import { Role } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import { ArrowUpIcon, ArrowDownIcon, CubeIcon } from '../icons/Icons';
-import { inputClasses } from '../shared/FormField';
+import { ArrowUpIcon, ArrowDownIcon, CubeIcon } from '../ui/Icons';
+import { inputClasses } from '../ui/FormField';
 import PortfolioItemFormModal from './PortfolioItemFormModal';
 import UpgradePlanModal from '../UpgradePlanModal';
 import { deletePortfolioItem as apiDeletePortfolioItem } from '../../services/portfolio';
-import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
 import { Card, CardContent, CardFooter } from '../ui/Card';
 import ConfirmationModal from '../shared/ConfirmationModal';
+import { useToast } from '../shared/ToastContext';
 
 type SortConfig = {
     key: 'title' | 'category';
@@ -24,12 +26,13 @@ const DashboardPortfolioPage: React.FC = () => {
     const t_dash = t.dashboard;
     const { currentUser } = useAuth();
     const t_shared = t.adminShared;
+    const { showToast } = useToast();
+    const queryClient = useQueryClient();
 
     const {
         data: partnerPortfolio,
         isLoading: loading,
         isLimitReached,
-        refetch,
     } = useSubscriptionUsage('portfolio');
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -37,6 +40,17 @@ const DashboardPortfolioPage: React.FC = () => {
     const [modalState, setModalState] = useState<{ isOpen: boolean; itemToEdit?: PortfolioItem }>({ isOpen: false });
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
+    const deleteMutation = useMutation({
+        mutationFn: apiDeletePortfolioItem,
+        onSuccess: () => {
+            showToast('Portfolio item deleted successfully.', 'success');
+            queryClient.invalidateQueries({ queryKey: [`subscription-usage-portfolio-${currentUser?.id}`] });
+        },
+        onError: () => {
+            showToast('Failed to delete item.', 'error');
+        }
+    });
 
     const sortedAndFilteredPortfolio = useMemo(() => {
         if (!partnerPortfolio) return [];
@@ -75,22 +89,10 @@ const DashboardPortfolioPage: React.FC = () => {
         setSortConfig({ key, direction });
     };
 
-    const getSortIcon = (key: 'title' | 'category') => {
-        if (!sortConfig || sortConfig.key !== key) {
-            return <span className="w-4 h-4 ml-1 inline-block"></span>;
-        }
-        return sortConfig.direction === 'ascending' ? (
-            <ArrowUpIcon className="w-4 h-4 ml-1 inline-block" />
-        ) : (
-            <ArrowDownIcon className="w-4 h-4 ml-1 inline-block" />
-        );
-    };
-
     const handleDelete = async () => {
         if (!itemToDelete) return;
-        await apiDeletePortfolioItem(itemToDelete);
+        deleteMutation.mutate(itemToDelete);
         setItemToDelete(null);
-        refetch();
     };
 
     const handleAddWorkClick = () => {
@@ -103,7 +105,7 @@ const DashboardPortfolioPage: React.FC = () => {
 
     const handleSave = () => {
         setModalState({ isOpen: false });
-        refetch();
+        queryClient.invalidateQueries({ queryKey: [`subscription-usage-portfolio-${currentUser?.id}`] });
     };
 
     return (

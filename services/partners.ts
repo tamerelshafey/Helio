@@ -1,11 +1,15 @@
 // Note: This is a mock API. In a real application, these functions would make network requests
 // to a backend service. The data is modified in-memory for simulation purposes.
 
-import { partnersData } from '../data/partners';
+import { partnersData as initialPartnersData } from '../data/partners';
 import type { Partner, PartnerStatus, PartnerRequest, AdminPartner, PartnerType, SubscriptionPlan, PartnerDisplayType } from '../types';
 import { mapPartnerTypeToRole } from '../data/permissions';
 import { addNotification } from './notifications';
 import { arTranslations, enTranslations } from '../data/translations';
+
+// Create a mutable, in-memory copy of the data to simulate a database.
+let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [...initialPartnersData];
+
 
 const SIMULATED_DELAY = 300;
 
@@ -19,7 +23,7 @@ const getPartnerTranslations = () => {
 export const getAllPartners = async (): Promise<Partner[]> => {
     const translations = getPartnerTranslations();
     return partnersData.map(basePartner => {
-        const trans = translations.en[basePartner.id] || { name: basePartner.id, description: '' };
+        const trans = (translations.en as any)[basePartner.id] || { name: basePartner.id, description: '' };
         return {
             ...basePartner,
             ...trans,
@@ -34,8 +38,8 @@ export const getAllPartnersForAdmin = (): Promise<AdminPartner[]> => {
             const translations = getPartnerTranslations();
             
             const result = partnersData.map(basePartner => {
-                 const enTrans = translations.en[basePartner.id] || { name: basePartner.id, description: '' };
-                 const arTrans = translations.ar[basePartner.id] || { name: basePartner.id, description: '' };
+                 const enTrans = (translations.en as any)[basePartner.id] || { name: basePartner.id, description: '' };
+                 const arTrans = (translations.ar as any)[basePartner.id] || { name: basePartner.id, description: '' };
                  return {
                      ...basePartner,
                      name: enTrans.name,
@@ -60,7 +64,7 @@ export const getPartnerById = (id: string): Promise<Partner | undefined> => {
       }
       
       const translations = getPartnerTranslations();
-      const enTrans = translations.en[basePartner.id] || { name: basePartner.id, description: '' };
+      const enTrans = (translations.en as any)[basePartner.id] || { name: basePartner.id, description: '' };
       resolve({
           ...basePartner,
           ...enTrans,
@@ -75,7 +79,7 @@ export const getPartnerByEmail = async (email: string): Promise<Partner | undefi
     if (!basePartner) return undefined;
 
     const translations = getPartnerTranslations();
-    const enTrans = translations.en[basePartner.id] || { name: basePartner.id, description: '' };
+    const enTrans = (translations.en as any)[basePartner.id] || { name: basePartner.id, description: '' };
     return {
         ...basePartner,
         ...enTrans,
@@ -151,18 +155,9 @@ export const updatePartnerAdmin = (id: string, updates: Partial<Pick<AdminPartne
             let success = false;
             const partnerIndex = partnersData.findIndex(p => p.id === id);
             if (partnerIndex > -1) {
-                if (updates.subscriptionPlan) {
-                    (partnersData[partnerIndex] as any).subscriptionPlan = updates.subscriptionPlan;
-                    success = true;
-                }
-                if (updates.subscriptionEndDate !== undefined) {
-                    (partnersData[partnerIndex] as any).subscriptionEndDate = updates.subscriptionEndDate;
-                    success = true;
-                }
-                if (updates.contactMethods) {
-                    (partnersData[partnerIndex] as any).contactMethods = updates.contactMethods;
-                    success = true;
-                }
+                const partner = partnersData[partnerIndex];
+                 partnersData[partnerIndex] = { ...partner, ...updates };
+                 success = true;
             }
             resolve(success);
         }, 300);
@@ -255,9 +250,8 @@ export const deletePartner = (userId: string): Promise<boolean> => {
         setTimeout(async () => {
              console.warn("Mock API: Deleting a user does not remove them from source files.");
             const initialLength = partnersData.length;
-            const newData = partnersData.filter(p => p.id !== userId);
-            if (newData.length < initialLength) {
-                partnersData.splice(0, partnersData.length, ...newData);
+            partnersData = partnersData.filter(p => p.id !== userId);
+            if (partnersData.length < initialLength) {
                 resolve(true);
             } else {
                 resolve(false);

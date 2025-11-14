@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { BellIcon } from '../icons/Icons';
+import { BellIcon } from '../ui/Icons';
 import type { Notification } from '../../types';
 import { useQuery } from '@tanstack/react-query';
 import { getNotificationsByUserId, markNotificationsAsRead } from '../../services/notifications';

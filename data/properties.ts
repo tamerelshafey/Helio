@@ -47,6 +47,7 @@ export let propertiesData: Property[] = [
       installments: { downPayment: 850000, monthlyInstallment: 63750, years: 10 },
       location: { lat: 30.138, lng: 31.679 },
       listingStartDate: '2024-06-01',
+      listingStatus: 'active',
     },
     {
       id: 'apartment-heliopolis-2',
@@ -90,6 +91,7 @@ export let propertiesData: Property[] = [
       delivery: { isImmediate: true },
       location: { lat: 30.141, lng: 31.675 },
       listingStartDate: '2024-07-01',
+      listingStatus: 'active',
     },
     {
       id: 'commercial-heliopolis-3',
@@ -130,6 +132,7 @@ export let propertiesData: Property[] = [
       delivery: { isImmediate: true },
       location: { lat: 30.135, lng: 31.672 },
       listingStartDate: '2024-05-15',
+      listingStatus: 'active',
     },
     {
       id: 'land-heliopolis-4',
@@ -168,6 +171,7 @@ export let propertiesData: Property[] = [
       contactMethod: 'direct',
       ownerPhone: '01012345678',
       isInCompound: false,
+      listingStatus: 'active',
     },
     {
         id: 'apartment-heliopolis-5',
@@ -213,6 +217,7 @@ export let propertiesData: Property[] = [
         installments: { downPayment: 420000, monthlyInstallment: 31500, years: 10 },
         location: { lat: 30.13, lng: 31.67 },
         listingStartDate: '2024-07-20',
+        listingStatus: 'active',
     },
     {
         id: 'villa-heliopolis-6',
@@ -254,6 +259,7 @@ export let propertiesData: Property[] = [
         delivery: { isImmediate: true },
         location: { lat: 30.125, lng: 31.65 },
         listingStartDate: '2024-06-25',
+        listingStatus: 'active',
     },
     {
       id: 'apartment-heliopolis-7',
@@ -294,6 +300,7 @@ export let propertiesData: Property[] = [
       delivery: { isImmediate: true },
       location: { lat: 30.132, lng: 31.67 },
       listingStartDate: '2024-07-05',
+      listingStatus: 'active',
     },
     {
       id: 'duplex-heliopolis-8',
@@ -334,6 +341,7 @@ export let propertiesData: Property[] = [
       delivery: { isImmediate: true },
       location: { lat: 30.139, lng: 31.665 },
       listingStartDate: '2024-07-15',
+      listingStatus: 'active',
     },
      {
       id: 'villa-heliopolis-9',
@@ -375,5 +383,130 @@ export let propertiesData: Property[] = [
        installments: { downPayment: 1360000, monthlyInstallment: 45333, years: 10 },
       location: { lat: 30.128, lng: 31.678 },
       listingStartDate: '2024-05-28',
+      listingStatus: 'active',
+    },
+    {
+      id: 'penthouse-heliopolis-10',
+      partnerId: 'individual-listings',
+      imageUrl: "https://images.unsplash.com/photo-1613553425593-3b12635b2b5f?q=75&w=2070&auto=format&fit=crop",
+      imageUrl_small: "https://images.unsplash.com/photo-1613553425593-3b12635b2b5f?q=75&w=480&auto=format&fit=crop",
+      imageUrl_medium: "https://images.unsplash.com/photo-1613553425593-3b12635b2b5f?q=75&w=800&auto=format&fit=crop",
+      imageUrl_large: "https://images.unsplash.com/photo-1613553425593-3b12635b2b5f?q=75&w=1200&auto=format&fit=crop",
+      gallery: [],
+      status: { en: 'For Sale', ar: 'للبيع' },
+      price: { en: 'EGP 6,000,000', ar: '6,000,000 ج.م' },
+      priceNumeric: 6000000,
+      type: { en: 'Apartment', ar: 'شقة' },
+      title: {
+        ar: 'بنتهاوس فاخر بإطلالة بانورامية للبيع',
+        en: 'Luxury Penthouse with Panoramic View for Sale'
+      },
+      address: {
+        ar: 'الحي السادس، هليوبوليس الجديدة',
+        en: '6th District, New Heliopolis'
+      },
+      description: {
+        ar: 'بنتهاوس دوبلكس بالطابق الأخير مع رووف خاص بمساحة 100م. إطلالة مفتوحة على المدينة، تشطيبات سوبر لوكس وجاهز للسكن. مثالي لمن يبحث عن الخصوصية والتميز.',
+        en: 'A duplex penthouse on the top floor with a private 100m roof. Open views of the city, super lux finishes, and ready to move in. Ideal for those seeking privacy and distinction.'
+      },
+      beds: 4,
+      baths: 4,
+      area: 280,
+      floor: 7,
+      amenities: {
+        ar: ['رووف خاص', 'إطلالة بانورامية', 'تصميم حديث'],
+        en: ['Private Roof', 'Panoramic View', 'Modern Design']
+      },
+      finishingStatus: { en: 'Super Lux', ar: 'سوبر لوكس' },
+      installmentsAvailable: false,
+      isInCompound: false,
+      realEstateFinanceAvailable: true,
+      delivery: { isImmediate: true },
+      location: { lat: 30.136, lng: 31.666 },
+      listingStartDate: '2024-07-22',
+      contactMethod: 'platform',
+      listingStatus: 'active',
+    },
+    {
+      id: 'villa-rent-heliopolis-11',
+      partnerId: 'individual-listings',
+      imageUrl: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=2070&auto=format&fit=crop",
+      imageUrl_small: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=480&auto=format&fit=crop",
+      imageUrl_medium: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=800&auto=format&fit=crop",
+      imageUrl_large: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=1200&auto=format&fit=crop",
+      gallery: [],
+      status: { en: 'For Rent', ar: 'إيجار' },
+      price: { en: 'EGP 40,000 / month', ar: '40,000 ج.م / شهرياً' },
+      priceNumeric: 40000,
+      type: { en: 'Villa', ar: 'فيلا' },
+      title: {
+        ar: 'فيلا للإيجار بحديقة خاصة وحمام سباحة',
+        en: 'Villa for Rent with Private Garden and Pool'
+      },
+      address: {
+        ar: 'منطقة الفيلات، الحي الثاني، هليوبوليس الجديدة',
+        en: 'Villas Area, 2nd District, New Heliopolis'
+      },
+      description: {
+        ar: 'فيلا مستقلة مفروشة بالكامل للإيجار. تحتوي على حديقة واسعة وحمام سباحة خاص. مكيفة بالكامل وجاهزة للسكن الفوري. مثالية للعائلات.',
+        en: 'Standalone furnished villa for rent. Features a large garden and a private swimming pool. Fully air-conditioned and ready for immediate occupancy. Perfect for families.'
+      },
+      beds: 5,
+      baths: 5,
+      area: 400,
+      amenities: {
+        ar: ['حديقة خاصة', 'حمام سباحة', 'مفروشة بالكامل', 'جراج خاص'],
+        en: ['Private Garden', 'Swimming Pool', 'Fully Furnished', 'Private Garage']
+      },
+      finishingStatus: { en: 'Fully Furnished', ar: 'مفروشة بالكامل' },
+      isInCompound: false,
+      delivery: { isImmediate: true },
+      location: { lat: 30.142, lng: 31.670 },
+      listingStartDate: '2024-07-18',
+      contactMethod: 'direct',
+      ownerPhone: '01123456789',
+      listingStatus: 'active',
+    },
+    {
+      id: 'clinic-sale-heliopolis-12',
+      partnerId: 'individual-listings',
+      imageUrl: "https://images.unsplash.com/photo-1631049354021-b3b45a3ce3f4?q=75&w=2070&auto=format&fit=crop",
+      imageUrl_small: "https://images.unsplash.com/photo-1631049354021-b3b45a3ce3f4?q=75&w=480&auto=format&fit=crop",
+      imageUrl_medium: "https://images.unsplash.com/photo-1631049354021-b3b45a3ce3f4?q=75&w=800&auto=format&fit=crop",
+      imageUrl_large: "https://images.unsplash.com/photo-1631049354021-b3b45a3ce3f4?q=75&w=1200&auto=format&fit=crop",
+      gallery: [],
+      status: { en: 'For Sale', ar: 'للبيع' },
+      price: { en: 'EGP 2,500,000', ar: '2,500,000 ج.م' },
+      priceNumeric: 2500000,
+      type: { en: 'Commercial', ar: 'تجاري' },
+      title: {
+        ar: 'مساحة إدارية تصلح عيادة أو مكتب للبيع',
+        en: 'Administrative Space for Clinic or Office for Sale'
+      },
+      address: {
+        ar: 'المركز الطبي، الحي الأول، هليوبوليس الجديدة',
+        en: 'Medical Center, 1st District, New Heliopolis'
+      },
+      description: {
+        ar: 'مساحة تجارية مشطبة بالكامل في مبنى إداري مميز. تصلح لعيادة طبية أو مكتب إداري. موقع حيوي وسهل الوصول.',
+        en: 'Fully finished commercial space in a distinguished administrative building. Suitable for a medical clinic or an administrative office. Prime and easily accessible location.'
+      },
+      beds: 0,
+      baths: 1,
+      area: 90,
+      floor: 2,
+      amenities: {
+        ar: ['مصعد', 'موقع متميز', 'تشطيب كامل'],
+        en: ['Elevator', 'Prime Location', 'Fully Finished']
+      },
+      finishingStatus: { en: 'Fully Finished', ar: 'تشطيب كامل' },
+      installmentsAvailable: false,
+      isInCompound: false,
+      realEstateFinanceAvailable: false,
+      delivery: { isImmediate: true },
+      location: { lat: 30.134, lng: 31.673 },
+      listingStartDate: '2024-07-25',
+      contactMethod: 'platform',
+      listingStatus: 'active',
     }
 ];

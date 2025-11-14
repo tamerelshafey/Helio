@@ -1,10 +1,13 @@
 // Note: This is a mock API. In a real application, these functions would make network requests
 // to a backend service. The data is modified in-memory for simulation purposes.
 
-import { leadsData } from '../data/leads';
+import { leadsData as initialLeadsData } from '../data/leads';
 import type { Lead, LeadMessage } from '../types';
 import { getPartnerById } from './partners';
 import { addNotification } from './notifications';
+
+// Create a mutable, in-memory copy of the data to simulate a database.
+let leadsData: Lead[] = [...initialLeadsData];
 
 const SIMULATED_DELAY = 300;
 
@@ -114,9 +117,8 @@ export const deleteLead = (leadId: string): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             const initialLength = leadsData.length;
-            const newData = leadsData.filter(l => l.id !== leadId);
-            if (newData.length < initialLength) {
-                leadsData.splice(0, leadsData.length, ...newData);
+            leadsData = leadsData.filter(l => l.id !== leadId);
+            if (leadsData.length < initialLength) {
                 resolve(true);
             } else {
                 resolve(false);

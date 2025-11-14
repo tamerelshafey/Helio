@@ -1,17 +1,17 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Language, Project } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import FormField, { inputClasses } from '../shared/FormField';
-import { addProject, updateProject } from '../../services/projects';
-import { useQuery } from '@tanstack/react-query';
-import { getAllProjects } from '../../services/projects';
+import FormField, { inputClasses } from '../ui/FormField';
+import { addProject, updateProject, getAllProjects } from '../../services/projects';
 import { Role, Permission } from '../../types';
-import { useSubscriptionUsage } from '../shared/useSubscriptionUsage';
+import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import UpgradeNotice from '../shared/UpgradeNotice';
 import { useLanguage } from '../shared/LanguageContext';
+import { useToast } from '../shared/ToastContext';
+import { Button } from '../ui/Button';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -27,39 +27,52 @@ const ProjectFormPage: React.FC = () => {
     const { projectId } = useParams();
     const navigate = useNavigate();
     const { currentUser, hasPermission } = useAuth();
-    const { data: projects, isLoading: projectsLoading } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects, enabled: !!projectId });
+    const { data: projects, isLoading: projectsLoading } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
+    const { showToast } = useToast();
+    const queryClient = useQueryClient();
     const t_form = t.projectDashboard.projectForm;
 
     const { isLimitReached } = useSubscriptionUsage('projects');
-
-    const [formData, setFormData] = useState({
-        name: { ar: '', en: '' },
-        description: { ar: '', en: '' },
-    });
+    const { register, handleSubmit, reset, formState: { isSubmitting: isFormSubmitting, errors } } = useForm<Project>();
+    
     const [image, setImage] = useState<string>('');
-    const [formLoading, setFormLoading] = useState(false);
 
     useEffect(() => {
         if (projectId && projects) {
             const project = projects.find(p => p.id === projectId);
             if (project && currentUser && 'type' in currentUser && (project.partnerId === currentUser.id || hasPermission(Permission.MANAGE_ALL_PROJECTS))) {
-                setFormData({
-                    name: project.name,
-                    description: project.description,
-                });
+                reset(project);
                 setImage(project.imageUrl);
-            } else if (!projectsLoading) { // check if projects have been loaded
-                 const redirectPath = currentUser && 'type' in currentUser && hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
+            } else if (!projectsLoading) {
+                const redirectPath = hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
                 navigate(redirectPath);
             }
         }
-    }, [projectId, currentUser, navigate, projects, projectsLoading, hasPermission]);
-    
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        const [field, lang] = name.split('.');
-        setFormData(prev => ({ ...prev, [field]: { ...(prev as any)[field], [lang]: value } }));
+    }, [projectId, currentUser, navigate, projects, projectsLoading, hasPermission, reset]);
+
+    const handleSuccess = () => {
+        queryClient.invalidateQueries({ queryKey: ['allProjects'] });
+        const redirectPath = hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
+        navigate(redirectPath);
     };
+
+    const addMutation = useMutation({
+        mutationFn: addProject,
+        onSuccess: () => {
+            showToast('Project created successfully!', 'success');
+            handleSuccess();
+        },
+        onError: () => showToast('Failed to create project.', 'error'),
+    });
+
+    const updateMutation = useMutation({
+        mutationFn: (data: { projectId: string; updates: Partial<Project> }) => updateProject(data.projectId, data.updates),
+        onSuccess: () => {
+            showToast('Project updated successfully!', 'success');
+            handleSuccess();
+        },
+        onError: () => showToast('Failed to update project.', 'error'),
+    });
 
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -68,62 +81,55 @@ const ProjectFormPage: React.FC = () => {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit = async (formData: any) => {
         if (!currentUser || !('type' in currentUser)) return;
-        setFormLoading(true);
 
         const existingProject = projectId ? projects?.find(p => p.id === projectId) : undefined;
-
-        const projectData: Omit<Project, 'id' | 'createdAt'> = {
-            name: formData.name,
-            description: formData.description,
+        const projectData = {
+            ...formData,
             imageUrl: image,
             partnerId: existingProject?.partnerId || currentUser.id,
             features: existingProject?.features || [],
         };
 
         if (projectId) {
-            await updateProject(projectId, projectData);
+            updateMutation.mutate({ projectId, updates: projectData });
         } else {
-            await addProject(projectData);
+            addMutation.mutate(projectData);
         }
-        
-        setFormLoading(false);
-        const redirectPath = currentUser && 'type' in currentUser && hasPermission(Permission.VIEW_ADMIN_DASHBOARD) ? '/admin/projects' : '/dashboard/projects';
-        navigate(redirectPath);
     };
     
-     if (projectsLoading && projectId) return <div>Loading project...</div>
+    if (projectsLoading && projectId) return <div>Loading project...</div>;
 
-    const isAdmin = currentUser && 'type' in currentUser && hasPermission(Permission.MANAGE_ALL_PROJECTS);
-
+    const isAdmin = hasPermission(Permission.MANAGE_ALL_PROJECTS);
     if (isLimitReached && !projectId && !isAdmin) {
         return <UpgradeNotice />;
     }
+    
+    const isSubmitting = addMutation.isPending || updateMutation.isPending;
 
     return (
         <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
                 {projectId ? t_form.editTitle : t_form.addTitle}
             </h1>
-            <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField label={t_form.nameAr} id="name.ar">
-                        <input type="text" name="name.ar" value={formData.name.ar} onChange={handleChange} className={inputClasses} required />
+                        <input type="text" {...register("name.ar", { required: true })} className={inputClasses} />
                     </FormField>
                      <FormField label={t_form.nameEn} id="name.en">
-                        <input type="text" name="name.en" value={formData.name.en} onChange={handleChange} className={inputClasses} required />
+                        <input type="text" {...register("name.en", { required: true })} className={inputClasses} />
                     </FormField>
                 </div>
                 <div>
                      <FormField label={t_form.descriptionAr} id="description.ar">
-                        <textarea name="description.ar" value={formData.description.ar} onChange={handleChange} className={inputClasses} rows={4} required />
+                        <textarea {...register("description.ar", { required: true })} className={inputClasses} rows={4} />
                     </FormField>
                 </div>
                  <div>
                      <FormField label={t_form.descriptionEn} id="description.en">
-                        <textarea name="description.en" value={formData.description.en} onChange={handleChange} className={inputClasses} rows={4} required />
+                        <textarea {...register("description.en", { required: true })} className={inputClasses} rows={4} />
                     </FormField>
                 </div>
                  <FormField label={t_form.image} id="image">
@@ -133,9 +139,9 @@ const ProjectFormPage: React.FC = () => {
                     </div>
                 </FormField>
                 <div className="flex justify-end pt-4">
-                    <button type="submit" disabled={formLoading} className="bg-amber-500 text-gray-900 font-semibold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
-                        {formLoading ? '...' : (projectId ? t_form.saveChanges : t_form.createProject)}
-                    </button>
+                    <Button type="submit" isLoading={isSubmitting}>
+                        {projectId ? t_form.saveChanges : t_form.createProject}
+                    </Button>
                 </div>
             </form>
         </div>

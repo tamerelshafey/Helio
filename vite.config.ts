@@ -17,8 +17,6 @@ export default defineConfig({
                 'react-chartjs-2',
                 'jspdf',
                 'jspdf-autotable',
-                /^react\//,
-                /^react-dom\//,
             ],
         },
     },

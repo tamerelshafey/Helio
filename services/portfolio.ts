@@ -1,8 +1,11 @@
 // Note: This is a mock API. In a real application, these functions would make network requests
 // to a backend service. The data is modified in-memory for simulation purposes.
 
-import { portfolioData } from '../data/portfolio';
+import { portfolioData as initialPortfolioData } from '../data/portfolio';
 import type { PortfolioItem } from '../types';
+
+// Create a mutable, in-memory copy of the data to simulate a database.
+let portfolioData: PortfolioItem[] = [...initialPortfolioData];
 
 const SIMULATED_DELAY = 300;
 
@@ -53,9 +56,8 @@ export const deletePortfolioItem = (itemId: string): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             const initialLength = portfolioData.length;
-            const newData = portfolioData.filter(p => p.id !== itemId);
-            if (newData.length < initialLength) {
-                portfolioData.splice(0, portfolioData.length, ...newData);
+            portfolioData = portfolioData.filter(p => p.id !== itemId);
+            if (portfolioData.length < initialLength) {
                 resolve(true);
             } else {
                 resolve(false);

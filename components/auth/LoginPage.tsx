@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
@@ -5,7 +7,7 @@ import { Role, Permission } from '../../types';
 import type { Language, Partner } from '../../types';
 import { getPartnerByEmail } from '../../services/partners';
 import { Input } from '../ui/Input';
-import { HelioLogo } from '../HelioLogo';
+import { HelioLogo } from '../ui/Icons';
 import { partnersData } from '../../data/partners';
 import { rolePermissions } from '../../data/permissions';
 import { useLanguage } from '../shared/LanguageContext';

@@ -1,8 +1,6 @@
-
-
 import React, { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CloseIcon } from './icons/Icons';
+import { CloseIcon } from './ui/Icons';
 import { useLanguage } from './shared/LanguageContext';
 
 interface UpgradePlanModalProps {

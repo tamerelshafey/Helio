@@ -1,7 +1,11 @@
 
-import { partnerRequestsData } from '../data/partnerRequests';
+
+import { partnerRequestsData as initialPartnerRequestsData } from '../data/partnerRequests';
 import type { PartnerRequest } from '../types';
 import { addNotification } from './notifications';
+
+// Create a mutable, in-memory copy of the data to simulate a database.
+let partnerRequestsData: PartnerRequest[] = [...initialPartnerRequestsData];
 
 const SIMULATED_DELAY = 300;
 

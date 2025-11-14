@@ -378,45 +378,24 @@ export let siteContentData: SiteContent = {
     images: [
         {
             src: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=75&w=1600&auto=format&fit=crop",
-            src_small: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=75&w=480&auto=format&fit=crop",
-            src_medium: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=75&w=800&auto=format&fit=crop",
-            src_large: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=75&w=1600&auto=format&fit=crop",
+            alt: { ar: "فيلا حديثة مع مسبح عند الغسق", en: "Modern villa with a pool at dusk" }
         },
         {
             src: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=1600&auto=format&fit=crop",
-            src_small: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=480&auto=format&fit=crop",
-            src_medium: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=800&auto=format&fit=crop",
-            src_large: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=75&w=1600&auto=format&fit=crop",
+            alt: { ar: "فيلا فاخرة بتصميم مستقبلي", en: "Luxury villa with a futuristic design" }
         },
         {
             src: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=1600&auto=format&fit=crop",
-            src_small: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=480&auto=format&fit=crop",
-            src_medium: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=800&auto=format&fit=crop",
-            src_large: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=75&w=1600&auto=format&fit=crop",
+            alt: { ar: "منزل عائلي أنيق بواجهة بيضاء", en: "Elegant family house with a white facade" }
         },
         {
             src: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=1600&auto=format&fit=crop",
-            src_small: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=480&auto=format&fit=crop",
-            src_medium: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=800&auto=format&fit=crop",
-            src_large: "https://images.unsplash.com/photo-1593696140826-c58b02198d47?q=75&w=1600&auto=format&fit=crop",
+            alt: { ar: "مبنى سكني حديث بواجهات زجاجية", en: "Modern apartment building with glass facades" }
         }
     ],
-    imageAlts: {
-        ar: [
-            "فيلا حديثة مع مسبح عند الغسق",
-            "فيلا فاخرة بتصميم مستقبلي",
-            "منزل عائلي أنيق بواجهة بيضاء",
-            "مبنى سكني حديث بواجهات زجاجية"
-        ],
-        en: [
-            "Modern villa with a pool at dusk",
-            "Luxury villa with a futuristic design",
-            "Elegant family house with a white facade",
-            "Modern apartment building with glass facades"
-        ]
-    }
   },
   whyUs: {
+    enabled: true,
     ar: {
       title: 'لماذا تختار منصة ONLY HELIO؟',
       description: 'نحن لا نعرض العقارات فقط، بل نبني منظومة متكاملة مبنية على الثقة والخبرة لخدمة كل المهتمين بمدينة هليوبوليس الجديدة.',
@@ -439,6 +418,7 @@ export let siteContentData: SiteContent = {
     }
   },
   services: {
+    enabled: true,
     ar: {
       title: 'خدماتنا المتكاملة',
       description: 'نقدم حلولاً شاملة ومخصصة لمدينة هليوبوليس الجديدة، تلبي كافة احتياجاتكم العقارية من التصميم والديكور إلى التشطيبات والتسويق.',
@@ -459,13 +439,15 @@ export let siteContentData: SiteContent = {
     }
   },
   partners: {
+    enabled: true,
     ar: {
         title: 'شركاء العمل',
         description: 'نتعاون مع نخبة من المطورين والشركات لتقديم أفضل الخدمات في هليوبوليس الجديدة.',
         mega_projects_title: 'كبار المطورين',
         developers_title: 'مطورو المدينة',
         finishing_companies_title: 'شركات التشطيب والتصميم',
-        agencies_title: 'المكاتب العقارية'
+        agencies_title: 'المكاتب العقارية',
+        investor_partners_title: 'شركاؤنا المستثمرون'
     },
     en: {
         title: 'Our Business Partners',
@@ -473,10 +455,62 @@ export let siteContentData: SiteContent = {
         mega_projects_title: 'Major Developers',
         developers_title: 'City Developers',
         finishing_companies_title: 'Finishing & Design Companies',
-        agencies_title: 'Real Estate Agencies'
+        agencies_title: 'Real Estate Agencies',
+        investor_partners_title: 'Our Investor Partners'
     }
   },
+  testimonials: {
+    enabled: true,
+    ar: {
+        title: 'ماذا يقول عملاؤنا',
+        subtitle: 'قصص حقيقية من أصحاب المنازل والشركاء الراضين.'
+    },
+    en: {
+        title: 'What Our Clients Say',
+        subtitle: 'Real stories from satisfied homeowners and partners.'
+    },
+    items: [
+        {
+            quote: {
+                en: 'Only Helio helped me find the perfect villa for my family. The process was smooth and professional from start to finish!',
+                ar: 'ساعدني أونلي هيليو في العثور على الفيلا المثالية لعائلتي. كانت العملية سلسة واحترافية من البداية إلى النهاية!',
+            },
+            author: {
+                en: 'Ahmed Hassan',
+                ar: 'أحمد حسن',
+            },
+            location: {
+                en: 'New Heliopolis Resident',
+                ar: 'من سكان هليوبوليس الجديدة',
+            },
+        },
+        {
+            quote: {
+                en: 'The finishing services are top-notch. They transformed my apartment into a dream home. Highly recommended.',
+                ar: 'خدمات التشطيب على أعلى مستوى. لقد حولوا شقتي إلى منزل الأحلام. أوصي بهم بشدة.',
+            },
+            author: {
+                en: 'Fatima Ali',
+                ar: 'فاطمة علي',
+            },
+            location: {
+                en: 'New Cairo',
+                ar: 'القاهرة الجديدة',
+            },
+        },
+    ]
+  },
+  socialProof: {
+    enabled: true,
+    stats: [
+        { value: '150+', name: { en: 'Properties Listed', ar: 'عقار معروض' } },
+        { value: '50+', name: { en: 'Happy Clients', ar: 'عميل سعيد' } },
+        { value: '10+', name: { en: 'Years of Experience', ar: 'سنوات من الخبرة' } },
+        { value: '20+', name: { en: 'Partner Companies', ar: 'شركة شريكة' } },
+    ],
+  },
   whyNewHeliopolis: {
+    enabled: true,
     ar: {
       title: 'لماذا هليوبوليس الجديدة؟',
       location: {
@@ -504,8 +538,8 @@ export let siteContentData: SiteContent = {
       }
     },
     images: [
-        { src: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=75&w=1200&auto=format&fit=crop", alt: "Map showing location of New Heliopolis" },
-        { src: "https://images.unsplash.com/photo-1595995449553-15104a3b3f9?q=75&w=1200&auto=format&fit=crop", alt: "Gate of New Heliopolis" }
+        { src: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=75&w=1200&auto=format&fit=crop", alt: { ar: "خريطة توضح موقع هليوبوليس الجديدة", en: "Map showing location of New Heliopolis" } },
+        { src: "https://images.unsplash.com/photo-1595995449553-15104a3b3f9?q=75&w=1200&auto=format&fit=crop", alt: { ar: "بوابة هليوبوليس الجديدة", en: "Gate of New Heliopolis" } }
     ]
   },
   finishingServices: [

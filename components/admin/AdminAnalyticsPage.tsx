@@ -2,10 +2,10 @@
 
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, Lead, Property, AdminPartner } from '../../types';
-import { BuildingIcon, InboxIcon, UsersIcon, ChartBarIcon } from '../icons/Icons';
+import type { Language, Lead, Property, AdminPartner, Request } from '../../types';
+import { BuildingIcon, InboxIcon, UsersIcon, ChartBarIcon } from '../ui/Icons';
 import { useQuery } from '@tanstack/react-query';
-import { getAllLeads } from '../../services/leads';
+import { getAllRequests } from '../../services/requests';
 import { getAllProperties } from '../../services/properties';
 import { getAllPartnersForAdmin } from '../../services/partners';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler } from 'chart.js';
@@ -37,13 +37,15 @@ const AdminAnalyticsPage: React.FC = () => {
     const { language, t } = useLanguage();
     const t_analytics = t.adminAnalytics;
     const t_dashboard = t.dashboard;
-    const { data: leads, isLoading: loadingLeads } = useQuery({ queryKey: ['allLeadsAnalytics'], queryFn: getAllLeads });
+    const t_request_types = t.adminDashboard.requestTypes;
+    
+    const { data: requests, isLoading: loadingRequests } = useQuery({ queryKey: ['allRequests'], queryFn: getAllRequests });
     const { data: properties, isLoading: loadingProperties } = useQuery({ queryKey: ['allPropertiesAnalytics'], queryFn: getAllProperties });
     const { data: partners, isLoading: loadingPartners } = useQuery({ queryKey: ['allPartnersAnalytics'], queryFn: getAllPartnersForAdmin });
     
     const [timePeriod, setTimePeriod] = useState<TimePeriod>('30d');
     
-    const loading = loadingLeads || loadingProperties || loadingPartners;
+    const loading = loadingRequests || loadingProperties || loadingPartners;
 
     const { rangeStart, rangeEnd } = useMemo(() => {
         const end = new Date();
@@ -60,17 +62,20 @@ const AdminAnalyticsPage: React.FC = () => {
     }, [timePeriod]);
 
     const analyticsData = useMemo(() => {
-        if (!leads || !properties || !partners) return null;
+        if (!requests || !properties || !partners) return null;
 
-        const filteredLeads = leads.filter(l => {
-            const leadDateTs = new Date(l.createdAt).getTime();
-            return leadDateTs >= rangeStart.getTime() && leadDateTs <= rangeEnd.getTime();
+        const filteredRequests = requests.filter(l => {
+            const reqDateTs = new Date(l.createdAt).getTime();
+            return reqDateTs >= rangeStart.getTime() && reqDateTs <= rangeEnd.getTime();
         });
-        
-        const conversionRate = properties.length > 0 ? (Number(leads.length) / Number(properties.length)).toFixed(2) : "0.00";
 
-        const leadsByProperty = leads.reduce((acc, lead) => {
-            if(lead.propertyId) acc[lead.propertyId] = (acc[lead.propertyId] || 0) + 1;
+        const allLeads = requests.filter(r => r.type === 'LEAD');
+        const completedLeads = allLeads.filter(l => (l.payload as any).status === 'completed');
+        const conversionRate = allLeads.length > 0 ? `${((completedLeads.length / allLeads.length) * 100).toFixed(1)}%` : "0%";
+        
+        const leadsByProperty = allLeads.reduce((acc, lead) => {
+            const propertyId = (lead.payload as any).propertyId;
+            if(propertyId) acc[propertyId] = (acc[propertyId] || 0) + 1;
             return acc;
         }, {} as Record<string, number>);
 
@@ -80,8 +85,9 @@ const AdminAnalyticsPage: React.FC = () => {
             .map(([id, count]) => ({ property: properties.find(p => p.id === id), count }))
             .filter(p => p.property);
 
-        const leadsByPartner = leads.reduce((acc, lead) => {
-            acc[lead.partnerId] = (acc[lead.partnerId] || 0) + 1;
+        const leadsByPartner = allLeads.reduce((acc, lead) => {
+            const partnerId = (lead.payload as any).partnerId;
+            acc[partnerId] = (acc[partnerId] || 0) + 1;
             return acc;
         }, {} as Record<string, number>);
 
@@ -93,15 +99,16 @@ const AdminAnalyticsPage: React.FC = () => {
 
         const leadsOverTime = (() => {
             const groupedData = new Map<string, number>();
+            const leadsInPeriod = filteredRequests.filter(r => r.type === 'LEAD');
 
-            filteredLeads.forEach(lead => {
+            leadsInPeriod.forEach(lead => {
                 const date = new Date(lead.createdAt);
                 const key = timePeriod === 'year'
                     ? `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`
                     : date.toISOString().split('T')[0];
                 groupedData.set(key, (groupedData.get(key) || 0) + 1);
             });
-
+            // ... (rest of leadsOverTime logic remains the same)
             const labels: string[] = [];
             const data: number[] = [];
             let currentDate = new Date(rangeStart);
@@ -124,34 +131,27 @@ const AdminAnalyticsPage: React.FC = () => {
             return { labels, data };
         })();
         
-        const propertyTypes = properties.reduce((acc, prop) => {
-            const type = prop.type[language];
-            acc[type] = (acc[type] || 0) + 1;
+        const requestTypeDistribution = requests.reduce((acc, req) => {
+            const typeName = t_request_types[req.type] || req.type;
+            acc[typeName] = (acc[typeName] || 0) + 1;
             return acc;
         }, {} as Record<string, number>);
 
-        const leadStatuses = leads.reduce((acc, lead) => {
-            const status = t_dashboard.leadStatus[lead.status];
-            acc[status] = (acc[status] || 0) + 1;
-            return acc;
-        }, {} as Record<string, number>);
-        
         return {
-            newLeads: filteredLeads.length,
-            newPartners: partners.filter(p => new Date(p.subscriptionEndDate || 0) > rangeStart).length, // Simplified logic
-            newProperties: properties.filter(p => new Date(p.listingStartDate || 0) > rangeStart).length, // Simplified logic
+            newLeads: filteredRequests.filter(r => r.type === 'LEAD').length,
+            newPartners: partners.filter(p => new Date(p.subscriptionEndDate || 0) > rangeStart).length,
+            newProperties: properties.filter(p => new Date(p.listingStartDate || 0) > rangeStart).length,
             conversionRate,
             topProperties,
             topPartners,
             leadsOverTime,
-            propertyTypes,
-            leadStatuses,
+            requestTypeDistribution
         };
-    }, [leads, properties, partners, rangeStart, rangeEnd, language, t_dashboard.leadStatus, timePeriod]);
+    }, [requests, properties, partners, rangeStart, rangeEnd, language, t_dashboard.leadStatus, timePeriod, t_request_types]);
 
     if (loading || !analyticsData) return <div>Loading analytics...</div>;
     
-    const { leadsOverTime, propertyTypes, leadStatuses } = analyticsData;
+    const { leadsOverTime, requestTypeDistribution } = analyticsData;
     
     const lineChartData = {
         labels: leadsOverTime.labels,
@@ -165,26 +165,16 @@ const AdminAnalyticsPage: React.FC = () => {
         }],
     };
 
-    const doughnutChartData = {
-        labels: Object.keys(propertyTypes),
+    const requestTypeChartData = {
+        labels: Object.keys(requestTypeDistribution),
         datasets: [{
-            data: Object.values(propertyTypes),
+            data: Object.values(requestTypeDistribution),
             backgroundColor: ['#F59E0B', '#D97706', '#B45309', '#92400E', '#78350F'],
             hoverOffset: 4,
         }],
     };
     
-    const barChartData = {
-        labels: Object.keys(leadStatuses),
-        datasets: [{
-            label: 'Lead Count',
-            data: Object.values(leadStatuses),
-            backgroundColor: '#FBBF24',
-            borderRadius: 4,
-        }],
-    };
-
-    const commonChartOptions = (title: string) => ({
+    const commonChartOptions = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
@@ -194,7 +184,7 @@ const AdminAnalyticsPage: React.FC = () => {
              x: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#6B7280' } },
              y: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9CA3AF' : '#6B7280' } },
         }
-    });
+    };
 
     const doughnutOptions = {
         responsive: true,
@@ -216,7 +206,7 @@ const AdminAnalyticsPage: React.FC = () => {
                         const periodMap: Record<string, TimePeriod> = { last7days: '7d', last30days: '30d', thismonth: 'month', thisyear: 'year' };
                         const key = String(periodKey).replace(/([A-Z])/g, '$1').toLowerCase();
                         return (
-                            <button key={key} onClick={() => setTimePeriod(periodMap[key])} className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${timePeriod === periodMap[key] ? 'bg-white dark:bg-gray-700 shadow text-amber-600' : 'text-gray-600 dark:text-gray-400'}`}>{t_analytics[periodKey]}</button>
+                            <button key={key} onClick={() => setTimePeriod(periodMap[key])} className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${timePeriod === periodMap[key] ? 'bg-white dark:bg-gray-700 shadow text-amber-600' : 'text-gray-600 dark:text-gray-400'}`}>{t_analytics[periodKey] as string}</button>
                         );
                     })}
                 </div>
@@ -226,24 +216,20 @@ const AdminAnalyticsPage: React.FC = () => {
                 <StatCard title={t_analytics.newLeads} value={analyticsData.newLeads} icon={<InboxIcon className="w-6 h-6" />} />
                 <StatCard title={t_analytics.newPartners} value={analyticsData.newPartners} icon={<UsersIcon className="w-6 h-6" />} />
                 <StatCard title={t_analytics.newProperties} value={analyticsData.newProperties} icon={<BuildingIcon className="w-6 h-6" />} />
-                <StatCard title={t_analytics.conversionRate} value={`${analyticsData.conversionRate} ${t_analytics.leadsPerProperty}`} icon={<ChartBarIcon className="w-6 h-6" />} />
+                <StatCard title={t_analytics.conversionRate} value={analyticsData.conversionRate} icon={<ChartBarIcon className="w-6 h-6" />} />
             </div>
             
             <Card>
                 <CardHeader>
                     <CardTitle>{t_analytics.leadsOverTime}</CardTitle>
                 </CardHeader>
-                <CardContent className="h-80"><Line data={lineChartData} options={commonChartOptions('')}/></CardContent>
+                <CardContent className="h-80"><Line data={lineChartData} options={commonChartOptions}/></CardContent>
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <Card className="lg:col-span-1">
-                     <CardHeader><CardTitle>{t_analytics.leadStatusDistribution}</CardTitle></CardHeader>
-                     <CardContent className="h-80"><Bar data={barChartData} options={{...commonChartOptions(''), indexAxis: 'y'}}/></CardContent>
-                </Card>
-                 <Card className="lg:col-span-1">
-                     <CardHeader><CardTitle>{t_analytics.propertyTypeDistribution}</CardTitle></CardHeader>
-                     <CardContent className="h-80"><Doughnut data={doughnutChartData} options={doughnutOptions} /></CardContent>
+                <Card>
+                     <CardHeader><CardTitle>{t_analytics.requestTypeDistribution}</CardTitle></CardHeader>
+                     <CardContent className="h-80"><Doughnut data={requestTypeChartData} options={doughnutOptions} /></CardContent>
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>{t_analytics.topPerformingPartners}</CardTitle></CardHeader>
@@ -264,11 +250,10 @@ const AdminAnalyticsPage: React.FC = () => {
                         </ul>
                     </CardContent>
                 </Card>
-            </div>
-            <Card>
+                <Card>
                 <CardHeader><CardTitle>{t_analytics.topPerformingProperties}</CardTitle></CardHeader>
                 <CardContent>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <ul className="space-y-3">
                         {analyticsData.topProperties.map(({ property, count }) => property && (
                             <li key={property.id}>
                                 <Link to={`/admin/properties/edit/${property.id}`} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
@@ -284,6 +269,7 @@ const AdminAnalyticsPage: React.FC = () => {
                     </ul>
                 </CardContent>
             </Card>
+            </div>
         </div>
     );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons';
+import { ChevronLeftIcon, ChevronRightIcon } from '../ui/Icons';
 import { useLanguage } from './LanguageContext';
 
 interface PaginationProps {

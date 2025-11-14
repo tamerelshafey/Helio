@@ -1,7 +1,9 @@
+
+
 import React, { useState } from 'react';
 import type { SubscriptionPlan, SubscriptionPlanDetails, PlanCategory } from '../../types';
 import AdminPlanEditModal from './AdminPlanEditModal';
-import { CheckCircleIcon } from '../icons/Icons';
+import { CheckCircleIcon } from '../ui/Icons';
 import { getPlans } from '../../services/plans';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';
@@ -45,21 +47,23 @@ const PlanCard: React.FC<{
 };
 
 
-const AdminPlansPage: React.FC = () => {
+const AdminPlansPage: React.FC<{ availableCategories?: PlanCategory[] }> = ({ availableCategories }) => {
     const { language, t } = useLanguage();
     const t_plans = t.adminDashboard.plans;
     const { data: plans, isLoading: loading, refetch } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
     
-    const [activeTab, setActiveTab] = useState<PlanCategory>('developer');
-    const [editingPlan, setEditingPlan] = useState<{ planType: PlanCategory, planKey: SubscriptionPlan } | null>(null);
-    
-    const tabs: { key: PlanCategory, name: string }[] = [
+    const allTabs: { key: PlanCategory, name: string }[] = [
         { key: 'developer', name: t_plans.planCategories.developer },
         { key: 'agency', name: t_plans.planCategories.agency },
         { key: 'finishing', name: t_plans.planCategories.finishing },
         { key: 'individual', name: t_plans.planCategories.individual },
     ];
 
+    const tabs = availableCategories ? allTabs.filter(tab => availableCategories.includes(tab.key)) : allTabs;
+
+    const [activeTab, setActiveTab] = useState<PlanCategory>(tabs[0]?.key || 'developer');
+    const [editingPlan, setEditingPlan] = useState<{ planType: PlanCategory, planKey: SubscriptionPlan } | null>(null);
+    
     const handleSave = () => {
         refetch();
         setEditingPlan(null);

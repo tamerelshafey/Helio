@@ -1,0 +1,131 @@
+
+
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getAllPartnersForAdmin, deletePartner } from '../../../services/partners';
+import { useAdminTable } from '../../../hooks/useAdminTable';
+import { useLanguage } from '../../shared/LanguageContext';
+import { AdminPartner, PartnerStatus, PartnerType } from '../../../types';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
+import Pagination from '../../shared/Pagination';
+import { Input } from '../../ui/Input';
+import { Select } from '../../ui/Select';
+import { Button } from '../../ui/Button';
+import AdminUserFormModal from './AdminUserFormModal';
+import ConfirmationModal from '../../shared/ConfirmationModal';
+
+const AdminUsersPage: React.FC = () => {
+    const { language, t } = useLanguage();
+    const t_admin = t.adminDashboard;
+    const queryClient = useQueryClient();
+    const [modalState, setModalState] = useState<{ isOpen: boolean, userToEdit?: AdminPartner }>({ isOpen: false });
+    const [userToDelete, setUserToDelete] = useState<string | null>(null);
+
+    const { data: users, isLoading } = useQuery({ 
+        queryKey: ['allPartnersAdmin'], 
+        queryFn: getAllPartnersForAdmin 
+    });
+    
+    const deleteMutation = useMutation({
+        mutationFn: deletePartner,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['allPartnersAdmin'] });
+            setUserToDelete(null);
+        },
+    });
+
+    const {
+        paginatedItems, totalPages, currentPage, setCurrentPage,
+        searchTerm, setSearchTerm, filters, setFilter
+    } = useAdminTable({
+        data: users,
+        itemsPerPage: 15,
+        initialSort: { key: 'name', direction: 'ascending' },
+        searchFn: (p: AdminPartner, term: string) => p.name.toLowerCase().includes(term) || (p.nameAr && p.nameAr.toLowerCase().includes(term)) || p.email.toLowerCase().includes(term),
+        filterFns: {
+            type: (p: AdminPartner, v) => p.type === v,
+            status: (p: AdminPartner, v) => p.status === v,
+        }
+    });
+
+    return (
+        <div>
+            {modalState.isOpen && (
+                <AdminUserFormModal
+                    userToEdit={modalState.userToEdit}
+                    onClose={() => setModalState({ isOpen: false })}
+                />
+            )}
+            {userToDelete && (
+                <ConfirmationModal
+                    isOpen={!!userToDelete}
+                    onClose={() => setUserToDelete(null)}
+                    onConfirm={() => deleteMutation.mutate(userToDelete)}
+                    title="Delete User"
+                    message={t_admin.userManagement.confirmDelete}
+                />
+            )}
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t_admin.userManagement.title}</h1>
+                <Button onClick={() => setModalState({ isOpen: true })}>
+                    {t_admin.userManagement.addUser}
+                </Button>
+            </div>
+            
+            <div className="mb-4 flex gap-4">
+                <Input placeholder={t_admin.filter.searchByNameOrEmail} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="max-w-xs"/>
+                <Select value={filters.type || 'all'} onChange={e => setFilter('type', e.target.value)}>
+                    <option value="all">{t_admin.filter.filterByType} ({t_admin.filter.all})</option>
+                    {Object.entries(t_admin.partnerTypes).map(([key, value]) => <option key={key} value={key}>{value as string}</option>)}
+                </Select>
+                <Select value={filters.status || 'all'} onChange={e => setFilter('status', e.target.value)}>
+                    <option value="all">{t_admin.filter.filterByStatus} ({t_admin.filter.all})</option>
+                    {Object.entries(t_admin.partnerStatuses).map(([key, value]) => <option key={key} value={key}>{value as string}</option>)}
+                </Select>
+            </div>
+
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>{t_admin.userManagement.user}</TableHead>
+                            <TableHead>{t_admin.userManagement.role}</TableHead>
+                            <TableHead>{t_admin.userManagement.status}</TableHead>
+                            <TableHead>{t_admin.userManagement.actions}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            <TableRow><TableCell colSpan={4} className="text-center p-8">Loading users...</TableCell></TableRow>
+                        ) : paginatedItems.map(user => (
+                            <TableRow key={user.id}>
+                                <TableCell>
+                                    <div className="flex items-center gap-3">
+                                        <img src={user.imageUrl} alt="" className="w-10 h-10 rounded-full object-cover"/>
+                                        <div>
+                                            <div className="font-medium text-gray-900 dark:text-white">{language === 'ar' ? user.nameAr : user.name}</div>
+                                            <div className="text-xs text-gray-500">{user.email}</div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell>{t_admin.partnerTypes[user.type as keyof typeof t_admin.partnerTypes]}</TableCell>
+                                <TableCell>
+                                    <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                        {t_admin.partnerStatuses[user.status as keyof typeof t_admin.partnerStatuses]}
+                                    </span>
+                                </TableCell>
+                                <TableCell>
+                                    <Button variant="link" onClick={() => setModalState({ isOpen: true, userToEdit: user })}>{t_admin.userManagement.editUser}</Button>
+                                    <Button variant="link" className="text-red-500" onClick={() => setUserToDelete(user.id)}>{t.adminShared.delete}</Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            </div>
+        </div>
+    );
+};
+
+export default AdminUsersPage;

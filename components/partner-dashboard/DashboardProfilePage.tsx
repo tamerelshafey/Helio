@@ -1,13 +1,17 @@
 
+
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { SubscriptionPlan } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import { inputClasses } from '../shared/FormField';
+import { inputClasses } from '../ui/FormField';
 import { updatePartner } from '../../services/partners';
 import { useToast } from '../shared/ToastContext';
 import { useLanguage } from '../shared/LanguageContext';
+import { Button } from '../ui/Button';
 
 const textareaClasses = `${inputClasses} min-h-[120px]`;
 
@@ -26,27 +30,36 @@ const DashboardProfilePage: React.FC = () => {
     const t_plans_base = t.subscriptionPlans;
     const { currentUser, loading: authLoading } = useAuth();
     const { showToast } = useToast();
-    const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm();
+    const queryClient = useQueryClient();
+    const { register, handleSubmit, reset } = useForm();
     
     const [logoPreview, setLogoPreview] = useState<string | null>('');
     const [logoFile, setLogoFile] = useState<File | null>(null);
+
+    const mutation = useMutation({
+        mutationFn: (data: { id: string, updates: any }) => updatePartner(data.id, data.updates),
+        onSuccess: () => {
+            showToast(t_dash.profileUpdateSuccess, 'success');
+            queryClient.invalidateQueries({ queryKey: [`partner-${currentUser?.id}`] });
+            setTimeout(() => window.location.reload(), 1500);
+        },
+        onError: () => {
+            showToast('Failed to update profile.', 'error');
+        },
+    });
     
     useEffect(() => {
         if (currentUser && 'type' in currentUser) {
             const partnerInfo = t.partnerInfo[currentUser.id];
-            
             reset({
-                // Assuming t.partnerInfo is structured per language which it is not with the new i18n
-                // Let's assume the API returns the correct structure or we can adapt
-                // The correct way would be to fetch this from an API, but for now we rely on the translation file
-                nameAr: partnerInfo?.name, // This needs adjustment if translations are split
+                nameAr: partnerInfo?.name,
                 descriptionAr: partnerInfo?.description,
                 nameEn: partnerInfo?.name, 
                 descriptionEn: partnerInfo?.description,
             });
             setLogoPreview(currentUser.imageUrl);
         }
-    }, [currentUser, reset]);
+    }, [currentUser, reset, t.partnerInfo]);
 
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -73,15 +86,7 @@ const DashboardProfilePage: React.FC = () => {
             imageUrl: imageUrl,
         };
 
-        const result = await updatePartner(currentUser.id, updates);
-
-        if (result) {
-            showToast(t_dash.profileUpdateSuccess, 'success');
-            // Reload to reflect changes globally (e.g., in Header)
-            setTimeout(() => window.location.reload(), 1500);
-        } else {
-            showToast('Failed to update profile.', 'error');
-        }
+        mutation.mutate({ id: currentUser.id, updates });
     };
     
     if (authLoading || !currentUser || !('type' in currentUser)) return null;
@@ -130,9 +135,9 @@ const DashboardProfilePage: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
-                            <button type="submit" disabled={isSubmitting} className="bg-amber-500 text-gray-900 font-semibold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
-                                {isSubmitting ? '...' : t_dash.saveChanges}
-                            </button>
+                            <Button type="submit" isLoading={mutation.isPending}>
+                                {t_dash.saveChanges}
+                            </Button>
                         </div>
                     </form>
                 </div>

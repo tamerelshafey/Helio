@@ -1,12 +1,15 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { PortfolioItem } from '../../types';
-import FormField, { inputClasses } from '../shared/FormField';
-import { CloseIcon } from '../icons/Icons';
+import FormField, { inputClasses } from '../ui/FormField';
+import { CloseIcon } from '../ui/Icons';
 import { useAuth } from '../auth/AuthContext';
 import { addPortfolioItem, updatePortfolioItem } from '../../services/portfolio';
 import { useLanguage } from '../shared/LanguageContext';
+import { useToast } from '../shared/ToastContext';
+import { Button } from '../ui/Button';
 
 interface PortfolioItemFormModalProps {
     itemToEdit?: PortfolioItem;
@@ -29,17 +32,34 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
     const t_dash = t.dashboard;
     const t_form = t.portfolioForm;
     const t_shared = t.adminShared;
+    const { showToast } = useToast();
+    const queryClient = useQueryClient();
     const modalRef = useRef<HTMLDivElement>(null);
-    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         title: { ar: itemToEdit?.title.ar || '', en: itemToEdit?.title.en || '' },
         category: { ar: itemToEdit?.category.ar || '', en: itemToEdit?.category.en || '' },
     });
-
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(itemToEdit?.imageUrl || null);
 
+    const handleSuccess = () => {
+        showToast(`Item ${itemToEdit ? 'updated' : 'added'} successfully!`, 'success');
+        onSave();
+    };
+
+    const addMutation = useMutation({
+        mutationFn: addPortfolioItem,
+        onSuccess: handleSuccess,
+        onError: () => showToast('Failed to add item.', 'error'),
+    });
+
+    const updateMutation = useMutation({
+        mutationFn: (data: { id: string, updates: Partial<PortfolioItem> }) => updatePortfolioItem(data.id, data.updates),
+        onSuccess: handleSuccess,
+        onError: () => showToast('Failed to update item.', 'error'),
+    });
+    
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') onClose();
@@ -69,7 +89,6 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
-        setLoading(true);
 
         let imageSrc = itemToEdit?.imageUrl || '';
         if (imageFile) {
@@ -84,14 +103,13 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
         };
 
         if (itemToEdit) {
-            await updatePortfolioItem(itemToEdit.id, dataToSave);
+            updateMutation.mutate({ id: itemToEdit.id, updates: dataToSave });
         } else {
-            await addPortfolioItem(dataToSave as Omit<PortfolioItem, 'id'>);
+            addMutation.mutate(dataToSave as Omit<PortfolioItem, 'id'>);
         }
-
-        setLoading(false);
-        onSave();
     };
+
+    const isLoading = addMutation.isPending || updateMutation.isPending;
 
     return (
         <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={onClose}>
@@ -134,10 +152,10 @@ const PortfolioItemFormModal: React.FC<PortfolioItemFormModalProps> = ({ itemToE
                     </div>
 
                     <div className="p-4 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                        <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">{t_shared.cancel}</button>
-                        <button type="submit" disabled={loading} className="px-6 py-2 rounded-lg bg-amber-500 text-gray-900 font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50">
-                            {loading ? '...' : t_shared.save}
-                        </button>
+                        <Button type="button" variant="secondary" onClick={onClose}>{t_shared.cancel}</Button>
+                        <Button type="submit" isLoading={isLoading}>
+                            {t_shared.save}
+                        </Button>
                     </div>
                 </form>
             </div>

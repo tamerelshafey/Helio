@@ -1,6 +1,4 @@
-
-// This file is empty because the Tailwind CSS configuration is currently
-// being handled directly within a <script> tag in `index.html`.
-// The project uses the Tailwind CDN, which allows for this type of setup.
-// For a production build process, it would be standard to populate this file
-// and use PostCSS to compile the styles.
+// This file is not used when loading Tailwind CSS via the CDN script in index.html.
+// The configuration has been moved inline within a <script> tag in index.html
+// to ensure the CDN can correctly apply theme settings like dark mode.
+module.exports = {};

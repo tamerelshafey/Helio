@@ -1,6 +1,10 @@
 
-import { notificationsData } from '../data/notifications';
+
+import { notificationsData as initialNotificationsData } from '../data/notifications';
 import type { Notification } from '../types';
+
+// Create a mutable, in-memory copy of the data to simulate a database.
+let notificationsData: Notification[] = [...initialNotificationsData];
 
 const SIMULATED_DELAY = 200;
 

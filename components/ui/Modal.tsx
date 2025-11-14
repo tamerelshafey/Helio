@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { CloseIcon } from '../icons/Icons';
+import { CloseIcon } from './Icons';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './Card';
 
 interface ModalProps {

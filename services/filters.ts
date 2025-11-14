@@ -1,5 +1,10 @@
-import { propertyTypesData, finishingStatusesData, amenitiesData } from '../data/filterOptions';
+import { propertyTypesData as initialPropertyTypes, finishingStatusesData as initialFinishingStatuses, amenitiesData as initialAmenities } from '../data/filterOptions';
 import type { FilterOption } from '../types';
+
+// Create mutable, in-memory copies of the data to simulate a database.
+let propertyTypesData: FilterOption[] = [...initialPropertyTypes];
+let finishingStatusesData: FilterOption[] = [...initialFinishingStatuses];
+let amenitiesData: FilterOption[] = [...initialAmenities];
 
 const SIMULATED_DELAY = 100;
 
@@ -41,9 +46,12 @@ const mutateOptions = (
                     break;
                 case 'delete':
                     const initialLength = dataArray.length;
-                    const newData = dataArray.filter(i => i.id !== itemId);
-                    if (newData.length < initialLength) {
-                        dataArray.splice(0, dataArray.length, ...newData);
+                    const updatedArray = dataArray.filter(i => i.id !== itemId);
+                    if (updatedArray.length < initialLength) {
+                        // Re-assign the local array variable
+                        if (dataType === 'propertyType') propertyTypesData = updatedArray;
+                        if (dataType === 'finishingStatus') finishingStatusesData = updatedArray;
+                        if (dataType === 'amenity') amenitiesData = updatedArray;
                         resolve(true);
                     } else {
                         resolve(false);

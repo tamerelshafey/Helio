@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import type { AdminPartner, Language } from '../../types';
-import { CloseIcon, WhatsAppIcon, PhoneIcon } from '../icons/Icons';
-import { ClipboardDocumentListIcon } from '../icons/Icons';
+import { CloseIcon, WhatsAppIcon, PhoneIcon, ClipboardDocumentListIcon } from '../ui/Icons';
 import { useLanguage } from './LanguageContext';
 
 interface ContactOptionsModalProps {

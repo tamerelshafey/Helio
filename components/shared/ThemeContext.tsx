@@ -3,39 +3,44 @@ import type { Theme } from '../../types';
 
 interface ThemeContextType {
     theme: Theme;
-    toggleTheme: () => void;
+    setTheme: (theme: Theme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [theme, setTheme] = useState<Theme>(() => {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark' || savedTheme === 'light') {
-            return savedTheme;
+    const [theme, setThemeState] = useState<Theme>(() => {
+        try {
+            const savedTheme = localStorage.getItem('onlyhelio-theme') as Theme;
+            if (savedTheme) {
+                return savedTheme;
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        } catch (error) {
+            console.error("Failed to read theme from localStorage", error);
+            return 'light';
         }
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            return 'dark';
-        }
-        return 'light';
     });
 
     useEffect(() => {
         const root = window.document.documentElement;
-        if (theme === 'dark') {
-            root.classList.add('dark');
-        } else {
-            root.classList.remove('dark');
+        root.classList.remove('light', 'dark');
+        root.classList.add(theme);
+        try {
+            localStorage.setItem('onlyhelio-theme', theme);
+        } catch (error) {
+            console.error("Failed to save theme to localStorage", error);
         }
-        localStorage.setItem('theme', theme);
     }, [theme]);
 
-    const toggleTheme = useCallback(() => {
-        setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+    const setTheme = useCallback((newTheme: Theme) => {
+        setThemeState(newTheme);
     }, []);
 
+    const value = { theme, setTheme };
+
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <ThemeContext.Provider value={value}>
             {children}
         </ThemeContext.Provider>
     );

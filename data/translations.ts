@@ -41,7 +41,8 @@ export const arTranslations = {
         "favorites": "المفضلة",
         "contact": "تواصل معنا",
         "privacyPolicy": "سياسة الخصوصية",
-        "termsOfUse": "شروط الاستخدام"
+        "termsOfUse": "شروط الاستخدام",
+        "analytics": "التحليلات"
     },
     "partnerInfo": {
         "united-development": { "name": "الشركة المتحدة للتطوير", "description": "شريكنا الاستراتيجي في تطوير المشاريع السكنية الفاخرة." },
@@ -496,9 +497,9 @@ export const arTranslations = {
         "shareFailed": "فشلت المشاركة. يرجى المحاولة مرة أخرى."
     },
     "favoritesPage": {
-        "title": "عقاراتي المفضلة",
-        "subtitle": "هنا العقارات التي قمت بحفظها. يمكنك العودة إليها في أي وقت.",
-        "noFavorites": "لم تقم بحفظ أي عقارات مفضلة بعد.",
+        "title": "مفضلتي",
+        "subtitle": "هنا يمكنك العثور على جميع العقارات والخدمات التي قمت بحفظها.",
+        "noFavorites": "لم تقم بحفظ أي عناصر مفضلة بعد.",
         "browseButton": "تصفح العقارات",
         "addToFavorites": "أضف إلى المفضلة",
         "removeFromFavorites": "إزالة من المفضلة",
@@ -574,7 +575,8 @@ export const arTranslations = {
             "portfolio": "معرض أعمالي",
             "leads": "طلبات العملاء",
             "subscription": "الاشتراك والباقة",
-            "profile": "ملفي الشخصي"
+            "profile": "ملفي الشخصي",
+            "analytics": "التحليلات"
         },
         "propertiesTitle": "إدارة العقارات",
         "addProperty": "إضافة عقار جديد",
@@ -613,7 +615,11 @@ export const arTranslations = {
             "image": "صورة", "title": "العنوان", "category": "التصنيف", "actions": "إجراءات", "edit": "تعديل", "delete": "حذف", "noWorks": "لم تقم بإضافة أي أعمال بعد."
         },
         "propertyForm": {
-            "addTitle": "إضافة عقار جديد", "editTitle": "تعديل العقار", "propertyTitleAr": "عنوان العقار (بالعربية)", "propertyTitleEn": "عنوان العقار (بالإنجليزية)", "addressAr": "العنوان (بالعربية)", "addressEn": "العنوان (بالإنجليزية)", "descriptionAr": "الوصف (بالعربية)", "descriptionEn": "الوصف (بالإنجليزية)", "mainImage": "الصورة الرئيسية", "galleryImages": "صور المعرض", "saveProperty": "حفظ العقار", "addSuccess": "تمت إضافة العقار بنجاح!", "updateSuccess": "تم تحديث العقار بنجاح!", "isInCompound": "داخل كومبوند", "realEstateFinanceAvailable": "التمويل العقاري متاح", "deliveryInfo": "معلومات الاستلام", "immediateDelivery": "استلام فوري", "futureDelivery": "استلام مستقبلي", "deliveryDate": "تاريخ الاستلام (YYYY-MM)", "installmentsInfo": "معلومات التقسيط", "installmentsAvailable": "التقسيط متاح", "downPayment": "المقدم", "monthlyInstallment": "القسط الشهري", "years": "عدد السنوات", "amenities": "المميزات والمرافق", "amenitiesAr": "المميزات (بالعربية)", "amenitiesEn": "المميزات (بالإنجليزية)", "pricePerMeter": "سعر المتر (محسوب)"
+            "addTitle": "إضافة عقار جديد", "editTitle": "تعديل العقار", "propertyTitleAr": "عنوان العقار (بالعربية)", "propertyTitleEn": "عنوان العقار (بالإنجليزية)", "addressAr": "العنوان (بالعربية)", "addressEn": "العنوان (بالإنجليزية)", "descriptionAr": "الوصف (بالعربية)", "descriptionEn": "الوصف (بالإنجليزية)", "mainImage": "الصورة الرئيسية", "galleryImages": "صور المعرض", "saveProperty": "حفظ العقار", "addSuccess": "تمت إضافة العقار بنجاح!", "updateSuccess": "تم تحديث العقار بنجاح!", "isInCompound": "داخل كومبوند", "realEstateFinanceAvailable": "التمويل العقاري متاح", "deliveryInfo": "معلومات الاستلام", "immediateDelivery": "استلام فوري", "futureDelivery": "استلام مستقبلي", "deliveryDate": "تاريخ الاستلام (YYYY-MM)", "installmentsInfo": "معلومات التقسيط", "installmentsAvailable": "التقسيط متاح", "downPayment": "المقدم", "monthlyInstallment": "القسط الشهري", "years": "عدد السنوات", "amenities": "المميزات والمرافق", "amenitiesAr": "المميزات (بالعربية)", "amenitiesEn": "المميزات (بالإنجليزية)", "pricePerMeter": "سعر المتر (محسوب)",
+            "inquiryRouting": "توجيه الاستفسارات",
+            "useDefaultSettings": "استخدام إعدادات الشريك الافتراضية",
+            "customizeForProperty": "تخصيص معلومات التواصل للعقار",
+            "directContactPhone": "رقم التواصل المباشر"
         },
         "filter": {
             "search": "بحث...", "filterByStatus": "فلترة بالحالة", "all": "الكل"
@@ -624,6 +630,17 @@ export const arTranslations = {
     },
     "dashboardHome": {
         "title": "نظرة عامة على لوحة التحكم", "subtitle": "ملخص سريع لنشاطك على المنصة.", "totalProjects": "إجمالي المشاريع", "totalProperties": "إجمالي العقارات", "totalUnits": "إجمالي الوحدات", "totalPortfolio": "إجمالي الأعمال", "newLeads": "طلبات العملاء الجديدة", "currentPlan": "الباقة الحالية", "recentLeads": "أحدث الطلبات", "noRecentLeads": "لا توجد طلبات جديدة لعرضها.", "viewAllLeads": "عرض كل الطلبات", "projectsOverview": "نظرة عامة على المشاريع"
+    },
+    "dashboardAnalytics": {
+        "title": "تحليلات الأداء",
+        "subtitle": "تتبع أداء عقاراتك على المنصة.",
+        "totalListings": "إجمالي العقارات",
+        "totalLeads": "إجمالي الطلبات",
+        "conversionRate": "معدل التحويل",
+        "leadsPerListing": "طلب/عقار",
+        "topPerforming": "العقارات الأعلى أداءً",
+        "leads": "طلبات",
+        "noData": "لا توجد بيانات كافية لعرض التحليلات."
     },
     "portfolioForm": {
         "addTitle": "إضافة عمل جديد", "editTitle": "تعديل العمل"
@@ -639,7 +656,88 @@ export const arTranslations = {
     "adminDashboard": {
         "title": "لوحة تحكم المسؤول",
         "nav": {
-            "dashboard": "لوحة التحكم", "analytics": "التحليلات", "reports": "التقارير", "partnerRequests": "طلبات الشركاء", "propertyRequests": "طلبات العرض", "propertyInquiries": "طلبات البحث", "contactRequests": "رسائل التواصل", "partners": "الشركاء", "users": "المستخدمين", "rolesAndPermissions": "الأدوار والصلاحيات", "properties": "العقارات", "projects": "المشاريع", "allLeads": "كل الطلبات", "subscriptionPlans": "باقات الاشتراك", "propertyFilters": "فلاتر العقارات", "decorationsManagement": "إدارة الديكورات", "banners": "الإعلانات", "siteContent": "محتوى الموقع", "settings": "الإعدادات", "finishingRequests": "طلبات التشطيب", "decorationsRequests": "طلبات الديكور", "finishingServices": "خدمات التشطيب", "aiEstimatorSettings": "إعدادات المقدّر الذكي"
+            "dashboard": "لوحة التحكم",
+            "analytics": "التحليلات",
+            "reports": "التقارير",
+            "partnerRequests": "طلبات الشركاء",
+            "propertyRequests": "طلبات العرض",
+            "propertyInquiries": "طلبات البحث",
+            "contactRequests": "رسائل التواصل",
+            "partners": "الشركاء والمشاريع",
+            "partnersList": "قائمة الشركاء",
+            "users": "المستخدمين",
+            "rolesAndPermissions": "الأدوار والصلاحيات",
+            "properties": "العقارات",
+            "propertiesList": "قائمة العقارات",
+            "projects": "المشاريع",
+            "allLeads": "كل الطلبات",
+            "subscriptionPlans": "باقات الاشتراك",
+            "propertyFilters": "فلاتر العقارات",
+            "decorationsManagement": "إدارة الديكورات",
+            "banners": "الإعلانات",
+            "siteContent": "محتوى الموقع",
+            "settings": "الإعدادات",
+            "finishingRequests": "طلبات التشطيب",
+            "decorationsRequests": "طلبات الديكور",
+            "finishingServices": "خدمات التشطيب",
+            "aiEstimatorSettings": "إعدادات المقدّر الذكي",
+            "inquiryManagement": "إدارة الاستفسارات",
+            "finishingManagement": "إدارة التشطيبات",
+            "inquiryRouting": "توجيه الاستفسارات",
+            "automationRules": "قواعد الأتمتة"
+        },
+        "automation": {
+          "title": "قواعد الأتمتة",
+          "subtitle": "أنشئ قواعد لتعيين الطلبات الواردة تلقائيًا.",
+          "addNewRule": "إضافة قاعدة جديدة",
+          "table": {
+            "ruleName": "اسم القاعدة",
+            "status": "الحالة",
+            "conditions": "الشروط",
+            "action": "الإجراء",
+            "actions": "إجراءات"
+          },
+          "modal": {
+            "addTitle": "إضافة قاعدة توجيه جديدة",
+            "editTitle": "تعديل قاعدة التوجيه",
+            "ruleName": "اسم القاعدة",
+            "conditions": "الشروط",
+            "action": "الإجراء",
+            "assignTo": "تعيين إلى"
+          },
+          "confirmDelete": "هل أنت متأكد أنك تريد حذف قاعدة التوجيه هذه؟ لا يمكن التراجع عن هذا الإجراء.",
+          "conditionsCount": "{count} شرط (شروط)",
+          "assignToAction": "تعيين إلى:"
+        },
+        "requestTypes": {
+            "LEAD": "طلب عميل",
+            "PARTNER_APPLICATION": "طلب شراكة",
+            "PROPERTY_LISTING_REQUEST": "طلب عرض عقار",
+            "CONTACT_MESSAGE": "رسالة تواصل",
+            "PROPERTY_INQUIRY": "طلب بحث"
+        },
+        "propertiesDashboard": {
+            "title": "لوحة تحكم العقارات",
+            "subtitle": "نظرة عامة على جميع العقارات على المنصة.",
+            "activeProperties": "العقارات النشطة",
+            "propertiesForSale": "عقارات للبيع",
+            "propertiesForRent": "عقارات للإيجار",
+            "propertiesByType": "توزيع العقارات حسب النوع",
+            "topPartnersByListings": "أكثر الشركاء عرضًا للعقارات",
+            "latestPropertiesAdded": "أحدث العقارات المضافة"
+        },
+        "inquiryManagement": {
+            "title": "إدارة الاستفسارات",
+            "subtitle": "عرض وإدارة طرق استقبال الاستفسارات لجميع الشركاء.",
+            "table": {
+                "partner": "الشريك",
+                "whatsapp": "واتساب",
+                "phone": "اتصال مباشر",
+                "internalForm": "نموذج داخلي",
+                "actions": "إجراءات"
+            },
+            "editModalTitle": "تعديل أرقام التواصل",
+            "updateSuccess": "تم تحديث طرق التواصل بنجاح!"
         },
         "aiEstimatorSettings": {
             "title": "إعدادات المقدّر الذكي", "subtitle": "تحكم في سلوك وخيارات مقدّر التكاليف الذكي.", "promptTitle": "Prompt الذكاء الاصطناعي", "promptDescription": "هذا هو الأمر الرئيسي الذي يتم إرساله إلى الذكاء الاصطناعي. قم بتعديله لتغيير شخصيته أو تعليماته.", "modelTitle": "موديل الذكاء الاصطناعي", "optionsTitle": "خيارات التشطيب", "optionsDescription": "إدارة الخيارات التي تظهر للمستخدم في خطوة \"التشطيبات والمواد\".", "optionKey": "المفتاح (انجليزي، بدون مسافات)", "optionAr": "الاسم بالعربية", "optionEn": "الاسم بالإنجليزية", "addNewOption": "إضافة خيار جديد"
@@ -668,8 +766,9 @@ export const arTranslations = {
             "manage": "إدارة", "assignedTo": "مسند إلى", "internalTeam": "الفريق الداخلي", "newRequests": "طلبات جديدة", "inProgress": "قيد التنفيذ", "completedThisMonth": "مكتملة هذا الشهر", "totalRequests": "إجمالي الطلبات", "recentActivity": "أحدث الطلبات", "assignmentOverview": "نظرة عامة على التعيينات", "externalPartners": "شركاء خارجيين", "unassigned": "غير مسندة"
         },
         "contentManagement": {
-            "title": "إدارة المحتوى", "subtitle": "تعديل النصوص والصور في الصفحات العامة للموقع.", "tabs": {
-                "hero": "الواجهة الرئيسية", "whyUs": "لماذا تختارنا", "services": "خدماتنا", "partners": "الشركاء", "whyNewHeliopolis": "لماذا هليوبوليس", "quotes": "الاقتباسات", "footer": "التذييل"
+            "title": "إدارة المحتوى", "subtitle": "تعديل النصوص والصور في الصفحات العامة للموقع.",
+            "tabs": {
+                "hero": "الواجهة الرئيسية", "whyUs": "لماذا تختارنا", "services": "خدماتنا", "partners": "الشركاء", "testimonials": "آراء العملاء", "socialProof": "الأرقام والإحصائيات", "whyNewHeliopolis": "لماذا هليوبوليس", "quotes": "الاقتباسات", "footer": "التذييل"
             }, "saveChanges": "حفظ التغييرات", "unsavedChanges": "لديك تغييرات غير محفوظة", "saving": "جاري الحفظ...", "addFeature": "إضافة ميزة", "addStat": "إضافة إحصائية", "remove": "إزالة", "uploadImage": "رفع صورة"
         },
         "userManagement": {
@@ -713,7 +812,11 @@ export const arTranslations = {
         "propertiesTitle": "إدارة كل العقارات",
         "propertiesSubtitle": "الإشراف على وإدارة جميع قوائم العقارات من جميع الشركاء.",
         "propertyTable": {
-            "partner": "الشريك", "edit": "تعديل", "liveStatus": "حالة العرض", "listingPeriod": "فترة العرض", "active": "نشط", "inactive": "غير نشط"
+            "partner": "الشريك", "edit": "تعديل", "liveStatus": "حالة العرض", "listingPeriod": "فترة العرض", "active": "نشط", "inactive": "غير نشط",
+            "routing": "التوجيه",
+            "default": "افتراضي",
+            "custom": "مخصص",
+            "preview": "معاينة"
         },
         "editPropertyModal": {
             "title": "تعديل العقار", "listingStartDate": "تاريخ بدء العرض", "listingEndDate": "تاريخ نهاية العرض"
@@ -761,23 +864,34 @@ export const arTranslations = {
         },
         "adminRequests": {
             "partnerRequestsTitle": "طلبات انضمام الشركاء", "partnerRequestsSubtitle": "مراجعة طلبات الشركاء الجدد واتخاذ إجراء بشأنها.", "propertyRequestsTitle": "طلبات عرض العقارات", "propertyRequestsSubtitle": "مراجعة طلبات عرض العقارات من الملاك والموافقة عليها.", "contactRequestsTitle": "رسائل التواصل", "contactRequestsSubtitle": "عرض وإدارة الرسائل الواردة من نموذج التواصل العام.", "table": {
-                "requester": "مقدم الطلب", "phone": "الهاتف", "date": "التاريخ", "status": "الحالة", "actions": "إجراءات", "details": "عرض التفاصيل", "propertyInfo": "معلومات العقار", "message": "الرسالة", "approve": "موافقة", "reject": "رفض", "markAsReviewed": "تحديد كمقروء", "delete": "حذف", "companyInfo": "معلومات الشركة", "primaryContact": "معلومات التواصل", "managementContacts": "جهات اتصال الإدارة", "documents": "المستندات الرسمية", "download": "تحميل"
-            }, "requestStatus": {
-                "pending": "قيد الانتظار", "reviewed": "تمت المراجعة", "closed": "مغلق", "approved": "تمت الموافقة", "rejected": "مرفوض", "new": "جديد"
-            }, "noPartnerRequests": "لا توجد طلبات انضمام جديدة حاليًا.", "noPropertyRequests": "لا توجد طلبات عرض عقارات جديدة حاليًا.", "noContactRequests": "لا توجد رسائل تواصل جديدة حاليًا.", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الطلب؟", "propertyDetailsTitle": "تفاصيل طلب عرض العقار", "subscriptionPlan": "باقة الاشتراك", "cooperationType": "نموذج التعاون"
+                "requester": "مقدم الطلب", "phone": "الهاتف", "date": "التاريخ", "status": "الحالة", "actions": "إجراءات", "details": "عرض التفاصيل", "propertyInfo": "معلومات العقار", "message": "الرسالة", "approve": "موافقة", "reject": "رفض", "markAsReviewed": "تحديد كمقروء", "delete": "حذف", "companyInfo": "معلومات الشركة", "primaryContact": "معلومات التواصل", "managementContacts": "جهات اتصال الإدارة", "documents": "المستندات الرسمية", "download": "تحميل",
+                "type": "النوع",
+                "subject": "الموضوع",
+                "assignedTo": "مسند إلى"
+            },
+            "requestStatus": {
+                "pending": "قيد الانتظار", "reviewed": "تمت المراجعة", "closed": "مغلق", "approved": "تمت الموافقة", "rejected": "مرفوض", "new": "جديد",
+                "assigned": "تم التعيين", "in-progress": "قيد التنفيذ"
+            },
+            "noPartnerRequests": "لا توجد طلبات انضمام جديدة حاليًا.", "noPropertyRequests": "لا توجد طلبات عرض عقارات جديدة حاليًا.", "noContactRequests": "لا توجد رسائل تواصل جديدة حاليًا.", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الطلب؟", "propertyDetailsTitle": "تفاصيل طلب عرض العقار", "subscriptionPlan": "باقة الاشتراك", "cooperationType": "نموذج التعاون"
         },
         "filter": {
             "search": "بحث...", "searchByNameOrEmail": "بحث بالاسم أو البريد الإلكتروني...", "searchByRequesterOrPhone": "بحث بالاسم أو الهاتف...", "filterByType": "فلترة بالنوع", "filterByStatus": "فلترة بالحالة", "filterByPlan": "فلترة بالباقة", "filterByDisplayType": "فلترة بنوع العرض", "filterByPartner": "فلترة بالشريك", "all": "الكل", "allPartners": "كل الشركاء", "listingDateRange": "نطاق تاريخ العرض", "leadDateRange": "نطاق تاريخ الطلب"
         },
         "bulkActions": {
-            "selected": "تم تحديد", "activate": "تفعيل المحدد", "deactivate": "تعطيل المحدد", "delete": "حذف المحدد", "clear": "مسح"
+            "selected": "تم تحديد",
+            "activate": "تفعيل المحدد",
+            "deactivate": "تعطيل المحدد",
+            "delete": "حذف المحدد",
+            "clear": "مسح"
         }
     },
     "adminAnalytics": {
         "title": "التحليلات المتقدمة", "subtitle": "نظرة معمقة على أداء المنصة والبيانات الرئيسية.", "timeFilter": "الفترة الزمنية", "last7days": "آخر 7 أيام", "last30days": "آخر 30 يومًا", "thismonth": "هذا الشهر", "thisyear": "هذه السنة", "userGrowth": "نمو المستخدمين والشركاء", "users": "المستخدمين", "partners": "الشركاء", "propertyPerformance": "أداء العقارات", "leads": "الطلبات", "topPerformingProperties": "العقارات الأكثر تلقيًا للطلبات", "topPerformingPartners": "الشركاء الأكثر تلقيًا للطلبات", "conversionRate": "معدل التحويل", "leadsPerProperty": "طلب / عقار", "propertyHotspots": "المناطق الأكثر طلبًا للعقارات", "newLeads": "الطلبات الجديدة", "newPartners": "شركاء جدد", "newProperties": "عقارات جديدة",
         "leadsOverTime": "الطلبات عبر الزمن",
         "leadStatusDistribution": "توزيع حالات الطلبات",
-        "propertyTypeDistribution": "توزيع أنواع العقارات"
+        "propertyTypeDistribution": "توزيع أنواع العقارات",
+        "requestTypeDistribution": "توزيع أنواع الطلبات"
     },
     "adminReports": {
         "title": "نظام التقارير المخصصة", "subtitle": "أنشئ وصَدّر تقارير مخصصة بناءً على بيانات المنصة.", "step1": "الخطوة 1: اختر مصدر البيانات", "selectDataSource": "اختر مصدرًا...", "dataSources": {
@@ -792,7 +906,7 @@ export const arTranslations = {
         }, "finishing": {
             "commission": { "name": "باقة العمولة", "price": "رسوم رمزية + عمولة 10%", "description": "ابدأ بدون التزام كبير. نحن نجلب لك العملاء، ونتقاسم النجاح.", "features": ["ملف شخصي أساسي", "معرض أعمال (10 صور)", "استقبال طلبات العملاء عبر المنصة", "دعم أساسي"], "commissionRate": 10 }, "professional": { "name": "الباقة الاحترافية", "price": "499 ج.م / شهرياً", "description": "للشركات التي ترغب في تعزيز حضورها والحصول على عملاء مباشرين بدون عمولة.", "features": ["كل شيء في باقة العمولة، بالإضافة إلى:", "شارة 'شريك مميز'", "أولوية في الظهور بصفحة التشطيبات", "معرض أعمال أكبر (50 صورة)", "لا يوجد عمولة على المشاريع"], "commissionRate": 0 }, "elite": { "name": "باقة النخبة", "price": "999 ج.م / شهرياً", "description": "للوصول الأقصى للعملاء والظهور الأبرز في المنصة.", "features": ["كل شيء في الباقة الاحترافية، بالإضافة إلى:", "شارة 'شريك النخبة'", "ظهور بارز في أماكن مميزة", "معرض أعمال غير محدود + فيديو", "دعم مخصص"], "commissionRate": 0 }
         }, "individual": {
-            "paid_listing": { "name": "باقة الإعلان المدفوع", "price": "500 ج.م / 3 أشهر", "description": "أضف عقارك على منصتنا لمدة محددة مقابل رسوم ثابتة. يمكنك اختيار استقبال استفسارات المهتمين مباشرة أو من خلالنا.", "features": ["إعلان لمدة 3 أشهر", "تحكم كامل في إعلانك", "مرونة في استقبال الاستفسارات", "لا يوجد عمولات على البيع أو الإيجار"], "commissionRate": 0 }, "commission": { "name": "التفويض بالتسويق الحصري", "price": "مقابل عمولة", "description": "فوض فريقنا المتخصص لتولي كافة مهام بيع أو تأجير عقارك، من التسويق الاحترافي وحتى إتمام الصفقة، مقابل نسبة عمولة يتم الاتفاق عليها.", "features": ["تسويق احترافي وتصوير مميز", "نتولى الرد على الاستفسارات وترتيب المعاينات", "متابعة قانونية وإدارية حتى إتمام الصفقة"], "commissionRate": 2.5 }
+            "paid_listing": { "name": "باقة الإعلان المدفوع", "price": "500 ج.م / 3 أشهر", "description": "أضف عقارك على منصتنا لمدة محددة مقابل رسوم ثابتة. يمكنك اختيار استقبال استفسارات المهتمين مباشرة أو من خلالنا.", "features": ["إعلان لمدة 3 أشهر", "تحكم كامل في إعلانك", "مرونة في استقبال الاستفسارات", "لا يوجد عمولات على البيع أو الإيجار"], "commissionRate": 0 }, "commission": { "name": "التفويض بالتسويق الحصري", "price": "مقابل عمولة", "description": "فوض فريقنا المتخصص لتولي كافة مهام بيع أو تأجير عقارك، من التسويق الاحترافي وحتى إتمام الصفقة، مقابل نسبة عمولة يتم الاتفاق عليها.", "features": ["تسويق احترافي وتصوير مميز.", "نتولى الرد على الاستفسارات وترتيب المعاينات.", "متابعة قانونية وإدارية حتى إتمام الصفقة"], "commissionRate": 2.5 }
         }
     },
     "upgradePlanModal": {
@@ -912,7 +1026,8 @@ export const enTranslations = {
         "favorites": "Favorites",
         "contact": "Contact Us",
         "privacyPolicy": "Privacy Policy",
-        "termsOfUse": "Terms of Use"
+        "termsOfUse": "Terms of Use",
+        "analytics": "Analytics"
     },
     "partnerInfo": {
         "united-development": { "name": "United Development", "description": "Our strategic partner in developing luxury residential projects." },
@@ -1367,9 +1482,9 @@ export const enTranslations = {
         "shareFailed": "Sharing failed. Please try again."
     },
     "favoritesPage": {
-        "title": "My Favorite Properties",
-        "subtitle": "Here are the properties you've saved. You can come back to them at any time.",
-        "noFavorites": "You haven't saved any favorite properties yet.",
+        "title": "My Favorites",
+        "subtitle": "Here you can find all the properties and services you have saved.",
+        "noFavorites": "You haven't saved any favorite items yet.",
         "browseButton": "Browse Properties",
         "addToFavorites": "Add to Favorites",
         "removeFromFavorites": "Remove from Favorites",
@@ -1445,7 +1560,8 @@ export const enTranslations = {
             "portfolio": "My Portfolio",
             "leads": "Customer Leads",
             "subscription": "Subscription & Plan",
-            "profile": "My Profile"
+            "profile": "My Profile",
+            "analytics": "Analytics"
         },
         "propertiesTitle": "Manage Properties",
         "addProperty": "Add New Property",
@@ -1484,7 +1600,11 @@ export const enTranslations = {
             "image": "Image", "title": "Title", "category": "Category", "actions": "Actions", "edit": "Edit", "delete": "Delete", "noWorks": "You haven't added any works yet."
         },
         "propertyForm": {
-            "addTitle": "Add New Property", "editTitle": "Edit Property", "propertyTitleAr": "Property Title (Arabic)", "propertyTitleEn": "Property Title (English)", "addressAr": "Address (Arabic)", "addressEn": "Address (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "mainImage": "Main Image", "galleryImages": "Gallery Images", "saveProperty": "Save Property", "addSuccess": "Property added successfully!", "updateSuccess": "Property updated successfully!", "isInCompound": "In a Compound", "realEstateFinanceAvailable": "Real Estate Finance Available", "deliveryInfo": "Delivery Information", "immediateDelivery": "Immediate Delivery", "futureDelivery": "Future Delivery", "deliveryDate": "Delivery Date (YYYY-MM)", "installmentsInfo": "Installment Information", "installmentsAvailable": "Installments Available", "downPayment": "Down Payment", "monthlyInstallment": "Monthly Installment", "years": "Number of Years", "amenities": "Amenities", "amenitiesAr": "Amenities (Arabic)", "amenitiesEn": "Amenities (English)", "pricePerMeter": "Price per Meter (Calculated)"
+            "addTitle": "Add New Property", "editTitle": "Edit Property", "propertyTitleAr": "Property Title (Arabic)", "propertyTitleEn": "Property Title (English)", "addressAr": "Address (Arabic)", "addressEn": "Address (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "mainImage": "Main Image", "galleryImages": "Gallery Images", "saveProperty": "Save Property", "addSuccess": "Property added successfully!", "updateSuccess": "Property updated successfully!", "isInCompound": "In a Compound", "realEstateFinanceAvailable": "Real Estate Finance Available", "deliveryInfo": "Delivery Information", "immediateDelivery": "Immediate Delivery", "futureDelivery": "Future Delivery", "deliveryDate": "Delivery Date (YYYY-MM)", "installmentsInfo": "Installment Information", "installmentsAvailable": "Installments Available", "downPayment": "Down Payment", "monthlyInstallment": "Monthly Installment", "years": "Number of Years", "amenities": "Amenities", "amenitiesAr": "Amenities (Arabic)", "amenitiesEn": "Amenities (English)", "pricePerMeter": "Price per Meter (Calculated)",
+            "inquiryRouting": "Inquiry Routing",
+            "useDefaultSettings": "Use default partner settings",
+            "customizeForProperty": "Customize contact info for this property",
+            "directContactPhone": "Direct Contact Phone"
         },
         "filter": {
             "search": "Search...", "filterByStatus": "Filter by Status", "all": "All"
@@ -1495,6 +1615,17 @@ export const enTranslations = {
     },
     "dashboardHome": {
         "title": "Dashboard Overview", "subtitle": "A quick summary of your activity on the platform.", "totalProjects": "Total Projects", "totalProperties": "Total Properties", "totalUnits": "Total Units", "totalPortfolio": "Total Portfolio Items", "newLeads": "New Customer Leads", "currentPlan": "Current Plan", "recentLeads": "Recent Leads", "noRecentLeads": "No new leads to display.", "viewAllLeads": "View All Leads", "projectsOverview": "Projects Overview"
+    },
+     "dashboardAnalytics": {
+        "title": "Performance Analytics",
+        "subtitle": "Track how your listings are performing on the platform.",
+        "totalListings": "Total Listings",
+        "totalLeads": "Total Leads",
+        "conversionRate": "Conversion Rate",
+        "leadsPerListing": "leads/listing",
+        "topPerforming": "Top Performing Listings",
+        "leads": "Leads",
+        "noData": "Not enough data to display analytics."
     },
     "portfolioForm": {
         "addTitle": "Add New Work", "editTitle": "Edit Work"
@@ -1510,7 +1641,88 @@ export const enTranslations = {
     "adminDashboard": {
         "title": "Admin Dashboard",
         "nav": {
-            "dashboard": "Dashboard", "analytics": "Analytics", "reports": "Reports", "partnerRequests": "Partner Requests", "propertyRequests": "Listing Requests", "propertyInquiries": "Search Requests", "contactRequests": "Contact Messages", "partners": "Partners", "users": "Users", "rolesAndPermissions": "Roles & Permissions", "properties": "Properties", "projects": "Projects", "allLeads": "All Leads", "subscriptionPlans": "Subscription Plans", "propertyFilters": "Property Filters", "decorationsManagement": "Decorations Mgmt", "banners": "Banners", "siteContent": "Site Content", "settings": "Settings", "finishingRequests": "Finishing Requests", "decorationsRequests": "Decoration Requests", "finishingServices": "Finishing Services", "aiEstimatorSettings": "AI Estimator Settings"
+            "dashboard": "Dashboard",
+            "analytics": "Analytics",
+            "reports": "Reports",
+            "partnerRequests": "Partner Requests",
+            "propertyRequests": "Listing Requests",
+            "propertyInquiries": "Search Requests",
+            "contactRequests": "Contact Messages",
+            "partners": "Partners & Projects",
+            "partnersList": "Partners List",
+            "users": "Users",
+            "rolesAndPermissions": "Roles & Permissions",
+            "properties": "Properties",
+            "propertiesList": "Properties List",
+            "projects": "Projects",
+            "allLeads": "All Requests",
+            "subscriptionPlans": "Subscription Plans",
+            "propertyFilters": "Property Filters",
+            "decorationsManagement": "Decorations Mgmt",
+            "banners": "Banners",
+            "siteContent": "Site Content",
+            "settings": "Settings",
+            "finishingRequests": "Finishing Requests",
+            "decorationsRequests": "Decoration Requests",
+            "finishingServices": "Finishing Services",
+            "aiEstimatorSettings": "AI Estimator Settings",
+            "inquiryManagement": "Inquiry Management",
+            "finishingManagement": "Finishing Mgmt",
+            "inquiryRouting": "Inquiry Routing",
+            "automationRules": "Automation Rules"
+        },
+        "automation": {
+            "title": "Automation Rules",
+            "subtitle": "Create rules to automatically assign incoming requests.",
+            "addNewRule": "Add New Rule",
+            "table": {
+                "ruleName": "Rule Name",
+                "status": "Status",
+                "conditions": "Conditions",
+                "action": "Action",
+                "actions": "Actions"
+            },
+            "modal": {
+                "addTitle": "Add New Routing Rule",
+                "editTitle": "Edit Routing Rule",
+                "ruleName": "Rule Name",
+                "conditions": "Conditions",
+                "action": "Action",
+                "assignTo": "Assign To"
+            },
+            "confirmDelete": "Are you sure you want to delete this routing rule? This action cannot be undone.",
+            "conditionsCount": "{count} condition(s)",
+            "assignToAction": "Assign to:"
+        },
+        "requestTypes": {
+            "LEAD": "Lead",
+            "PARTNER_APPLICATION": "Partner Application",
+            "PROPERTY_LISTING_REQUEST": "Listing Request",
+            "CONTACT_MESSAGE": "Contact Message",
+            "PROPERTY_INQUIRY": "Property Inquiry"
+        },
+        "propertiesDashboard": {
+            "title": "Properties Dashboard",
+            "subtitle": "An overview of all properties on the platform.",
+            "activeProperties": "Active Properties",
+            "propertiesForSale": "Properties for Sale",
+            "propertiesForRent": "Properties for Rent",
+            "propertiesByType": "Properties by Type",
+            "topPartnersByListings": "Top Partners by Listings",
+            "latestPropertiesAdded": "Latest Properties Added"
+        },
+        "inquiryManagement": {
+            "title": "Inquiry Management",
+            "subtitle": "View and manage how inquiries are routed for all partners.",
+            "table": {
+                "partner": "Partner",
+                "whatsapp": "WhatsApp",
+                "phone": "Direct Call",
+                "internalForm": "Internal Form",
+                "actions": "Actions"
+            },
+            "editModalTitle": "Edit Contact Numbers",
+            "updateSuccess": "Contact methods updated successfully!"
         },
         "aiEstimatorSettings": {
             "title": "AI Estimator Settings", "subtitle": "Control the behavior and options of the AI Cost Estimator.", "promptTitle": "AI Prompt", "promptDescription": "This is the main prompt sent to the AI. Modify it to change its personality or instructions.", "modelTitle": "AI Model", "optionsTitle": "Finishing Options", "optionsDescription": "Manage the options that appear to the user in the 'Finishes & Materials' step.", "optionKey": "Key (English, no spaces)", "optionAr": "Name (Arabic)", "optionEn": "Name (English)", "addNewOption": "Add New Option"
@@ -1539,8 +1751,9 @@ export const enTranslations = {
             "manage": "Manage", "assignedTo": "Assigned To", "internalTeam": "Internal Team", "newRequests": "New Requests", "inProgress": "In Progress", "completedThisMonth": "Completed This Month", "totalRequests": "Total Requests", "recentActivity": "Recent Requests", "assignmentOverview": "Assignment Overview", "externalPartners": "External Partners", "unassigned": "Unassigned"
         },
         "contentManagement": {
-            "title": "Content Management", "subtitle": "Edit text and images on the public pages of the website.", "tabs": {
-                "hero": "Hero Section", "whyUs": "Why Us", "services": "Services", "partners": "Partners", "whyNewHeliopolis": "Why New Heliopolis", "quotes": "Quotes", "footer": "Footer"
+            "title": "Content Management", "subtitle": "Edit text and images on the public pages of the website.",
+            "tabs": {
+                "hero": "Hero Section", "whyUs": "Why Us", "services": "Services", "partners": "Partners", "testimonials": "Testimonials", "socialProof": "Social Proof", "whyNewHeliopolis": "Why New Heliopolis", "quotes": "Quotes", "footer": "Footer"
             }, "saveChanges": "Save Changes", "unsavedChanges": "You have unsaved changes", "saving": "Saving...", "addFeature": "Add Feature", "addStat": "Add Stat", "remove": "Remove", "uploadImage": "Upload Image"
         },
         "userManagement": {
@@ -1584,7 +1797,11 @@ export const enTranslations = {
         "propertiesTitle": "Manage All Properties",
         "propertiesSubtitle": "Oversee and manage all property listings from all partners.",
         "propertyTable": {
-            "partner": "Partner", "edit": "Edit", "liveStatus": "Live Status", "listingPeriod": "Listing Period", "active": "Active", "inactive": "Inactive"
+            "partner": "Partner", "edit": "Edit", "liveStatus": "Live Status", "listingPeriod": "Listing Period", "active": "Active", "inactive": "Inactive",
+            "routing": "Routing",
+            "default": "Default",
+            "custom": "Custom",
+            "preview": "Preview"
         },
         "editPropertyModal": {
             "title": "Edit Property", "listingStartDate": "Listing Start Date", "listingEndDate": "Listing End Date"
@@ -1632,23 +1849,33 @@ export const enTranslations = {
         },
         "adminRequests": {
             "partnerRequestsTitle": "Partner Join Requests", "partnerRequestsSubtitle": "Review and take action on new partner applications.", "propertyRequestsTitle": "Property Listing Requests", "propertyRequestsSubtitle": "Review and approve property listing requests from owners.", "contactRequestsTitle": "Contact Messages", "contactRequestsSubtitle": "View and manage messages from the public contact form.", "table": {
-                "requester": "Requester", "phone": "Phone", "date": "Date", "status": "Status", "actions": "Actions", "details": "View Details", "propertyInfo": "Property Info", "message": "Message", "approve": "Approve", "reject": "Reject", "markAsReviewed": "Mark as Reviewed", "delete": "Delete", "companyInfo": "Company Info", "primaryContact": "Contact Info", "managementContacts": "Management Contacts", "documents": "Official Documents", "download": "Download"
-            }, "requestStatus": {
-                "pending": "Pending", "reviewed": "Reviewed", "closed": "Closed", "approved": "Approved", "rejected": "Rejected", "new": "New"
-            }, "noPartnerRequests": "There are no new partner requests at the moment.", "noPropertyRequests": "There are no new property listing requests at the moment.", "noContactRequests": "There are no new contact messages at the moment.", "confirmDelete": "Are you sure you want to delete this request?", "propertyDetailsTitle": "Property Listing Request Details", "subscriptionPlan": "Subscription Plan", "cooperationType": "Cooperation Model"
+                "requester": "Requester", "phone": "Phone", "date": "Date", "status": "Status", "actions": "Actions", "details": "View Details", "propertyInfo": "Property Info", "message": "Message", "approve": "Approve", "reject": "Reject", "markAsReviewed": "Mark as Reviewed", "delete": "Delete", "companyInfo": "Company Info", "primaryContact": "Contact Info", "managementContacts": "Management Contacts", "documents": "Official Documents", "download": "Download",
+                "type": "Type",
+                "subject": "Subject",
+                "assignedTo": "Assigned To"
+            },
+            "requestStatus": {
+                "pending": "Pending", "reviewed": "Reviewed", "closed": "Closed", "approved": "Approved", "rejected": "Rejected", "new": "New", "assigned": "Assigned", "in-progress": "In Progress"
+            },
+            "noPartnerRequests": "There are no new partner requests at the moment.", "noPropertyRequests": "There are no new property listing requests at the moment.", "noContactRequests": "There are no new contact messages at the moment.", "confirmDelete": "Are you sure you want to delete this request?", "propertyDetailsTitle": "Property Listing Request Details", "subscriptionPlan": "Subscription Plan", "cooperationType": "Cooperation Model"
         },
         "filter": {
             "search": "Search...", "searchByNameOrEmail": "Search by name or email...", "searchByRequesterOrPhone": "Search by name or phone...", "filterByType": "Filter by type", "filterByStatus": "Filter by status", "filterByPlan": "Filter by plan", "filterByDisplayType": "Filter by display type", "filterByPartner": "Filter by partner", "all": "All", "allPartners": "All Partners", "listingDateRange": "Listing Date Range", "leadDateRange": "Lead Date Range"
         },
         "bulkActions": {
-            "selected": "Selected", "activate": "Activate Selected", "deactivate": "Deactivate Selected", "delete": "Delete Selected", "clear": "Clear"
+            "selected": "Selected",
+            "activate": "Activate Selected",
+            "deactivate": "Deactivate Selected",
+            "delete": "Delete Selected",
+            "clear": "Clear"
         }
     },
     "adminAnalytics": {
         "title": "Advanced Analytics", "subtitle": "An in-depth look at platform performance and key data.", "timeFilter": "Time Period", "last7days": "Last 7 Days", "last30days": "Last 30 Days", "thismonth": "This Month", "thisyear": "This Year", "userGrowth": "User & Partner Growth", "users": "Users", "partners": "Partners", "propertyPerformance": "Property Performance", "leads": "Leads", "topPerformingProperties": "Top Performing Properties", "topPerformingPartners": "Top Performing Partners", "conversionRate": "Conversion Rate", "leadsPerProperty": "Lead/Property", "propertyHotspots": "Property Hotspots", "newLeads": "New Leads", "newPartners": "New Partners", "newProperties": "New Properties",
         "leadsOverTime": "Leads Over Time",
         "leadStatusDistribution": "Lead Status Distribution",
-        "propertyTypeDistribution": "Property Type Distribution"
+        "propertyTypeDistribution": "Property Type Distribution",
+        "requestTypeDistribution": "Request Type Distribution"
     },
     "adminReports": {
         "title": "Custom Reporting System", "subtitle": "Generate and export custom reports based on platform data.", "step1": "Step 1: Choose Data Source", "selectDataSource": "Select a source...", "dataSources": {

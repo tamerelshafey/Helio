@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { ArrowUpIcon } from '../icons/Icons';
+import { ArrowUpIcon } from '../ui/Icons';
 import { Button } from '../ui/Button';
 
 const BackToTopButton: React.FC = () => {

@@ -1,6 +1,4 @@
-body {
-  font-family: 'Tajawal', sans-serif;
-}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -16,6 +14,38 @@ body {
 .animate-slideInUp {
   animation: slideInUp 0.6s ease-out forwards;
 }
+
+/* ---- NEW MICRO-INTERACTIONS & VISUAL POLISH ---- */
+@keyframes fadeInUp-subtle {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fadeInUp-subtle {
+  /* Set initial state for animation */
+  opacity: 0;
+  animation: fadeInUp-subtle 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Subtle lift and glow for key action buttons */
+.btn-glow-lift {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+.btn-glow-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.25);
+}
+.btn-glow-lift:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(245, 158, 11, 0.2);
+}
+/* ---- END NEW MICRO-INTERACTIONS ---- */
+
 
 .card-glow:hover {
     box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
@@ -65,7 +95,6 @@ details[open] > summary .rotate-on-open {
   color: #f9fafb; /* gray-50 */
 }
 .chat-bubble-received {
-  align-self: flex-start;
   background-color: #e5e7eb; /* gray-200 */
   color: #1f2937; /* gray-800 */
 }
