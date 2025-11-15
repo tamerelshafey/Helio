@@ -1,7 +1,7 @@
 
 
 import React, { Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 import ScrollToTop from './components/shared/ScrollToTop';
 import { FavoritesProvider } from './components/shared/FavoritesContext';
@@ -14,6 +14,7 @@ import { adminNavLinks, partnerNavLinks } from './data/navigation';
 
 // --- Layouts ---
 const DashboardLayout = React.lazy(() => import('./components/shared/DashboardLayout'));
+const PublicLayout = React.lazy(() => import('./components/shared/PublicLayout'));
 
 // --- Fallback Component ---
 const LoadingFallback = () => (
@@ -23,9 +24,29 @@ const LoadingFallback = () => (
 );
 
 // --- Route Groups (Code Splitting) ---
-const PublicRoutes = React.lazy(() => import('./components/public/PublicRoutes'));
 const PartnerRoutes = React.lazy(() => import('./components/partner-dashboard/PartnerRoutes'));
 const AdminRoutes = React.lazy(() => import('./components/admin/AdminRoutes'));
+
+// --- Public Pages (Lazy Loaded) ---
+const HomePage = React.lazy(() => import('./components/home/HomePage'));
+const PropertiesPage = React.lazy(() => import('./components/properties/PropertiesPage'));
+const ProjectsPage = React.lazy(() => import('./components/projects/ProjectsPage'));
+const PropertyDetailsPage = React.lazy(() => import('./components/properties/PropertyDetailsPage'));
+const ProjectDetailsPage = React.lazy(() => import('./components/projects/ProjectDetailsPage'));
+const FinishingPage = React.lazy(() => import('./components/finishing/FinishingPage'));
+const DecorationsPage = React.lazy(() => import('./components/decorations/DecorationsPage'));
+const ContactPage = React.lazy(() => import('./components/contact/ContactPage'));
+const FavoritesPage = React.lazy(() => import('./components/favorites/FavoritesPage'));
+const PartnerProfilePage = React.lazy(() => import('./components/partners/PartnerProfilePage'));
+// FIX: Corrected import path for AIEstimatorPage to point to the correct module.
+const AIEstimatorPage = React.lazy(() => import('./components/AIEstimatorPage'));
+const AddPropertyPage = React.lazy(() => import('./components/forms/AddPropertyPage'));
+const ServiceRequestPage = React.lazy(() => import('./components/forms/ServiceRequestPage'));
+const LoginPage = React.lazy(() => import('./components/auth/LoginPage'));
+const RegisterPage = React.lazy(() => import('./components/auth/RegisterPage'));
+const PrivacyPolicyPage = React.lazy(() => import('./components/legal/PrivacyPolicyPage'));
+const TermsOfUsePage = React.lazy(() => import('./components/legal/TermsOfUsePage'));
+const NotFoundPage = React.lazy(() => import('./components/shared/NotFoundPage'));
 
 
 const App: React.FC = () => {
@@ -66,10 +87,28 @@ const App: React.FC = () => {
                         </Route>
 
                         {/* ================================================================== */}
-                        {/*         Public Routes (Catch-all, must be last)                    */}
+                        {/*                       Public Routes & Catch-all                    */}
                         {/* ================================================================== */}
-                        <Route path="/*" element={<PublicRoutes />} />
-
+                        <Route path="/" element={<PublicLayout />}>
+                            <Route index element={<HomePage />} />
+                            <Route path="properties" element={<PropertiesPage />} />
+                            <Route path="projects" element={<ProjectsPage />} />
+                            <Route path="properties/:propertyId" element={<PropertyDetailsPage />} />
+                            <Route path="projects/:projectId" element={<ProjectDetailsPage />} />
+                            <Route path="finishing" element={<FinishingPage />} />
+                            <Route path="ai-estimator" element={<AIEstimatorPage />} />
+                            <Route path="decorations" element={<DecorationsPage />} />
+                            <Route path="contact" element={<ContactPage />} />
+                            <Route path="favorites" element={<FavoritesPage />} />
+                            <Route path="partners/:partnerId" element={<PartnerProfilePage />} />
+                            <Route path="add-property" element={<AddPropertyPage />} />
+                            <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+                            <Route path="terms-of-use" element={<TermsOfUsePage />} />
+                            <Route path="request-service" element={<ServiceRequestPage />} />
+                            <Route path="login" element={<LoginPage />} />
+                            <Route path="register" element={<RegisterPage />} />
+                            <Route path="*" element={<NotFoundPage />} />
+                        </Route>
                     </Routes>
                 </Suspense>
                 <ToastContainer />
