@@ -1,13 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import type { Language, Project, AdminPartner, FilterOption } from '../../types';
-import { SearchIcon, ArrowDownIcon, ChevronRightIcon, SparklesIcon } from '../ui/Icons';
+import { SearchIcon, ArrowDownIcon, ChevronRightIcon } from '../ui/Icons';
 import type { usePropertyFilters } from '../../hooks/usePropertyFilters';
 import { useLanguage } from '../shared/LanguageContext';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Checkbox } from '../ui/Checkbox';
-import { GoogleGenAI, Type } from '@google/genai';
-import { useToast } from '../shared/ToastContext';
 
 interface PropertyFiltersProps {
   filters: ReturnType<typeof usePropertyFilters>;
@@ -30,8 +28,6 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
     const t = translations.propertiesPage;
     const { propertyDetailsPage: t_details } = translations;
     const [showAdvanced, setShowAdvanced] = useState(false);
-    const { showToast } = useToast();
-    const [isAiLoading, setIsAiLoading] = useState(false);
     
     const { 
         setFilter, 
@@ -92,62 +88,6 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
     const isForRent = statusFilter === 'For Rent';
     const isFinishingDisabled = typeFilter === 'Land' || availableFinishingStatuses.length === 0;
 
-    const handleAiSearch = async () => {
-        if (!queryFilter.trim()) return;
-        setIsAiLoading(true);
-
-        const filterSchema = {
-            type: Type.OBJECT,
-            properties: {
-                type: { type: Type.STRING, enum: propertyTypes.map(p => p.en) },
-                status: { type: Type.STRING, enum: ["For Sale", "For Rent"] },
-                finishing: { type: Type.STRING, enum: finishingStatuses.map(f => f.en) },
-                minPrice: { type: Type.NUMBER },
-                maxPrice: { type: Type.NUMBER },
-                beds: { type: Type.NUMBER },
-                baths: { type: Type.NUMBER },
-                area: { type: Type.NUMBER },
-                compound: { type: Type.STRING, enum: ["yes", "no"] }
-            },
-        };
-
-        const prompt = `You are an intelligent real estate search query parser for a website in Egypt. Your task is to analyze the user's search query and convert it into a structured JSON object based on the provided filter schema.
-        User Query: "${queryFilter}"
-        
-        Instructions:
-        - Analyze the query for property type, status (sale/rent), finishing level, price, number of bedrooms/bathrooms, and area.
-        - Map Arabic/colloquial terms to the correct English enum values in the schema. For example: 'للبيع' -> 'For Sale', 'شقة' -> 'Apartment', 'تشطيب كامل' -> 'Fully Finished'.
-        - For prices, parse numbers and currency symbols (EGP, جنيه, مليون). If a single price is mentioned, treat it as a maximum price.
-        - If the user mentions "كمبوند" or "compound", set the compound filter to "yes".
-        - Return ONLY the JSON object that matches the schema. Do not include any other text or explanations.`;
-        
-        try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-                 config: {
-                    responseMimeType: 'application/json',
-                    responseSchema: filterSchema,
-                },
-            });
-            const parsedFilters = JSON.parse(response.text);
-
-            Object.entries(parsedFilters).forEach(([key, value]) => {
-                if (value !== undefined && value !== null) {
-                    setFilter(key, String(value));
-                }
-            });
-            showToast('AI filters applied!', 'success');
-
-        } catch (error) {
-            console.error("AI Search Failed:", error);
-            showToast('Could not parse search query with AI. Please use manual filters.', 'error');
-        } finally {
-            setIsAiLoading(false);
-        }
-    };
-
     return (
       <>
         <div className="text-center mb-12">
@@ -167,23 +107,8 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                   onChange={e => setFilter('q', e.target.value)} 
                   placeholder={language === 'ar' ? 'جرب: "شقة للبيع ٣ غرف تشطيب كامل"' : 'Try: "Apartment for sale 3 beds fully finished"'}
                   className={`${language === 'ar' ? 'pr-10' : 'pl-10'}`}
-                  onKeyDown={(e) => e.key === 'Enter' && handleAiSearch()}
                 />
                 <SearchIcon className={`absolute ${language === 'ar' ? 'right-3' : 'left-3'} h-5 w-5 text-gray-400 dark:text-gray-400 pointer-events-none`} />
-                <button
-                  type="button"
-                  onClick={handleAiSearch}
-                  disabled={isAiLoading}
-                  className={`absolute ${language === 'ar' ? 'left-1' : 'right-1'} top-1/2 -translate-y-1/2 h-9 px-3 rounded-md text-sm font-semibold flex items-center gap-2 transition-colors
-                    bg-amber-500 text-gray-900 hover:bg-amber-600 disabled:bg-amber-300`}
-                >
-                  {isAiLoading ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-                  ) : (
-                    <SparklesIcon className="w-4 h-4"/>
-                  )}
-                  <span>{language === 'ar' ? 'بحث ذكي' : 'AI Search'}</span>
-                </button>
               </div>
             </div>
             <div>

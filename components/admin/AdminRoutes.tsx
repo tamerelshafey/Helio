@@ -13,7 +13,6 @@ import AdminPlansPage from './AdminPlansPage';
 import AdminFilterManagementPage from './AdminFilterManagementPage';
 import AdminBannersPage from './AdminBannersPage';
 import AdminSettingsPage from './AdminSettingsPage';
-import AdminAIEstimatorPage from './AdminAIEstimatorPage';
 import PropertyFormPage from '../forms/PropertyFormPage';
 import ProjectFormPage from '../forms/ProjectFormPage';
 
@@ -128,7 +127,6 @@ const AdminRoutes: React.FC = () => {
                 <Route index element={<AdminFinishingDashboardPage />} />
                 <Route path="requests" element={<Navigate to="/admin/requests?type=LEAD&service=finishing" replace />} />
                 <Route path="services" element={<AdminFinishingServicesPage />} />
-                <Route path="ai-estimator" element={<AdminAIEstimatorPage />} />
                 <Route path="plans" element={<AdminPlansPage availableCategories={['finishing']} />} />
             </Route>
 

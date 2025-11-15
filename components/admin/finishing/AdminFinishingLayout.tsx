@@ -11,7 +11,6 @@ const AdminFinishingLayout: React.FC = () => {
         { name: t_nav.finishingRequests, href: '/admin/finishing-management/requests', exact: false },
         { name: t_nav.finishingServices, href: '/admin/finishing-management/services', exact: false },
         { name: t_nav.subscriptionPlans, href: '/admin/finishing-management/plans', exact: false },
-        { name: t_nav.aiEstimatorSettings, href: '/admin/finishing-management/ai-estimator', exact: false },
     ];
 
     const baseClasses = "px-4 py-3 font-semibold text-md border-b-4 transition-colors duration-200";

@@ -5,13 +5,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Property, FilterOption } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses, selectClasses } from '../ui/FormField';
-import { CloseIcon, SparklesIcon } from '../ui/Icons';
+import { CloseIcon } from '../ui/Icons';
 import { addProperty as apiAddProperty, updateProperty as apiUpdateProperty, getAllProperties } from '../../services/properties';
 import { getAllProjects } from '../../services/projects';
 import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../services/filters';
 import LocationPickerModal from '../shared/LocationPickerModal';
 import { Role, Permission } from '../../types';
-import AIContentHelper from '../ai/AIContentHelper';
 import { useToast } from '../shared/ToastContext';
 import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import UpgradeNotice from '../shared/UpgradeNotice';
@@ -59,7 +58,6 @@ const PropertyFormPage: React.FC = () => {
     const [mainImage, setMainImage] = useState<string>('');
     const [galleryImages, setGalleryImages] = useState<string[]>([]);
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-    const [aiHelperState, setAiHelperState] = useState<{ isOpen: boolean; field: 'description.ar' | 'description.en' | null; }>({ isOpen: false, field: null });
 
     const watchType = watch('type');
     const watchStatus = watch('status');
@@ -236,16 +234,6 @@ const PropertyFormPage: React.FC = () => {
         setIsLocationModalOpen(false);
     };
 
-    const openAiHelper = (field: 'description.ar' | 'description.en') => {
-        setAiHelperState({ isOpen: true, field });
-    };
-
-    const handleApplyAiText = (newText: string) => {
-        if (aiHelperState.field) {
-            setValue(aiHelperState.field, newText, { shouldDirty: true });
-        }
-    };
-
     const onSubmit = async (formData: any) => {
         if (!currentUser || !('type' in currentUser) || !amenities) return;
         
@@ -294,7 +282,6 @@ const PropertyFormPage: React.FC = () => {
     return (
         <div>
             {isLocationModalOpen && ( <LocationPickerModal onClose={() => setIsLocationModalOpen(false)} onLocationSelect={handleLocationSelect} initialLocation={watchLocation} /> )}
-            {aiHelperState.isOpen && aiHelperState.field && ( <AIContentHelper isOpen={aiHelperState.isOpen} onClose={() => setAiHelperState({ isOpen: false, field: null })} onApply={handleApplyAiText} originalText={watch(aiHelperState.field) || ''} propertyData={watch()} context={{ field: aiHelperState.field }} /> )}
             
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">{propertyId ? td.editTitle : td.addTitle}</h1>
             
@@ -330,24 +317,14 @@ const PropertyFormPage: React.FC = () => {
                      <div className="md:col-span-2">
                         <FormField label={td.descriptionAr} id="description.ar">
                             <div className="relative">
-                                <textarea {...register("description.ar")} className={`${inputClasses} ${currentUser?.role === Role.SUPER_ADMIN ? 'pr-12' : ''}`} rows={4} />
-                                {currentUser?.role === Role.SUPER_ADMIN && (
-                                    <button type="button" onClick={() => openAiHelper('description.ar')} className="absolute top-2 right-2 p-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full hover:bg-amber-200">
-                                        <SparklesIcon className="w-5 h-5" />
-                                    </button>
-                                )}
+                                <textarea {...register("description.ar")} className={inputClasses} rows={4} />
                             </div>
                         </FormField>
                     </div>
                      <div className="md:col-span-2">
                         <FormField label={td.descriptionEn} id="description.en">
                              <div className="relative">
-                                <textarea {...register("description.en")} className={`${inputClasses} ${currentUser?.role === Role.SUPER_ADMIN ? 'pr-12' : ''}`} rows={4} />
-                                {currentUser?.role === Role.SUPER_ADMIN && (
-                                    <button type="button" onClick={() => openAiHelper('description.en')} className="absolute top-2 right-2 p-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full hover:bg-amber-200">
-                                        <SparklesIcon className="w-5 h-5" />
-                                    </button>
-                                )}
+                                <textarea {...register("description.en")} className={inputClasses} rows={4} />
                             </div>
                         </FormField>
                     </div>

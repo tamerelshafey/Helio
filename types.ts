@@ -535,9 +535,16 @@ export interface Notification {
     createdAt: string;
 }
 
+// FIX: Add missing AI Estimator types.
 // ==================================================================
-//                         AI Estimator
+//                            AI Estimator
 // ==================================================================
+
+export interface AIEstimatorOption {
+    key: string;
+    en: string;
+    ar: string;
+}
 
 export interface AIEstimatorItem {
     id: string;
@@ -553,21 +560,11 @@ export interface AIEstimatorStage {
     optionalItems: AIEstimatorItem[];
 }
 
-export interface AIEstimatorOption {
-    key: string;
-    en: string;
-    ar: string;
-}
-
 export interface AIEstimatorConfig {
     model: string;
     prompt: string;
-    stages?: AIEstimatorStage[];
-    options?: {
-        flooring: AIEstimatorOption[];
-        walls: AIEstimatorOption[];
-        ceiling: AIEstimatorOption[];
-        electrical: AIEstimatorOption[];
-        plumbing: AIEstimatorOption[];
+    options: {
+        [key: string]: AIEstimatorOption[];
     };
+    stages: AIEstimatorStage[];
 }

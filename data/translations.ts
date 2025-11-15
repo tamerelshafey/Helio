@@ -39,7 +39,7 @@ export const arTranslations = {
         "finishing": "التشطيبات",
         "decorations": "الديكورات",
         "favorites": "المفضلة",
-        "contact": "تواصل معنا",
+        "contact": "تواصل",
         "privacyPolicy": "سياسة الخصوصية",
         "termsOfUse": "شروط الاستخدام",
         "analytics": "التحليلات"
@@ -69,72 +69,15 @@ export const arTranslations = {
         "title": "كلمات من الحكمة",
         "description": "اقتباسات ملهمة في الهندسة المعمارية والتصميم والمنزل."
     },
-    "aiEstimator": {
-        "ctaTitle": "هل تخطط للتشطيب؟",
-        "ctaSubtitle": "احصل على تقدير تكلفة فوري ومفصل لمشروعك باستخدام مساعدنا الذكي.",
-        "ctaButton": "جرّب مقدّر التكاليف الذكي",
-        "title": "مقدّر التكاليف الذكي",
-        "next": "التالي",
-        "back": "العودة",
-        "getEstimate": "احصل على التقدير",
-        "requestTitle": "طلب تقدير تكلفة بالذكاء الاصطناعي",
-        "step1": {
-            "title": "معلومات أساسية",
-            "propertyType": "نوع الوحدة",
-            "apartment": "شقة",
-            "villa": "فيلا",
-            "area": "المساحة (بالمتر المربع)"
-        },
-        "step2": {
-            "title": "حدد مستوى الجودة",
-            "quality": "مستوى التشطيب",
-            "standard": "قياسي",
-            "premium": "ممتاز",
-            "luxury": "فاخر",
-            "bedrooms": "غرف نوم",
-            "bathrooms": "حمامات",
-            "reception": "استقبال",
-            "kitchen": "مطبخ"
-        },
-        "step3": {
-            "title": "طلبات خاصة",
-            "requests": "هل لديك أي طلبات أو مواد معينة تود استخدامها؟",
-            "placeholder": "مثال: أرغب في استخدام أرضيات رخام في الاستقبال، دهانات جوتن، إضاءة مخفية..."
-        },
-        "loading": {
-            "title": "يقوم مساعدنا الذكي بحساب التكاليف...",
-            "subtitle": "قد تستغرق هذه العملية بضع لحظات.",
-            "messages": [
-                "جاري تحليل تفاصيل الوحدة...",
-                "حساب تكاليف المواد الخام...",
-                "الأخذ في الاعتبار مستوى الجودة المطلوب...",
-                "تجميع بنود التكلفة...",
-                "وضع اللمسات الأخيرة على تقديرك..."
-            ]
-        },
-        "results": {
-            "title": "التقدير المبدئي للتكلفة",
-            "total": "التكلفة الإجمالية التقديرية",
-            "breakdown": "تفصيل التكاليف",
-            "notes": "ملاحظات وتوصيات الذكاء الاصطناعي",
-            "disclaimer": "يرجى العلم أن هذا تقدير مبدئي وقد تختلف التكلفة النهائية بناءً على المعاينة والتفاصيل الدقيقة.",
-            "sendRequest": "أرسل الطلب للمختصين"
-        },
-        "error": {
-            "title": "حدث خطأ",
-            "subtitle": "عذرًا، لم نتمكن من حساب التكلفة. يرجى المحاولة مرة أخرى.",
-            "retry": "حاول مرة أخرى"
-        }
-    },
     "cta": {
         "title": "هل أنت مستعد للبدء؟",
         "subtitle": "انضم إلى شبكة شركائنا الناجحين ومقدمي الخدمات المميزة في هليوبوليس الجديدة.",
-        "button": "تواصل معنا الآن"
+        "button": "تواصل الآن"
     },
     "footer": {
         "quickLinks": "روابط سريعة",
         "forPartners": "للشركاء",
-        "contactUs": "تواصل معنا",
+        "contactUs": "تواصل",
         "rightsReserved": "جميع الحقوق محفوظة.",
         "sendFeedback": "إرسال ملاحظات"
     },
@@ -462,7 +405,7 @@ export const arTranslations = {
         "serviceRequestFor": "طلب خدمة من"
     },
     "contactPage": {
-        "title": "تواصل معنا",
+        "title": "تواصل",
         "subtitle": "نحن هنا لمساعدتك. إذا كان لديك استفسار حول خدماتنا وعقاراتنا داخل هليوبوليس الجديدة، أو ترغب في بدء مشروع، لا تتردد في التواصل معنا.",
         "formTitle": "أرسل لنا رسالة",
         "namePlaceholder": "الاسم الكامل",
@@ -494,7 +437,9 @@ export const arTranslations = {
         "share": "مشاركة",
         "shareProperty": "مشاركة العقار",
         "linkCopied": "تم نسخ الرابط!",
-        "shareFailed": "فشلت المشاركة. يرجى المحاولة مرة أخرى."
+        "shareFailed": "فشلت المشاركة. يرجى المحاولة مرة أخرى.",
+        "copyLink": "نسخ الرابط",
+        "shareOnWhatsApp": "مشاركة عبر واتساب"
     },
     "favoritesPage": {
         "title": "مفضلتي",
@@ -680,7 +625,6 @@ export const arTranslations = {
             "finishingRequests": "طلبات التشطيب",
             "decorationsRequests": "طلبات الديكور",
             "finishingServices": "خدمات التشطيب",
-            "aiEstimatorSettings": "إعدادات المقدّر الذكي",
             "inquiryManagement": "إدارة الاستفسارات",
             "finishingManagement": "إدارة التشطيبات",
             "inquiryRouting": "توجيه الاستفسارات",
@@ -738,9 +682,6 @@ export const arTranslations = {
             },
             "editModalTitle": "تعديل أرقام التواصل",
             "updateSuccess": "تم تحديث طرق التواصل بنجاح!"
-        },
-        "aiEstimatorSettings": {
-            "title": "إعدادات المقدّر الذكي", "subtitle": "تحكم في سلوك وخيارات مقدّر التكاليف الذكي.", "promptTitle": "Prompt الذكاء الاصطناعي", "promptDescription": "هذا هو الأمر الرئيسي الذي يتم إرساله إلى الذكاء الاصطناعي. قم بتعديله لتغيير شخصيته أو تعليماته.", "modelTitle": "موديل الذكاء الاصطناعي", "optionsTitle": "خيارات التشطيب", "optionsDescription": "إدارة الخيارات التي تظهر للمستخدم في خطوة \"التشطيبات والمواد\".", "optionKey": "المفتاح (انجليزي، بدون مسافات)", "optionAr": "الاسم بالعربية", "optionEn": "الاسم بالإنجليزية", "addNewOption": "إضافة خيار جديد"
         },
         "roleDescriptions": {
             "DEVELOPER_PARTNER": "إدارة المشاريع والوحدات الخاصة بهم.", "FINISHING_PARTNER": "إدارة معرض الأعمال وطلبات خدمات التشطيب.", "AGENCY_PARTNER": "إدارة العقارات المعروضة وطلبات العملاء.", "SERVICE_MANAGER": "الإشراف على جميع طلبات التشطيبات والديكورات.", "CUSTOMER_RELATIONS_MANAGER": "متابعة طلبات الملاك الأفراد ورسائل التواصل.", "LISTINGS_MANAGER": "إدارة جميع العقارات والمشاريع على المنصة.", "PARTNER_RELATIONS_MANAGER": "مراجعة طلبات الشركاء الجدد وإدارة حساباتهم.", "CONTENT_MANAGER": "التحكم في المحتوى العام للموقع مثل الإعلانات والفلاتر."
@@ -1053,63 +994,6 @@ export const enTranslations = {
     "wisdomQuotes": {
         "title": "Words of Wisdom",
         "description": "Inspirational quotes on architecture, design, and home."
-    },
-    "aiEstimator": {
-        "ctaTitle": "Planning to finish your unit?",
-        "ctaSubtitle": "Get an instant, detailed cost estimate for your project using our smart assistant.",
-        "ctaButton": "Try the AI Cost Estimator",
-        "title": "AI Cost Estimator",
-        "next": "Next",
-        "back": "Back",
-        "getEstimate": "Get Estimate",
-        "requestTitle": "AI Cost Estimation Request",
-        "step1": {
-            "title": "Basic Information",
-            "propertyType": "Unit Type",
-            "apartment": "Apartment",
-            "villa": "Villa",
-            "area": "Area (in square meters)"
-        },
-        "step2": {
-            "title": "Select Quality Level",
-            "quality": "Finishing Level",
-            "standard": "Standard",
-            "premium": "Premium",
-            "luxury": "Luxury",
-            "bedrooms": "Bedrooms",
-            "bathrooms": "Bathrooms",
-            "reception": "Reception",
-            "kitchen": "Kitchen"
-        },
-        "step3": {
-            "title": "Special Requests",
-            "requests": "Do you have any specific requests or materials you'd like to use?",
-            "placeholder": "e.g., I want to use marble floors in the reception, Jotun paints, hidden lighting..."
-        },
-        "loading": {
-            "title": "Our AI assistant is calculating the costs...",
-            "subtitle": "This process may take a few moments.",
-            "messages": [
-                "Analyzing unit details...",
-                "Calculating raw material costs...",
-                "Considering the required quality level...",
-                "Aggregating cost items...",
-                "Finalizing your estimate..."
-            ]
-        },
-        "results": {
-            "title": "Preliminary Cost Estimate",
-            "total": "Total Estimated Cost",
-            "breakdown": "Cost Breakdown",
-            "notes": "AI Notes & Recommendations",
-            "disclaimer": "Please note that this is a preliminary estimate. The final cost may vary based on inspection and precise details.",
-            "sendRequest": "Send Request to Specialists"
-        },
-        "error": {
-            "title": "An Error Occurred",
-            "subtitle": "Sorry, we couldn't calculate the cost. Please try again.",
-            "retry": "Try Again"
-        }
     },
     "cta": {
         "title": "Ready to get started?",
@@ -1479,7 +1363,9 @@ export const enTranslations = {
         "share": "Share",
         "shareProperty": "Share Property",
         "linkCopied": "Link copied!",
-        "shareFailed": "Sharing failed. Please try again."
+        "shareFailed": "Sharing failed. Please try again.",
+        "copyLink": "Copy Link",
+        "shareOnWhatsApp": "Share on WhatsApp"
     },
     "favoritesPage": {
         "title": "My Favorites",
@@ -1665,7 +1551,6 @@ export const enTranslations = {
             "finishingRequests": "Finishing Requests",
             "decorationsRequests": "Decoration Requests",
             "finishingServices": "Finishing Services",
-            "aiEstimatorSettings": "AI Estimator Settings",
             "inquiryManagement": "Inquiry Management",
             "finishingManagement": "Finishing Mgmt",
             "inquiryRouting": "Inquiry Routing",
@@ -1723,9 +1608,6 @@ export const enTranslations = {
             },
             "editModalTitle": "Edit Contact Numbers",
             "updateSuccess": "Contact methods updated successfully!"
-        },
-        "aiEstimatorSettings": {
-            "title": "AI Estimator Settings", "subtitle": "Control the behavior and options of the AI Cost Estimator.", "promptTitle": "AI Prompt", "promptDescription": "This is the main prompt sent to the AI. Modify it to change its personality or instructions.", "modelTitle": "AI Model", "optionsTitle": "Finishing Options", "optionsDescription": "Manage the options that appear to the user in the 'Finishes & Materials' step.", "optionKey": "Key (English, no spaces)", "optionAr": "Name (Arabic)", "optionEn": "Name (English)", "addNewOption": "Add New Option"
         },
         "roleDescriptions": {
             "DEVELOPER_PARTNER": "Manage their own projects and units.", "FINISHING_PARTNER": "Manage portfolio and finishing service requests.", "AGENCY_PARTNER": "Manage listed properties and customer leads.", "SERVICE_MANAGER": "Oversee all finishing and decoration requests.", "CUSTOMER_RELATIONS_MANAGER": "Follow up on individual owner requests and contact messages.", "LISTINGS_MANAGER": "Manage all properties and projects on the platform.", "PARTNER_RELATIONS_MANAGER": "Review new partner requests and manage their accounts.", "CONTENT_MANAGER": "Control general site content like banners and filters."

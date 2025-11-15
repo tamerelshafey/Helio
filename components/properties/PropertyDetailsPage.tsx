@@ -1,11 +1,9 @@
-
-
 import React, { useState, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { 
     BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, 
-    FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon, LocationMarkerIcon 
+    FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon, LocationMarkerIcon, WhatsAppIcon, PhoneIcon
 } from '../ui/Icons';
 import type { Language } from '../../types';
 import { useFavorites } from '../shared/FavoritesContext';
@@ -18,11 +16,11 @@ import { useToast } from '../shared/ToastContext';
 import SEO from '../shared/SEO';
 import DetailSection from '../shared/DetailSection';
 import PropertyDetailsSkeleton from '../shared/PropertyDetailsSkeleton';
-import ServiceRequestModal from '../shared/ServiceRequestModal';
 import { getPartnerById } from '../../services/partners';
 import { useLanguage } from '../shared/LanguageContext';
 import { isCommercial } from '../../utils/propertyUtils';
 import { Button } from '../ui/Button';
+import StackedImageGallery from './StackedImageGallery';
 
 
 const PropertyDetailsPage: React.FC = () => {
@@ -31,6 +29,7 @@ const PropertyDetailsPage: React.FC = () => {
     const t_page = t.propertyDetailsPage;
     const { isFavorite, toggleFavorite } = useFavorites();
     const { showToast } = useToast();
+    const navigate = useNavigate();
 
     const fetchProperty = useCallback(() => getPropertyById(propertyId!), [propertyId]);
     const { data: property, isLoading: isLoadingProp } = useQuery({ queryKey: [`property-${propertyId}`], queryFn: fetchProperty, enabled: !!propertyId });
@@ -42,10 +41,10 @@ const PropertyDetailsPage: React.FC = () => {
     });
     
     const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxStartIndex, setLightboxStartIndex] = useState(0);
     const [contactModalOpen, setContactModalOpen] = useState(false);
-    const [serviceRequestModalOpen, setServiceRequestModalOpen] = useState(false);
-    const [shareModalState, setShareModalState] = useState({ isOpen: false, url: '' });
-
+    const [shareModalState, setShareModalState] = useState({ isOpen: false });
+    
     const isLoading = isLoadingProp || isLoadingPartner;
     const isFav = propertyId ? isFavorite(propertyId, 'property') : false;
 
@@ -55,67 +54,44 @@ const PropertyDetailsPage: React.FC = () => {
         showToast(isFav ? t.favoritesPage.removedFromFavorites : t.favoritesPage.addedToFavorites, 'success');
     }, [propertyId, isFav, toggleFavorite, showToast, t.favoritesPage]);
 
-    const handleShare = useCallback(async () => {
-        if (!property) {
-            showToast(t.sharing.shareFailed, 'error');
-            return;
-        }
+    const handleShare = useCallback(() => {
+        setShareModalState({ isOpen: true });
+    }, []);
+    
+    const handleCloseShareModal = () => {
+        setShareModalState({ isOpen: false });
+    };
 
-        const baseUrl = window.location.href.split('#')[0];
-        const urlToShare = new URL(`#/properties/${property.id}`, baseUrl).href;
-    
-        const shareData = {
-            title: property.title[language],
-            text: property.description[language].substring(0, 100) + '...',
-            url: urlToShare,
-        };
-    
-        const openManualShareModal = () => {
-            setShareModalState({ isOpen: true, url: urlToShare });
-        };
-    
-        if (navigator.share) {
-            try {
-                await navigator.share(shareData);
-                return;
-            } catch (error: any) {
-                if (error.name !== 'AbortError') {
-                    console.warn('Share API failed, falling back.', error);
-                } else {
-                    return;
-                }
-            }
-        }
-    
-        if (navigator.clipboard?.writeText) {
-            try {
-                await navigator.clipboard.writeText(urlToShare);
-                showToast(t.sharing.linkCopied, 'success');
-                return;
-            } catch (error) {
-                console.warn('Clipboard API failed, falling back to modal.', error);
-            }
-        }
-        
-        openManualShareModal();
-    
-    }, [property, language, showToast, t.sharing]);
-    
     const handleContact = useCallback(() => {
         if (!partner?.contactMethods) {
-            showToast(t.propertyDetailsPage.contactText, 'success');
-            setServiceRequestModalOpen(true);
+            navigate('/request-service', { 
+                state: {
+                    partnerId: property?.partnerId, 
+                    serviceTitle: `${t_page.inquiryAbout} "${property?.title[language]}"`,
+                    propertyId: property?.id
+                } 
+            });
             return;
         }
         const { whatsapp, phone, form } = partner.contactMethods;
         const hasEnabledMethod = (whatsapp.enabled && whatsapp.number) || (phone.enabled && phone.number) || form.enabled;
         if (!hasEnabledMethod) {
-            showToast("Direct contact methods are not available. Please use our inquiry form.", "error");
-            setServiceRequestModalOpen(true);
+            navigate('/request-service', { 
+                state: {
+                    partnerId: property?.partnerId, 
+                    serviceTitle: `${t_page.inquiryAbout} "${property?.title[language]}"`,
+                    propertyId: property?.id
+                } 
+            });
         } else {
             setContactModalOpen(true);
         }
-    }, [partner, showToast, t.propertyDetailsPage.contactText]);
+    }, [partner, property, language, t_page.inquiryAbout, navigate]);
+
+    const handleImageClick = (index: number) => {
+        setLightboxStartIndex(index);
+        setLightboxOpen(true);
+    };
 
     if (isLoading) {
         return <PropertyDetailsSkeleton />;
@@ -135,52 +111,68 @@ const PropertyDetailsPage: React.FC = () => {
     const pageTitle = `${property.title[language]} | ONLY HELIO`;
     const pageDescription = property.description[language].substring(0, 160);
     const amenityKeys = property.amenities[language] as (keyof typeof t_page.amenitiesIncluded)[];
+    const allImages = [property.imageUrl, ...property.gallery].filter(Boolean);
+
+
+    const handleWhatsAppShare = () => {
+        const baseUrl = window.location.href.split('#')[0];
+        const urlToShare = new URL(`#/properties/${property.id}`, baseUrl).href;
+        const text = encodeURIComponent(`${property.title[language]}\n${urlToShare}`);
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+        handleCloseShareModal();
+    };
+
+    const handleCopyLink = async () => {
+        const baseUrl = window.location.href.split('#')[0];
+        const urlToShare = new URL(`#/properties/${property.id}`, baseUrl).href;
+        try {
+            await navigator.clipboard.writeText(urlToShare);
+            showToast(t.sharing.linkCopied, 'success');
+            handleCloseShareModal();
+        } catch (err) {
+            showToast(t.sharing.shareFailed, 'error');
+        }
+    };
 
     return (
       <>
         <SEO title={pageTitle} description={pageDescription} imageUrl={property.imageUrl} />
-        {lightboxOpen && <Lightbox images={[property.imageUrl, ...property.gallery]} startIndex={0} onClose={() => setLightboxOpen(false)} />}
+        {lightboxOpen && <Lightbox images={allImages} startIndex={lightboxStartIndex} onClose={() => setLightboxOpen(false)} />}
+        
         {contactModalOpen && partner?.contactMethods && (
             <ContactOptionsModal
                 isOpen={contactModalOpen}
                 onClose={() => setContactModalOpen(false)}
                 contactMethods={partner.contactMethods}
-                onSelectForm={() => setServiceRequestModalOpen(true)}
+                onSelectForm={() => navigate('/request-service', { 
+                    state: { 
+                        partnerId: property.partnerId, 
+                        serviceTitle: `${t_page.inquiryAbout} "${property.title[language]}"`,
+                        propertyId: property.id
+                    } 
+                })}
             />
         )}
-         {serviceRequestModalOpen && (
-            <ServiceRequestModal
-                isOpen={serviceRequestModalOpen}
-                onClose={() => setServiceRequestModalOpen(false)}
-                partnerId={property.partnerId}
-                serviceTitle={`${t_page.inquiryAbout} "${property.title[language]}"`}
-                propertyId={property.id}
-            />
-        )}
+        
         {shareModalState.isOpen && (
-            <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={() => setShareModalState({ isOpen: false, url: '' })}>
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                    {language === 'ar' ? 'مشاركة الرابط' : 'Share Link'}
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    {language === 'ar' ? 'لم نتمكن من النسخ تلقائيًا. يرجى نسخ الرابط أدناه يدويًا.' : 'Automatic copying failed. Please copy the link below manually.'}
-                </p>
-                <input 
-                    type="text" 
-                    readOnly 
-                    value={shareModalState.url} 
-                    className="w-full p-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md"
-                    onFocus={(e) => e.target.select()}
-                />
-                <div className="mt-6 flex justify-end">
-                    <Button onClick={() => setShareModalState({ isOpen: false, url: '' })}>
-                    {language === 'ar' ? 'إغلاق' : 'Close'}
-                    </Button>
-                </div>
+            <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={handleCloseShareModal}>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                        {t.sharing.shareProperty}
+                    </h3>
+                    <div className="space-y-3">
+                         <Button onClick={handleCopyLink} variant="outline" className="w-full justify-center">
+                            {t.sharing.copyLink}
+                        </Button>
+                        <Button onClick={handleWhatsAppShare} className="w-full justify-center bg-green-500 hover:bg-green-600 text-white">
+                            <WhatsAppIcon className="w-5 h-5 mr-2" />
+                            {t.sharing.shareOnWhatsApp}
+                        </Button>
+                    </div>
                 </div>
             </div>
         )}
+
         <div className="py-12 bg-gray-50 dark:bg-gray-900">
             <div className="container mx-auto px-6">
                 <div className="lg:flex justify-between items-start mb-4">
@@ -202,13 +194,12 @@ const PropertyDetailsPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                    <div className="lg:col-span-2 space-y-8">
-                        <div className="relative group watermarked">
-                            <img src={property.imageUrl} alt={property.title[language]} className="w-full h-auto max-h-[70vh] object-cover rounded-lg shadow-lg cursor-pointer disable-image-interaction" onClick={() => setLightboxOpen(true)} onContextMenu={(e) => e.preventDefault()}/>
-                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center pointer-events-none">
-                                <span className="text-white text-xl font-bold">View Gallery</span>
-                            </div>
-                        </div>
-
+                        <StackedImageGallery
+                            images={allImages}
+                            onImageClick={handleImageClick}
+                            alt={property.title[language]}
+                        />
+                       
                         <DetailSection title={t_page.description}>
                             <p className="whitespace-pre-line text-gray-600 dark:text-gray-300 leading-relaxed">{property.description[language]}</p>
                         </DetailSection>

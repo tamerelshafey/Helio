@@ -38,8 +38,6 @@ const DecorationsPage = React.lazy(() => import('./components/decorations/Decora
 const ContactPage = React.lazy(() => import('./components/contact/ContactPage'));
 const FavoritesPage = React.lazy(() => import('./components/favorites/FavoritesPage'));
 const PartnerProfilePage = React.lazy(() => import('./components/partners/PartnerProfilePage'));
-// FIX: Corrected import path for AIEstimatorPage to point to the correct module.
-const AIEstimatorPage = React.lazy(() => import('./components/AIEstimatorPage'));
 const AddPropertyPage = React.lazy(() => import('./components/forms/AddPropertyPage'));
 const ServiceRequestPage = React.lazy(() => import('./components/forms/ServiceRequestPage'));
 const LoginPage = React.lazy(() => import('./components/auth/LoginPage'));
@@ -96,7 +94,6 @@ const App: React.FC = () => {
                             <Route path="properties/:propertyId" element={<PropertyDetailsPage />} />
                             <Route path="projects/:projectId" element={<ProjectDetailsPage />} />
                             <Route path="finishing" element={<FinishingPage />} />
-                            <Route path="ai-estimator" element={<AIEstimatorPage />} />
                             <Route path="decorations" element={<DecorationsPage />} />
                             <Route path="contact" element={<ContactPage />} />
                             <Route path="favorites" element={<FavoritesPage />} />
