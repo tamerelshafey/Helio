@@ -1,10 +1,8 @@
-
 import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem, AdminPartner } from '../../types';
 import BannerDisplay from '../shared/BannerDisplay';
 import SEO from '../shared/SEO';
-import { usePortfolioItems } from '../../hooks/usePortfolioItems';
 import { usePartners } from '../../hooks/usePartners';
 import { useSiteContent } from '../../hooks/useSiteContent';
 import { useLanguage } from '../shared/LanguageContext';
@@ -64,53 +62,75 @@ const ServicePackageCard: React.FC<{
     );
 };
 
-const PortfolioCard: React.FC<{
-    item: PortfolioItem & { partnerName?: string };
-    onRequest: (partnerId: string, serviceTitle: string) => void;
-    language: Language;
-    t: any;
-}> = ({ item, onRequest, language, t }) => {
-    const { isFavorite, toggleFavorite } = useFavorites();
-    const { showToast } = useToast();
-    const serviceTitle = `${t.finishingPage.requestButton}: ${item.title[language]}`;
-    const isFav = isFavorite(item.id, 'portfolio');
+const PartnerCompanyCard: React.FC<{ partner: AdminPartner; t: any }> = ({ partner, t }) => {
+    const { language } = useLanguage();
+    const localizedPartner = t.partnerInfo[partner.id];
 
-    const handleFavoriteClick = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleFavorite(item.id, 'portfolio');
-        showToast(isFav ? t.favoritesPage.removedFromFavorites : t.favoritesPage.addedToFavorites, 'success');
-    };
+    if (!localizedPartner) return null;
 
     return (
-        <Card className="group flex flex-col p-0 overflow-hidden transform hover:-translate-y-2 transition-transform duration-300">
-            <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
-                <img src={item.imageUrl} alt={item.alt} className="w-full h-full object-cover disable-image-interaction" onContextMenu={(e) => e.preventDefault()} />
-                 <button onClick={handleFavoriteClick} className="absolute top-2 right-2 p-2 rounded-full bg-black/50 hover:bg-black/75 transition-colors z-10" aria-label={isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}>
-                    {isFav ? <HeartIconSolid className="w-5 h-5 text-red-500" /> : <HeartIcon className="w-5 h-5 text-white" />}
-                </button>
+        <Link to={`/partners/${partner.id}`} className="block h-full">
+            <Card className="transform hover:-translate-y-2 transition-transform duration-300 group h-full flex flex-col overflow-hidden p-0 card-glow">
+                <picture>
+                     <source
+                        type="image/webp"
+                        srcSet={`${partner.imageUrl_small}&fm=webp 480w, ${partner.imageUrl_medium}&fm=webp 800w, ${partner.imageUrl_large || partner.imageUrl}&fm=webp 1200w`}
+                        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 22vw"
+                    />
+                    <img
+                        src={partner.imageUrl_large || partner.imageUrl}
+                        srcSet={`${partner.imageUrl_small} 480w, ${partner.imageUrl_medium} 800w, ${partner.imageUrl_large || partner.imageUrl} 1200w`}
+                        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 22vw"
+                        alt={localizedPartner.name}
+                        className="w-full h-48 object-cover"
+                        loading="lazy"
+                    />
+                </picture>
+                <CardContent className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-amber-500 mb-2 group-hover:text-amber-400 transition-colors">
+                        {localizedPartner.name}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm flex-grow line-clamp-3">
+                        {localizedPartner.description}
+                    </p>
+                </CardContent>
+            </Card>
+        </Link>
+    );
+};
+
+const ServiceProviderCard: React.FC<{ partner: AdminPartner; onRequest: (title: string, partnerId: string) => void; t: any }> = ({ partner, onRequest, t }) => {
+    const { language } = useLanguage();
+    const localizedPartner = t.partnerInfo[partner.id];
+
+    if (!localizedPartner) return null;
+
+    return (
+        <Card className="p-6 flex flex-col sm:flex-row justify-between items-center">
+            <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">{localizedPartner.name}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{localizedPartner.description}</p>
             </div>
-            <CardContent className="p-4 flex flex-col flex-grow">
-                <h3 className="font-bold text-gray-900 dark:text-white truncate mb-1">{item.title[language]}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">By {item.partnerName}</p>
-                <Button onClick={() => onRequest(item.partnerId, serviceTitle)} variant="secondary" className="w-full mt-auto">
-                    {t.finishingPage.requestButton}
-                </Button>
-            </CardContent>
+            <Button 
+                onClick={() => onRequest(t.partnerProfilePage.serviceRequestFor + ' ' + localizedPartner.name, partner.id)} 
+                className="mt-4 sm:mt-0 sm:ml-4 flex-shrink-0"
+            >
+                {t.finishingPage.requestButton}
+            </Button>
         </Card>
     );
 };
+
 
 const FinishingPage: React.FC = () => {
     const { language, t } = useLanguage();
     const navigate = useNavigate();
     const { showToast } = useToast();
 
-    const { data: portfolio, isLoading: isLoadingPortfolio } = usePortfolioItems();
     const { data: partners, isLoading: isLoadingPartners } = usePartners();
     const { data: siteContent, isLoading: isLoadingContent } = useSiteContent();
 
-    const isLoading = isLoadingPortfolio || isLoadingPartners || isLoadingContent;
+    const isLoading = isLoadingPartners || isLoadingContent;
 
     const handleRequestService = (serviceTitle: string, partnerId: string = 'admin-user') => {
         navigate('/request-service', {
@@ -125,13 +145,17 @@ const FinishingPage: React.FC = () => {
     const handleShare = async () => {
         const baseUrl = window.location.href.split('#')[0];
         const urlToShare = `${baseUrl}#/finishing`;
-        
+        const shareData = {
+            title: `${t.nav.finishing} | ONLY HELIO`,
+            text: t.finishingPage.heroSubtitle,
+            url: urlToShare,
+        };
         try {
-            await navigator.share({
-                title: `${t.nav.finishing} | ONLY HELIO`,
-                text: t.finishingPage.heroSubtitle,
-                url: urlToShare,
-            });
+            if (navigator.share && navigator.canShare(shareData)) {
+                await navigator.share(shareData);
+            } else {
+                throw new Error("Web Share API not supported");
+            }
         } catch (error) {
             try {
                 await navigator.clipboard.writeText(urlToShare);
@@ -148,16 +172,16 @@ const FinishingPage: React.FC = () => {
         return siteContent.finishingServices;
     }, [siteContent]);
 
-    const finishingPartnersPortfolio = useMemo(() => {
-        if (!portfolio || !partners) return [];
-        const finishingPartnerIds = partners.filter((p) => p.type === 'finishing' && p.status === 'active').map((p) => p.id);
-        return portfolio
-            .filter((item) => finishingPartnerIds.includes(item.partnerId))
-            .map((item) => ({
-                ...item,
-                partnerName: partners.find((p) => p.id === item.partnerId)?.name,
-            }));
-    }, [portfolio, partners]);
+    const { companyPartners, serviceProviders } = useMemo(() => {
+        if (!partners) return { companyPartners: [], serviceProviders: [] };
+        
+        const allFinishingPartners = partners.filter((p) => p.type === 'finishing' && p.status === 'active');
+        
+        const companies = allFinishingPartners.filter(p => p.subscriptionPlan === 'professional' || p.subscriptionPlan === 'elite');
+        const providers = allFinishingPartners.filter(p => p.subscriptionPlan === 'commission');
+
+        return { companyPartners: companies, serviceProviders: providers };
+    }, [partners]);
 
     if (isLoading) {
         return <div className="animate-pulse h-screen bg-gray-50 dark:bg-gray-800"></div>;
@@ -180,7 +204,7 @@ const FinishingPage: React.FC = () => {
                     <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-200 mt-4">
                         {t.finishingPage.heroSubtitle}
                     </p>
-                    <div className="mt-6">
+                     <div className="mt-6">
                         <Button
                             onClick={handleShare}
                             variant="secondary"
@@ -216,23 +240,45 @@ const FinishingPage: React.FC = () => {
                 </div>
             </section>
 
-            {/* Partner Gallery */}
-            {finishingPartnersPortfolio.length > 0 && (
+            {/* Partner Companies Gallery */}
+            {companyPartners.length > 0 && (
                 <section className="py-20 bg-gray-50 dark:bg-gray-800">
                     <div className="container mx-auto px-6">
                         <div className="text-center mb-12 max-w-3xl mx-auto">
-                            <h2 className="text-3xl md:text-4xl font-bold">{t.finishingPage.galleryTitle}</h2>
+                            <h2 className="text-3xl md:text-4xl font-bold">{t.finishingPage.partnerCompaniesTitle}</h2>
                             <p className="text-lg text-gray-500 dark:text-gray-400 mt-4">
-                                {t.finishingPage.gallerySubtitle}
+                                {t.finishingPage.partnerCompaniesSubtitle}
                             </p>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {finishingPartnersPortfolio.map((item) => (
-                                <PortfolioCard
-                                    key={item.id}
-                                    item={item as PortfolioItem & { partnerName?: string }}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                            {companyPartners.map((partner) => (
+                                <PartnerCompanyCard
+                                    key={partner.id}
+                                    partner={partner}
+                                    t={t}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Free Tier Service Providers */}
+            {serviceProviders.length > 0 && (
+                <section className="py-20">
+                    <div className="container mx-auto px-6">
+                        <div className="text-center mb-12 max-w-3xl mx-auto">
+                            <h2 className="text-3xl md:text-4xl font-bold">{t.finishingPage.serviceProvidersTitle}</h2>
+                            <p className="text-lg text-gray-500 dark:text-gray-400 mt-4">
+                                {t.finishingPage.serviceProvidersSubtitle}
+                            </p>
+                        </div>
+                        <div className="max-w-4xl mx-auto space-y-4">
+                            {serviceProviders.map((partner) => (
+                                <ServiceProviderCard
+                                    key={partner.id}
+                                    partner={partner}
                                     onRequest={handleRequestService}
-                                    language={language}
                                     t={t}
                                 />
                             ))}

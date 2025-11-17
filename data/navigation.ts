@@ -13,10 +13,10 @@ export interface NavLinkItem {
   name: (t: any) => string;
   href: string;
   icon: React.FC<{ className?: string }>;
-  permission: Permission;
-  roles?: Role[];
   exact?: boolean;
   group: string;
+  permission: Permission;
+  roles?: Role[];
 }
 
 export const adminNavLinks: NavLinkItem[] = [
@@ -25,21 +25,22 @@ export const adminNavLinks: NavLinkItem[] = [
   { name: t => t.nav.analytics, href: '/admin/analytics', icon: ChartBarIcon, permission: Permission.VIEW_ANALYTICS, group: 'Overview' },
   { name: t => t.nav.reports, href: '/admin/reports', icon: FileDownloadIcon, permission: Permission.VIEW_ANALYTICS, group: 'Overview' },
   
-  // --- Group: Requests ---
-  { name: t => t.nav.allLeads, href: '/admin/requests', icon: InboxIcon, permission: Permission.MANAGE_ALL_LEADS, group: 'Requests' },
-  
-  // --- Group: Management ---
-  { name: t => t.nav.partners, href: '/admin/partners', icon: UsersIcon, permission: Permission.MANAGE_ALL_PARTNERS, group: 'Management' },
-  { name: t => t.nav.properties, href: '/admin/properties', icon: BuildingIcon, permission: Permission.MANAGE_ALL_PROPERTIES, group: 'Management' },
-  { name: t => t.nav.users, href: '/admin/users', icon: UsersIcon, permission: Permission.MANAGE_USERS, group: 'Management' },
+  // --- Group: Request Triage ---
+  { name: t => t.nav.allLeads, href: '/admin/requests', icon: InboxIcon, permission: Permission.MANAGE_ALL_LEADS, group: 'Request Triage' },
 
-  // --- Group: Content ---
-  { name: t => t.nav.siteContent, href: '/admin/content', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_SITE_CONTENT, group: 'Content' },
-  { name: t => t.nav.banners, href: '/admin/banners', icon: PhotoIcon, permission: Permission.MANAGE_BANNERS, group: 'Content' },
-  { name: t => t.nav.finishingManagement, href: '/admin/finishing-management', icon: WrenchScrewdriverIcon, permission: Permission.MANAGE_FINISHING_LEADS, group: 'Content' },
-  { name: t => t.nav.decorationsManagement, href: '/admin/decorations-management', icon: SparklesIcon, permission: Permission.MANAGE_DECORATIONS_CONTENT, group: 'Content' },
+  // --- Group: Platform Operations ---
+  { name: t => t.nav.platformProperties, href: '/admin/platform-properties', icon: BuildingIcon, permission: Permission.MANAGE_ALL_PROPERTIES, group: 'Platform Operations' },
+  { name: t => t.nav.platformDecorations, href: '/admin/platform-decorations', icon: SparklesIcon, permission: Permission.MANAGE_DECORATIONS_CONTENT, group: 'Platform Operations' },
+  { name: t => t.nav.platformFinishing, href: '/admin/platform-finishing', icon: WrenchScrewdriverIcon, permission: Permission.MANAGE_FINISHING_LEADS, group: 'Platform Operations' },
+
+  // --- Group: Partner & Content Management ---
+  { name: t => t.nav.partners, href: '/admin/partners', icon: UsersIcon, permission: Permission.MANAGE_ALL_PARTNERS, group: 'Partner & Content Management' },
+  { name: t => t.nav.properties, href: '/admin/properties', icon: BuildingIcon, permission: Permission.MANAGE_ALL_PROPERTIES, group: 'Partner & Content Management' },
+  { name: t => t.nav.banners, href: '/admin/banners', icon: PhotoIcon, permission: Permission.MANAGE_BANNERS, group: 'Partner & Content Management' },
+  { name: t => t.nav.siteContent, href: '/admin/content', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_SITE_CONTENT, group: 'Partner & Content Management' },
   
   // --- Group: System ---
+  { name: t => t.nav.users, href: '/admin/users', icon: UsersIcon, permission: Permission.MANAGE_USERS, group: 'System' },
   { name: t => t.nav.automationRules, href: '/admin/automation', icon: AdjustmentsHorizontalIcon, permission: Permission.MANAGE_AUTOMATION, group: 'System' },
   { name: t => t.nav.rolesAndPermissions, href: '/admin/roles', icon: ShieldCheckIcon, permission: Permission.MANAGE_ROLES_PERMISSIONS, group: 'System' },
   { name: t => t.nav.settings, href: '/admin/settings', icon: CogIcon, permission: Permission.MANAGE_SETTINGS, group: 'System' },

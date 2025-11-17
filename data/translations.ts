@@ -42,7 +42,10 @@ export const arTranslations = {
         "contact": "تواصل",
         "privacyPolicy": "سياسة الخصوصية",
         "termsOfUse": "شروط الاستخدام",
-        "analytics": "التحليلات"
+        "analytics": "التحليلات",
+        "platformProperties": "عقارات المنصة",
+        "platformDecorations": "خدمات الديكور",
+        "platformFinishing": "باقات التشطيب"
     },
     "partnerInfo": {
         "united-development": { "name": "الشركة المتحدة للتطوير", "description": "شريكنا الاستراتيجي في تطوير المشاريع السكنية الفاخرة." },
@@ -308,10 +311,12 @@ export const arTranslations = {
         "heroSubtitle": "نقدم خدمات تشطيب وتصميم داخلي مخصصة لمشاريعكم في مدينة هليوبوليس الجديدة، ونحول رؤيتكم إلى واقع ملموس.",
         "servicesTitle": "ابدأ التخطيط لمشروعك معنا",
         "servicesSubtitle": "اختر الباقة التي تناسب احتياجاتك الحالية، سواء كنت في مرحلة التخطيط أو جاهزًا للتنفيذ.",
-        "servicesIntro": "نقدم من خلال فريقنا المختص خدمات الاستشارة والتصميم لمساعدتك في التخطيط لمشروعك. أما إذا كنت تبحث عن التنفيذ، فيمكنك استعراض أعمال شركائنا الموثوقين أدناه.",
+        "servicesIntro": "نقدم من خلال فريقنا المختص خدمات الاستشارة والتصميم لمساعدتك في التخطيط لمشروعك. أما إذا كنت تبحث عن التنفيذ، فيمكنك استعراض شركائنا الموثوقين أدناه.",
         "requestButton": "اطلب الخدمة",
-        "galleryTitle": "أو اختر شريك التنفيذ",
-        "gallerySubtitle": "تصفح أعمال شركاؤنا المميزين في التشطيب والتصميم، واختر الشريك المناسب لبدء تنفيذ مشروعك.",
+        "partnerCompaniesTitle": "اختر إحدى شركات التنفيذ",
+        "partnerCompaniesSubtitle": "تصفح شبكتنا من شركات التشطيب والتصميم الموثوقة التي لها ملفات تعريفية وأعمال سابقة.",
+        "serviceProvidersTitle": "أو تواصل مع مقدمي الخدمة مباشرة",
+        "serviceProvidersSubtitle": "قائمة بمقدمي خدمات التشطيب المسجلين في الباقة المجانية. يمكنك طلب خدمتهم مباشرة.",
         "ctaTitle": "هل لديك مشروع في هليوبوليس الجديدة؟",
         "ctaSubtitle": "إذا كنت تملك وحدة في هليوبوليس الجديدة وترغب في تشطيبها بأعلى جودة، تواصل معنا اليوم للحصول على استشارة مجانية.",
         "ctaButton": "ابدأ مشروعك الآن"
@@ -436,6 +441,9 @@ export const arTranslations = {
     "sharing": {
         "share": "مشاركة",
         "shareProperty": "مشاركة العقار",
+        "sharePartner": "مشاركة الشريك",
+        "shareProject": "مشاركة المشروع",
+        "shareDecorations": "مشاركة صفحة الديكورات",
         "linkCopied": "تم نسخ الرابط!",
         "shareFailed": "فشلت المشاركة. يرجى المحاولة مرة أخرى.",
         "copyLink": "نسخ الرابط",
@@ -616,6 +624,7 @@ export const arTranslations = {
             "propertiesList": "قائمة العقارات",
             "projects": "المشاريع",
             "allLeads": "كل الطلبات",
+            "myRequests": "طلباتي",
             "subscriptionPlans": "باقات الاشتراك",
             "propertyFilters": "فلاتر العقارات",
             "decorationsManagement": "إدارة الديكورات",
@@ -628,7 +637,17 @@ export const arTranslations = {
             "inquiryManagement": "إدارة الاستفسارات",
             "finishingManagement": "إدارة التشطيبات",
             "inquiryRouting": "توجيه الاستفسارات",
-            "automationRules": "قواعد الأتمتة"
+            "automationRules": "قواعد الأتمتة",
+            "platformProperties": "عقارات المنصة",
+            "platformDecorations": "خدمات الديكور",
+            "platformFinishing": "باقات التشطيب"
+        },
+        "requestsTriage": {
+            "title": "مركز إدارة الطلبات",
+            "subtitle": "عرض وإدارة جميع الطلبات والاستفسارات الواردة في مكان واحد.",
+            "myRequests": "طلباتي",
+            "allRequests": "كل الطلبات",
+            "unauthorized": "غير مصرح لك بعرض هذا الطلب."
         },
         "automation": {
           "title": "قواعد الأتمتة",
@@ -968,7 +987,10 @@ export const enTranslations = {
         "contact": "Contact Us",
         "privacyPolicy": "Privacy Policy",
         "termsOfUse": "Terms of Use",
-        "analytics": "Analytics"
+        "analytics": "Analytics",
+        "platformProperties": "Platform Properties",
+        "platformDecorations": "Decoration Services",
+        "platformFinishing": "Finishing Packages"
     },
     "partnerInfo": {
         "united-development": { "name": "United Development", "description": "Our strategic partner in developing luxury residential projects." },
@@ -1234,10 +1256,12 @@ export const enTranslations = {
         "heroSubtitle": "We offer custom finishing and interior design services for your projects in New Heliopolis, turning your vision into a tangible reality.",
         "servicesTitle": "Start Planning Your Project with Us",
         "servicesSubtitle": "Choose the package that fits your current needs, whether you're in the planning phase or ready for execution.",
-        "servicesIntro": "Through our specialized team, we offer consultation and design services to help you plan your project. If you're looking for execution, you can browse the works of our trusted partners below.",
+        "servicesIntro": "Through our specialized team, we offer consultation and design services to help you plan your project. If you're looking for execution, you can browse our trusted partners below.",
         "requestButton": "Request Service",
-        "galleryTitle": "Or Choose an Execution Partner",
-        "gallerySubtitle": "Browse the distinguished works of our partners in finishing and design, and choose the right partner to start implementing your project.",
+        "partnerCompaniesTitle": "Choose an Execution Partner Company",
+        "partnerCompaniesSubtitle": "Browse our network of trusted finishing and design companies with profiles and portfolios.",
+        "serviceProvidersTitle": "Or Contact a Service Provider Directly",
+        "serviceProvidersSubtitle": "A list of finishing service providers on our free plan. You can request their service directly.",
         "ctaTitle": "Do you have a project in New Heliopolis?",
         "ctaSubtitle": "If you own a unit in New Heliopolis and want to finish it to the highest quality, contact us today for a free consultation.",
         "ctaButton": "Start Your Project Now"
@@ -1362,6 +1386,9 @@ export const enTranslations = {
     "sharing": {
         "share": "Share",
         "shareProperty": "Share Property",
+        "sharePartner": "Share Partner",
+        "shareProject": "Share Project",
+        "shareDecorations": "Share Decorations Page",
         "linkCopied": "Link copied!",
         "shareFailed": "Sharing failed. Please try again.",
         "copyLink": "Copy Link",
@@ -1542,6 +1569,7 @@ export const enTranslations = {
             "propertiesList": "Properties List",
             "projects": "Projects",
             "allLeads": "All Requests",
+            "myRequests": "My Requests",
             "subscriptionPlans": "Subscription Plans",
             "propertyFilters": "Property Filters",
             "decorationsManagement": "Decorations Mgmt",
@@ -1554,7 +1582,17 @@ export const enTranslations = {
             "inquiryManagement": "Inquiry Management",
             "finishingManagement": "Finishing Mgmt",
             "inquiryRouting": "Inquiry Routing",
-            "automationRules": "Automation Rules"
+            "automationRules": "Automation Rules",
+            "platformProperties": "Platform Properties",
+            "platformDecorations": "Decoration Services",
+            "platformFinishing": "Finishing Packages"
+        },
+        "requestsTriage": {
+            "title": "Requests Triage Center",
+            "subtitle": "View and manage all incoming requests and leads in one place.",
+            "myRequests": "My Requests",
+            "allRequests": "All Requests",
+            "unauthorized": "You are not authorized to view this request."
         },
         "automation": {
             "title": "Automation Rules",

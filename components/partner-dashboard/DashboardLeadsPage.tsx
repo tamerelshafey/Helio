@@ -1,18 +1,24 @@
 
 
-
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import type { Language, Lead, LeadStatus } from '../../types';
+import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import type { Language, Lead, LeadStatus, Request } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import { ArrowUpIcon, ArrowDownIcon, ChevronRightIcon } from '../ui/Icons';
 import { inputClasses } from '../ui/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
-import { getLeadsByPartnerId, updateLead, deleteLead as apiDeleteLead } from '../../services/leads';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import ConversationThread from '../shared/ConversationThread';
+import { getAllRequests } from '../../services/requests';
+import { RequestType } from '../../types';
+import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../shared/LanguageContext';
 import { Select } from '../ui/Select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
+import { Card, CardContent, CardFooter } from '../ui/Card';
+import { Button } from '../ui/Button';
+import { ResponsiveList } from '../shared/ResponsiveList';
+import CardSkeleton from '../ui/CardSkeleton';
+import TableSkeleton from '../shared/TableSkeleton';
+// FIX: Import the 'Input' component.
+import { Input } from '../ui/Input';
 
 const statusColors: { [key in LeadStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -33,25 +39,37 @@ const DashboardLeadsPage: React.FC = () => {
     const { language, t } = useLanguage();
     const t_dash = t.dashboard;
     const { currentUser } = useAuth();
-    const queryClient = useQueryClient();
 
-    const { data: partnerLeads, isLoading: loading } = useQuery({
-        queryKey: [`partner-leads-${currentUser?.id}`],
-        queryFn: () => getLeadsByPartnerId(currentUser!.id),
+    const { data: allRequests, isLoading: loading } = useQuery({
+        queryKey: ['allRequests'],
+        queryFn: getAllRequests,
         enabled: !!currentUser,
     });
+
+    const partnerLeads = useMemo((): Lead[] => {
+        if (!allRequests || !currentUser) return [];
+
+        return allRequests
+            .filter(req => 
+                req.type === RequestType.LEAD && 
+                req.payload.partnerId === currentUser.id
+            )
+            .map(req => {
+                const leadPayload = req.payload as Lead;
+                return {
+                    ...leadPayload,
+                    id: req.id,
+                    customerName: req.requesterInfo.name,
+                    customerPhone: req.requesterInfo.phone,
+                    createdAt: req.createdAt,
+                    status: leadPayload.status || 'new', 
+                };
+            });
+    }, [allRequests, currentUser]);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'createdAt', direction: 'descending' });
-    const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
-
-    const updateStatusMutation = useMutation({
-        mutationFn: ({ leadId, status }: { leadId: string, status: LeadStatus }) => updateLead(leadId, { status }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: [`partner-leads-${currentUser?.id}`] });
-        }
-    });
 
     const sortedAndFilteredLeads = useMemo(() => {
         if (!partnerLeads) return [];
@@ -81,14 +99,6 @@ const DashboardLeadsPage: React.FC = () => {
         return filteredLeads;
     }, [partnerLeads, searchTerm, statusFilter, sortConfig]);
 
-    const handleStatusChange = (leadId: string, status: LeadStatus) => {
-        updateStatusMutation.mutate({ leadId, status });
-    };
-    
-    const toggleExpand = (leadId: string) => {
-        setExpandedLeadId(prevId => (prevId === leadId ? null : leadId));
-    };
-
     const exportData = useMemo(() => (sortedAndFilteredLeads || []).map(lead => ({
         ...lead,
         status: t_dash.leadStatus[lead.status] || lead.status,
@@ -103,6 +113,91 @@ const DashboardLeadsPage: React.FC = () => {
         createdAt: t_dash.leadTable.date,
     };
 
+    const renderCard = (lead: Lead) => (
+        <Card key={lead.id} className="p-0">
+            <CardContent className="p-4 space-y-2">
+                <div>
+                    <p className="text-xs text-gray-500">{t_dash.leadTable.customer}</p>
+                    <p className="font-bold">{lead.customerName}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400" dir="ltr">{lead.customerPhone}</p>
+                </div>
+                 <div>
+                    <p className="text-xs text-gray-500">{t_dash.leadTable.service}</p>
+                    <p className="font-semibold truncate">{lead.serviceTitle}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                     <div>
+                        <p className="text-xs text-gray-500">{t_dash.leadTable.date}</p>
+                        <p>{new Date(lead.createdAt).toLocaleDateString(language)}</p>
+                    </div>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[lead.status]}`}>
+                        {t_dash.leadStatus[lead.status]}
+                    </span>
+                </div>
+            </CardContent>
+            <CardFooter className="p-2 bg-gray-50 dark:bg-gray-800/50">
+                <Link to={`/dashboard/leads/${lead.id}`} className="w-full">
+                    <Button variant="ghost" className="w-full">
+                        View Details
+                    </Button>
+                </Link>
+            </CardFooter>
+        </Card>
+    );
+
+    const renderTable = (leads: Lead[]) => (
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>{t_dash.leadTable.customer}</TableHead>
+                        <TableHead>{t_dash.leadTable.service}</TableHead>
+                        <TableHead>{t_dash.leadTable.date}</TableHead>
+                        <TableHead>{t_dash.leadTable.status}</TableHead>
+                        <TableHead>{t_dash.leadTable.actions}</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {loading ? (
+                        <TableRow><TableCell colSpan={5} className="text-center p-8">Loading leads...</TableCell></TableRow>
+                    ) : leads.map(lead => (
+                        <TableRow key={lead.id}>
+                            <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                <div>{lead.customerName}</div>
+                                <div className="font-normal text-gray-500 dark:text-gray-400" dir="ltr">{lead.customerPhone}</div>
+                            </TableCell>
+                            <TableCell className="max-w-xs whitespace-normal break-words" title={lead.serviceTitle}>{lead.serviceTitle}</TableCell>
+                            <TableCell>{new Date(lead.createdAt).toLocaleDateString(language)}</TableCell>
+                            <TableCell>
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[lead.status]}`}>
+                                    {t_dash.leadStatus[lead.status]}
+                                </span>
+                            </TableCell>
+                            <TableCell>
+                                <Link to={`/dashboard/leads/${lead.id}`} className="font-medium text-amber-600 hover:underline">
+                                    View Details
+                                </Link>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    );
+    
+    const loadingSkeletons = (
+        <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:hidden">
+                {Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)}
+            </div>
+            <div className="hidden lg:block">
+                <TableSkeleton cols={5} />
+            </div>
+        </>
+    );
+
+    const emptyState = <p className="text-center py-8">{t_dash.leadTable.noLeads}</p>;
+
     return (
         <div>
             <div className="flex justify-between items-start mb-8">
@@ -114,71 +209,21 @@ const DashboardLeadsPage: React.FC = () => {
             </div>
 
             <div className="mb-4 flex flex-wrap items-center gap-4">
-                <input type="text" placeholder={t_dash.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={inputClasses + " max-w-xs"} />
+                <Input type="text" placeholder={t_dash.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="max-w-xs" />
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="max-w-xs">
                     <option value="all">{t_dash.filter.filterByStatus} ({t_dash.filter.all})</option>
                     {Object.entries(t_dash.leadStatus).map(([key, value]) => (<option key={key} value={key}>{value as string}</option>))}
                 </Select>
             </div>
             
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-8"></TableHead>
-                            <TableHead>{t_dash.leadTable.customer}</TableHead>
-                            <TableHead>{t_dash.leadTable.service}</TableHead>
-                            <TableHead>{t_dash.leadTable.date}</TableHead>
-                            <TableHead>{t_dash.leadTable.status}</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading ? (
-                            <TableRow><TableCell colSpan={5} className="text-center p-8">Loading leads...</TableCell></TableRow>
-                        ) : sortedAndFilteredLeads.length > 0 ? (
-                            sortedAndFilteredLeads.map(lead => (
-                                <React.Fragment key={lead.id}>
-                                    <TableRow>
-                                        <TableCell>
-                                            <button onClick={() => toggleExpand(lead.id)} className="p-2">
-                                                <ChevronRightIcon className={`w-5 h-5 transition-transform ${expandedLeadId === lead.id ? 'rotate-90' : ''}`} />
-                                            </button>
-                                        </TableCell>
-                                        <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                            <div>{lead.customerName}</div>
-                                            <div className="font-normal text-gray-500 dark:text-gray-400" dir="ltr">{lead.customerPhone}</div>
-                                        </TableCell>
-                                        <TableCell className="max-w-xs truncate" title={lead.serviceTitle}>{lead.serviceTitle}</TableCell>
-                                        <TableCell>{new Date(lead.createdAt).toLocaleDateString(language)}</TableCell>
-                                        <TableCell>
-                                            <Select
-                                                value={lead.status}
-                                                onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
-                                                className={`text-xs font-medium w-32 ${statusColors[lead.status]}`}
-                                            >
-                                                {Object.entries(t_dash.leadStatus).map(([key, value]) => (
-                                                    <option key={key} value={key} className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">{value as string}</option>
-                                                ))}
-                                            </Select>
-                                        </TableCell>
-                                    </TableRow>
-                                    {expandedLeadId === lead.id && (
-                                        <TableRow className="bg-gray-50 dark:bg-gray-800/50">
-                                            <TableCell colSpan={5} className="p-0">
-                                                <div className="p-4 animate-fadeIn">
-                                                     <ConversationThread lead={lead} onMessageSent={() => queryClient.invalidateQueries({queryKey: [`partner-leads-${currentUser?.id}`]})} />
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </React.Fragment>
-                            ))
-                        ) : (
-                            <TableRow><TableCell colSpan={5} className="text-center p-8">{t_dash.leadTable.noLeads}</TableCell></TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+            {loading ? loadingSkeletons : (
+                <ResponsiveList
+                    items={sortedAndFilteredLeads}
+                    renderCard={renderCard}
+                    renderTable={renderTable}
+                    emptyState={emptyState}
+                />
+            )}
         </div>
     );
 };

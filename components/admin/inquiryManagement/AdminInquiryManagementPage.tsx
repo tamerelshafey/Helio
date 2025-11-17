@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin, updatePartnerAdmin } from '../../../services/partners';
@@ -120,7 +119,7 @@ const AdminInquiryManagementPage: React.FC = () => {
                         {isLoading ? (
                             <TableRow><TableCell colSpan={5} className="text-center p-8">Loading...</TableCell></TableRow>
                         ) : paginatedPartners.map(p => {
-                            const methods = p.contactMethods || { whatsapp: { enabled: false }, phone: { enabled: false }, form: { enabled: true } };
+                            const methods = p.contactMethods || { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } };
                             return (
                                 <TableRow key={p.id}>
                                     <TableCell>
@@ -133,18 +132,24 @@ const AdminInquiryManagementPage: React.FC = () => {
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <ToggleSwitch
-                                            checked={methods.whatsapp.enabled}
-                                            onChange={() => handleToggle(p, 'whatsapp')}
-                                            disabled={mutation.isPending}
-                                        />
+                                        <div className="flex items-center gap-3">
+                                            <ToggleSwitch
+                                                checked={methods.whatsapp.enabled}
+                                                onChange={() => handleToggle(p, 'whatsapp')}
+                                                disabled={mutation.isPending}
+                                            />
+                                            <span className="text-xs text-gray-500 dark:text-gray-400" dir="ltr">{methods.whatsapp.number || 'Not Set'}</span>
+                                        </div>
                                     </TableCell>
                                     <TableCell>
-                                        <ToggleSwitch
-                                            checked={methods.phone.enabled}
-                                            onChange={() => handleToggle(p, 'phone')}
-                                            disabled={mutation.isPending}
-                                        />
+                                        <div className="flex items-center gap-3">
+                                            <ToggleSwitch
+                                                checked={methods.phone.enabled}
+                                                onChange={() => handleToggle(p, 'phone')}
+                                                disabled={mutation.isPending}
+                                            />
+                                            <span className="text-xs text-gray-500 dark:text-gray-400" dir="ltr">{methods.phone.number || 'Not Set'}</span>
+                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         <ToggleSwitch

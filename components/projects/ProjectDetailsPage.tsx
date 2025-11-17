@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon, SwimmingPoolIcon, ParkIcon, ShieldCheckIcon, ShoppingCartIcon, BuildingStorefrontIcon, ElevatorIcon } from '../ui/Icons';
+import { BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon, SwimmingPoolIcon, ParkIcon, ShieldCheckIcon, ShoppingCartIcon, BuildingStorefrontIcon, ElevatorIcon, WhatsAppIcon } from '../ui/Icons';
 import type { Property, Language } from '../../types';
 import { useFavorites } from '../shared/FavoritesContext';
 import Lightbox from '../shared/Lightbox';
@@ -20,6 +19,7 @@ import { getPartnerById } from '../../services/partners';
 import { useLanguage } from '../shared/LanguageContext';
 import PropertyCard from '../properties/PropertyCard';
 import ProjectDetailsSkeleton from '../shared/ProjectDetailsSkeleton';
+import { Button } from '../ui/Button';
 
 
 const iconMap: { [key: string]: React.FC<{ className?: string }> } = {
@@ -36,6 +36,7 @@ const ProjectDetailsPage: React.FC = () => {
     const { projectId } = useParams<{ projectId: string }>();
     const { language, t } = useLanguage();
     const t_page = t.propertyDetailsPage;
+    const { showToast } = useToast();
 
     const fetchProject = useCallback(() => getProjectById(projectId!), [projectId]);
     const { data: project, isLoading: isLoadingProjs } = useQuery({ queryKey: [`project-${projectId}`], queryFn: fetchProject, enabled: !!projectId });
@@ -55,6 +56,7 @@ const ProjectDetailsPage: React.FC = () => {
     const isLoading = isLoadingProjs || isLoadingProps || isLoadingPartner;
 
     const [activeType, setActiveType] = useState('all');
+    const [shareModalOpen, setShareModalOpen] = useState(false);
 
     const unitTypes = useMemo(() => {
         if (!projectProperties) return [];
@@ -67,6 +69,28 @@ const ProjectDetailsPage: React.FC = () => {
         if (activeType === 'all') return projectProperties;
         return projectProperties.filter(p => p.type.en === activeType);
     }, [projectProperties, activeType]);
+
+    const handleWhatsAppShare = () => {
+        if (!project) return;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlToShare = new URL(`#/projects/${projectId}`, baseUrl).href;
+        const text = encodeURIComponent(`${project.name[language]}\n${urlToShare}`);
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+        setShareModalOpen(false);
+    };
+
+    const handleCopyLink = async () => {
+        if (!project) return;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlToShare = new URL(`#/projects/${projectId}`, baseUrl).href;
+        try {
+            await navigator.clipboard.writeText(urlToShare);
+            showToast(t.sharing.linkCopied, 'success');
+            setShareModalOpen(false);
+        } catch (err) {
+            showToast(t.sharing.shareFailed, 'error');
+        }
+    };
 
 
     if (isLoading) {
@@ -92,17 +116,50 @@ const ProjectDetailsPage: React.FC = () => {
     return (
         <>
         <SEO title={pageTitle} description={pageDescription} url={pageUrl} imageUrl={imageUrl} />
+        {shareModalOpen && (
+            <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={() => setShareModalOpen(false)}>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                        {t.sharing.shareProject}
+                    </h3>
+                    <div className="space-y-3">
+                         <Button onClick={handleCopyLink} variant="outline" className="w-full justify-center">
+                            {t.sharing.copyLink}
+                        </Button>
+                        <Button onClick={handleWhatsAppShare} className="w-full justify-center bg-green-500 hover:bg-green-600 text-white">
+                            <WhatsAppIcon className="w-5 h-5 mr-2" />
+                            {t.sharing.shareOnWhatsApp}
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        )}
         <div className="bg-gray-50 dark:bg-gray-900">
             {/* Project Hero */}
             <section className="relative h-[60vh] bg-cover bg-center" style={{ backgroundImage: `url(${project.imageUrl})` }}>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <div className="relative z-10 container mx-auto px-6 h-full flex flex-col justify-end pb-16 text-white">
-                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight">{project.name[language]}</h1>
-                    {developer && (
-                        <p className="mt-2 text-xl font-medium">
-                            {t.propertyCard.by} <Link to={`/partners/${developer.id}`} className="text-amber-300 hover:underline">{developer.name}</Link>
-                        </p>
-                    )}
+                    <div className="flex justify-between items-end gap-4">
+                        <div className="flex-grow">
+                            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight">{project.name[language]}</h1>
+                            {developer && (
+                                <p className="mt-2 text-xl font-medium">
+                                    {t.propertyCard.by} <Link to={`/partners/${developer.id}`} className="text-amber-300 hover:underline">{developer.name}</Link>
+                                </p>
+                            )}
+                        </div>
+                        <div className="flex-shrink-0">
+                             <Button
+                                onClick={() => setShareModalOpen(true)}
+                                variant="secondary"
+                                size="icon"
+                                className="bg-white/20 text-white border-white/50 hover:bg-white/30"
+                                aria-label={t.sharing.shareProject}
+                            >
+                                <ShareIcon className="w-6 h-6" />
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             </section>
             

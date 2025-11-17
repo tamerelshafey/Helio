@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import SEO from '../shared/SEO';
@@ -23,11 +24,11 @@ const ITEMS_PER_PAGE = 12;
 const PropertiesPage: React.FC = () => {
     const { language, t } = useLanguage();
     const t_page = t.propertiesPage;
-    const [view, setView] = useState<'grid' | 'list' | 'map'>('grid');
     const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
     const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
 
     const filters = usePropertyFilters();
+    const { view } = filters;
 
     const { data: projects, isLoading: pLoading } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
     const { data: partners, isLoading: paLoading } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
@@ -74,7 +75,7 @@ const PropertiesPage: React.FC = () => {
                                 {(['grid', 'list', 'map'] as const).map(v => (
                                     <button
                                         key={v}
-                                        onClick={() => setView(v)}
+                                        onClick={() => filters.setFilter('view', v)}
                                         className={`p-2 rounded-md transition-colors ${view === v ? 'bg-white dark:bg-gray-700 text-amber-500 shadow' : 'text-gray-500 hover:text-amber-500'}`}
                                         aria-label={`${v} View`}
                                     >

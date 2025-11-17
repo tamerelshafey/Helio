@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,12 +11,12 @@ import { useLanguage } from '../../shared/LanguageContext';
 import type { AdminPartner, PartnerStatus, PartnerType, SubscriptionPlan } from '../../../types';
 import AdminPartnerEditModal from './AdminPartnerEditModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
-import Pagination from '../../shared/Pagination';
+import Pagination from '../../ui/Pagination';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { ToggleSwitch } from '../../ui/ToggleSwitch';
-import ConfirmationModal from '../../shared/ConfirmationModal';
+import ConfirmationModal from '../../ui/ConfirmationModal';
 
 const AdminPartnersPage: React.FC = () => {
     const { language, t } = useLanguage();

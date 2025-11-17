@@ -1,6 +1,6 @@
 import React from 'react';
-import { Modal, ModalContent, ModalFooter, ModalHeader } from './Modal';
-import { Button } from './Button';
+import { Modal, ModalContent, ModalFooter, ModalHeader } from '../ui/Modal';
+import { Button } from '../ui/Button';
 import { useLanguage } from '../shared/LanguageContext';
 
 interface ConfirmationModalProps {

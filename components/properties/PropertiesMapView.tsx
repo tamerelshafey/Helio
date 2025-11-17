@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import type { Language, Property } from '../../types';
 import PropertyCard from './PropertyCard';
@@ -59,14 +56,23 @@ const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loadi
             ...convertToPixel(p.location.lat, p.location.lng),
         }));
     }, [properties, convertToPixel]);
+    
+    const scrollToListing = useCallback((id: string | null) => {
+        if (id && listRef.current) {
+            const element = listRef.current.querySelector(`[data-property-id="${id}"]`);
+            element?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, []);
 
     // Scroll list to active property
     useEffect(() => {
-        if (activePropertyId && listRef.current) {
-            const element = listRef.current.querySelector(`[data-property-id="${activePropertyId}"]`);
-            element?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    }, [activePropertyId]);
+        scrollToListing(activePropertyId);
+    }, [activePropertyId, scrollToListing]);
+    
+    const handleMarkerClick = (id: string) => {
+        setActivePropertyId(id);
+        scrollToListing(id);
+    };
 
     const activeProperty = useMemo(() => {
         return properties.find(p => p.id === activePropertyId);
@@ -114,7 +120,7 @@ const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loadi
                             key={marker.id}
                             className="absolute transform -translate-x-1/2 -translate-y-full focus:outline-none z-10"
                             style={{ left: `${marker.x}%`, top: `${marker.y}%` }}
-                            onClick={() => setActivePropertyId(marker.id)}
+                            onClick={() => handleMarkerClick(marker.id)}
                             onMouseEnter={() => setActivePropertyId(marker.id)}
                             onMouseLeave={() => setActivePropertyId(null)}
                             aria-label={`Property ${marker.id}`}

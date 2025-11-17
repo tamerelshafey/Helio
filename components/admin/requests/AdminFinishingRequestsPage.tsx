@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Language, Lead, LeadStatus, AdminPartner } from '../../../types';
@@ -10,7 +11,8 @@ import ExportDropdown from '../../shared/ExportDropdown';
 import { updateLead, deleteLead as apiDeleteLead, getAllLeads } from '../../../services/leads';
 import { useQuery } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../../../services/partners';
-import Pagination from '../../shared/Pagination';
+// FIX: Corrected import path for Pagination from '../shared/Pagination' to '../../ui/Pagination'.
+import Pagination from '../../ui/Pagination';
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import ConversationThread from '../../shared/ConversationThread';
 import { useLanguage } from '../../shared/LanguageContext';

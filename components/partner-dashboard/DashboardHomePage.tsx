@@ -1,4 +1,3 @@
-
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Role, Project, Property, Lead, PortfolioItem } from '../../types';
@@ -19,17 +18,22 @@ const DashboardHomePage: React.FC = () => {
     const { currentUser } = useAuth();
     const t_home = t.dashboardHome;
     
-    const { data: allProperties, isLoading: loadingProps } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties, enabled: !!currentUser });
+    const { data: allProperties, isLoading: loadingProps } = useQuery({ queryKey: ['allPropertiesAdmin'], queryFn: getAllProperties, enabled: !!currentUser });
     const { data: allProjects, isLoading: loadingProjs } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects, enabled: !!currentUser });
     const { data: allLeads, isLoading: loadingLeads } = useQuery({ queryKey: ['allLeadsAdmin'], queryFn: getAllLeads, enabled: !!currentUser });
     const { data: allPortfolioItems, isLoading: loadingPortfolio } = useQuery({ queryKey: ['allPortfolioItems'], queryFn: getAllPortfolioItems, enabled: !!currentUser });
 
     const isLoading = loadingProps || loadingProjs || loadingLeads || loadingPortfolio;
 
-    const properties = useMemo(() => (allProperties || []).filter(p => p.partnerId === currentUser?.id), [allProperties, currentUser?.id]);
-    const projects = useMemo(() => (allProjects || []).filter(p => p.partnerId === currentUser?.id), [allProjects, currentUser?.id]);
-    const leads = useMemo(() => (allLeads || []).filter(l => l.partnerId === currentUser?.id), [allLeads, currentUser?.id]);
-    const portfolio = useMemo(() => (allPortfolioItems || []).filter(p => p.partnerId === currentUser?.id), [allPortfolioItems, currentUser?.id]);
+    const { properties, projects, leads, portfolio } = useMemo(() => {
+        if (!currentUser) return { properties: [], projects: [], leads: [], portfolio: [] };
+        return {
+            properties: (allProperties || []).filter(p => p.partnerId === currentUser.id),
+            projects: (allProjects || []).filter(p => p.partnerId === currentUser.id),
+            leads: (allLeads || []).filter(l => l.partnerId === currentUser.id),
+            portfolio: (allPortfolioItems || []).filter(p => p.partnerId === currentUser.id),
+        }
+    }, [allProperties, allProjects, allLeads, allPortfolioItems, currentUser]);
 
     const projectsWithUnitCount = useMemo(() => {
         if (!projects || !properties) return [];
@@ -38,6 +42,21 @@ const DashboardHomePage: React.FC = () => {
             unitCount: properties.filter(p => p.projectId === project.id).length
         }));
     }, [projects, properties]);
+    
+    const topPerformingProperties = useMemo(() => {
+        if (!leads || !properties) return [];
+        const leadCounts = leads.reduce((acc, lead) => {
+            if(lead.propertyId) acc[lead.propertyId] = (acc[lead.propertyId] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+
+        return properties
+            .map(p => ({ ...p, leadCount: leadCounts[p.id] || 0 }))
+            .filter(p => p.leadCount > 0)
+            .sort((a, b) => b.leadCount - a.leadCount)
+            .slice(0, 3);
+    }, [leads, properties]);
+
 
     const stats = useMemo(() => {
         if (isLoading || !currentUser || !('type' in currentUser)) {
@@ -71,9 +90,9 @@ const DashboardHomePage: React.FC = () => {
 
     const renderLeadItem = (lead: Lead) => (
          <li key={lead.id} className="py-3">
-            <div className="flex items-center justify-between">
+            <Link to={`/dashboard/leads/${lead.id}`} className="flex items-center justify-between group">
                 <div>
-                    <p className="font-semibold text-gray-800 dark:text-gray-200">{lead.customerName}</p>
+                    <p className="font-semibold text-gray-800 dark:text-gray-200 group-hover:text-amber-500">{lead.customerName}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs" title={lead.serviceTitle}>
                         {lead.serviceTitle}
                     </p>
@@ -81,7 +100,7 @@ const DashboardHomePage: React.FC = () => {
                 <div className="text-right text-sm text-gray-400">
                     {new Date(lead.createdAt).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short' })}
                 </div>
-            </div>
+            </Link>
         </li>
     );
 
@@ -90,9 +109,9 @@ const DashboardHomePage: React.FC = () => {
     }
 
     return (
-        <div>
+        <div className="space-y-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_home.title}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">{t_home.subtitle}</p>
+            <p className="text-gray-500 dark:text-gray-400">{t_home.subtitle}</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.items.map(stat => (
@@ -100,40 +119,76 @@ const DashboardHomePage: React.FC = () => {
                 ))}
             </div>
 
-            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                 <div className="lg:col-span-2">
-                    <RequestList
-                        title={t_home.recentLeads}
-                        requests={leads as Lead[]}
-                        linkTo="/dashboard/leads"
-                        itemRenderer={renderLeadItem}
-                    />
-                 </div>
-
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <RequestList<Lead>
+                    title={t_home.recentLeads}
+                    requests={leads as Lead[]}
+                    linkTo="/dashboard/leads"
+                    itemRenderer={renderLeadItem}
+                />
+                 
                 {currentUser.role === Role.DEVELOPER_PARTNER && (
-                    <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t_home.projectsOverview}</h2>
-                        {projectsWithUnitCount.length > 0 ? (
-                            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-                                {projectsWithUnitCount.map(p => (
-                                    <li key={p.id} className="py-3">
-                                        <Link to={`/dashboard/projects/${p.id}`} className="flex items-center justify-between p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                            <div>
-                                                <p className="font-semibold text-gray-800 dark:text-gray-200">{p.name[language]}</p>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400">{p.unitCount} {t.projectDashboard.units}</p>
-                                            </div>
-                                            <div className="text-right text-sm font-semibold text-amber-500">
-                                                {t.projectDashboard.manageProject}
-                                            </div>
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="text-gray-500 dark:text-gray-400 text-center py-4">{t.projectDashboard.noProjects}</p>
+                    <RequestList<Project & {unitCount: number, createdAt: string}>
+                        title={t_home.projectsOverview}
+                        requests={projectsWithUnitCount.map(p => ({...p, createdAt: p.createdAt || new Date().toISOString()}))}
+                        linkTo="/dashboard/projects"
+                        itemRenderer={(p) => (
+                             <li key={p.id} className="py-3">
+                                <Link to={`/dashboard/projects/${p.id}`} className="flex items-center justify-between p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 group">
+                                    <div>
+                                        <p className="font-semibold text-gray-800 dark:text-gray-200 group-hover:text-amber-500">{p.name[language]}</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">{p.unitCount} {t.projectDashboard.units}</p>
+                                    </div>
+                                    <div className="text-right text-sm font-semibold text-amber-500">
+                                        {t.projectDashboard.manageProject}
+                                    </div>
+                                </Link>
+                            </li>
                         )}
-                    </div>
+                    />
                 )}
+                 
+                {currentUser.role === Role.AGENCY_PARTNER && (
+                     <RequestList<Property & { leadCount: number, createdAt: string }>
+                        title={t.adminDashboard.home.topPerformingProperties}
+                        requests={topPerformingProperties.map(p => ({...p, createdAt: p.listingStartDate || ''}))}
+                        linkTo="/dashboard/analytics"
+                        itemRenderer={(p) => (
+                             <li key={p.id} className="py-3">
+                                <Link to={`/properties/${p.id}`} target="_blank" className="flex items-center justify-between p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 group">
+                                     <div className="flex items-center gap-3 overflow-hidden">
+                                        <img src={p.imageUrl} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0"/>
+                                        <div className="overflow-hidden">
+                                            <p className="font-semibold text-sm truncate text-gray-800 dark:text-gray-200 group-hover:text-amber-500">{p.title[language]}</p>
+                                            <p className="text-xs text-gray-500">{p.price[language]}</p>
+                                        </div>
+                                    </div>
+                                    <div className="font-bold text-gray-800 dark:text-gray-200 flex-shrink-0 ml-4">{p.leadCount} {t.adminAnalytics.leads}</div>
+                                </Link>
+                            </li>
+                        )}
+                    />
+                )}
+                 
+                {currentUser.role === Role.FINISHING_PARTNER && (
+                     <RequestList<PortfolioItem & {createdAt: string}>
+                        title="Recent Portfolio Additions"
+                        requests={portfolio.map(p => ({...p, createdAt: new Date().toISOString()}))}
+                        linkTo="/dashboard/portfolio"
+                        itemRenderer={(item) => (
+                            <li key={item.id} className="py-3">
+                                <Link to="/dashboard/portfolio" className="flex items-center gap-3 group">
+                                    <img src={item.imageUrl} alt={item.alt} className="w-10 h-10 rounded-md object-cover"/>
+                                    <div>
+                                        <p className="font-semibold text-sm text-gray-800 dark:text-gray-200 group-hover:text-amber-500">{item.title[language]}</p>
+                                        <p className="text-xs text-gray-500">{item.category[language]}</p>
+                                    </div>
+                                </Link>
+                            </li>
+                        )}
+                    />
+                )}
+
             </div>
         </div>
     );

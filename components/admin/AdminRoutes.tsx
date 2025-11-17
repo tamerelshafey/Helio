@@ -1,5 +1,6 @@
 
 
+
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
@@ -7,6 +8,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminHomePage from './AdminHomePage';
 import AdminAnalyticsPage from './AdminAnalyticsPage';
 import AdminReportsPage from './AdminReportsPage';
+// FIX: The default export now exists in AdminUsersPage.tsx
 import AdminUsersPage from './users/AdminUsersPage';
 import AdminRolesPage from './users/AdminRolesPage';
 import AdminPlansPage from './AdminPlansPage';
@@ -15,6 +17,12 @@ import AdminBannersPage from './AdminBannersPage';
 import AdminSettingsPage from './AdminSettingsPage';
 import PropertyFormPage from '../forms/PropertyFormPage';
 import ProjectFormPage from '../forms/ProjectFormPage';
+
+// Admin - Platform Operations (New)
+import AdminPlatformPropertiesPage from './platform-ops/AdminPlatformPropertiesPage';
+import AdminPlatformDecorationsPage from './platform-ops/AdminPlatformDecorationsPage';
+import AdminPlatformFinishingPage from './platform-ops/AdminPlatformFinishingPage';
+
 
 // Admin - Requests (New Unified Structure)
 import AdminAllRequestsPage from './requests/AdminAllRequestsPage';
@@ -43,9 +51,6 @@ import AdminInquiryManagementPage from './inquiryManagement/AdminInquiryManageme
 import AdminPropertiesLayout from './properties/AdminPropertiesLayout';
 import AdminPropertiesDashboard from './properties/AdminPropertiesDashboard';
 import AdminPropertiesListPage from './properties/AdminPropertiesListPage';
-import AdminPropertyRequestsPage from './requests/AdminPropertyRequestsPage';
-import AdminPropertyRequestDetailsPage from './requests/AdminPropertyRequestDetailsPage';
-import AdminPropertyInquiriesPage from './requests/AdminPropertyInquiriesPage';
 
 // Admin - Content Management
 import AdminContentLayout from './content/AdminContentLayout';
@@ -74,6 +79,12 @@ const AdminRoutes: React.FC = () => {
             {/* ===== NEW UNIFIED REQUESTS ROUTE ===== */}
             <Route path="requests" element={<AdminAllRequestsPage />} />
             <Route path="requests/:requestId" element={<AdminRequestDetailsPage />} />
+
+            {/* ===== NEW PLATFORM OPERATIONS ROUTES ===== */}
+            <Route path="platform-properties" element={<AdminPlatformPropertiesPage />} />
+            <Route path="platform-decorations" element={<AdminPlatformDecorationsPage />} />
+            <Route path="platform-finishing" element={<AdminPlatformFinishingPage />} />
+
 
             {/* ===== DEPRECATED - Redirect old request URLs to the new triage center ===== */}
             <Route path="partner-requests" element={<Navigate to="/admin/requests?type=PARTNER_APPLICATION" replace />} />

@@ -1,15 +1,12 @@
-
-
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { Banner } from '../../types';
 import AdminBannerFormModal from './AdminBannerFormModal';
 import { ArrowDownIcon, ArrowUpIcon } from '../ui/Icons';
 import { getAllBanners, deleteBanner as apiDeleteBanner } from '../../services/banners';
 import { useQuery } from '@tanstack/react-query';
-import Pagination from '../shared/Pagination';
+import Pagination from '../ui/Pagination';
 import { useLanguage } from '../shared/LanguageContext';
-import ConfirmationModal from '../shared/ConfirmationModal';
+import ConfirmationModal from '../ui/ConfirmationModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
 import { Button } from '../ui/Button';
 

@@ -1,4 +1,5 @@
 
+
 import React, { useMemo, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
@@ -48,7 +49,7 @@ const SidebarContent: React.FC<Omit<DashboardSidebarProps, 'isOpen' | 'setIsOpen
     }, [navLinks, hasPermission, user]);
     
     const linkGroups = useMemo(() => {
-        const groupOrder = ['Overview', 'Requests', 'Management', 'Content', 'System', 'Partner'];
+        const groupOrder = ['Overview', 'Request Triage', 'Platform Operations', 'Partner & Content Management', 'System', 'Partner'];
         const groups: { [key: string]: typeof visibleNavLinks } = {};
         
         visibleNavLinks.forEach(link => {
@@ -88,13 +89,19 @@ const SidebarContent: React.FC<Omit<DashboardSidebarProps, 'isOpen' | 'setIsOpen
                     {linkGroups.map((group, index) => (
                          <li key={group.name}>
                             <div className={`text-xs font-semibold leading-6 text-gray-400 px-3 transition-opacity duration-200 ${isCollapsed ? 'opacity-0 h-0 pointer-events-none' : 'opacity-100'}`}>
-                                {group.name}
+                                {group.name.replace(/([A-Z])/g, ' $1').trim()}
                             </div>
                             <ul role="list" className="mt-2 space-y-1">
                                 {group.links.map(link => {
                                     const Icon = link.icon;
                                     const t_group = group.name === 'Partner' ? t.dashboard : t.adminDashboard;
-                                    const linkName = link.name(t_group);
+                                    
+                                    let linkName = link.name(t_group);
+                                    // Dynamically change "All Requests" to "My Requests" for managers
+                                    if (link.href === '/admin/requests' && user.role !== Role.SUPER_ADMIN) {
+                                        linkName = t.adminDashboard.nav.myRequests;
+                                    }
+
                                     return (
                                         <li key={link.href} className="relative group">
                                             <NavLink 

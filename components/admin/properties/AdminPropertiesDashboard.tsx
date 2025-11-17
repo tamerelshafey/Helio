@@ -83,13 +83,8 @@ const AdminPropertiesDashboard: React.FC = () => {
     const adaptedLatestProperties = useMemo(() => {
         if (!properties) return [];
         
-        // **Radical Fix: Adapter Pattern**
-        // Adapt the Property[] data to the shape expected by RequestList.
-        // This creates a clean, type-safe contract and avoids recurring errors.
         const adaptedProperties = properties.map(p => ({
-            ...p, // Pass through all original property data for the renderer
-            // Create the 'createdAt' field that RequestList requires for sorting.
-            // Use listingStartDate, providing a safe default for type safety and correct sorting.
+            ...p,
             createdAt: p.listingStartDate || '1970-01-01T00:00:00Z', 
         }));
 

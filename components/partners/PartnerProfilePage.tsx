@@ -8,6 +8,9 @@ import { getPropertiesByPartnerId } from '../../services/properties';
 import { useQuery } from '@tanstack/react-query';
 import { getPartnerById } from '../../services/partners';
 import { useLanguage } from '../shared/LanguageContext';
+import { WhatsAppIcon, ShareIcon } from '../ui/Icons';
+import { useToast } from '../shared/ToastContext';
+import { Button } from '../ui/Button';
 
 
 const PartnerProfileSkeleton: React.FC = () => (
@@ -38,6 +41,7 @@ const PartnerProfilePage: React.FC = () => {
     const { partnerId } = useParams<{ partnerId: string }>();
     const { language, t } = useLanguage();
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const { data: partnerInfo, isLoading: isLoadingPartner } = useQuery({ queryKey: [`partner-${partnerId}`], queryFn: () => getPartnerById(partnerId!), enabled: !!partnerId });
     const { data: partnerPortfolio, isLoading: isLoadingPortfolio } = useQuery({ queryKey: [`partnerPortfolio-${partnerId}`], queryFn: () => getPortfolioByPartnerId(partnerId!), enabled: !!partnerId });
@@ -56,6 +60,8 @@ const PartnerProfilePage: React.FC = () => {
         images: [] as string[],
         startIndex: 0,
     });
+    
+    const [shareModalOpen, setShareModalOpen] = useState(false);
 
     const openLightbox = (gallery: PortfolioItem[], startIndex: number) => {
         setLightboxState({
@@ -64,6 +70,40 @@ const PartnerProfilePage: React.FC = () => {
             startIndex,
         });
     };
+    
+    const handleRequestService = () => {
+        if (!partnerInfo || !localizedPartner) return;
+        const serviceTitle = `${t.partnerProfilePage.serviceRequestFor} ${localizedPartner.name}`;
+        navigate('/request-service', {
+            state: {
+                serviceTitle,
+                partnerId: partnerInfo.id,
+            }
+        });
+    };
+
+    const handleWhatsAppShare = () => {
+        if (!partnerId || !localizedPartner) return;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlToShare = new URL(`#/partners/${partnerId}`, baseUrl).href;
+        const text = encodeURIComponent(`${localizedPartner.name}\n${urlToShare}`);
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+        setShareModalOpen(false);
+    };
+
+    const handleCopyLink = async () => {
+        if (!partnerId) return;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlToShare = new URL(`#/partners/${partnerId}`, baseUrl).href;
+        try {
+            await navigator.clipboard.writeText(urlToShare);
+            showToast(t.sharing.linkCopied, 'success');
+            setShareModalOpen(false);
+        } catch (err) {
+            showToast(t.sharing.shareFailed, 'error');
+        }
+    };
+
 
     if (loading) {
         return <PartnerProfileSkeleton />;
@@ -81,16 +121,6 @@ const PartnerProfilePage: React.FC = () => {
         );
     }
     
-    const handleRequestService = () => {
-        const serviceTitle = `${t.partnerProfilePage.serviceRequestFor} ${localizedPartner.name}`;
-        navigate('/request-service', {
-            state: {
-                serviceTitle,
-                partnerId: partnerInfo.id,
-            }
-        });
-    };
-
     return (
         <div className="bg-white dark:bg-gray-900">
             {lightboxState.isOpen && (
@@ -100,18 +130,49 @@ const PartnerProfilePage: React.FC = () => {
                     onClose={() => setLightboxState({ isOpen: false, images: [], startIndex: 0 })}
                 />
             )}
+            {shareModalOpen && (
+                <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={() => setShareModalOpen(false)}>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                            {t.sharing.sharePartner}
+                        </h3>
+                        <div className="space-y-3">
+                             <Button onClick={handleCopyLink} variant="outline" className="w-full justify-center">
+                                {t.sharing.copyLink}
+                            </Button>
+                            <Button onClick={handleWhatsAppShare} className="w-full justify-center bg-green-500 hover:bg-green-600 text-white">
+                                <WhatsAppIcon className="w-5 h-5 mr-2" />
+                                {t.sharing.shareOnWhatsApp}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
             
             <section className="py-20 bg-gray-50 dark:bg-gray-800">
                 <div className="container mx-auto px-6 text-center">
                     <img src={partnerInfo.imageUrl} alt={localizedPartner.name} className="w-32 h-32 rounded-full object-cover mx-auto mb-6 border-4 border-white dark:border-gray-700 shadow-lg"/>
                     <h1 className="text-4xl md:text-5xl font-bold text-amber-500">{localizedPartner.name}</h1>
                     <p className="max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400 mt-4">{localizedPartner.description}</p>
-                    <button 
-                        onClick={handleRequestService}
-                        className="mt-8 bg-amber-500 text-gray-900 font-semibold px-8 py-3 rounded-lg text-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20"
-                    >
-                        {t.partnerProfilePage.requestService}
-                    </button>
+                    <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                        <Button
+                            onClick={handleRequestService}
+                            size="lg"
+                            className="shadow-lg shadow-amber-500/20"
+                        >
+                            {t.partnerProfilePage.requestService}
+                        </Button>
+                        <Button
+                            onClick={() => setShareModalOpen(true)}
+                            size="lg"
+                            variant="outline"
+                            className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            aria-label={t.sharing.sharePartner}
+                        >
+                            <ShareIcon className="w-5 h-5 mr-2" />
+                            {t.sharing.share}
+                        </Button>
+                    </div>
                 </div>
             </section>
             

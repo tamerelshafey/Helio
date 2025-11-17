@@ -1,5 +1,6 @@
 
 
+
 import React, { useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -8,12 +9,13 @@ import { addPartner } from '../../../services/partners';
 import { addProperty } from '../../../services/properties';
 import { useLanguage } from '../../shared/LanguageContext';
 import { useToast } from '../../shared/ToastContext';
+// FIX: Import missing types
 import { Request, RequestType, Property, PartnerRequest } from '../../../types';
 import DetailItem from '../../shared/DetailItem';
 import { ArrowLeftIcon } from '../../ui/Icons';
 import { Button } from '../../ui/Button';
 
-const AdminRequestDetailsPage: React.FC = () => {
+const RequestDetailsPage: React.FC = () => {
     const { requestId } = useParams<{ requestId: string }>();
     const { language, t } = useLanguage();
     const t_admin = t.adminDashboard.adminRequests;
@@ -31,11 +33,12 @@ const AdminRequestDetailsPage: React.FC = () => {
         mutationFn: async ({ status, req }: { status: 'approved' | 'rejected', req: Request }) => {
             if (status === 'approved') {
                 if (req.type === RequestType.PARTNER_APPLICATION) {
-                    await addPartner(req.payload as PartnerRequest);
+                    await addPartner(req.payload as any);
                 } else if (req.type === RequestType.PROPERTY_LISTING_REQUEST) {
                     const r = req.payload as any;
                     const pd = r.propertyDetails;
-                    const newProperty: Omit<Property, 'id'> = {
+                    // FIX: Correctly map the request payload to the Property type
+                    const newProperty: Omit<Property, 'id' | 'partnerName' | 'partnerImageUrl'> = {
                         partnerId: 'individual-listings',
                         title: { en: pd.address, ar: pd.address },
                         description: { en: pd.description, ar: pd.description },
@@ -74,22 +77,14 @@ const AdminRequestDetailsPage: React.FC = () => {
                     await addProperty(newProperty);
                 }
             }
-            await updateRequest(req.id, { status: status === 'approved' ? 'closed' : status });
+            await updateRequest(req.id, { status });
         },
         onSuccess: (_, variables) => {
             showToast(`Request has been ${variables.status}.`, 'success');
             queryClient.invalidateQueries({ queryKey: ['allRequests'] });
-            if (variables.status === 'approved') {
-                if (variables.req.type === RequestType.PARTNER_APPLICATION) {
-                    queryClient.invalidateQueries({ queryKey: ['allPartnersAdmin'] });
-                } else if (variables.req.type === RequestType.PROPERTY_LISTING_REQUEST) {
-                    queryClient.invalidateQueries({ queryKey: ['allPropertiesAdmin'] });
-                }
-            }
             navigate('/admin/requests');
         },
-        onError: (err) => {
-            console.error("Action failed:", err)
+        onError: () => {
             showToast('Action failed. Please try again.', 'error');
         }
     });
@@ -101,7 +96,7 @@ const AdminRequestDetailsPage: React.FC = () => {
         const { payload, type } = request;
         switch (type) {
             case RequestType.PARTNER_APPLICATION:
-                const p = payload as PartnerRequest;
+                const p = payload as any;
                 return <div className="space-y-4">
                     <DetailItem label="Company" value={p.companyName} />
                     <DetailItem label="Type" value={p.companyType} />
@@ -110,15 +105,14 @@ const AdminRequestDetailsPage: React.FC = () => {
                 </div>;
             case RequestType.PROPERTY_LISTING_REQUEST:
                 const r = payload as any;
-                const pd = r.propertyDetails;
                 return <div className="space-y-4">
-                    <DetailItem label="Type" value={pd.propertyType[language]} />
-                    <DetailItem label="Area" value={`${pd.area}m²`} />
-                    <DetailItem label="Price" value={`EGP ${pd.price.toLocaleString()}`} />
-                    <DetailItem label="Address" value={pd.address} />
+                    <DetailItem label="Type" value={r.propertyDetails.propertyType[language]} />
+                    <DetailItem label="Area" value={`${r.propertyDetails.area}m²`} />
+                    <DetailItem label="Price" value={`EGP ${r.propertyDetails.price.toLocaleString()}`} />
+                    <DetailItem label="Address" value={r.propertyDetails.address} />
                 </div>;
             default:
-                return <pre className="whitespace-pre-wrap bg-gray-100 dark:bg-gray-700 p-4 rounded-md text-xs">{JSON.stringify(payload, null, 2)}</pre>
+                return <p className="whitespace-pre-line">{JSON.stringify(payload, null, 2)}</p>
         }
     };
 
@@ -144,7 +138,7 @@ const AdminRequestDetailsPage: React.FC = () => {
                      {renderPayload()}
                 </section>
 
-                {['new', 'reviewed', 'assigned', 'pending'].includes(request.status) && (
+                {(request.status === 'new' || request.status === 'reviewed' || request.status === 'assigned') && (
                     <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-4">
                          {(request.type === RequestType.PARTNER_APPLICATION || request.type === RequestType.PROPERTY_LISTING_REQUEST) && (
                             <>
@@ -163,4 +157,4 @@ const AdminRequestDetailsPage: React.FC = () => {
     );
 };
 
-export default AdminRequestDetailsPage;
+export default RequestDetailsPage;

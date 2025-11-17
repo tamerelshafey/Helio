@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Property, Lead } from '../../types';
@@ -13,7 +11,7 @@ import UpgradePlanModal from '../UpgradePlanModal';
 import StatCard from '../shared/StatCard';
 import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
-import ConfirmationModal from '../shared/ConfirmationModal';
+import ConfirmationModal from '../ui/ConfirmationModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
 import { useToast } from '../shared/ToastContext';
 
@@ -94,6 +92,7 @@ const DashboardProjectDetailsPage: React.FC = () => {
     
     const projectAnalytics = useMemo(() => {
         if (!leads || !projectProperties) return { totalLeads: 0, topUnits: [] };
+        
         const projectPropertyIds = new Set(projectProperties.map(p => p.id));
         const projectLeads = leads.filter(lead => lead.propertyId && projectPropertyIds.has(lead.propertyId));
 

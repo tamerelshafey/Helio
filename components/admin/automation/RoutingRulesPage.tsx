@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Button } from '../../ui/Button';
 import { ToggleSwitch } from '../../ui/ToggleSwitch';
 import RoutingRuleFormModal from './RoutingRuleFormModal';
-import ConfirmationModal from '../../shared/ConfirmationModal';
+import ConfirmationModal from '../../ui/ConfirmationModal';
 
 const RoutingRulesPage: React.FC = () => {
     const { language, t } = useLanguage();

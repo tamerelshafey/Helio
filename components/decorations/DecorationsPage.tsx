@@ -8,7 +8,7 @@ import { useDecorationCategories } from '../../hooks/useDecorationCategories';
 import { useLanguage } from '../shared/LanguageContext';
 import { useFavorites } from '../shared/FavoritesContext';
 import { useToast } from '../shared/ToastContext';
-import { HeartIcon, HeartIconSolid, ShareIcon } from '../ui/Icons';
+import { HeartIcon, HeartIconSolid, ShareIcon, WhatsAppIcon } from '../ui/Icons';
 import { Button } from '../ui/Button';
 
 const DecorationsPage: React.FC = () => {
@@ -32,6 +32,7 @@ const DecorationsPage: React.FC = () => {
     })), [decorationCategories, language]);
     
     const [activeTab, setActiveTab] = useState('');
+    const [shareModalOpen, setShareModalOpen] = useState(false);
 
     useEffect(() => {
         if (tabs.length > 0 && !activeTab) {
@@ -69,23 +70,23 @@ const DecorationsPage: React.FC = () => {
         });
     };
     
-    const handleShare = async () => {
+    const handleWhatsAppShare = () => {
         const baseUrl = window.location.href.split('#')[0];
-        const urlToShare = `${baseUrl}#/decorations`;
+        const urlToShare = new URL(`#/decorations`, baseUrl).href;
+        const text = encodeURIComponent(`${t.nav.decorations} | ONLY HELIO\n${t_decor_page.heroSubtitle}\n${urlToShare}`);
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+        setShareModalOpen(false);
+    };
 
+    const handleCopyLink = async () => {
+        const baseUrl = window.location.href.split('#')[0];
+        const urlToShare = new URL(`#/decorations`, baseUrl).href;
         try {
-            await navigator.share({
-                title: `${t.nav.decorations} | ONLY HELIO`,
-                text: t_decor_page.heroSubtitle,
-                url: urlToShare,
-            });
-        } catch (error) {
-            try {
-                await navigator.clipboard.writeText(urlToShare);
-                showToast(t.sharing.linkCopied, 'success');
-            } catch (err) {
-                showToast(t.sharing.shareFailed, 'error');
-            }
+            await navigator.clipboard.writeText(urlToShare);
+            showToast(t.sharing.linkCopied, 'success');
+            setShareModalOpen(false);
+        } catch (err) {
+            showToast(t.sharing.shareFailed, 'error');
         }
     };
     
@@ -95,6 +96,24 @@ const DecorationsPage: React.FC = () => {
                 title={`${t.nav.decorations} | ONLY HELIO`}
                 description={t_decor_page.heroSubtitle}
             />
+            {shareModalOpen && (
+                <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={() => setShareModalOpen(false)}>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                            {t.sharing.shareDecorations}
+                        </h3>
+                        <div className="space-y-3">
+                             <Button onClick={handleCopyLink} variant="outline" className="w-full justify-center">
+                                {t.sharing.copyLink}
+                            </Button>
+                            <Button onClick={handleWhatsAppShare} className="w-full justify-center bg-green-500 hover:bg-green-600 text-white">
+                                <WhatsAppIcon className="w-5 h-5 mr-2" />
+                                {t.sharing.shareOnWhatsApp}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
             
             {/* Hero Section */}
             <section className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1616046229478-9901c5536a45?fm=webp&q=75&w=1600&auto=format&fit=crop')" }}>
@@ -104,7 +123,7 @@ const DecorationsPage: React.FC = () => {
                     <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-200 mt-4">{t_decor_page.heroSubtitle}</p>
                      <div className="mt-6">
                         <Button
-                            onClick={handleShare}
+                            onClick={() => setShareModalOpen(true)}
                             variant="secondary"
                             className="bg-white/20 text-white border-white/50 hover:bg-white/30"
                         >

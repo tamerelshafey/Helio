@@ -1,8 +1,6 @@
-// Note: This is a mock API. In a real application, these functions would make network requests
-// to a backend service. The data is modified in-memory for simulation purposes.
 
 import { leadsData as initialLeadsData } from '../data/leads';
-import type { Lead, LeadMessage } from '../types';
+import type { Lead, LeadStatus, LeadMessage } from '../types';
 import { getPartnerById } from './partners';
 import { addNotification } from './notifications';
 
@@ -77,7 +75,22 @@ export const updateLead = (leadId: string, updates: Partial<Omit<Lead, 'id' | 'c
         setTimeout(() => {
             const leadIndex = leadsData.findIndex(l => l.id === leadId);
             if (leadIndex > -1) {
-                leadsData[leadIndex] = { ...leadsData[leadIndex], ...updates, updatedAt: new Date().toISOString() };
+                const lead = { ...leadsData[leadIndex] };
+                const now = new Date().toISOString();
+
+                // Check for status change and create a system message
+                if (updates.status && updates.status !== lead.status) {
+                    const systemMessage: LeadMessage = {
+                        id: `msg-sys-${Date.now()}`,
+                        sender: 'system',
+                        type: 'note',
+                        content: `Status changed from "${lead.status}" to "${updates.status}".`,
+                        timestamp: now,
+                    };
+                    lead.messages.push(systemMessage);
+                }
+
+                leadsData[leadIndex] = { ...lead, ...updates, updatedAt: now };
                 resolve(leadsData[leadIndex]);
             } else {
                 resolve(undefined);
@@ -100,7 +113,6 @@ export const addMessageToLead = (leadId: string, messageData: Omit<LeadMessage, 
                 lead.messages.push(newMessage);
                 lead.updatedAt = new Date().toISOString();
                 
-                // If a partner or admin sends a message, change status from 'new' to 'contacted'
                 if (lead.status === 'new' && (messageData.sender === 'partner' || messageData.sender === 'admin')) {
                     lead.status = 'contacted';
                 }

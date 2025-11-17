@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -10,11 +11,13 @@ import {
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
-import Pagination from '../../shared/Pagination';
+// FIX: Corrected import path for Pagination from '../shared/Pagination' to '../../ui/Pagination'.
+import Pagination from '../../ui/Pagination';
 import type { ContactRequest, RequestStatus } from '../../../types';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
-import ConfirmationModal from '../../shared/ConfirmationModal';
+// FIX: Corrected import path for ConfirmationModal from '../shared/ConfirmationModal' to '../../ui/ConfirmationModal'.
+import ConfirmationModal from '../../ui/ConfirmationModal';
 
 // FIX: Completed the `statusColors` object to include all possible `RequestStatus` types.
 const statusColors: { [key in RequestStatus]: string } = {

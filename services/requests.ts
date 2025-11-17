@@ -1,7 +1,10 @@
 
+
+
 import { requestsData } from '../data/requests';
 import { RequestType } from '../types';
-import type { Request, RequestStatus } from '../types';
+// FIX: Add Lead, LeadMessage, and LeadStatus types for new function
+import type { Request, RequestStatus, Lead, LeadMessage, LeadStatus } from '../types';
 import { addNotification } from './notifications';
 import { getAllRoutingRules } from './routingRules';
 import { getPartnerById } from './partners';
@@ -129,6 +132,50 @@ export const updateRequest = (id: string, updates: Partial<Request>): Promise<Re
                 resolve(localRequestsData[requestIndex]);
             }
             resolve(undefined);
+        }, SIMULATED_DELAY);
+    });
+};
+
+// FIX: Add missing 'addMessageToLead' function to support unified request handling for leads.
+export const addMessageToLead = (requestId: string, messageData: Omit<LeadMessage, 'id' | 'timestamp'>): Promise<Request | undefined> => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const requestIndex = localRequestsData.findIndex(r => r.id === requestId);
+            if (requestIndex > -1) {
+                const request = localRequestsData[requestIndex];
+                if (request.type !== RequestType.LEAD) {
+                    return reject(new Error('Request is not a lead'));
+                }
+                
+                const leadPayload = request.payload as Partial<Lead>;
+                if (!leadPayload.messages) {
+                    leadPayload.messages = [];
+                }
+                
+                const newMessage: LeadMessage = {
+                    ...messageData,
+                    id: `msg-${requestId}-${Date.now()}`,
+                    timestamp: new Date().toISOString(),
+                };
+                leadPayload.messages.push(newMessage);
+                request.updatedAt = new Date().toISOString();
+
+                // if 'status' doesn't exist on payload, initialize it.
+                if (!leadPayload.status) {
+                    leadPayload.status = request.status as any;
+                }
+                
+                if (leadPayload.status === 'new' && (messageData.sender === 'partner' || messageData.sender === 'admin')) {
+                    // Update the status inside the payload to a LeadStatus
+                    leadPayload.status = 'contacted';
+                    // also update top-level status to a valid RequestStatus
+                    request.status = 'in-progress';
+                }
+                
+                resolve(request);
+            } else {
+                reject(new Error('Request not found'));
+            }
         }, SIMULATED_DELAY);
     });
 };

@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Property } from '../../types';
@@ -13,7 +14,7 @@ import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
 import { Select } from '../ui/Select';
 import { Card, CardContent, CardFooter } from '../ui/Card';
-import ConfirmationModal from '../shared/ConfirmationModal';
+import ConfirmationModal from '../ui/ConfirmationModal';
 
 const DashboardPropertiesPage: React.FC = () => {
     const { language, t } = useLanguage();

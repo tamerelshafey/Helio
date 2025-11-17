@@ -7,7 +7,7 @@ import { getAllPortfolioItems, deletePortfolioItem as apiDeletePortfolioItem } f
 import { getAllPartnersForAdmin } from '../../../services/partners';
 import { getDecorationCategories } from '../../../services/decorations';
 import AdminPortfolioItemFormModal from '../AdminPortfolioItemFormModal';
-import Pagination from '../../shared/Pagination';
+import Pagination from '../../ui/Pagination';
 import { useLanguage } from '../../shared/LanguageContext';
 
 const ITEMS_PER_PAGE = 8;
