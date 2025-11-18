@@ -6,9 +6,9 @@ import type { ToastMessage } from './ToastContext';
 const Toast: React.FC<{ toast: ToastMessage; onDismiss: (id: number) => void }> = ({ toast, onDismiss }) => {
   const { id, message, type } = toast;
   const isSuccess = type === 'success';
-  const bgColor = isSuccess ? 'bg-green-50 dark:bg-green-800/20' : 'bg-red-50 dark:bg-red-800/20';
+  const bgColor = isSuccess ? 'bg-green-50' : 'bg-red-50';
   const borderColor = isSuccess ? 'border-green-400' : 'border-red-400';
-  const textColor = isSuccess ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200';
+  const textColor = isSuccess ? 'text-green-800' : 'text-red-800';
   const iconColor = isSuccess ? 'text-green-500' : 'text-red-500';
 
   return (
@@ -19,7 +19,7 @@ const Toast: React.FC<{ toast: ToastMessage; onDismiss: (id: number) => void }> 
       <div className={`flex-grow text-sm font-medium ${textColor}`}>
         {message}
       </div>
-      <button onClick={() => onDismiss(id)} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
+      <button onClick={() => onDismiss(id)} className="text-gray-400 hover:text-gray-600">
         <CloseIcon className="w-5 h-5" />
       </button>
     </div>

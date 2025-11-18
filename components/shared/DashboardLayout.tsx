@@ -25,7 +25,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ navLinks, pageTitle }
     const isRTL = language === 'ar';
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+        <div className="min-h-screen bg-gray-50">
             <DashboardSidebar 
                 user={user}
                 navLinks={navLinks}
@@ -39,14 +39,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ navLinks, pageTitle }
             
             <div className={`transition-all duration-300 ${isRTL ? (isCollapsed ? 'lg:mr-20' : 'lg:mr-72') : (isCollapsed ? 'lg:pl-20' : 'lg:pl-72')}`}>
                  {/* This header is for mobile and also provides a container for global search on desktop */}
-                <div className="sticky top-0 z-30 flex h-16 flex-shrink-0 items-center justify-between gap-x-4 border-b border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-                    <button type="button" className="-m-2.5 p-2.5 text-gray-700 dark:text-gray-200 lg:hidden" onClick={() => setSidebarOpen(true)}>
+                <div className="sticky top-0 z-30 flex h-16 flex-shrink-0 items-center justify-between gap-x-4 border-b border-gray-200 bg-white/80 backdrop-blur-sm px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+                    <button type="button" className="-m-2.5 p-2.5 text-gray-700 lg:hidden" onClick={() => setSidebarOpen(true)}>
                         <span className="sr-only">Open sidebar</span>
                         <MenuIcon className="h-6 w-6" />
                     </button>
 
                     {/* Separator for mobile */}
-                    <div className="h-6 w-px bg-gray-900/10 dark:bg-gray-50/10 lg:hidden" aria-hidden="true" />
+                    <div className="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true" />
                     
                     <div className="flex flex-1 justify-center lg:justify-end">
                         {isAdminDashboard && <GlobalSearch />}

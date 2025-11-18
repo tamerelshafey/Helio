@@ -22,21 +22,21 @@ const AboutCity: React.FC = () => {
 
     if (isLoading || !siteContent) {
         return (
-            <section className="py-20 bg-gray-50 dark:bg-gray-800 animate-pulse">
+            <section className="py-20 bg-gray-50 animate-pulse">
                 <div className="container mx-auto px-6">
-                    <div className="h-8 w-1/2 mx-auto bg-gray-200 dark:bg-gray-700 rounded mb-16"></div>
+                    <div className="h-8 w-1/2 mx-auto bg-gray-200 rounded mb-16"></div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div className="space-y-6">
-                            <div className="h-8 w-3/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                            <div className="h-24 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
+                            <div className="h-8 w-3/4 bg-gray-200 rounded"></div>
+                            <div className="h-24 w-full bg-gray-200 rounded"></div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                                <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                                <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                                <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                                <div className="h-20 bg-gray-200 rounded-lg"></div>
+                                <div className="h-20 bg-gray-200 rounded-lg"></div>
+                                <div className="h-20 bg-gray-200 rounded-lg"></div>
+                                <div className="h-20 bg-gray-200 rounded-lg"></div>
                             </div>
                         </div>
-                        <div className="h-[500px] bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
+                        <div className="h-[500px] bg-gray-200 rounded-2xl"></div>
                     </div>
                 </div>
             </section>
@@ -46,28 +46,28 @@ const AboutCity: React.FC = () => {
     const t = siteContent.whyNewHeliopolis[language];
     
     return (
-        <section className="py-20 bg-gray-50 dark:bg-gray-800">
+        <section className="py-20 bg-gray-50">
             <div className="container mx-auto px-6">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                        {t.title}
                     </h2>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div className="space-y-6">
-                        <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{t.location.title}</h3>
-                        <p className="text-gray-600 dark:text-gray-400 text-lg">{t.location.description}</p>
+                        <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{t.location.title}</h3>
+                        <p className="text-gray-600 text-lg">{t.location.description}</p>
                         <div className="grid grid-cols-2 gap-4 text-center">
                             {t.location.stats.map((stat, index) => (
-                                <div key={index} className="bg-white dark:bg-gray-900 p-4 rounded-lg">
+                                <div key={index} className="bg-white p-4 rounded-lg">
                                     <p className="text-amber-500 text-2xl font-bold">{stat.value}</p>
-                                    <p className="text-gray-500 dark:text-gray-400 text-sm">{stat.desc}</p>
+                                    <p className="text-gray-500 text-sm">{stat.desc}</p>
                                 </div>
                             ))}
                         </div>
                     </div>
-                     <div className="relative w-full h-[500px] rounded-2xl shadow-xl overflow-hidden border-4 border-white dark:border-gray-700">
+                     <div className="relative w-full h-[500px] rounded-2xl shadow-xl overflow-hidden border-4 border-white">
                         {images.map((image, index) => (
                             <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
                                 <img src={image.src} alt={image.alt[language]} className="w-full h-full object-cover" />

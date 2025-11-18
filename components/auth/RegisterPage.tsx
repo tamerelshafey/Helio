@@ -111,11 +111,11 @@ const RegisterPage: React.FC = () => {
     
     if (formSubmitted) {
         return (
-            <div className="py-20 bg-white dark:bg-gray-900 flex items-center justify-center text-center">
+            <div className="py-20 bg-white flex items-center justify-center text-center">
                 <div className="max-w-xl">
                     <CheckCircleIcon className="w-20 h-20 text-green-500 mx-auto mb-6" />
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{t.auth.registerSuccessTitle}</h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">{t.auth.registerSuccessMessage}</p>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">{t.auth.registerSuccessTitle}</h1>
+                    <p className="text-lg text-gray-600 mb-8">{t.auth.registerSuccessMessage}</p>
                     <Link to="/" className="bg-amber-500 text-gray-900 font-semibold px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors">
                         {t.addPropertyPage.backToHome}
                     </Link>
@@ -127,16 +127,16 @@ const RegisterPage: React.FC = () => {
     const steps = [t_page.step1_title, t_page.step2_title, t_page.step3_title];
 
     return (
-        <div className="py-20 bg-gray-50 dark:bg-gray-800">
+        <div className="py-20 bg-gray-50">
             <div className="container mx-auto px-6">
-                 <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                 <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg border border-gray-200">
                     <div className="text-center mb-8">
                         <Link to="/" className="inline-flex items-center justify-center gap-3 text-3xl font-bold text-amber-500 mb-4">
                             <HelioLogo className="h-10 w-10" />
                             <span className="text-2xl">ONLY HELIO</span>
                         </Link>
-                        <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{t.auth.registerTitle}</h1>
-                        <p className="mt-2 text-gray-600 dark:text-gray-400">{t.auth.registerSubtitle}</p>
+                        <h1 className="text-3xl font-bold text-gray-800">{t.auth.registerTitle}</h1>
+                        <p className="mt-2 text-gray-600">{t.auth.registerSubtitle}</p>
                     </div>
                     
                     <div className="mb-12">
@@ -199,7 +199,7 @@ const RegisterPage: React.FC = () => {
                                     <h3 className="font-semibold mb-2">{t_page.managementContacts}</h3>
                                     <div className="space-y-4">
                                         {fields.map((field, index) => (
-                                            <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 items-end p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                                            <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 items-end p-2 bg-gray-50 rounded">
                                                 <FormField label={t_page.managementName} id={`managementContacts[${index}].name`}><Input {...register(`managementContacts.${index}.name`)} /></FormField>
                                                 <FormField label={t_page.managementPosition} id={`managementContacts[${index}].position`}><Input {...register(`managementContacts.${index}.position`)} /></FormField>
                                                 <FormField label={t_page.managementEmail} id={`managementContacts[${index}].email`}><Input type="email" {...register(`managementContacts.${index}.email`)} /></FormField>

@@ -1,3 +1,4 @@
+
 import type { Lead } from '../types';
 
 export let leadsData: Lead[] = [
@@ -147,6 +148,21 @@ export let leadsData: Lead[] = [
         status: 'cancelled',
         createdAt: '2024-07-24T13:00:00Z',
         updatedAt: '2024-07-26T10:00:00Z',
+        messages: [],
+    },
+    {
+        id: 'lead-10',
+        partnerId: 'admin-user',
+        serviceType: 'finishing',
+        customerName: 'ميادة الشريف',
+        customerPhone: '01225558888',
+        contactTime: 'Morning',
+        serviceTitle: 'طلب باقة: الاستشارة ووضع التصور',
+        customerNotes: 'أحتاج لمساعدة في تصميم ديكور الشقة قبل البدء في التنفيذ.',
+        status: 'new',
+        createdAt: '2024-07-30T09:30:00Z',
+        updatedAt: '2024-07-30T09:30:00Z',
+        managerId: 'service-manager-1',
         messages: [],
     },
 ];

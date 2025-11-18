@@ -1,6 +1,3 @@
-
-
-
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -11,12 +8,12 @@ import { UsersIcon, CubeIcon, UserPlusIcon } from '../../ui/Icons';
 import StatCard from '../../shared/StatCard';
 import RequestList from '../../shared/RequestList';
 import { useLanguage } from '../../shared/LanguageContext';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
+import { Doughnut, Bar } from 'react-chartjs-2';
 import type { PartnerRequest } from '../../../types';
 import { Card, CardContent } from '../../ui/Card';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 
 const ActionCard: React.FC<{ title: string; count: number; linkTo: string; icon: React.FC<{className?: string}>; t: any }> = ({ title, count, linkTo, icon: Icon, t }) => (
@@ -82,7 +79,7 @@ const AdminPartnersDashboard: React.FC = () => {
         <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <StatCard title={t_admin.partnersManagement.totalPartners} value={dashboardData.totalPartners} icon={UsersIcon} linkTo="/admin/partners/list" />
-                <StatCard title={t_admin.listingsManagerHome.totalProjects} value={dashboardData.totalProjects} icon={CubeIcon} linkTo="/admin/partners/projects" />
+                <StatCard title={t_admin.listingsManagerHome.totalProjects} value={dashboardData.totalProjects} icon={CubeIcon} linkTo="/admin/projects" />
                 <StatCard title={t_admin.home.pendingPartnerRequests} value={dashboardData.pendingRequests} icon={UserPlusIcon} linkTo="/admin/partner-requests" />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

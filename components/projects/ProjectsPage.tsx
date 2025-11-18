@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Project, Partner } from '../../types';
 import { BuildingIcon, GridIcon, ListIcon } from '../ui/Icons';
@@ -12,6 +13,7 @@ import { getAllPartnersForAdmin } from '../../services/partners';
 import { getAllProperties } from '../../services/properties';
 import { useLanguage } from '../shared/LanguageContext';
 import { Card, CardContent } from '../ui/Card';
+import { useSiteContent } from '../../hooks/useSiteContent';
 
 interface ProjectCardProps {
     project: Project; 
@@ -52,8 +54,8 @@ const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, developer
                     </div>
                 </div>
                 <CardContent className="p-6 flex flex-col flex-grow">
-                    <p className="text-gray-600 dark:text-gray-400 text-sm flex-grow mb-4 line-clamp-3">{project.description[language]}</p>
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-auto flex justify-between items-center text-gray-500 dark:text-gray-400">
+                    <p className="text-gray-600 text-sm flex-grow mb-4 line-clamp-3">{project.description[language]}</p>
+                    <div className="border-t border-gray-200 pt-4 mt-auto flex justify-between items-center text-gray-500">
                         <div className="flex items-center gap-2">
                            <BuildingIcon className="w-5 h-5" />
                            <span>{unitsCount} {unitsText}</span>
@@ -70,15 +72,19 @@ const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, developer
 
 const ProjectsPage: React.FC = () => {
   const { language, t } = useLanguage();
-  const t_page = t.projectsPage;
   const [view, setView] = useState<'grid' | 'list'>('grid');
   
+  const { data: siteContent, isLoading: isLoadingContent } = useSiteContent();
   const { data: projects, isLoading: isLoadingProjs } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
   const { data: partners, isLoading: isLoadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
   const { data: properties, isLoading: isLoadingProps } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
-  const isLoading = isLoadingProjs || isLoadingPartners || isLoadingProps;
   
-  const projectsWithDetails = React.useMemo(() => {
+  const isLoading = isLoadingProjs || isLoadingPartners || isLoadingProps || isLoadingContent;
+  
+  // Use dynamic content if available, fallback to translation file
+  const content = siteContent?.projectsPage?.[language] || t.projectsPage;
+  
+  const projectsWithDetails = useMemo(() => {
     if (!projects || !partners || !properties) return [];
     return projects.map(project => {
         const developer = (partners || []).find(p => p.id === project.partnerId);
@@ -88,29 +94,29 @@ const ProjectsPage: React.FC = () => {
   }, [projects, partners, properties]);
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 py-20">
+    <div className="bg-gray-50 py-20">
       <SEO 
         title={`${t.nav.projects} | ONLY HELIO`}
-        description={t_page.subtitle}
+        description={content.subtitle}
       />
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">{t_page.title}</h1>
-          <p className="text-lg text-gray-500 dark:text-gray-400 mt-4 max-w-3xl mx-auto">{t_page.subtitle}</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900">{content.title}</h1>
+          <p className="text-lg text-gray-500 mt-4 max-w-3xl mx-auto">{content.subtitle}</p>
         </div>
         
         <div className="flex justify-end items-center mb-8 max-w-7xl mx-auto">
-            <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-200 dark:bg-gray-800">
+            <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-200">
                 <button
                     onClick={() => setView('grid')}
-                    className={`p-2 rounded-md transition-colors ${view === 'grid' ? 'bg-white dark:bg-gray-700 text-amber-500 shadow' : 'text-gray-500 hover:text-amber-500'}`}
+                    className={`p-2 rounded-md transition-colors ${view === 'grid' ? 'bg-white text-amber-500 shadow' : 'text-gray-500 hover:text-amber-500'}`}
                     aria-label="Grid View"
                 >
                     <GridIcon className="w-5 h-5" />
                 </button>
                 <button
                     onClick={() => setView('list')}
-                    className={`p-2 rounded-md transition-colors ${view === 'list' ? 'bg-white dark:bg-gray-700 text-amber-500 shadow' : 'text-gray-500 hover:text-amber-500'}`}
+                    className={`p-2 rounded-md transition-colors ${view === 'list' ? 'bg-white text-amber-500 shadow' : 'text-gray-500 hover:text-amber-500'}`}
                     aria-label="List View"
                 >
                     <ListIcon className="w-5 h-5" />

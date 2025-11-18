@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import type { Language, Property } from '../../types';
 import PropertyCard from './PropertyCard';
@@ -16,10 +17,10 @@ interface PropertiesMapViewProps {
 
 const MapTooltip: React.FC<{ property: Property, language: Language }> = ({ property, language }) => {
     return (
-        <div className="w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div className="w-64 bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 z-50">
             <img src={property.imageUrl} alt={property.title[language]} className="w-full h-32 object-cover" />
             <div className="p-3">
-                <h3 className="font-bold text-sm truncate text-gray-900 dark:text-white">{property.title[language]}</h3>
+                <h3 className="font-bold text-sm truncate text-gray-900">{property.title[language]}</h3>
                 <p className="text-amber-500 font-semibold text-sm">{property.price[language]}</p>
             </div>
         </div>
@@ -79,9 +80,9 @@ const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loadi
     }, [activePropertyId, properties]);
 
     return (
-        <div className="flex flex-col md:flex-row h-full">
-            {/* Property List */}
-            <div ref={listRef} className="w-full md:w-1/2 lg:w-2/5 xl:w-1/3 h-1/2 md:h-full overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800/50">
+        <div className="flex flex-col md:flex-row h-full w-full">
+            {/* Property List - Left side on Desktop, Bottom on Mobile (via flex order if needed, but standard column stacks appropriately for now) */}
+            <div ref={listRef} className="w-full md:w-1/2 lg:w-2/5 xl:w-1/3 h-1/2 md:h-full overflow-y-auto p-4 space-y-4 bg-gray-50 border-r border-gray-200 shadow-inner z-10">
                 {loading ? (
                     Array.from({ length: 3 }).map((_, i) => <PropertyCardSkeleton key={i} />)
                 ) : properties.length > 0 ? (
@@ -91,25 +92,25 @@ const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loadi
                             data-property-id={prop.id}
                             onMouseEnter={() => setActivePropertyId(prop.id)}
                             onMouseLeave={() => setActivePropertyId(null)}
-                            className={`rounded-lg transition-all duration-300 ${activePropertyId === prop.id ? 'shadow-2xl ring-2 ring-amber-500' : ''}`}
+                            className={`rounded-lg transition-all duration-300 ${activePropertyId === prop.id ? 'shadow-xl ring-2 ring-amber-500 transform scale-[1.02]' : ''}`}
                         >
                            <PropertyCard {...prop} />
                         </div>
                     ))
                 ) : (
-                    <div className="text-center p-8 text-gray-500 dark:text-gray-400 h-full flex items-center justify-center">
+                    <div className="text-center p-8 text-gray-500 h-full flex items-center justify-center">
                         {t.propertiesPage.noResults}
                     </div>
                 )}
             </div>
 
-            {/* Map */}
-            <div className="flex-1 h-1/2 md:h-full bg-gray-200 dark:bg-gray-700 relative overflow-hidden">
+            {/* Map - Right side on Desktop, Top on Mobile */}
+            <div className="flex-1 h-1/2 md:h-full bg-gray-200 relative overflow-hidden">
                  {isLoadingContent ? (
-                    <div className="absolute inset-0 bg-gray-300 dark:bg-gray-600 animate-pulse"></div>
+                    <div className="absolute inset-0 bg-gray-300 animate-pulse flex items-center justify-center text-gray-500">Loading map...</div>
                  ) : (
                     <div 
-                        className="absolute inset-0 bg-cover bg-center"
+                        className="absolute inset-0 bg-cover bg-center transition-opacity duration-500"
                         style={{ backgroundImage: `url('${siteContent?.locationPickerMapUrl}')` }}
                         title={language === 'ar' ? 'خريطة مدينة هليوبوليس الجديدة وما حولها' : 'Map of New Heliopolis and surrounding areas'}
                     ></div>
@@ -118,23 +119,23 @@ const PropertiesMapView: React.FC<PropertiesMapViewProps> = ({ properties, loadi
                     {markers.map(marker => (
                         <button
                             key={marker.id}
-                            className="absolute transform -translate-x-1/2 -translate-y-full focus:outline-none z-10"
+                            className="absolute transform -translate-x-1/2 -translate-y-full focus:outline-none z-10 group"
                             style={{ left: `${marker.x}%`, top: `${marker.y}%` }}
                             onClick={() => handleMarkerClick(marker.id)}
                             onMouseEnter={() => setActivePropertyId(marker.id)}
                             onMouseLeave={() => setActivePropertyId(null)}
                             aria-label={`Property ${marker.id}`}
                         >
-                            <LocationMarkerIcon className={`w-10 h-10 drop-shadow-lg transition-all duration-200 ${
+                            <LocationMarkerIcon className={`w-8 h-8 sm:w-10 sm:h-10 drop-shadow-lg transition-all duration-200 ${
                                 activePropertyId === marker.id 
-                                ? 'text-amber-500 scale-150' 
-                                : 'text-red-600 dark:text-red-500 hover:text-amber-400'
+                                ? 'text-amber-500 scale-125 z-20' 
+                                : 'text-red-600 hover:text-amber-400 hover:scale-110'
                             }`}/>
                         </button>
                     ))}
                     {activeProperty && (
                         <div
-                            className="absolute transform -translate-x-1/2 -translate-y-[calc(100%+20px)] transition-opacity z-20 pointer-events-none"
+                            className="absolute transform -translate-x-1/2 -translate-y-[calc(100%+20px)] transition-opacity z-30 pointer-events-none"
                             style={{
                                 left: `${convertToPixel(activeProperty.location.lat, activeProperty.location.lng).x}%`,
                                 top: `${convertToPixel(activeProperty.location.lat, activeProperty.location.lng).y}%`,

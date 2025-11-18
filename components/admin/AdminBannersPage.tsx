@@ -1,7 +1,8 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import type { Banner } from '../../types';
-import AdminBannerFormModal from './AdminBannerFormModal';
-import { ArrowDownIcon, ArrowUpIcon } from '../ui/Icons';
+import AdminBannerFormModal from './content/AdminBannerFormModal';
+import { ArrowDownIcon, ArrowUpIcon, PhotoIcon } from '../ui/Icons';
 import { getAllBanners, deleteBanner as apiDeleteBanner } from '../../services/banners';
 import { useQuery } from '@tanstack/react-query';
 import Pagination from '../ui/Pagination';
@@ -103,9 +104,14 @@ const AdminBannersPage: React.FC = () => {
                     confirmText="Delete"
                 />
             )}
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t_banners.title}</h1>
-                <Button onClick={() => setModalState({ isOpen: true })}>
+            
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_banners.title}</h1>
+                    <p className="text-gray-500 dark:text-gray-400">Create and manage advertising banners across the site.</p>
+                </div>
+                <Button onClick={() => setModalState({ isOpen: true })} className="flex items-center gap-2">
+                    <PhotoIcon className="w-5 h-5" />
                     {t_banners.addBanner}
                 </Button>
             </div>
@@ -129,34 +135,50 @@ const AdminBannersPage: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                         {loading ? (
-                            <TableRow><TableCell colSpan={5} className="text-center p-8">Loading...</TableCell></TableRow>
+                            <TableRow><TableCell colSpan={5} className="text-center p-8">Loading banners...</TableCell></TableRow>
                         ) : paginatedBanners.length > 0 ? (
                             paginatedBanners.map(banner => (
                                 <TableRow key={banner.id}>
                                     <TableCell>
-                                        <img src={banner.imageUrl} alt={banner.title} className="w-24 h-12 object-cover rounded-md" />
+                                        <div className="w-32 h-16 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                                            <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover" />
+                                        </div>
                                     </TableCell>
-                                    <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {banner.title}
-                                    </TableCell>
-                                    <TableCell className="capitalize">{banner.locations.join(', ')}</TableCell>
                                     <TableCell>
-                                        <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${banner.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-300'}`}>
+                                        <div className="font-bold text-gray-900 dark:text-white">{banner.title}</div>
+                                        <div className="text-xs text-gray-500 truncate max-w-xs">{banner.link}</div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-wrap gap-1">
+                                            {banner.locations.map(loc => (
+                                                <span key={loc} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-xs text-gray-600 dark:text-gray-400 capitalize">
+                                                    {loc}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className={`px-2 py-1 text-xs font-bold rounded-full capitalize inline-flex items-center gap-1 ${
+                                            banner.status === 'active' 
+                                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                                        }`}>
+                                            <span className={`w-1.5 h-1.5 rounded-full ${banner.status === 'active' ? 'bg-green-500' : 'bg-gray-500'}`}></span>
                                             {banner.status}
                                         </span>
                                     </TableCell>
                                     <TableCell className="space-x-2 whitespace-nowrap">
-                                        <Button variant="link" onClick={() => setModalState({ isOpen: true, bannerToEdit: banner })}>{t_banners.edit}</Button>
-                                        <Button variant="link" className="text-red-600 dark:text-red-500" onClick={() => setBannerToDelete(banner.id)}>{t_banners.delete}</Button>
+                                        <Button variant="secondary" size="sm" onClick={() => setModalState({ isOpen: true, bannerToEdit: banner })}>{t_banners.edit}</Button>
+                                        <Button variant="danger" size="sm" className="bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 border-none" onClick={() => setBannerToDelete(banner.id)}>{t_banners.delete}</Button>
                                     </TableCell>
                                 </TableRow>
                             ))
                         ) : (
-                            <TableRow><TableCell colSpan={5} className="text-center p-8">No banners found.</TableCell></TableRow>
+                            <TableRow><TableCell colSpan={5} className="text-center p-12 text-gray-500">No banners found.</TableCell></TableRow>
                         )}
                     </TableBody>
                 </Table>
-                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );

@@ -1,15 +1,15 @@
 
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { Banner } from '../../../types';
-import FormField from '../../ui/FormField';
-import { CloseIcon } from '../../ui/Icons';
+import FormField, { inputClasses, selectClasses } from '../../ui/FormField';
+import { CloseIcon, PhotoIcon, CheckCircleIcon, SparklesIcon } from '../../ui/Icons';
 import { addBanner, updateBanner } from '../../../services/banners';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Checkbox } from '../../ui/Checkbox';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
+import { Card, CardContent } from '../../ui/Card';
 
 interface AdminBannerFormModalProps {
     bannerToEdit?: Banner;
@@ -23,6 +23,39 @@ const fileToBase64 = (file: File): Promise<string> => {
         reader.onload = () => resolve(reader.result as string);
         reader.onerror = error => reject(error);
     });
+};
+
+const LOCATION_GUIDE = {
+    home: {
+        label: { en: 'Home Page (Main Slider)', ar: 'الصفحة الرئيسية (السلايدر الرئيسي)' },
+        dimensions: '1920x640px',
+        aspectRatio: '3:1',
+        note: { en: 'High resolution, wide format.', ar: 'دقة عالية، تنسيق عريض.' }
+    },
+    properties: {
+        label: { en: 'Properties Page (Header)', ar: 'صفحة العقارات (الرأس)' },
+        dimensions: '1920x300px',
+        aspectRatio: '6:1',
+        note: { en: 'Ultra wide, short height header.', ar: 'عريض جداً، ارتفاع قصير.' }
+    },
+    finishing: {
+        label: { en: 'Finishing Page (Header)', ar: 'صفحة التشطيبات (الرأس)' },
+        dimensions: '1920x300px',
+        aspectRatio: '6:1',
+        note: { en: 'Ultra wide header.', ar: 'رأس عريض جداً.' }
+    },
+    decorations: {
+        label: { en: 'Decorations Page (Header)', ar: 'صفحة الديكورات (الرأس)' },
+        dimensions: '1920x300px',
+        aspectRatio: '6:1',
+        note: { en: 'Ultra wide header.', ar: 'رأس عريض جداً.' }
+    },
+    details: {
+        label: { en: 'Details Page (Sidebar)', ar: 'صفحة التفاصيل (الشريط الجانبي)' },
+        dimensions: '800x600px',
+        aspectRatio: '4:3',
+        note: { en: 'Boxy or rectangular format.', ar: 'تنسيق مربع أو مستطيل.' }
+    }
 };
 
 const AdminBannerFormModal: React.FC<AdminBannerFormModalProps> = ({ bannerToEdit, onClose }) => {
@@ -54,12 +87,12 @@ const AdminBannerFormModal: React.FC<AdminBannerFormModalProps> = ({ bannerToEdi
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleLocationChange = (location: 'home' | 'properties' | 'details' | 'finishing' | 'decorations') => {
+    const handleLocationChange = (location: keyof typeof LOCATION_GUIDE) => {
         setFormData(prev => {
             const newLocations = prev.locations.includes(location)
                 ? prev.locations.filter(l => l !== location)
                 : [...prev.locations, location];
-            return { ...prev, locations: newLocations as ('home' | 'properties' | 'details' | 'finishing' | 'decorations')[] };
+            return { ...prev, locations: newLocations as any[] };
         });
     };
 
@@ -96,76 +129,129 @@ const AdminBannerFormModal: React.FC<AdminBannerFormModalProps> = ({ bannerToEdi
         onClose();
     };
     
-    const locationOptions = ['home', 'properties', 'details', 'finishing', 'decorations'] as const;
+    const activeRecommendation = useMemo(() => {
+        if (formData.locations.length === 0) return null;
+        const lastSelected = formData.locations[formData.locations.length - 1] as keyof typeof LOCATION_GUIDE;
+        return LOCATION_GUIDE[lastSelected];
+    }, [formData.locations]);
 
     return (
         <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={onClose}>
-            <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-amber-500">{bannerToEdit ? t_page.editBanner : t_page.addBanner}</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
-                </div>
-                <form onSubmit={handleSubmit} className="flex-grow contents">
-                    <div className="flex-grow overflow-y-auto p-6 space-y-4">
-                        <FormField label={t_page.bannerTitle} id="title">
-                            <Input name="title" value={formData.title} onChange={handleChange} required />
-                        </FormField>
-                        <FormField label={t_page.bannerImage} id="image">
-                            <div className="flex items-center gap-4">
-                                {imagePreview && <img src={imagePreview} alt="Preview" className="w-24 h-12 rounded-md object-cover border" />}
-                                <Input type="file" id="image" accept="image/*" onChange={handleFileChange} className="p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" required={!bannerToEdit} />
-                            </div>
-                            <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-md border border-gray-200 dark:border-gray-600">
-                                <h4 className="font-bold mb-1">{language === 'ar' ? 'الأبعاد الموصى بها (لأفضل النتائج):' : 'Recommended Dimensions (for best results):'}</h4>
-                                <ul className="list-disc list-inside space-y-1">
-                                    <li><strong>{language === 'ar' ? 'الصفحة الرئيسية' : 'Home Page'}:</strong> {language === 'ar' ? 'بانر عريض (بنسبة عرض إلى ارتفاع 3:1 تقريبًا، مثال: 1500x500 بكسل).' : 'Wide banner (approx. 3:1 aspect ratio, e.g., 1500x500 px).'}</li>
-                                    <li><strong>{language === 'ar' ? 'صفحات العقارات، التشطيبات، الديكورات' : 'Properties, Finishing, Decorations Pages'}:</strong> {language === 'ar' ? 'بانر عريض جدًا (بنسبة 5:1 تقريبًا، مثال: 1500x300 بكسل).' : 'Very wide banner (approx. 5:1 aspect ratio, e.g., 1500x300 px).'}</li>
-                                    <li><strong>{language === 'ar' ? 'صفحة تفاصيل العقار' : 'Property Details Page'}:</strong> {language === 'ar' ? 'بانر قياسي (بنسبة 16:9، مثال: 1280x720 بكسل).' : 'Standard banner (16:9 aspect ratio, e.g., 1280x720 px).'}</li>
-                                </ul>
-                            </div>
-                        </FormField>
-                        <FormField label={t_page.bannerLink} id="link">
-                            <Input name="link" value={formData.link} placeholder="e.g., /properties" />
-                        </FormField>
+            <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+                
+                {/* Header */}
+                <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                            <PhotoIcon className="w-6 h-6 text-amber-600 dark:text-amber-500" />
+                        </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t_page.displayLocations}</label>
-                            <div className="flex flex-wrap gap-4">
-                                {locationOptions.map(loc => (
-                                    <label key={loc} className="flex items-center gap-2">
-                                        <Checkbox
-                                            checked={formData.locations.includes(loc)}
-                                            onCheckedChange={() => handleLocationChange(loc)}
-                                            id={`loc-${loc}`}
-                                        />
-                                        <span className="capitalize">{loc}</span>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{bannerToEdit ? t_page.editBanner : t_page.addBanner}</h3>
+                            <p className="text-sm text-gray-500">Manage advertising visuals and placement.</p>
+                        </div>
+                    </div>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors"><CloseIcon className="w-6 h-6" /></button>
+                </div>
+
+                <div className="flex-grow overflow-y-auto p-6">
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        
+                        {/* Top Section: Image & Locations */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            
+                            {/* Left: Image Upload */}
+                            <div className="lg:col-span-1 space-y-4">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t_page.bannerImage}</label>
+                                <div className={`relative aspect-video rounded-lg overflow-hidden border-2 border-dashed ${!imagePreview ? 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50' : 'border-amber-500'} transition-all group`}>
+                                    {imagePreview ? (
+                                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                                            <PhotoIcon className="w-10 h-10 mb-2 opacity-50" />
+                                            <span className="text-xs">Click to upload</span>
+                                        </div>
+                                    )}
+                                    <label className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity text-white font-semibold text-sm">
+                                        {imagePreview ? 'Change Image' : 'Upload Image'}
+                                        <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" required={!bannerToEdit} />
                                     </label>
-                                ))}
+                                </div>
+                                {activeRecommendation && (
+                                    <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800 text-sm">
+                                        <p className="font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                                            <SparklesIcon className="w-4 h-4" /> 
+                                            {language === 'ar' ? 'الأبعاد الموصى بها:' : 'Recommended:'}
+                                        </p>
+                                        <p className="text-blue-600 dark:text-blue-400 mt-1 font-mono text-xs">
+                                            {activeRecommendation.dimensions} ({activeRecommendation.aspectRatio})
+                                        </p>
+                                        <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                                            {activeRecommendation.note[language]}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Right: Form Details */}
+                            <div className="lg:col-span-2 space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <FormField label={t_page.bannerTitle} id="title">
+                                        <Input name="title" value={formData.title} onChange={handleChange} required className={inputClasses} placeholder="Ex: Summer Sale 2024" />
+                                    </FormField>
+                                    <FormField label={t_page.bannerLink} id="link">
+                                        <Input name="link" value={formData.link} onChange={handleChange} placeholder="/properties?status=sale" className={inputClasses} />
+                                    </FormField>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t_page.displayLocations}</label>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {(Object.keys(LOCATION_GUIDE) as Array<keyof typeof LOCATION_GUIDE>).map(loc => (
+                                            <label 
+                                                key={loc} 
+                                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                                                    formData.locations.includes(loc) 
+                                                    ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 ring-1 ring-amber-500' 
+                                                    : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:border-gray-300'
+                                                }`}
+                                            >
+                                                <Checkbox
+                                                    checked={formData.locations.includes(loc)}
+                                                    onCheckedChange={() => handleLocationChange(loc)}
+                                                    id={`loc-${loc}`}
+                                                    className="text-amber-500 focus:ring-amber-500"
+                                                />
+                                                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                                                    {LOCATION_GUIDE[loc].label[language]}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                    <FormField label={t_page.status} id="status">
+                                        <Select name="status" value={formData.status} onChange={handleChange} className={selectClasses}>
+                                            <option value="active">{t_page.active}</option>
+                                            <option value="inactive">{t_page.inactive}</option>
+                                        </Select>
+                                    </FormField>
+                                    <FormField label={t_page.startDate} id="startDate">
+                                        <Input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className={inputClasses} />
+                                    </FormField>
+                                    <FormField label={t_page.endDate} id="endDate">
+                                        <Input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className={inputClasses} />
+                                    </FormField>
+                                </div>
                             </div>
                         </div>
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             <FormField label={t_page.status} id="status">
-                                <Select name="status" value={formData.status} onChange={handleChange}>
-                                    <option value="active">{t_page.active}</option>
-                                    <option value="inactive">{t_page.inactive}</option>
-                                </Select>
-                            </FormField>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField label={t_page.startDate} id="startDate">
-                                <Input type="date" name="startDate" value={formData.startDate} onChange={handleChange} />
-                            </FormField>
-                             <FormField label={t_page.endDate} id="endDate">
-                                <Input type="date" name="endDate" value={formData.endDate} onChange={handleChange} />
-                            </FormField>
-                        </div>
-                    </div>
-                    <div className="p-4 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                        <Button type="button" variant="secondary" onClick={onClose}>{t_shared.cancel}</Button>
-                        <Button type="submit" isLoading={loading}>
-                            {t_shared.save}
-                        </Button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+
+                <div className="p-5 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+                    <Button type="button" variant="secondary" onClick={onClose}>{t_shared.cancel}</Button>
+                    <Button type="submit" onClick={handleSubmit} isLoading={loading}>{t_shared.save}</Button>
+                </div>
             </div>
         </div>
     );

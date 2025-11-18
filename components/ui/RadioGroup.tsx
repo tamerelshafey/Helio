@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 
 const cn = (...classes: (string | undefined | false)[]) => classes.filter(Boolean).join(' ');
@@ -17,7 +18,7 @@ const RadioGroupItem = React.forwardRef<HTMLInputElement, React.InputHTMLAttribu
                 type="radio"
                 ref={ref}
                 className={cn(
-                    'h-4 w-4 text-amber-600 border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 focus:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600',
+                    'h-4 w-4 text-amber-600 border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-50',
                     className,
                 )}
                 {...props}

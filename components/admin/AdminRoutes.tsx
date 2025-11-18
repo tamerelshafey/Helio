@@ -1,6 +1,3 @@
-
-
-
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
@@ -39,6 +36,8 @@ import CategoriesManagement from './decorations/CategoriesManagement';
 import AdminFinishingLayout from './finishing/AdminFinishingLayout';
 import AdminFinishingDashboardPage from './finishing/AdminFinishingDashboardPage';
 import AdminFinishingServicesPage from './AdminFinishingServicesPage';
+import AdminFinishingRequestsPage from './requests/AdminFinishingRequestsPage'; // Import directly
+import AdminAIEstimatorPage from './AdminAIEstimatorPage';
 
 // Admin - Partners & Projects Management (New Structure)
 import AdminPartnersLayout from './partners/AdminPartnersLayout';
@@ -63,6 +62,9 @@ import ContentSocialProofPage from './content/ContentSocialProofPage';
 import ContentWhyNewHeliopolisPage from './content/ContentWhyNewHeliopolisPage';
 import ContentQuotesPage from './content/ContentQuotesPage';
 import ContentFooterPage from './content/ContentFooterPage';
+import ContentProjectsPage from './content/ContentProjectsPage';
+import ContentFinishingPage from './content/ContentFinishingPage';
+import ContentDecorationsPage from './content/ContentDecorationsPage';
 
 // Admin - Automation
 import RoutingRulesPage from './automation/RoutingRulesPage';
@@ -91,16 +93,19 @@ const AdminRoutes: React.FC = () => {
             <Route path="partner-requests/:requestId" element={<Navigate to="/admin/requests/:requestId" replace />} />
             <Route path="contact-requests" element={<Navigate to="/admin/requests?type=CONTACT_MESSAGE" replace />} />
             <Route path="leads" element={<Navigate to="/admin/requests?type=LEAD" replace />} />
-            <Route path="finishing-requests" element={<Navigate to="/admin/requests?type=LEAD&service=finishing" replace />} />
-            <Route path="decorations-requests" element={<Navigate to="/admin/requests?type=LEAD&service=decorations" replace />} />
+            {/* Removed direct redirects for finishing/decorations to use nested layouts instead */}
+            <Route path="finishing-requests" element={<Navigate to="/admin/finishing-management/requests" replace />} />
+            <Route path="decorations-requests" element={<Navigate to="/admin/decorations-management/requests" replace />} />
             
             <Route path="partners" element={<AdminPartnersLayout />}>
                 <Route index element={<AdminPartnersDashboard />} />
                 <Route path="list" element={<AdminPartnersPage />} />
-                <Route path="projects" element={<AdminProjectsPage />} />
                 <Route path="inquiry-routing" element={<AdminInquiryManagementPage />} />
                 <Route path="plans" element={<AdminPlansPage availableCategories={['developer', 'agency', 'individual']} />} />
             </Route>
+            
+            {/* Projects Top Level Route */}
+            <Route path="projects" element={<AdminProjectsPage />} />
             <Route path="projects/edit/:projectId" element={<ProjectFormPage />} />
 
             <Route path="users" element={<AdminUsersPage />} />
@@ -125,6 +130,9 @@ const AdminRoutes: React.FC = () => {
                 <Route path="why-us" element={<ContentWhyUsPage />} />
                 <Route path="services" element={<ContentServicesPage />} />
                 <Route path="partners" element={<ContentPartnersPage />} />
+                <Route path="projects-page" element={<ContentProjectsPage />} />
+                <Route path="finishing-page" element={<ContentFinishingPage />} />
+                <Route path="decorations-page" element={<ContentDecorationsPage />} />
                 <Route path="testimonials" element={<ContentTestimonialsPage />} />
                 <Route path="social-proof" element={<ContentSocialProofPage />} />
                 <Route path="why-new-heliopolis" element={<ContentWhyNewHeliopolisPage />} />
@@ -136,14 +144,16 @@ const AdminRoutes: React.FC = () => {
             
             <Route path="finishing-management" element={<AdminFinishingLayout />}>
                 <Route index element={<AdminFinishingDashboardPage />} />
-                <Route path="requests" element={<Navigate to="/admin/requests?type=LEAD&service=finishing" replace />} />
+                {/* Replaced Navigate with direct component render to keep layout */}
+                <Route path="requests" element={<AdminFinishingRequestsPage />} />
                 <Route path="services" element={<AdminFinishingServicesPage />} />
+                <Route path="estimator" element={<AdminAIEstimatorPage />} />
                 <Route path="plans" element={<AdminPlansPage availableCategories={['finishing']} />} />
             </Route>
 
             <Route path="decorations-management" element={<DecorationsLayout />}>
                 <Route index element={<DecorationsDashboardHomePage />} />
-                <Route path="requests" element={<Navigate to="/admin/requests?type=LEAD&service=decorations" replace />} />
+                <Route path="requests" element={<RequestsManagement />} />
                 <Route path="portfolio" element={<PortfolioManagement />} />
                 <Route path="categories" element={<CategoriesManagement />} />
             </Route>

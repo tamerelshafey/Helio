@@ -1,3 +1,4 @@
+
 // ==================================================================
 //                             Core Types
 // ==================================================================
@@ -480,6 +481,34 @@ export interface SiteContent {
                 stats: { value: string; desc: string }[];
             };
         };
+    };
+    projectsPage: {
+        [key in Language]: { title: string; subtitle: string };
+    };
+    finishingPage: {
+         [key in Language]: {
+            heroTitle: string;
+            heroSubtitle: string;
+            servicesTitle: string;
+            servicesSubtitle: string;
+            servicesIntro: string;
+            partnerCompaniesTitle: string;
+            partnerCompaniesSubtitle: string;
+            serviceProvidersTitle: string;
+            serviceProvidersSubtitle: string;
+            ctaTitle: string;
+            ctaSubtitle: string;
+            ctaButton: string;
+        };
+    };
+    decorationsPage: {
+         [key in Language]: {
+            heroTitle: string;
+            heroSubtitle: string;
+            sculptures_desc: string;
+            paintings_desc: string;
+            antiques_desc: string;
+         };
     };
     finishingServices: {
         title: { [key in Language]: string };

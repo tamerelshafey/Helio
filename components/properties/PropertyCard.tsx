@@ -87,7 +87,6 @@ const PropertyCard: React.FC<PropertyCardProps> = React.memo((props) => {
                 <img 
                     src={imageUrl_large || imageUrl}
                     srcSet={`${imageUrl_small} 480w, ${imageUrl_medium} 800w, ${imageUrl_large || imageUrl} 1200w`}
-                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 22vw"
                     alt={title[language]} 
                     className="w-full h-56 object-cover disable-image-interaction"
                     onContextMenu={(e) => e.preventDefault()}
@@ -129,21 +128,21 @@ const PropertyCard: React.FC<PropertyCardProps> = React.memo((props) => {
         <CardContent className="p-5 flex flex-col flex-grow">
           <p className="text-2xl font-bold text-amber-500 mb-1">{price[language]}</p>
           {displayPricePerMeter && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{displayPricePerMeter}</p>
+            <p className="text-sm text-gray-500 mb-2">{displayPricePerMeter}</p>
           )}
-          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate mb-1 group-hover:text-amber-500 transition-colors">{title[language]}</h3>
+          <h3 className="text-lg font-bold text-gray-900 truncate mb-1 group-hover:text-amber-500 transition-colors">{title[language]}</h3>
           
-          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-3">
+          <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
               {finishingStatus && (
-                <span className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{finishingStatus[language]}</span>
+                <span className="bg-gray-100 px-2 py-1 rounded">{finishingStatus[language]}</span>
               )}
           </div>
           
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-4 flex-grow">
+          <div className="text-sm text-gray-500 mb-4 flex-grow">
             {partnerName && partnerId !== 'individual-listings' ? (
                 <p>
                     {t.propertyCard.by}{' '}
-                    <Link to={`/partners/${partnerId}`} onClick={(e) => e.stopPropagation()} className="font-semibold text-gray-700 dark:text-gray-300 hover:text-amber-500 hover:underline">
+                    <Link to={`/partners/${partnerId}`} onClick={(e) => e.stopPropagation()} className="font-semibold text-gray-700 hover:text-amber-500 hover:underline">
                         {partnerName}
                     </Link>
                 </p>
@@ -152,32 +151,32 @@ const PropertyCard: React.FC<PropertyCardProps> = React.memo((props) => {
             ) : null}
 
             {projectName && projectId && (
-                <Link to={`/projects/${projectId}`} onClick={(e) => e.stopPropagation()} className="text-amber-600 dark:text-amber-500 hover:underline text-xs">
+                <Link to={`/projects/${projectId}`} onClick={(e) => e.stopPropagation()} className="text-amber-600 hover:underline text-xs">
                     {t.propertyCard.viewProject}
                 </Link>
             )}
           </div>
 
-          <div className="flex justify-around items-center text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 pt-4 mt-auto">
+          <div className="flex justify-around items-center text-gray-500 border-t border-gray-200 pt-4 mt-auto">
             {!isCommercialProp && (
                 <>
                     <div className="flex items-center gap-2" title={`${beds} ${t.propertyCard.beds}`}>
-                        <BedIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                        <BedIcon className="w-5 h-5 text-gray-400" />
                         <span className="text-sm font-medium">{beds}</span>
                     </div>
                     <div className="flex items-center gap-2" title={`${baths} ${t.propertyCard.baths}`}>
-                        <BathIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                        <BathIcon className="w-5 h-5 text-gray-400" />
                         <span className="text-sm font-medium">{baths}</span>
                     </div>
                 </>
             )}
             <div className="flex items-center gap-2" title={`${area} ${t.propertyCard.area}`}>
-                <AreaIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                <AreaIcon className="w-5 h-5 text-gray-400" />
                 <span className="text-sm font-medium">{area} {t.propertyCard.area}</span>
             </div>
             {floor !== undefined && (type.en === 'Apartment' || type.en === 'Commercial') && (
                  <div className="flex items-center gap-2" title={`${floor} ${t.propertyCard.floor}`}>
-                    <FloorIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                    <FloorIcon className="w-5 h-5 text-gray-400" />
                     <span className="text-sm font-medium">{floor}</span>
                 </div>
             )}

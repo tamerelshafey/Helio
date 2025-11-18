@@ -15,12 +15,12 @@ const PortfolioItemCard: React.FC<{ item: any }> = ({ item }) => {
     const { language, t } = useLanguage();
     return (
         <Card className="group flex flex-col p-0 overflow-hidden transform hover:-translate-y-2 transition-transform duration-300">
-            <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
+            <div className="relative aspect-video bg-gray-100">
                 <img src={item.imageUrl} alt={item.alt} className="w-full h-full object-cover" />
             </div>
             <CardContent className="p-4 flex flex-col flex-grow">
-                <h3 className="font-bold text-gray-900 dark:text-white truncate mb-1">{item.title[language]}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{item.category[language]}</p>
+                <h3 className="font-bold text-gray-900 truncate mb-1">{item.title[language]}</h3>
+                <p className="text-sm text-gray-500">{item.category[language]}</p>
             </CardContent>
         </Card>
     );
@@ -32,8 +32,8 @@ const ServiceCard: React.FC<{ item: any }> = ({ item }) => {
         <Link to="/finishing">
             <Card className="group flex flex-col p-0 overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 h-full">
                 <CardContent className="p-4 flex flex-col flex-grow">
-                    <h3 className="font-bold text-lg text-amber-600 dark:text-amber-400 mb-2">{item.title[language]}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">{item.description[language]}</p>
+                    <h3 className="font-bold text-lg text-amber-600 mb-2">{item.title[language]}</h3>
+                    <p className="text-sm text-gray-600 line-clamp-3">{item.description[language]}</p>
                 </CardContent>
             </Card>
         </Link>
@@ -57,11 +57,11 @@ const FavoritesPage: React.FC = () => {
     const hasFavorites = favoriteProperties.length > 0 || favoriteServices.length > 0 || favoritePortfolioItems.length > 0;
 
     return (
-        <div className="py-20 bg-white dark:bg-gray-900 min-h-[60vh]">
+        <div className="py-20 bg-white min-h-[60vh]">
           <div className="container mx-auto px-6">
             <div className="text-center mb-12">
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">{t_fav.title}</h1>
-                <p className="text-lg text-gray-500 dark:text-gray-400 mt-4 max-w-2xl mx-auto">{t_fav.subtitle}</p>
+                <h1 className="text-4xl md:text-5xl font-bold text-gray-900">{t_fav.title}</h1>
+                <p className="text-lg text-gray-500 mt-4 max-w-2xl mx-auto">{t_fav.subtitle}</p>
             </div>
             
             {isLoading ? (
@@ -72,8 +72,8 @@ const FavoritesPage: React.FC = () => {
               <div className="animate-fadeIn space-y-12">
                 {!hasFavorites ? (
                     <div className="text-center py-16 flex flex-col items-center">
-                        <HeartIcon className="w-16 h-16 text-gray-300 dark:text-gray-700 mb-4" />
-                        <p className="text-xl text-gray-500 dark:text-gray-400 mb-6">{t_fav.noFavorites}</p>
+                        <HeartIcon className="w-16 h-16 text-gray-300 mb-4" />
+                        <p className="text-xl text-gray-500 mb-6">{t_fav.noFavorites}</p>
                         <Link to="/properties" className="bg-amber-500 text-gray-900 font-semibold px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200">
                             {t_fav.browseButton}
                         </Link>

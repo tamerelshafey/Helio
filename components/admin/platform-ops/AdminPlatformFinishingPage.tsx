@@ -1,14 +1,24 @@
 
-
 import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getAllLeads } from '../../../services/leads';
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
-import { Lead } from '../../../types';
+import { Lead, LeadStatus } from '../../../types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
-// FIX: Corrected import path for Pagination from '../shared/Pagination' to '../../ui/Pagination'.
 import Pagination from '../../ui/Pagination';
+import { Button } from '../../ui/Button';
+
+const statusColors: { [key in LeadStatus]: string } = {
+    new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+    contacted: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+    'site-visit': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
+    quoted: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
+    'in-progress': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+    completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+};
 
 const AdminPlatformFinishingPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -52,22 +62,35 @@ const AdminPlatformFinishingPage: React.FC = () => {
                             <TableHead>{t_dash.leadTable.service}</TableHead>
                             <TableHead>{t_dash.leadTable.date}</TableHead>
                             <TableHead>{t_dash.leadTable.status}</TableHead>
+                            <TableHead>{t_dash.leadTable.actions}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {isLoading ? (
-                            <TableRow><TableCell colSpan={4} className="text-center p-8">Loading requests...</TableCell></TableRow>
+                            <TableRow><TableCell colSpan={5} className="text-center p-8">Loading requests...</TableCell></TableRow>
                         ) : paginatedItems.length > 0 ? (
                             paginatedItems.map(lead => (
                                 <TableRow key={lead.id}>
-                                    <TableCell>{lead.customerName}</TableCell>
+                                    <TableCell className="font-medium">
+                                        {lead.customerName}
+                                        <div className="text-xs text-gray-500">{lead.customerPhone}</div>
+                                    </TableCell>
                                     <TableCell>{lead.serviceTitle}</TableCell>
                                     <TableCell>{new Date(lead.createdAt).toLocaleDateString(language)}</TableCell>
-                                    <TableCell>{lead.status}</TableCell>
+                                    <TableCell>
+                                        <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${statusColors[lead.status]}`}>
+                                            {t_dash.leadStatus[lead.status] || lead.status}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Link to={`/admin/requests/${lead.id}`}>
+                                            <Button variant="link" size="sm">View Details</Button>
+                                        </Link>
+                                    </TableCell>
                                 </TableRow>
                             ))
                         ) : (
-                             <TableRow><TableCell colSpan={4} className="text-center p-8">No requests found for platform finishing packages.</TableCell></TableRow>
+                             <TableRow><TableCell colSpan={5} className="text-center p-8">No requests found for platform finishing packages.</TableCell></TableRow>
                         )}
                     </TableBody>
                 </Table>

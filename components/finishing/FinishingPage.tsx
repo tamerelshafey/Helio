@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem, AdminPartner } from '../../types';
@@ -18,7 +19,8 @@ const ServicePackageCard: React.FC<{
     onRequest: (title: string) => void;
     language: Language;
     t: any;
-}> = ({ service, onRequest, language, t }) => {
+    buttonText: string;
+}> = ({ service, onRequest, language, t, buttonText }) => {
     const { isFavorite, toggleFavorite } = useFavorites();
     const { showToast } = useToast();
     const serviceId = service.title.en;
@@ -55,7 +57,7 @@ const ServicePackageCard: React.FC<{
                 </div>
 
                 <Button onClick={() => onRequest(service.title[language])} className="w-full mt-auto">
-                    {t.finishingPage.requestButton}
+                    {buttonText}
                 </Button>
             </CardContent>
         </Card>
@@ -99,7 +101,7 @@ const PartnerCompanyCard: React.FC<{ partner: AdminPartner; t: any }> = ({ partn
     );
 };
 
-const ServiceProviderCard: React.FC<{ partner: AdminPartner; onRequest: (title: string, partnerId: string) => void; t: any }> = ({ partner, onRequest, t }) => {
+const ServiceProviderCard: React.FC<{ partner: AdminPartner; onRequest: (title: string, partnerId: string) => void; t: any; buttonText: string }> = ({ partner, onRequest, t, buttonText }) => {
     const { language } = useLanguage();
     const localizedPartner = t.partnerInfo[partner.id];
 
@@ -115,7 +117,7 @@ const ServiceProviderCard: React.FC<{ partner: AdminPartner; onRequest: (title: 
                 onClick={() => onRequest(t.partnerProfilePage.serviceRequestFor + ' ' + localizedPartner.name, partner.id)} 
                 className="mt-4 sm:mt-0 sm:ml-4 flex-shrink-0"
             >
-                {t.finishingPage.requestButton}
+                {buttonText}
             </Button>
         </Card>
     );
@@ -132,6 +134,9 @@ const FinishingPage: React.FC = () => {
 
     const isLoading = isLoadingPartners || isLoadingContent;
 
+    // Use dynamic content if available, fallback to translation file
+    const content = siteContent?.finishingPage?.[language] || t.finishingPage;
+
     const handleRequestService = (serviceTitle: string, partnerId: string = 'admin-user') => {
         navigate('/request-service', {
             state: {
@@ -147,7 +152,7 @@ const FinishingPage: React.FC = () => {
         const urlToShare = `${baseUrl}#/finishing`;
         const shareData = {
             title: `${t.nav.finishing} | ONLY HELIO`,
-            text: t.finishingPage.heroSubtitle,
+            text: content.heroSubtitle,
             url: urlToShare,
         };
         try {
@@ -189,7 +194,7 @@ const FinishingPage: React.FC = () => {
 
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
-            <SEO title={`${t.nav.finishing} | ONLY HELIO`} description={t.finishingPage.heroSubtitle} />
+            <SEO title={`${t.nav.finishing} | ONLY HELIO`} description={content.heroSubtitle} />
             {/* Hero Section */}
             <section
                 className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center"
@@ -200,9 +205,9 @@ const FinishingPage: React.FC = () => {
             >
                 <div className="absolute top-0 left-0 w-full h-full bg-black/70 z-10"></div>
                 <div className="relative z-20 px-4 container mx-auto text-white">
-                    <h1 className="text-4xl md:text-6xl font-extrabold">{t.finishingPage.heroTitle}</h1>
+                    <h1 className="text-4xl md:text-6xl font-extrabold">{content.heroTitle}</h1>
                     <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-200 mt-4">
-                        {t.finishingPage.heroSubtitle}
+                        {content.heroSubtitle}
                     </p>
                      <div className="mt-6">
                         <Button
@@ -223,8 +228,9 @@ const FinishingPage: React.FC = () => {
             <section className="py-20">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-12 max-w-3xl mx-auto">
-                        <h2 className="text-3xl md:text-4xl font-bold">{t.finishingPage.servicesTitle}</h2>
-                        <p className="text-lg text-gray-500 dark:text-gray-400 mt-4">{t.finishingPage.servicesIntro}</p>
+                        <h2 className="text-3xl md:text-4xl font-bold">{content.servicesTitle}</h2>
+                        <p className="text-lg text-gray-500 dark:text-gray-400 mt-4">{content.servicesSubtitle}</p>
+                         <p className="text-md text-gray-600 dark:text-gray-300 mt-2">{content.servicesIntro}</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                         {services.map((service, index) => (
@@ -234,6 +240,7 @@ const FinishingPage: React.FC = () => {
                                 onRequest={handleRequestService}
                                 language={language}
                                 t={t}
+                                buttonText={t.finishingPage.requestButton}
                             />
                         ))}
                     </div>
@@ -245,9 +252,9 @@ const FinishingPage: React.FC = () => {
                 <section className="py-20 bg-gray-50 dark:bg-gray-800">
                     <div className="container mx-auto px-6">
                         <div className="text-center mb-12 max-w-3xl mx-auto">
-                            <h2 className="text-3xl md:text-4xl font-bold">{t.finishingPage.partnerCompaniesTitle}</h2>
+                            <h2 className="text-3xl md:text-4xl font-bold">{content.partnerCompaniesTitle}</h2>
                             <p className="text-lg text-gray-500 dark:text-gray-400 mt-4">
-                                {t.finishingPage.partnerCompaniesSubtitle}
+                                {content.partnerCompaniesSubtitle}
                             </p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -268,9 +275,9 @@ const FinishingPage: React.FC = () => {
                 <section className="py-20">
                     <div className="container mx-auto px-6">
                         <div className="text-center mb-12 max-w-3xl mx-auto">
-                            <h2 className="text-3xl md:text-4xl font-bold">{t.finishingPage.serviceProvidersTitle}</h2>
+                            <h2 className="text-3xl md:text-4xl font-bold">{content.serviceProvidersTitle}</h2>
                             <p className="text-lg text-gray-500 dark:text-gray-400 mt-4">
-                                {t.finishingPage.serviceProvidersSubtitle}
+                                {content.serviceProvidersSubtitle}
                             </p>
                         </div>
                         <div className="max-w-4xl mx-auto space-y-4">
@@ -280,6 +287,7 @@ const FinishingPage: React.FC = () => {
                                     partner={partner}
                                     onRequest={handleRequestService}
                                     t={t}
+                                    buttonText={t.finishingPage.requestButton}
                                 />
                             ))}
                         </div>
@@ -287,7 +295,28 @@ const FinishingPage: React.FC = () => {
                 </section>
             )}
 
-            <CTA />
+            {/* Reusing CTA but passing specific content if needed, though CTA component uses static translations. 
+                Since siteContent structure doesn't fully replicate CTA structure, we'll keep CTA static or
+                pass props if CTA component is updated to accept them. 
+                For now, assuming CTA component uses standard translation context which we aren't updating dynamically.
+                However, we added ctaTitle/Subtitle to siteContent.finishingPage type.
+             */}
+            <section className="py-20 md:py-32 bg-white dark:bg-gray-900 subtle-bg">
+                <div className="container mx-auto px-6 text-center">
+                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-gray-900 dark:text-white">
+                        {content.ctaTitle}
+                    </h2>
+                    <p className="max-w-3xl mx-auto text-lg text-gray-500 mb-8">{content.ctaSubtitle}</p>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <Link
+                            to="/contact"
+                            className="w-full sm:w-auto bg-amber-500 text-gray-900 font-semibold px-8 py-4 rounded-lg text-lg hover:bg-amber-600 transition-colors duration-200 shadow-lg shadow-amber-500/20"
+                        >
+                            {content.ctaButton}
+                        </Link>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 };

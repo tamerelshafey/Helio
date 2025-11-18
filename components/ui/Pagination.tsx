@@ -47,7 +47,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   const pages = getPageNumbers();
 
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:px-6">
+    <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6">
       <div className="flex-1 flex justify-between sm:hidden">
         <button
           onClick={() => onPageChange(currentPage - 1)}
@@ -66,7 +66,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       </div>
       <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm text-gray-700 dark:text-gray-400">
+          <p className="text-sm text-gray-700">
             Page <span className="font-medium">{currentPage}</span> of <span className="font-medium">{totalPages}</span>
           </p>
         </div>
@@ -75,7 +75,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
             >
               <ChevronLeftIcon className="h-5 w-5" />
             </button>
@@ -86,14 +86,14 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
                   onClick={() => onPageChange(page)}
                   className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                     currentPage === page
-                      ? 'z-10 bg-amber-50 border-amber-500 text-amber-600 dark:bg-amber-900/20 dark:border-amber-500 dark:text-amber-400'
-                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+                      ? 'z-10 bg-amber-50 border-amber-500 text-amber-600'
+                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                   }`}
                 >
                   {page}
                 </button>
               ) : (
-                <span key={index} className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300">
+                <span key={index} className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
                   {page}
                 </span>
               )
@@ -101,7 +101,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
             >
               <ChevronRightIcon className="h-5 w-5" />
             </button>

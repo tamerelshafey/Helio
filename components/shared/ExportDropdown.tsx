@@ -30,7 +30,7 @@ const ExportDropdown = <T extends Record<string, any>>({ data, columns, filename
                 <button
                     type="button"
                     onClick={() => setIsOpen(!isOpen)}
-                    className="inline-flex justify-center w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-800 focus:ring-amber-500"
+                    className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-amber-500"
                 >
                     <FileDownloadIcon className="h-5 w-5 mr-2" />
                     {language === 'ar' ? 'تصدير' : 'Export'}
@@ -39,21 +39,21 @@ const ExportDropdown = <T extends Record<string, any>>({ data, columns, filename
 
             {isOpen && (
                 <div
-                    className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none"
+                    className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
                     role="menu"
                     aria-orientation="vertical"
                 >
                     <div className="py-1" role="none">
                         <button
                             onClick={handleExportCsv}
-                            className="text-gray-700 dark:text-gray-200 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                            className="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                             role="menuitem"
                         >
                             {language === 'ar' ? 'تصدير كـ CSV' : 'Export as CSV'}
                         </button>
                         <button
                             onClick={handleExportPdf}
-                            className="text-gray-700 dark:text-gray-200 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                            className="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                             role="menuitem"
                         >
                             {language === 'ar' ? 'تصدير كـ PDF' : 'Export as PDF'}

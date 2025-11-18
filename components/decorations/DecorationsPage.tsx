@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem } from '../../types';
@@ -10,6 +11,7 @@ import { useFavorites } from '../shared/FavoritesContext';
 import { useToast } from '../shared/ToastContext';
 import { HeartIcon, HeartIconSolid, ShareIcon, WhatsAppIcon } from '../ui/Icons';
 import { Button } from '../ui/Button';
+import { useSiteContent } from '../../hooks/useSiteContent';
 
 const DecorationsPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -20,16 +22,30 @@ const DecorationsPage: React.FC = () => {
     const { showToast } = useToast();
     const { isFavorite, toggleFavorite } = useFavorites();
 
-
+    const { data: siteContent, isLoading: isLoadingContent } = useSiteContent();
     const { data: allWorks, isLoading: isLoadingWorks } = usePortfolioItems();
     const { data: decorationCategories, isLoading: isLoadingCats } = useDecorationCategories();
-    const isLoading = isLoadingWorks || isLoadingCats;
+    const isLoading = isLoadingWorks || isLoadingCats || isLoadingContent;
+
+    // Use dynamic content if available, fallback to translation file
+    const content = siteContent?.decorationsPage?.[language] || t_decor_page;
+
+    // Mapping for category descriptions from siteContent
+    const categoryDescriptions: Record<string, string> = {
+        'Wall Sculptures': content.sculptures_desc,
+        'منحوتات جدارية': content.sculptures_desc,
+        'Canvas Paintings': content.paintings_desc,
+        'لوحات كانفس': content.paintings_desc,
+        'Antiques & Decor': content.antiques_desc,
+        'تحف وديكورات': content.antiques_desc,
+    };
 
     const tabs = useMemo(() => (decorationCategories || []).map(cat => ({
         key: cat.id,
         name: cat.name[language],
-        desc: cat.description[language]
-    })), [decorationCategories, language]);
+        // Fallback to category description from API/File if not found in siteContent mapping
+        desc: categoryDescriptions[cat.name[language]] || cat.description[language]
+    })), [decorationCategories, language, content]);
     
     const [activeTab, setActiveTab] = useState('');
     const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -73,7 +89,7 @@ const DecorationsPage: React.FC = () => {
     const handleWhatsAppShare = () => {
         const baseUrl = window.location.href.split('#')[0];
         const urlToShare = new URL(`#/decorations`, baseUrl).href;
-        const text = encodeURIComponent(`${t.nav.decorations} | ONLY HELIO\n${t_decor_page.heroSubtitle}\n${urlToShare}`);
+        const text = encodeURIComponent(`${t.nav.decorations} | ONLY HELIO\n${content.heroSubtitle}\n${urlToShare}`);
         window.open(`https://wa.me/?text=${text}`, '_blank');
         setShareModalOpen(false);
     };
@@ -94,7 +110,7 @@ const DecorationsPage: React.FC = () => {
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
             <SEO 
                 title={`${t.nav.decorations} | ONLY HELIO`}
-                description={t_decor_page.heroSubtitle}
+                description={content.heroSubtitle}
             />
             {shareModalOpen && (
                 <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={() => setShareModalOpen(false)}>
@@ -119,8 +135,8 @@ const DecorationsPage: React.FC = () => {
             <section className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1616046229478-9901c5536a45?fm=webp&q=75&w=1600&auto=format&fit=crop')" }}>
                 <div className="absolute top-0 left-0 w-full h-full bg-black/70 z-10"></div>
                 <div className="relative z-20 px-4 container mx-auto text-white">
-                    <h1 className="text-4xl md:text-6xl font-extrabold">{t_decor_page.heroTitle}</h1>
-                    <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-200 mt-4">{t_decor_page.heroSubtitle}</p>
+                    <h1 className="text-4xl md:text-6xl font-extrabold">{content.heroTitle}</h1>
+                    <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-200 mt-4">{content.heroSubtitle}</p>
                      <div className="mt-6">
                         <Button
                             onClick={() => setShareModalOpen(true)}

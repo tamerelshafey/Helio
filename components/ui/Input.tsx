@@ -1,7 +1,7 @@
 import React from 'react';
 
 const inputVariants =
-    'w-full p-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400';
+    'w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-gray-900 placeholder-gray-500';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 

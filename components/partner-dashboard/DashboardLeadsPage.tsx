@@ -1,10 +1,8 @@
 
-
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, Lead, LeadStatus, Request } from '../../types';
+import type { Language, Lead, LeadStatus } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import { inputClasses } from '../ui/FormField';
 import ExportDropdown from '../shared/ExportDropdown';
 import { getAllRequests } from '../../services/requests';
 import { RequestType } from '../../types';
@@ -16,8 +14,7 @@ import { Card, CardContent, CardFooter } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { ResponsiveList } from '../shared/ResponsiveList';
 import CardSkeleton from '../ui/CardSkeleton';
-import TableSkeleton from '../shared/TableSkeleton';
-// FIX: Import the 'Input' component.
+import TableSkeleton from '../ui/TableSkeleton';
 import { Input } from '../ui/Input';
 
 const statusColors: { [key in LeadStatus]: string } = {
@@ -52,16 +49,17 @@ const DashboardLeadsPage: React.FC = () => {
         return allRequests
             .filter(req => 
                 req.type === RequestType.LEAD && 
-                req.payload.partnerId === currentUser.id
+                (req.payload as Lead).partnerId === currentUser.id
             )
             .map(req => {
                 const leadPayload = req.payload as Lead;
                 return {
                     ...leadPayload,
-                    id: req.id,
+                    id: req.id, // Use the top-level Request ID
                     customerName: req.requesterInfo.name,
                     customerPhone: req.requesterInfo.phone,
                     createdAt: req.createdAt,
+                    // Ensure status exists
                     status: leadPayload.status || 'new', 
                 };
             });

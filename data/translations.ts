@@ -214,33 +214,27 @@ export const arTranslations = {
         "title": "اعرض عقارك معنا",
         "subtitle": "هذه الخدمة مخصصة للملاك الأفراد. الشركات والمكاتب العقارية يرجى التواصل معنا للانضمام كشريك.",
         "howItWorksTitle": "كيف تعمل الخدمة؟",
-        "step1": "اختر نموذج التعاون المناسب لك.",
-        "step2": "املأ النموذج ببيانات عقارك وبيانات التواصل.",
-        "step3": "سيقوم فريقنا بالتواصل معك لمراجعة البيانات والتحقق منها.",
-        "step4": "بعد الاتفاق، يتم نشر إعلانك أو بدء عملية التسويق.",
+        "step1": "اختر الغرض من العرض (بيع أو إيجار).",
+        "step2": "اختر نموذج التعاون الذي يناسبك.",
+        "step3": "املأ النموذج ببيانات عقارك وبيانات التواصل.",
+        "step4": "سيقوم فريقنا بمراجعة طلبك والتواصل معك.",
         "cooperation": {
-            "title": "اختر نموذج التعاون",
+            "title": "الخطوة 2: اختر نموذج التعاون",
             "subtitle": "اختر الطريقة التي تفضلها لعرض عقارك معنا.",
-            "paid_listing": {
-                "title": "باقة الإعلان المدفوع",
-                "description": "أضف عقارك على منصتنا لمدة محددة مقابل رسوم ثابتة. يمكنك اختيار استقبال استفسارات المهتمين مباشرة أو من خلالنا.",
-                "price": "تبدأ من 500 ج.م",
-                "benefits": ["تحكم كامل في إعلانك.", "مرونة في استقبال الاستفسارات.", "لا يوجد عمولات على البيع أو الإيجار."]
-            },
-            "commission": {
-                "title": "التفويض بالتسويق الحصري",
-                "description": "فوض فريقنا المتخصص لتولي كافة مهام بيع أو تأجير عقارك، من التسويق الاحترافي وحتى إتمام الصفقة، مقابل نسبة عمولة يتم الاتفاق عليها.",
-                "price": "مقابل عمولة",
-                "benefits": ["تسويق احترافي وتصوير مميز.", "نتولى الرد على الاستفسارات وترتيب المعاينات.", "متابعة قانونية وإدارية حتى إتمام الصفقة."]
-            },
             "selectButton": "اختر هذا النموذج"
+        },
+        "purposeStep": {
+            "title": "الخطوة 1: الغرض من العرض",
+            "subtitle": "هل تود عرض عقارك للبيع أم للإيجار؟",
+            "forSale": "للبيع",
+            "forRent": "للإيجار"
         },
         "contactPreference": {
             "title": "طريقة استقبال الاستفسارات",
             "platform": "استقبال الاستفسارات عبر المنصة",
             "direct": "استقبال الاستفسارات مباشرة على هاتفي"
         },
-        "formTitle": "نموذج طلب عرض عقار",
+        "formTitle": "الخطوة 3: تفاصيل العقار",
         "ownerInfo": "بيانات المالك",
         "fullName": "الاسم بالكامل",
         "phone": "رقم الهاتف",
@@ -250,10 +244,6 @@ export const arTranslations = {
         "afternoon": "ظهراً (12م - 3م)",
         "evening": "مساءً (3م - 6م)",
         "propertyInfo": "بيانات العقار",
-        "purpose": "الغرض من العرض",
-        "selectPurpose": "اختر الغرض...",
-        "forSale": "للبيع",
-        "forRent": "للإيجار",
         "finishingStatus": "حالة التشطيب",
         "selectFinishing": "اختر حالة التشطيب...",
         "fullyFinished": "تشطيب كامل",
@@ -304,7 +294,8 @@ export const arTranslations = {
             "invalidPhone": "الرجاء إدخال رقم هاتف صحيح.",
             "mustBeOwner": "يجب الموافقة على الإقرار للمتابعة.",
             "cooperationType": "الرجاء اختيار نموذج التعاون."
-        }
+        },
+        "back": "العودة"
     },
     "finishingPage": {
         "heroTitle": "تشطيب وتصميم داخلي في هليوبوليس الجديدة",
@@ -784,7 +775,7 @@ export const arTranslations = {
         "manageLeadsSubtitle": "عرض وإدارة جميع طلبات العملاء الواردة لجميع الشركاء.",
         "plans": {
             "title": "إدارة باقات الاشتراك", "subtitle": "عرض وتعديل تفاصيل باقات الاشتراك المتاحة للشركاء.", "editPlanTitle": "تعديل الباقة", "price": "السعر", "description": "الوصف", "features": "المميزات", "featuresHelpText": "كل ميزة في سطر جديد.", "commissionRate": "نسبة العمولة (%)", "planCategories": {
-                "developer": "المطورون", "agency": "المكاتب العقارية", "finishing": "شركات التشطيب", "individual": "المستخدمين الأفراد"
+                "developer": "المطورون", "agency": "المكاتب العقارية", "finishing": "شركات التشطيب", "individual": "المستخدمين الأفراد", "sale": "باقات البيع", "rent": "باقات الإيجار"
             }
         },
         "decorationsManagement": {
@@ -865,8 +856,16 @@ export const arTranslations = {
             "basic": { "name": "الأساسية", "price": "مجانية", "description": "مثالية للبدء وعرض عدد محدود من العقارات.", "features": ["إضافة حتى 3 عقارات", "ملف شخصي أساسي", "ظهور قياسي في البحث"] }, "professional": { "name": "الاحترافية", "price": "499 ج.م / شهرياً", "description": "للشركاء الذين يسعون للنمو وزيادة الظهور.", "features": ["إضافة حتى 15 عقارًا", "شارة 'شريك مميز'", "أولوية أعلى في نتائج البحث", "تحليلات أساسية للأداء"] }, "elite": { "name": "النخبة", "price": "999 ج.م / شهرياً", "description": "للشركات الكبرى التي تبحث عن أقصى استفادة.", "features": ["عدد غير محدود من العقارات", "ظهور بارز في الصفحة الرئيسية", "شارة 'شريك النخبة'", "تحليلات متقدمة ودعم فني"] }
         }, "finishing": {
             "commission": { "name": "باقة العمولة", "price": "رسوم رمزية + عمولة 10%", "description": "ابدأ بدون التزام كبير. نحن نجلب لك العملاء، ونتقاسم النجاح.", "features": ["ملف شخصي أساسي", "معرض أعمال (10 صور)", "استقبال طلبات العملاء عبر المنصة", "دعم أساسي"], "commissionRate": 10 }, "professional": { "name": "الباقة الاحترافية", "price": "499 ج.م / شهرياً", "description": "للشركات التي ترغب في تعزيز حضورها والحصول على عملاء مباشرين بدون عمولة.", "features": ["كل شيء في باقة العمولة، بالإضافة إلى:", "شارة 'شريك مميز'", "أولوية في الظهور بصفحة التشطيبات", "معرض أعمال أكبر (50 صورة)", "لا يوجد عمولة على المشاريع"], "commissionRate": 0 }, "elite": { "name": "باقة النخبة", "price": "999 ج.م / شهرياً", "description": "للوصول الأقصى للعملاء والظهور الأبرز في المنصة.", "features": ["كل شيء في الباقة الاحترافية، بالإضافة إلى:", "شارة 'شريك النخبة'", "ظهور بارز في أماكن مميزة", "معرض أعمال غير محدود + فيديو", "دعم مخصص"], "commissionRate": 0 }
-        }, "individual": {
-            "paid_listing": { "name": "باقة الإعلان المدفوع", "price": "500 ج.م / 3 أشهر", "description": "أضف عقارك على منصتنا لمدة محددة مقابل رسوم ثابتة. يمكنك اختيار استقبال استفسارات المهتمين مباشرة أو من خلالنا.", "features": ["إعلان لمدة 3 أشهر", "تحكم كامل في إعلانك", "مرونة في استقبال الاستفسارات", "لا يوجد عمولات على البيع أو الإيجار"], "commissionRate": 0 }, "commission": { "name": "التفويض بالتسويق الحصري", "price": "مقابل عمولة", "description": "فوض فريقنا المتخصص لتولي كافة مهام بيع أو تأجير عقارك، من التسويق الاحترافي وحتى إتمام الصفقة، مقابل نسبة عمولة يتم الاتفاق عليها.", "features": ["تسويق احترافي وتصوير مميز.", "نتولى الرد على الاستفسارات وترتيب المعاينات.", "متابعة قانونية وإدارية حتى إتمام الصفقة"], "commissionRate": 2.5 }
+        },
+        "individual": {
+            "sale": {
+                "paid_listing": { "name": "باقة الإعلان المدفوع (بيع)", "price": "500 ج.م / 3 أشهر", "description": "أضف عقارك للبيع على منصتنا لمدة محددة مقابل رسوم ثابتة.", "features": ["إعلان لمدة 3 أشهر", "تحكم كامل في إعلانك", "لا يوجد عمولات على البيع"], "commissionRate": 0 },
+                "commission": { "name": "التفويض بالتسويق (بيع)", "price": "مقابل عمولة 2.5%", "description": "فوض فريقنا لتولي كافة مهام بيع عقارك، من التسويق وحتى إتمام الصفقة.", "features": ["تسويق احترافي وتصوير مميز", "نتولى الرد على الاستفسارات والمعاينات", "متابعة قانونية حتى إتمام الصفقة"], "commissionRate": 2.5 }
+            },
+            "rent": {
+                "paid_listing": { "name": "باقة الإعلان المدفوع (إيجار)", "price": "250 ج.م / شهر", "description": "أضف عقارك للإيجار على منصتنا لمدة شهر مقابل رسوم ثابتة.", "features": ["إعلان لمدة شهر", "استقبل استفسارات المهتمين مباشرة", "لا يوجد عمولات على الإيجار"], "commissionRate": 0 },
+                "commission": { "name": "التفويض بالتسويق (إيجار)", "price": "مقابل عمولة", "description": "دع فريقنا يتولى مهمة تأجير عقارك بسرعة واحترافية.", "features": ["تسويق احترافي", "نتولى الرد على الاستفسارات والمعاينات", "المساعدة في إبرام العقد"], "commissionRate": 8.33 }
+            }
         }
     },
     "upgradePlanModal": {
@@ -1159,33 +1158,27 @@ export const enTranslations = {
         "title": "List Your Property with Us",
         "subtitle": "This service is for individual owners. Companies and real estate agencies, please contact us to join as a partner.",
         "howItWorksTitle": "How It Works",
-        "step1": "Choose the cooperation model that suits you.",
-        "step2": "Fill out the form with your property and contact details.",
-        "step3": "Our team will contact you to review and verify the data.",
-        "step4": "After agreement, your listing is published or marketing begins.",
+        "step1": "Select the purpose of your listing (Sale or Rent).",
+        "step2": "Choose the cooperation model that suits you.",
+        "step3": "Fill out the form with your property and contact details.",
+        "step4": "Our team will review your request and contact you.",
         "cooperation": {
-            "title": "Choose Cooperation Model",
+            "title": "Step 2: Choose Cooperation Model",
             "subtitle": "Select how you'd like to list your property with us.",
-            "paid_listing": {
-                "title": "Paid Listing Package",
-                "description": "Add your property to our platform for a fixed period for a flat fee. You can choose to receive inquiries directly or through us.",
-                "price": "Starts from 500 EGP",
-                "benefits": ["Full control over your listing.", "Flexibility in receiving inquiries.", "No commission on sale or rent."]
-            },
-            "commission": {
-                "title": "Exclusive Marketing Mandate",
-                "description": "Authorize our specialized team to handle all aspects of selling or renting your property, from professional marketing to closing the deal, for an agreed-upon commission.",
-                "price": "For a commission",
-                "benefits": ["Professional marketing and photography.", "We handle inquiries and arrange viewings.", "Legal and administrative follow-up until the deal is closed."]
-            },
             "selectButton": "Select This Model"
+        },
+        "purposeStep": {
+            "title": "Step 1: Listing Purpose",
+            "subtitle": "Would you like to list your property for sale or for rent?",
+            "forSale": "For Sale",
+            "forRent": "For Rent"
         },
         "contactPreference": {
             "title": "How to receive inquiries",
             "platform": "Receive inquiries via the platform",
             "direct": "Receive inquiries directly on my phone"
         },
-        "formTitle": "Property Listing Request Form",
+        "formTitle": "Step 3: Property Details",
         "ownerInfo": "Owner Information",
         "fullName": "Full Name",
         "phone": "Phone Number",
@@ -1195,10 +1188,6 @@ export const enTranslations = {
         "afternoon": "Afternoon (12pm - 3pm)",
         "evening": "Evening (3pm - 6pm)",
         "propertyInfo": "Property Information",
-        "purpose": "Listing Purpose",
-        "selectPurpose": "Select purpose...",
-        "forSale": "For Sale",
-        "forRent": "For Rent",
         "finishingStatus": "Finishing Status",
         "selectFinishing": "Select finishing...",
         "fullyFinished": "Fully Finished",
@@ -1249,7 +1238,8 @@ export const enTranslations = {
             "invalidPhone": "Please enter a valid phone number.",
             "mustBeOwner": "You must agree to the declaration to proceed.",
             "cooperationType": "Please select a cooperation model."
-        }
+        },
+        "back": "Back"
     },
     "finishingPage": {
         "heroTitle": "Finishing & Interior Design in New Heliopolis",
@@ -1729,7 +1719,7 @@ export const enTranslations = {
         "manageLeadsSubtitle": "View and manage all customer leads received for all partners.",
         "plans": {
             "title": "Manage Subscription Plans", "subtitle": "View and edit the details of subscription plans available to partners.", "editPlanTitle": "Edit Plan", "price": "Price", "description": "Description", "features": "Features", "featuresHelpText": "Each feature on a new line.", "commissionRate": "Commission Rate (%)", "planCategories": {
-                "developer": "Developers", "agency": "Agencies", "finishing": "Finishing Companies", "individual": "Individual Users"
+                "developer": "Developers", "agency": "Agencies", "finishing": "Finishing Companies", "individual": "Individual Users", "sale": "Sale Plans", "rent": "Rent Plans"
             }
         },
         "decorationsManagement": {
@@ -1809,8 +1799,16 @@ export const enTranslations = {
             "basic": { "name": "Basic", "price": "Free", "description": "Ideal for getting started and listing a few properties.", "features": ["List up to 3 properties", "Basic company profile", "Standard search visibility"] }, "professional": { "name": "Professional", "price": "499 EGP / month", "description": "For partners looking to grow and increase visibility.", "features": ["List up to 15 properties", "'Featured Partner' badge", "Higher priority in search results", "Basic performance analytics"] }, "elite": { "name": "Elite", "price": "999 EGP / month", "description": "For major companies seeking maximum exposure.", "features": ["Unlimited properties", "Prominent homepage placement", "'Elite Partner' badge", "Advanced analytics and support"] }
         }, "finishing": {
             "commission": { "name": "Commission Plan", "price": "Nominal Fee + 10% Commission", "description": "Start without a major commitment. We bring you clients, and we share the success.", "features": ["Basic company profile", "Portfolio (10 images)", "Receive leads via the platform", "Basic support"], "commissionRate": 10 }, "professional": { "name": "Professional Plan", "price": "499 EGP / month", "description": "For companies wanting to boost their presence and get direct clients with no commission.", "features": ["Everything in Commission Plan, plus:", "'Featured Partner' badge", "Priority on the finishing page", "Larger portfolio (50 images)", "No commission on projects"], "commissionRate": 0 }, "elite": { "name": "Elite Plan", "price": "999 EGP / month", "description": "For maximum client reach and top visibility on the platform.", "features": ["Everything in Professional Plan, plus:", "'Elite Partner' badge", "Prominent feature placement", "Unlimited portfolio + video", "Dedicated support"], "commissionRate": 0 }
-        }, "individual": {
-            "paid_listing": { "name": "Paid Listing Package", "price": "500 EGP / 3 months", "description": "List your property on our platform for a fixed fee. You can choose to receive inquiries directly or let us handle them.", "features": ["3-month listing", "Full control over your listing", "Flexibility in receiving inquiries", "No commission on sale or rent"], "commissionRate": 0 }, "commission": { "name": "Exclusive Marketing Mandate", "price": "Commission-based", "description": "Delegate all tasks to our specialized team—from professional marketing to closing the deal—in exchange for an agreed-upon commission percentage.", "features": ["Professional marketing and photography", "We handle all inquiries and viewings", "Legal and administrative follow-up until the deal is closed"], "commissionRate": 2.5 }
+        },
+        "individual": {
+            "sale": {
+                "paid_listing": { "name": "Paid Listing Package (Sale)", "price": "500 EGP / 3 months", "description": "List your property for sale on our platform for a fixed fee.", "features": ["3-month listing", "Full control over your listing", "No commission on sale"], "commissionRate": 0 },
+                "commission": { "name": "Exclusive Marketing Mandate (Sale)", "price": "2.5% Commission", "description": "Delegate selling your property to our specialized team, from marketing to closing the deal.", "features": ["Professional marketing", "We handle inquiries and viewings", "Legal follow-up until the deal is closed"], "commissionRate": 2.5 }
+            },
+            "rent": {
+                "paid_listing": { "name": "Paid Listing Package (Rent)", "price": "250 EGP / 1 month", "description": "List your property for rent on our platform for a fixed fee.", "features": ["1-month listing", "Receive inquiries directly", "No commission on rent"], "commissionRate": 0 },
+                "commission": { "name": "Marketing Mandate (Rent)", "price": "Commission-based", "description": "Let our team handle renting out your property. Commission is typically one month's rent.", "features": ["Professional marketing", "We handle inquiries and viewings", "Contract assistance"], "commissionRate": 8.33 }
+            }
         }
     },
     "upgradePlanModal": {

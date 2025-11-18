@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { Permission, Role } from '../types';
 import {
@@ -36,6 +34,7 @@ export const adminNavLinks: NavLinkItem[] = [
   // --- Group: Partner & Content Management ---
   { name: t => t.nav.partners, href: '/admin/partners', icon: UsersIcon, permission: Permission.MANAGE_ALL_PARTNERS, group: 'Partner & Content Management' },
   { name: t => t.nav.properties, href: '/admin/properties', icon: BuildingIcon, permission: Permission.MANAGE_ALL_PROPERTIES, group: 'Partner & Content Management' },
+  { name: t => t.nav.projects, href: '/admin/projects', icon: CubeIcon, permission: Permission.MANAGE_ALL_PROJECTS, group: 'Partner & Content Management' },
   { name: t => t.nav.banners, href: '/admin/banners', icon: PhotoIcon, permission: Permission.MANAGE_BANNERS, group: 'Partner & Content Management' },
   { name: t => t.nav.siteContent, href: '/admin/content', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_SITE_CONTENT, group: 'Partner & Content Management' },
   

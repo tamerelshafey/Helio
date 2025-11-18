@@ -12,10 +12,10 @@ const NotFoundPage: React.FC = () => {
     <div className="flex flex-col items-center justify-center text-center px-6" style={{ minHeight: 'calc(100vh - 200px)' }}>
       <div className="max-w-md">
         <div className="text-9xl font-extrabold text-amber-500">404</div>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+        <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">
           {t_page.title}
         </h1>
-        <p className="mt-6 text-base leading-7 text-gray-600 dark:text-gray-400">
+        <p className="mt-6 text-base leading-7 text-gray-600">
           {t_page.subtitle}
         </p>
         <div className="mt-10 flex items-center justify-center gap-x-6">

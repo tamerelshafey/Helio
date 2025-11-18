@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import type { Language } from '../../types';
 import { LocationMarkerIcon, CloseIcon } from '../ui/Icons';
@@ -74,18 +75,18 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ onClose, onLo
 
     return (
         <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="location-picker-title">
-            <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                    <h3 id="location-picker-title" className="text-xl font-bold text-gray-900 dark:text-white">
+            <div ref={modalRef} className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+                <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 id="location-picker-title" className="text-xl font-bold text-gray-900">
                         {language === 'ar' ? 'حدد الموقع على الخريطة' : 'Select Location on Map'}
                     </h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white" aria-label={language === 'ar' ? 'إغلاق' : 'Close'}>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label={language === 'ar' ? 'إغلاق' : 'Close'}>
                         <CloseIcon className="w-6 h-6" />
                     </button>
                 </div>
                 <div className="flex-grow relative bg-gray-200" onClick={handleMapClick}>
                      {isLoadingContent ? (
-                        <div className="w-full h-full bg-gray-300 dark:bg-gray-600 animate-pulse flex items-center justify-center">
+                        <div className="w-full h-full bg-gray-300 animate-pulse flex items-center justify-center">
                             <p className="text-gray-500">Loading map...</p>
                         </div>
                     ) : siteContent?.locationPickerMapUrl ? (
@@ -95,7 +96,7 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ onClose, onLo
                             title={language === 'ar' ? 'خريطة مدينة هليوبوليس الجديدة وما حولها' : 'Map of New Heliopolis and surrounding areas'}
                         ></div>
                     ) : (
-                        <div className="w-full h-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                        <div className="w-full h-full bg-gray-300 flex items-center justify-center">
                             <p className="text-red-500">Map image not configured.</p>
                         </div>
                     )}
@@ -105,12 +106,12 @@ const LocationPickerModal: React.FC<LocationPickerModalProps> = ({ onClose, onLo
                         </div>
                     )}
                 </div>
-                <div className="p-4 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div className="text-sm font-mono text-gray-700 dark:text-gray-300">
+                <div className="p-4 bg-gray-100 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="text-sm font-mono text-gray-700">
                         {pin ? `Lat: ${pin.lat.toFixed(6)}, Lng: ${pin.lng.toFixed(6)}` : (language === 'ar' ? 'انقر على الخريطة لتحديد موقع' : 'Click on the map to set a location')}
                     </div>
                     <div className="flex gap-3">
-                        <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600">{language === 'ar' ? 'إلغاء' : 'Cancel'}</button>
+                        <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">{language === 'ar' ? 'إلغاء' : 'Cancel'}</button>
                         <button onClick={handleConfirm} disabled={!pin} className="px-6 py-2 rounded-lg bg-amber-500 text-gray-900 font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50">
                             {language === 'ar' ? 'تأكيد الموقع' : 'Confirm Location'}
                         </button>

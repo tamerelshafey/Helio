@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 
 const cn = (...classes: (string | undefined | false)[]) => classes.filter(Boolean).join(' ');
@@ -12,7 +13,7 @@ Table.displayName = 'Table';
 
 const TableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
     ({ className, ...props }, ref) => (
-        <thead ref={ref} className={cn('bg-gray-50 dark:bg-gray-800', className)} {...props} />
+        <thead ref={ref} className={cn('bg-gray-50', className)} {...props} />
     ),
 );
 TableHeader.displayName = 'TableHeader';
@@ -40,7 +41,7 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
         <tr
             ref={ref}
             className={cn(
-                'border-b border-gray-200 dark:border-gray-700 transition-colors hover:bg-gray-100/50 dark:hover:bg-gray-800/50',
+                'border-b border-gray-200 transition-colors hover:bg-gray-100/50',
                 className,
             )}
             {...props}
@@ -54,7 +55,7 @@ const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<
         <th
             ref={ref}
             className={cn(
-                'h-12 px-6 text-left align-middle font-bold text-gray-600 dark:text-gray-300 [&:has([role=checkbox])]:pr-0',
+                'h-12 px-6 text-left align-middle font-bold text-gray-600 [&:has([role=checkbox])]:pr-0',
                 className,
             )}
             {...props}
@@ -76,7 +77,7 @@ TableCell.displayName = 'TableCell';
 
 const TableCaption = React.forwardRef<HTMLTableCaptionElement, React.HTMLAttributes<HTMLTableCaptionElement>>(
     ({ className, ...props }, ref) => (
-        <caption ref={ref} className={cn('mt-4 text-sm text-gray-500 dark:text-gray-400', className)} {...props} />
+        <caption ref={ref} className={cn('mt-4 text-sm text-gray-500', className)} {...props} />
     ),
 );
 TableCaption.displayName = 'TableCaption';

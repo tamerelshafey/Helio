@@ -73,7 +73,7 @@ const ModalHeader: React.FC<{ children: React.ReactNode; onClose: () => void; id
         <CardTitle id={id}>{children}</CardTitle>
         <button
             onClick={onClose}
-            className="p-1 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="p-1 rounded-full text-gray-500 hover:bg-gray-100"
             aria-label="Close"
         >
             <CloseIcon className="w-5 h-5" />

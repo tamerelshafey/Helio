@@ -1,16 +1,17 @@
-import React, { useState, useMemo, useCallback } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin, updatePartnerAdmin } from '../../../services/partners';
-// FIX: Corrected import path for useAdminTable hook.
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { useToast } from '../../shared/ToastContext';
-import { AdminPartner, PartnerType } from '../../../types';
+import { AdminPartner } from '../../../types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { ToggleSwitch } from '../../ui/ToggleSwitch';
+import { WhatsAppIcon, PhoneIcon, ClipboardDocumentListIcon } from '../../ui/Icons';
 import EditContactMethodsModal from './EditContactMethodsModal';
 
 const AdminInquiryManagementPage: React.FC = () => {
@@ -42,15 +43,10 @@ const AdminInquiryManagementPage: React.FC = () => {
     
     const {
         paginatedItems: paginatedPartners,
-        totalPages,
-        currentPage,
-        setCurrentPage,
         searchTerm,
         setSearchTerm,
         filters,
         setFilter,
-        requestSort,
-        getSortIcon
     } = useAdminTable({
         data: businessPartners,
         itemsPerPage: 10,
@@ -89,7 +85,7 @@ const AdminInquiryManagementPage: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_page.title}</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-8">{t_page.subtitle}</p>
 
-            <div className="mb-4 flex gap-4">
+            <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-wrap gap-4">
                 <Input
                     placeholder={t.adminDashboard.filter.search}
                     value={searchTerm}
@@ -97,7 +93,7 @@ const AdminInquiryManagementPage: React.FC = () => {
                     className="max-w-sm"
                 />
                 <Select value={filters.type || 'all'} onChange={(e) => setFilter('type', e.target.value)} className="max-w-xs">
-                    <option value="all">{t.adminDashboard.filter.all}</option>
+                    <option value="all">{t.adminDashboard.filter.all} Types</option>
                     <option value="developer">{t.adminDashboard.partnerTypes.developer}</option>
                     <option value="finishing">{t.adminDashboard.partnerTypes.finishing}</option>
                     <option value="agency">{t.adminDashboard.partnerTypes.agency}</option>
@@ -109,10 +105,10 @@ const AdminInquiryManagementPage: React.FC = () => {
                     <TableHeader>
                         <TableRow>
                             <TableHead>{t_page.table.partner}</TableHead>
-                            <TableHead>{t_page.table.whatsapp}</TableHead>
-                            <TableHead>{t_page.table.phone}</TableHead>
-                            <TableHead>{t_page.table.internalForm}</TableHead>
-                            <TableHead>{t_page.table.actions}</TableHead>
+                            <TableHead className="w-48">{t_page.table.whatsapp}</TableHead>
+                            <TableHead className="w-48">{t_page.table.phone}</TableHead>
+                            <TableHead className="w-32">{t_page.table.internalForm}</TableHead>
+                            <TableHead className="w-20">{t_page.table.actions}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -124,42 +120,72 @@ const AdminInquiryManagementPage: React.FC = () => {
                                 <TableRow key={p.id}>
                                     <TableCell>
                                         <div className="flex items-center gap-3">
-                                            <img src={p.imageUrl} alt={p.name} className="w-10 h-10 rounded-full object-cover" />
+                                            <img src={p.imageUrl} alt={p.name} className="w-10 h-10 rounded-full object-cover border border-gray-200" />
                                             <div>
-                                                <div className="font-medium text-gray-900 dark:text-white">{language === 'ar' ? p.nameAr : p.name}</div>
+                                                <div className="font-bold text-gray-900 dark:text-white">{language === 'ar' ? p.nameAr : p.name}</div>
                                                 <div className="text-xs text-gray-500">{t.adminDashboard.partnerTypes[p.type as keyof typeof t.adminDashboard.partnerTypes]}</div>
                                             </div>
                                         </div>
                                     </TableCell>
+                                    
+                                    {/* WhatsApp */}
                                     <TableCell>
-                                        <div className="flex items-center gap-3">
-                                            <ToggleSwitch
-                                                checked={methods.whatsapp.enabled}
-                                                onChange={() => handleToggle(p, 'whatsapp')}
-                                                disabled={mutation.isPending}
-                                            />
-                                            <span className="text-xs text-gray-500 dark:text-gray-400" dir="ltr">{methods.whatsapp.number || 'Not Set'}</span>
+                                        <div className={`flex items-start gap-3 p-2 rounded-md ${methods.whatsapp.enabled ? 'bg-green-50 dark:bg-green-900/10' : 'bg-gray-50 dark:bg-gray-800/50'}`}>
+                                            <div className="mt-0.5">
+                                                <ToggleSwitch
+                                                    checked={methods.whatsapp.enabled}
+                                                    onChange={() => handleToggle(p, 'whatsapp')}
+                                                    disabled={mutation.isPending}
+                                                />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center gap-1 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                                    <WhatsAppIcon className={`w-3 h-3 ${methods.whatsapp.enabled ? 'text-green-600' : 'text-gray-400'}`} />
+                                                    WhatsApp
+                                                </div>
+                                                <span className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-1" dir="ltr">
+                                                    {methods.whatsapp.number || <span className="text-red-400 italic">No Number</span>}
+                                                </span>
+                                            </div>
                                         </div>
                                     </TableCell>
+
+                                    {/* Phone */}
                                     <TableCell>
-                                        <div className="flex items-center gap-3">
-                                            <ToggleSwitch
-                                                checked={methods.phone.enabled}
-                                                onChange={() => handleToggle(p, 'phone')}
-                                                disabled={mutation.isPending}
-                                            />
-                                            <span className="text-xs text-gray-500 dark:text-gray-400" dir="ltr">{methods.phone.number || 'Not Set'}</span>
+                                         <div className={`flex items-start gap-3 p-2 rounded-md ${methods.phone.enabled ? 'bg-blue-50 dark:bg-blue-900/10' : 'bg-gray-50 dark:bg-gray-800/50'}`}>
+                                            <div className="mt-0.5">
+                                                <ToggleSwitch
+                                                    checked={methods.phone.enabled}
+                                                    onChange={() => handleToggle(p, 'phone')}
+                                                    disabled={mutation.isPending}
+                                                />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center gap-1 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                                    <PhoneIcon className={`w-3 h-3 ${methods.phone.enabled ? 'text-blue-600' : 'text-gray-400'}`} />
+                                                    Phone
+                                                </div>
+                                                <span className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-1" dir="ltr">
+                                                    {methods.phone.number || <span className="text-red-400 italic">No Number</span>}
+                                                </span>
+                                            </div>
                                         </div>
                                     </TableCell>
+
+                                    {/* Form */}
                                     <TableCell>
-                                        <ToggleSwitch
-                                            checked={methods.form.enabled}
-                                            onChange={() => handleToggle(p, 'form')}
-                                            disabled={mutation.isPending}
-                                        />
+                                         <div className={`flex items-center gap-3 p-2 rounded-md h-full ${methods.form.enabled ? 'bg-amber-50 dark:bg-amber-900/10' : 'bg-gray-50 dark:bg-gray-800/50'}`}>
+                                            <ToggleSwitch
+                                                checked={methods.form.enabled}
+                                                onChange={() => handleToggle(p, 'form')}
+                                                disabled={mutation.isPending}
+                                            />
+                                             <ClipboardDocumentListIcon className={`w-5 h-5 ${methods.form.enabled ? 'text-amber-500' : 'text-gray-400'}`} />
+                                        </div>
                                     </TableCell>
+                                    
                                     <TableCell>
-                                        <Button variant="link" onClick={() => setModalState({ isOpen: true, partner: p })}>
+                                        <Button variant="secondary" size="sm" onClick={() => setModalState({ isOpen: true, partner: p })}>
                                             {t.adminShared.edit}
                                         </Button>
                                     </TableCell>

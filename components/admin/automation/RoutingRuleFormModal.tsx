@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,7 +11,7 @@ import { Modal, ModalHeader, ModalContent, ModalFooter } from '../../ui/Modal';
 import { Button } from '../../ui/Button';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
-import { TrashIcon } from '../../ui/Icons';
+import { TrashIcon, CheckCircleIcon } from '../../ui/Icons';
 
 interface RoutingRuleFormModalProps {
     ruleToEdit?: RoutingRule;
@@ -60,53 +61,75 @@ const RoutingRuleFormModal: React.FC<RoutingRuleFormModalProps> = ({ ruleToEdit,
         <Modal isOpen={true} onClose={onClose} aria-labelledby="rule-form-title" className="max-w-3xl">
             <ModalHeader onClose={onClose} id="rule-form-title">{ruleToEdit ? t_auto.editTitle : t_auto.addTitle}</ModalHeader>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <ModalContent className="space-y-4 pt-2">
+                <ModalContent className="space-y-6 pt-4">
+                    {/* Basic Info */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label>{t_auto.ruleName} (EN)</label>
-                            <Input {...register('name.en', { required: true })} />
+                            <label className="block text-sm font-medium mb-1">{t_auto.ruleName} (EN)</label>
+                            <Input {...register('name.en', { required: true })} placeholder="e.g. High Value Leads" />
                         </div>
                         <div>
-                            <label>{t_auto.ruleName} (AR)</label>
-                            <Input {...register('name.ar', { required: true })} />
+                            <label className="block text-sm font-medium mb-1">{t_auto.ruleName} (AR)</label>
+                            <Input {...register('name.ar', { required: true })} placeholder="مثال: عملاء كبار" />
                         </div>
                     </div>
-                    <div>
-                        <h4 className="font-semibold mb-2">{t_auto.conditions}</h4>
-                        <div className="space-y-3">
-                        {fields.map((field, index) => (
-                            <div key={field.id} className="grid grid-cols-4 gap-2 items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-md">
-                                <Select {...register(`conditions.${index}.field`)} defaultValue="type">
-                                    {conditionFields.map(f => <option key={f} value={f}>{f}</option>)}
-                                </Select>
-                                <Select {...register(`conditions.${index}.operator`)} defaultValue="equals">
-                                    {operators.map(op => <option key={op} value={op}>{op}</option>)}
-                                </Select>
-                                <Input {...register(`conditions.${index}.value`, { required: true })} placeholder="Value" className="col-span-1" />
-                                <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
-                                    <TrashIcon className="w-4 h-4 text-red-500" />
+
+                    {/* Logic Builder */}
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                        <div className="bg-gray-50 dark:bg-gray-700/50 px-4 py-2 border-b border-gray-200 dark:border-gray-700 font-semibold text-sm text-gray-700 dark:text-gray-200">
+                            LOGIC BUILDER
+                        </div>
+                        <div className="p-4 space-y-6">
+                            {/* IF SECTION */}
+                            <div>
+                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px]">IF</span>
+                                    {t_auto.conditions}
+                                </h4>
+                                <div className="space-y-2">
+                                    {fields.map((field, index) => (
+                                        <div key={field.id} className="flex items-center gap-2">
+                                            <Select {...register(`conditions.${index}.field`)} className="w-1/3" defaultValue="type">
+                                                {conditionFields.map(f => <option key={f} value={f}>{f}</option>)}
+                                            </Select>
+                                            <Select {...register(`conditions.${index}.operator`)} className="w-1/4" defaultValue="equals">
+                                                {operators.map(op => <option key={op} value={op}>{op.replace('_', ' ')}</option>)}
+                                            </Select>
+                                            <Input {...register(`conditions.${index}.value`, { required: true })} placeholder="Value" className="flex-grow" />
+                                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="text-gray-400 hover:text-red-500">
+                                                <TrashIcon className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <Button type="button" variant="link" size="sm" className="mt-2 text-amber-600 px-0" onClick={() => append({ field: 'type', operator: 'equals', value: '' })}>
+                                    + Add Condition
                                 </Button>
                             </div>
-                        ))}
-                        </div>
-                         <Button type="button" variant="secondary" size="sm" className="mt-2" onClick={() => append({ field: 'type', operator: 'equals', value: '' })}>
-                            {t_shared.add} Condition
-                        </Button>
-                    </div>
-                     <div>
-                        <h4 className="font-semibold mb-2">{t_auto.action}</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                             <div>
-                                <label>{t_auto.assignTo}</label>
-                                <Select {...register('action.assignTo', { required: true })}>
-                                    <option value="" disabled>Select a user...</option>
-                                    {managers.map(p => (
-                                        <option key={p.id} value={p.id}>{language === 'ar' ? p.nameAr : p.name}</option>
-                                    ))}
-                                </Select>
+
+                            <div className="border-t border-gray-100 dark:border-gray-700"></div>
+
+                            {/* THEN SECTION */}
+                            <div>
+                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-[10px]">THEN</span>
+                                    {t_auto.action}
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-green-50 dark:bg-green-900/10 p-4 rounded-md border border-green-100 dark:border-green-800/30">
+                                     <div>
+                                        <label className="block text-sm font-medium mb-1 text-green-800 dark:text-green-300">{t_auto.assignTo}</label>
+                                        <Select {...register('action.assignTo', { required: true })} className="bg-white dark:bg-gray-800">
+                                            <option value="" disabled>Select a user...</option>
+                                            {managers.map(p => (
+                                                <option key={p.id} value={p.id}>{language === 'ar' ? p.nameAr : p.name}</option>
+                                            ))}
+                                        </Select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </ModalContent>
                 <ModalFooter>
                     <Button type="button" variant="secondary" onClick={onClose}>{t_shared.cancel}</Button>

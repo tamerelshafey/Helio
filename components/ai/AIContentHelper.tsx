@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import type { Language, Property } from '../../types';
+import type { Property } from '../../types';
 import { CloseIcon, SparklesIcon } from '../ui/Icons';
 import { useLanguage } from '../shared/LanguageContext';
 
@@ -45,15 +46,20 @@ const AIContentHelper: React.FC<Omit<AIContentHelperProps, 'language'>> = ({
     setGeneratedText('');
     setCurrentAction(action);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+      // Strictly using process.env.API_KEY as requested
+      if (!process.env.API_KEY) {
+          throw new Error("API Key is missing. Please check your environment variables.");
+      }
+      
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
       });
-      setGeneratedText(response.text.trim());
+      setGeneratedText(response.text?.trim() || '');
     } catch (error) {
       console.error(`${action} failed:`, error);
-      setGeneratedText(`Error: Could not generate content. Please try again.`);
+      setGeneratedText(`Error: Could not generate content. Please try again later or check console for details.`);
     } finally {
       setIsLoading(false);
     }

@@ -32,7 +32,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 {title}
             </ModalHeader>
             <ModalContent className="pt-2">
-                <p className="text-sm text-gray-600 dark:text-gray-400">{message}</p>
+                <p className="text-sm text-gray-600">{message}</p>
             </ModalContent>
             <ModalFooter className="justify-end gap-3">
                 <Button variant="secondary" onClick={onClose}>

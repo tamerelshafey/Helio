@@ -1,6 +1,7 @@
 
 
 
+
 import React from 'react';
 import { useLanguage } from '../shared/LanguageContext';
 import { QuoteIcon } from '../ui/Icons';

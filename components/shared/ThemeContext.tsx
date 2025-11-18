@@ -8,33 +8,41 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [theme, setThemeState] = useState<Theme>(() => {
-        try {
-            const savedTheme = localStorage.getItem('onlyhelio-theme') as Theme;
-            if (savedTheme) {
-                return savedTheme;
-            }
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        } catch (error) {
-            console.error("Failed to read theme from localStorage", error);
-            return 'light';
+// Function to get initial theme, matching the FOUC script in index.html
+const getInitialTheme = (): Theme => {
+    try {
+        const savedTheme = localStorage.getItem('onlyhelio-theme') as Theme;
+        if (savedTheme && (savedTheme === 'dark' || savedTheme === 'light')) {
+            return savedTheme;
         }
-    });
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } catch (error) {
+        console.error("Failed to read theme preference", error);
+        return 'light';
+    }
+};
 
-    useEffect(() => {
-        const root = window.document.documentElement;
-        root.classList.remove('light', 'dark');
-        root.classList.add(theme);
-        try {
-            localStorage.setItem('onlyhelio-theme', theme);
-        } catch (error) {
-            console.error("Failed to save theme to localStorage", error);
-        }
-    }, [theme]);
+export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 
     const setTheme = useCallback((newTheme: Theme) => {
-        setThemeState(newTheme);
+        try {
+            // 1. Update localStorage to persist the choice
+            localStorage.setItem('onlyhelio-theme', newTheme);
+            
+            // 2. Update the DOM class directly for an immediate visual change
+            const root = window.document.documentElement;
+            if (newTheme === 'dark') {
+                root.classList.add('dark');
+            } else {
+                root.classList.remove('dark');
+            }
+
+            // 3. Update React state to re-render components that depend on the theme (like the toggle icon)
+            setThemeState(newTheme);
+        } catch (error) {
+            console.error("Failed to set theme", error);
+        }
     }, []);
 
     const value = { theme, setTheme };

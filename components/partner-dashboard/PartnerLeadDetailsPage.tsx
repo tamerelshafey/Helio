@@ -1,20 +1,18 @@
 
-
-
 import React, { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getRequestById, addMessageToLead, updateRequest } from '../../services/requests';
 import { useLanguage } from '../shared/LanguageContext';
 import { useAuth } from '../auth/AuthContext';
-// FIX: Import 'RequestStatus' type to resolve 'Cannot find name' error.
-import { Request, Lead, LeadStatus, RequestType, Role, RequestStatus } from '../../types';
+import { RequestStatus, Lead, LeadStatus, RequestType, Role } from '../../types';
 import { ArrowLeftIcon } from '../ui/Icons';
 import DetailItem from '../shared/DetailItem';
 import ConversationThread from '../shared/ConversationThread';
 import UpdateLeadStatusModal from '../shared/UpdateLeadStatusModal';
 import { Button } from '../ui/Button';
 
+// Helper to map internal Lead statuses to generic Request statuses
 function mapLeadStatusToRequestStatus(leadStatus: LeadStatus): RequestStatus {
     switch (leadStatus) {
         case 'new': return 'new';
@@ -30,7 +28,7 @@ function mapLeadStatusToRequestStatus(leadStatus: LeadStatus): RequestStatus {
 
 const PartnerLeadDetailsPage: React.FC = () => {
     const { leadId } = useParams<{ leadId: string }>();
-    const { language, t } = useLanguage();
+    const { t } = useLanguage();
     const { currentUser } = useAuth();
     const queryClient = useQueryClient();
 
@@ -42,12 +40,18 @@ const PartnerLeadDetailsPage: React.FC = () => {
     
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const lead = useMemo(() => {
+        if (!request || request.type !== RequestType.LEAD) return null;
+        return request.payload as Lead;
+    }, [request]);
+
     const updateLeadMutation = useMutation({
         mutationFn: async ({ status, note }: { status: LeadStatus; note: string }) => {
-            if (!request || !currentUser) throw new Error("Missing data for update");
+            if (!request || !currentUser || !lead) throw new Error("Missing data for update");
             
             const senderType = currentUser.role.includes('_manager') || currentUser.role === Role.SUPER_ADMIN ? 'admin' : 'partner';
             
+            // 1. Add the note to the lead conversation
             await addMessageToLead(request.id, {
                 sender: senderType,
                 senderId: currentUser.id,
@@ -55,12 +59,13 @@ const PartnerLeadDetailsPage: React.FC = () => {
                 content: note,
             });
 
-            const leadPayload = request.payload as Lead;
-            leadPayload.status = status;
+            // 2. Update the payload status locally before sending
+            const updatedPayload = { ...lead, status: status };
             
+            // 3. Update the parent Request status and payload
             await updateRequest(request.id, { 
                 status: mapLeadStatusToRequestStatus(status), 
-                payload: leadPayload 
+                payload: updatedPayload 
             });
         },
         onSuccess: () => {
@@ -69,11 +74,6 @@ const PartnerLeadDetailsPage: React.FC = () => {
             setIsModalOpen(false);
         },
     });
-
-    const lead = useMemo(() => {
-        if (!request || request.type !== RequestType.LEAD) return null;
-        return request.payload as Lead;
-    }, [request]);
 
     if (isLoading) return <div className="p-8 text-center">Loading lead details...</div>;
     if (isError || !request || !lead) return <div className="p-8 text-center text-red-500">Could not load lead details.</div>;

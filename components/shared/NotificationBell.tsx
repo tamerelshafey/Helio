@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -54,7 +55,7 @@ const NotificationBell: React.FC = () => {
         <div className="relative notification-bell-wrapper">
             <button 
                 onClick={handleToggle}
-                className="relative text-gray-500 dark:text-gray-400 hover:text-amber-500 transition-colors"
+                className="relative text-gray-500 hover:text-amber-500 transition-colors"
                 aria-label="Toggle notifications"
             >
                 <BellIcon className="h-6 w-6" />
@@ -69,8 +70,8 @@ const NotificationBell: React.FC = () => {
             </button>
 
             {isOpen && (
-                <div className={`absolute ${language === 'ar' ? 'left-0' : 'right-0'} mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 animate-fadeIn`}>
-                    <div className="p-3 font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-700">
+                <div className={`absolute ${language === 'ar' ? 'left-0' : 'right-0'} mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 animate-fadeIn`}>
+                    <div className="p-3 font-bold text-gray-800 border-b border-gray-200">
                         {t.notifications.title}
                     </div>
                     {userNotifications.length > 0 ? (
@@ -79,11 +80,11 @@ const NotificationBell: React.FC = () => {
                                 <button
                                     key={notification.id}
                                     onClick={() => handleNotificationClick(notification.link)}
-                                    className={`w-full text-left p-3 text-sm flex items-start gap-3 transition-colors ${!notification.isRead ? 'bg-amber-50/50 dark:bg-amber-900/20' : ''} hover:bg-gray-100 dark:hover:bg-gray-700`}
+                                    className={`w-full text-left p-3 text-sm flex items-start gap-3 transition-colors ${!notification.isRead ? 'bg-amber-50/50' : ''} hover:bg-gray-100`}
                                 >
                                     {!notification.isRead && <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></div>}
                                     <div className="flex-grow">
-                                        <p className="text-gray-700 dark:text-gray-300">{notification.message[language]}</p>
+                                        <p className="text-gray-700">{notification.message[language]}</p>
                                         <p className="text-xs text-gray-400 mt-1">
                                             {new Date(notification.createdAt).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}
                                         </p>
@@ -92,7 +93,7 @@ const NotificationBell: React.FC = () => {
                             ))}
                         </div>
                     ) : (
-                        <p className="p-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+                        <p className="p-4 text-sm text-gray-500 text-center">
                             {t.notifications.noNotifications}
                         </p>
                     )}

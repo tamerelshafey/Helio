@@ -1,3 +1,4 @@
+
 import { useSearchParams } from 'react-router-dom';
 import { useMemo, useCallback } from 'react';
 
@@ -58,11 +59,16 @@ export const usePropertyFilters = () => {
     }, [setSearchParams]);
 
     const resetFilters = useCallback(() => {
-        // Keep the view parameter when resetting other filters
-        const currentView = searchParams.get('view');
-        const newParams = currentView ? { view: currentView } : {};
-        setSearchParams(newParams, { replace: true });
-    }, [setSearchParams, searchParams]);
+        // Preserve the current view when resetting other filters
+        setSearchParams(prev => {
+            const currentView = prev.get('view');
+            const newParams = new URLSearchParams();
+            if (currentView) {
+                newParams.set('view', currentView);
+            }
+            return newParams;
+        }, { replace: true });
+    }, [setSearchParams]);
 
     return useMemo(() => ({
         ...filters,

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import type { Language, Project, AdminPartner, FilterOption } from '../../types';
 import { SearchIcon, ArrowDownIcon, ChevronRightIcon } from '../ui/Icons';
@@ -70,23 +71,33 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
         amenitiesFilter.length > 0
     ].filter(Boolean).length;
 
+    // Helper to check applicability
+    const isApplicable = (option: FilterOption) => {
+        // If typeFilter is 'all', show everything that doesn't explicitly restrict itself to a specific type
+        if (typeFilter === 'all' || typeFilter === '') return true;
+        
+        // If option has no restriction, it applies to everything
+        if (!option.applicableTo || option.applicableTo.length === 0) return true;
+        
+        // Check if the selected type is in the list
+        return option.applicableTo.includes(typeFilter);
+    };
+
     const availableAmenities = useMemo(() => {
-        if (typeFilter === 'all') return amenities;
-        return amenities.filter(amenity => 
-            !amenity.applicableTo || amenity.applicableTo.length === 0 || amenity.applicableTo.includes(typeFilter)
-        );
+        return amenities.filter(isApplicable);
     }, [amenities, typeFilter]);
 
     const availableFinishingStatuses = useMemo(() => {
-        if (typeFilter === 'all' || typeFilter === '') return finishingStatuses.filter(status => status.applicableTo && !status.applicableTo.includes('Land'));
-        if (typeFilter === 'Land') return [];
-        return finishingStatuses.filter(status => 
-            !status.applicableTo || status.applicableTo.length === 0 || status.applicableTo.includes(typeFilter)
-        );
+        return finishingStatuses.filter(isApplicable);
     }, [finishingStatuses, typeFilter]);
 
     const isForRent = statusFilter === 'For Rent';
-    const isFinishingDisabled = typeFilter === 'Land' || availableFinishingStatuses.length === 0;
+    const isFinishingDisabled = availableFinishingStatuses.length === 0;
+    
+    // Dynamic checks for Bedroom/Bathroom/Floor filters based on type names (convention: Land/Commercial usually don't have beds/baths)
+    // Note: We keep a soft check here for UX, but real data validation happens in Admin form
+    const isLand = typeFilter === 'Land';
+    const isCommercial = typeFilter === 'Commercial';
 
     return (
       <>
@@ -95,7 +106,7 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
           <p className="text-lg text-gray-500 dark:text-gray-400 mt-4 max-w-2xl mx-auto">{t.subtitle}</p>
         </div>
         
-        <div className="mb-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4">
+        <div className="mb-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4 shadow-sm">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="sm:col-span-2 lg:col-span-4">
               <label htmlFor="search-query" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.searchLabel}</label>
@@ -108,7 +119,7 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                   placeholder={language === 'ar' ? 'جرب: "شقة للبيع ٣ غرف تشطيب كامل"' : 'Try: "Apartment for sale 3 beds fully finished"'}
                   className={`${language === 'ar' ? 'pr-10' : 'pl-10'}`}
                 />
-                <SearchIcon className={`absolute ${language === 'ar' ? 'right-3' : 'left-3'} h-5 w-5 text-gray-400 dark:text-gray-400 pointer-events-none`} />
+                <SearchIcon className={`absolute ${language === 'ar' ? 'right-3' : 'left-3'} h-5 w-5 text-gray-400 pointer-events-none`} />
               </div>
             </div>
             <div>
@@ -153,20 +164,20 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-2 font-semibold text-amber-600 dark:text-amber-500"
+              className="flex items-center gap-2 font-semibold text-amber-600 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
               aria-expanded={showAdvanced}
               aria-controls="advanced-filters-content"
             >
               <span>{showAdvanced ? t.hideFilters : t.advancedFilters}</span>
               <ArrowDownIcon className={`w-4 h-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
               {advancedFilterCount > 0 && (
-                <span className="bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 text-xs font-bold px-2 py-0.5 rounded-full">
                   {advancedFilterCount} {t.filtersApplied}
                 </span>
               )}
             </button>
              {isAnyFilterActive && (
-              <button onClick={resetFilters} className="text-sm font-semibold text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors">
+              <button onClick={resetFilters} className="text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
                   {language === 'ar' ? 'إعادة تعيين' : 'Reset Filters'}
               </button>
             )}
@@ -184,7 +195,9 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                       ))}
                     </Select>
                 </div>
-                {(typeFilter !== 'Commercial' && typeFilter !== 'Land') && <>
+                
+                {!isLand && !isCommercial && (
+                   <>
                     <div>
                       <label htmlFor="beds-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t_details.bedrooms}</label>
                       <Select id="beds-filter" value={bedsFilter} onChange={e => setFilter('beds', e.target.value)}>
@@ -199,8 +212,10 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                           <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option>
                       </Select>
                     </div>
-                </>}
-                {(typeFilter === 'Apartment' || typeFilter === 'Commercial') && (
+                   </>
+                )}
+                
+                {!isLand && (
                   <div>
                     <label htmlFor="floor-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.floor}</label>
                     <Input type="number" id="floor-filter" placeholder={t.floor} value={floorFilter} onChange={e => setFilter('floor', e.target.value)} min="0" />
@@ -209,7 +224,7 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
               </div>
               
               <details className="pt-4 border-t border-gray-200 dark:border-gray-700" open>
-                <summary className="font-semibold text-gray-800 dark:text-gray-300 cursor-pointer list-none flex items-center gap-2">
+                <summary className="font-semibold text-gray-800 dark:text-gray-200 cursor-pointer list-none flex items-center gap-2 outline-none">
                   <ChevronRightIcon className="w-4 h-4 transition-transform duration-200 rotate-on-open" />
                   {t.additionalOptions}
                 </summary>
@@ -255,21 +270,23 @@ const PropertyFilters: React.FC<PropertyFiltersProps> = ({
                 </div>
               </details>
 
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-4">{t.amenities}</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-3">
-                  {availableAmenities.map(amenity => (
-                    <label key={amenity.id} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                      <Checkbox
-                        checked={amenitiesFilter.includes(amenity.en)}
-                        onCheckedChange={() => handleAmenitiesChange(amenity.en)}
-                        id={`amenity-${amenity.id}`}
-                      />
-                      {amenity[language]}
-                    </label>
-                  ))}
+              {availableAmenities.length > 0 && (
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-4">{t.amenities}</h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-3">
+                    {availableAmenities.map(amenity => (
+                      <label key={amenity.id} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/50 p-1.5 rounded transition-colors">
+                        <Checkbox
+                          checked={amenitiesFilter.includes(amenity.en)}
+                          onCheckedChange={() => handleAmenitiesChange(amenity.en)}
+                          id={`amenity-${amenity.id}`}
+                        />
+                        {amenity[language]}
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>

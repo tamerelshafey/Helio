@@ -8,9 +8,9 @@ const buttonVariants = {
         variant: {
             primary: 'bg-amber-500 text-gray-900 hover:bg-amber-600 shadow-sm',
             secondary:
-                'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600',
-            outline: 'border border-amber-500 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20',
-            ghost: 'hover:bg-gray-100 dark:hover:bg-gray-800',
+                'bg-gray-200 text-gray-800 hover:bg-gray-300',
+            outline: 'border border-amber-500 text-amber-500 hover:bg-amber-50',
+            ghost: 'hover:bg-gray-100',
             danger: 'bg-red-600 text-white hover:bg-red-700',
             success: 'bg-green-600 text-white hover:bg-green-700',
             link: 'text-amber-500 underline-offset-4 hover:underline',

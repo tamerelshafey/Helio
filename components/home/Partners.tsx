@@ -38,7 +38,7 @@ const PartnerCard: React.FC<{ partner: AdminPartner }> = ({ partner }) => {
                     <h3 className="text-xl font-bold text-amber-500 mb-2 group-hover:text-amber-400 transition-colors">
                         {localizedPartner.name}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm flex-grow">
+                    <p className="text-gray-600 text-sm flex-grow">
                         {localizedPartner.description}
                     </p>
                 </CardContent>
@@ -78,15 +78,15 @@ const Partners: React.FC = () => {
     }, [partners, content]);
 
     if (isLoading || !content) {
-        return <div className="py-20 bg-gray-50 dark:bg-gray-900 animate-pulse h-[500px]"></div>;
+        return <div className="py-20 bg-gray-50 animate-pulse h-[500px]"></div>;
     }
 
     return (
-        <div className="py-20 bg-gray-50 dark:bg-gray-900 subtle-bg">
+        <div className="py-20 bg-gray-50 subtle-bg">
             <div className="container mx-auto px-6">
                 <div className="text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">{content.title}</h2>
-                    <p className="max-w-3xl mx-auto text-lg text-gray-500 dark:text-gray-400 mb-12">
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{content.title}</h2>
+                    <p className="max-w-3xl mx-auto text-lg text-gray-500 mb-12">
                         {content.description}
                     </p>
                 </div>
@@ -94,7 +94,7 @@ const Partners: React.FC = () => {
                 {categorizedPartners.majorDevelopers.length > 0 && (
                     <div className="mb-16">
                         <div className="border-b-2 border-amber-500/20 pb-4 mb-12">
-                            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">
+                            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800">
                                 {content.mega_projects_title}
                             </h3>
                         </div>
@@ -109,7 +109,7 @@ const Partners: React.FC = () => {
                 {categorizedPartners.cityDevelopers.length > 0 && (
                     <div className="mb-16">
                         <div className="border-b-2 border-amber-500/20 pb-4 mb-12">
-                            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">
+                            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800">
                                 {content.developers_title}
                             </h3>
                         </div>
@@ -124,7 +124,7 @@ const Partners: React.FC = () => {
                 {categorizedPartners.sections.map((section) => (
                     <div key={section.title} className="mb-16">
                         <div className="border-b-2 border-amber-500/20 pb-4 mb-12">
-                            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">
+                            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800">
                                 {section.title}
                             </h3>
                         </div>

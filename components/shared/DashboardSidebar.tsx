@@ -1,5 +1,6 @@
 
 
+
 import React, { useMemo, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
@@ -68,10 +69,10 @@ const SidebarContent: React.FC<Omit<DashboardSidebarProps, 'isOpen' | 'setIsOpen
     const dashboardTitle = isAdminDashboard ? (t.partnerInfo[user.id]?.name || user.name) : t.dashboard.title;
 
     return (
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-gray-900 px-4 py-4 dashboard-sidebar">
+        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-4 py-4 dashboard-sidebar">
              <div className={`flex h-16 shrink-0 items-center gap-x-3 ${isCollapsed ? 'justify-center' : ''}`}>
                 <HelioLogo className={`h-8 w-auto text-amber-500`} />
-                <span className={`font-bold text-lg text-gray-800 dark:text-white ${isCollapsed ? 'hidden' : ''}`}>ONLY HELIO</span>
+                <span className={`font-bold text-lg text-gray-800 ${isCollapsed ? 'hidden' : ''}`}>ONLY HELIO</span>
             </div>
             
             <nav className="flex flex-1 flex-col">
@@ -80,7 +81,7 @@ const SidebarContent: React.FC<Omit<DashboardSidebarProps, 'isOpen' | 'setIsOpen
                          <div className={`text-center space-y-2 ${isCollapsed ? 'px-1' : ''}`}>
                              <img src={user.imageUrl} alt={partnerName} className={`mx-auto border-2 border-amber-500 object-cover rounded-full transition-all duration-300 ${isCollapsed ? 'w-12 h-12' : 'w-20 h-20'}`} />
                             <div className={`transition-opacity duration-200 ${isCollapsed ? 'opacity-0 h-0 overflow-hidden pointer-events-none' : 'opacity-100'}`}>
-                                 <h2 className="text-md font-bold text-gray-900 dark:text-white truncate" title={partnerName}>{partnerName}</h2>
+                                 <h2 className="text-md font-bold text-gray-900 truncate" title={partnerName}>{partnerName}</h2>
                                  <p className="text-xs text-amber-500 capitalize truncate">{dashboardTitle}</p>
                             </div>
                         </div>
@@ -108,7 +109,7 @@ const SidebarContent: React.FC<Omit<DashboardSidebarProps, 'isOpen' | 'setIsOpen
                                                 to={link.href} 
                                                 end={link.exact} 
                                                 onClick={onLinkClick}
-                                                className={({isActive}) => `flex items-center w-full p-3 text-md font-medium rounded-lg transition-colors ${isCollapsed ? 'justify-center' : ''} ${isActive ? 'bg-amber-500 text-gray-900' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                                                className={({isActive}) => `flex items-center w-full p-3 text-md font-medium rounded-lg transition-colors ${isCollapsed ? 'justify-center' : ''} ${isActive ? 'bg-amber-500 text-gray-900' : 'text-gray-600 hover:bg-gray-100'}`}
                                             >
                                                 <Icon className="w-5 h-5 flex-shrink-0" />
                                                 <span className={`transition-all duration-200 whitespace-nowrap ${isCollapsed ? 'opacity-0 w-0 absolute' : `opacity-100 w-auto ${isRTL ? 'mr-3' : 'ml-3'}`}`}>{linkName}</span>
@@ -170,12 +171,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = (props) => {
 
             {/* Desktop sidebar */}
             <div className={`hidden lg:fixed lg:inset-y-0 lg:z-40 lg:flex lg:flex-col transition-[width] duration-300 ${isCollapsed ? 'lg:w-20' : 'lg:w-72'}`}>
-                <div className="flex min-h-0 flex-1 flex-col border-r border-gray-200 dark:border-gray-700">
+                <div className="flex min-h-0 flex-1 flex-col border-r border-gray-200">
                     <SidebarContent {...props} onLinkClick={() => {}} />
-                    <div className="flex flex-shrink-0 border-t border-gray-200 dark:border-gray-700 p-2">
+                    <div className="flex flex-shrink-0 border-t border-gray-200 p-2">
                         <button
                             onClick={() => setIsCollapsed(!isCollapsed)}
-                            className="w-full flex items-center justify-center p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+                            className="w-full flex items-center justify-center p-2 text-gray-500 hover:bg-gray-100 rounded-md"
                         >
                             <span className="sr-only">Collapse sidebar</span>
                              {isRTL ? (

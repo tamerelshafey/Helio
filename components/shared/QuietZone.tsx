@@ -78,14 +78,14 @@ const QuietZone: React.FC<QuietZoneProps> = ({ onClose }) => {
     >
       <div
         ref={modalRef}
-        className="relative w-full max-w-3xl p-12 rounded-2xl shadow-2xl bg-white dark:bg-gray-800 flex flex-col items-center text-center overflow-hidden"
+        className="relative w-full max-w-3xl p-12 rounded-2xl shadow-2xl bg-white flex flex-col items-center text-center overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <Button
           variant="ghost"
           size="icon"
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white z-10"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 z-10"
           aria-label="Close Quiet Zone"
         >
           <CloseIcon className="h-6 w-6" />
@@ -94,17 +94,17 @@ const QuietZone: React.FC<QuietZoneProps> = ({ onClose }) => {
         <blockquote className="relative">
           {isLoading ? (
                 <div className="animate-pulse">
-                    <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-full mb-4"></div>
-                    <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mx-auto"></div>
+                    <div className="h-8 bg-gray-300 rounded w-full mb-4"></div>
+                    <div className="h-8 bg-gray-300 rounded w-3/4 mx-auto"></div>
                 </div>
             ) : (
-                <p id="quiet-zone-title" className="text-2xl md:text-3xl font-semibold leading-normal text-gray-800 dark:text-white">
+                <p id="quiet-zone-title" className="text-2xl md:text-3xl font-semibold leading-normal text-gray-800">
                     "{currentQuote.quote}"
                 </p>
             )}
         </blockquote>
         {!isLoading && (
-            <cite className="mt-6 text-lg text-amber-500 dark:text-amber-400 font-medium tracking-wide">
+            <cite className="mt-6 text-lg text-amber-500 font-medium tracking-wide">
                 - {currentQuote.author}
             </cite>
         )}

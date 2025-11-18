@@ -1,9 +1,10 @@
+
 import React, { useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { 
     BedIcon, BathIcon, AreaIcon, CheckBadgeIcon, ShareIcon, HeartIcon, HeartIconSolid, 
-    FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon, LocationMarkerIcon, WhatsAppIcon, PhoneIcon
+    FloorIcon, CalendarIcon, WalletIcon, BuildingIcon, WrenchScrewdriverIcon, CompoundIcon, BanknotesIcon, WhatsAppIcon, PhoneIcon
 } from '../ui/Icons';
 import type { Language } from '../../types';
 import { useFavorites } from '../shared/FavoritesContext';
@@ -178,9 +179,6 @@ const PropertyDetailsPage: React.FC = () => {
                 <div className="lg:flex justify-between items-start mb-4">
                     <div>
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">{property.title[language]}</h1>
-                        <p className="mt-2 text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                           <LocationMarkerIcon className="w-5 h-5"/> {property.address[language]}
-                        </p>
                     </div>
                     <div className="flex-shrink-0 flex items-center gap-4 mt-4 lg:mt-0">
                          <button onClick={handleShare} className="p-3 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" aria-label={t.sharing.shareProperty}>
@@ -208,12 +206,6 @@ const PropertyDetailsPage: React.FC = () => {
                             <ul className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 {amenityKeys.map(amenityKey => <li key={amenityKey} className="flex items-center gap-2"><CheckBadgeIcon className="w-5 h-5 text-green-500"/>{t_page.amenitiesIncluded[amenityKey] || amenityKey}</li>)}
                             </ul>
-                        </DetailSection>
-
-                        <DetailSection title={t_page.location}>
-                             <div className="h-96 bg-gray-200 dark:bg-gray-700 rounded-lg text-center flex items-center justify-center text-gray-500">
-                                Map Placeholder for {property.location.lat}, {property.location.lng}
-                             </div>
                         </DetailSection>
 
                         <BannerDisplay location="details" />

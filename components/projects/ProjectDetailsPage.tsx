@@ -118,8 +118,8 @@ const ProjectDetailsPage: React.FC = () => {
         <SEO title={pageTitle} description={pageDescription} url={pageUrl} imageUrl={imageUrl} />
         {shareModalOpen && (
             <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={() => setShareModalOpen(false)}>
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
                         {t.sharing.shareProject}
                     </h3>
                     <div className="space-y-3">
@@ -134,7 +134,7 @@ const ProjectDetailsPage: React.FC = () => {
                 </div>
             </div>
         )}
-        <div className="bg-gray-50 dark:bg-gray-900">
+        <div className="bg-gray-50">
             {/* Project Hero */}
             <section className="relative h-[60vh] bg-cover bg-center" style={{ backgroundImage: `url(${project.imageUrl})` }}>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
@@ -167,7 +167,7 @@ const ProjectDetailsPage: React.FC = () => {
                  {/* Project Description */}
                 <div className="max-w-4xl mx-auto mb-20">
                     <h2 className="text-3xl font-bold text-center text-amber-500 mb-6">{t.propertyDetailsPage.description}</h2>
-                    <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed text-center whitespace-pre-line">
+                    <p className="text-lg text-gray-600 leading-relaxed text-center whitespace-pre-line">
                         {project.description[language]}
                     </p>
                 </div>
@@ -175,16 +175,16 @@ const ProjectDetailsPage: React.FC = () => {
                 {/* Project Features */}
                 {project.features && project.features.length > 0 && (
                     <div className="mb-20">
-                        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 dark:text-white mb-12">{t_page.projectFeatures}</h2>
+                        <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">{t_page.projectFeatures}</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
                             {project.features.map((feature, index) => {
                                 const IconComponent = iconMap[feature.icon] || BuildingIcon;
                                 return (
                                 <div key={index} className="text-center flex flex-col items-center">
-                                    <div className="bg-amber-100 dark:bg-amber-900/50 p-4 rounded-full mb-4">
+                                    <div className="bg-amber-100 p-4 rounded-full mb-4">
                                         <IconComponent className="w-8 h-8 text-amber-500" />
                                     </div>
-                                    <p className="font-semibold text-gray-700 dark:text-gray-200">{feature.text[language]}</p>
+                                    <p className="font-semibold text-gray-700">{feature.text[language]}</p>
                                 </div>
                             )})}
                         </div>
@@ -196,7 +196,7 @@ const ProjectDetailsPage: React.FC = () => {
 
                 {/* Project Properties */}
                 <div className="mt-20">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 dark:text-white mb-6">
+                    <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-6">
                         {t_page.availableUnits}
                     </h2>
                      {unitTypes.length > 2 && ( // Show filters only if there's more than one type
@@ -213,7 +213,7 @@ const ProjectDetailsPage: React.FC = () => {
                                         className={`px-6 py-2 font-semibold rounded-full transition-colors ${
                                             activeType === type
                                                 ? 'bg-amber-500 text-gray-900 shadow'
-                                                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-amber-100 dark:hover:bg-gray-700'
+                                                : 'bg-white text-gray-600 hover:bg-amber-100'
                                         }`}
                                     >
                                         {typeName}
@@ -229,8 +229,8 @@ const ProjectDetailsPage: React.FC = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                            <p className="text-xl text-gray-500 dark:text-gray-400">
+                        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+                            <p className="text-xl text-gray-500">
                                 {language === 'ar' ? 'لا توجد وحدات متاحة حاليًا في هذا المشروع.' : 'There are currently no available units in this project.'}
                             </p>
                         </div>

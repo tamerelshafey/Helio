@@ -1,3 +1,4 @@
+
 import type { SiteContent, Quote } from '../types';
 
 const quotesData: Quote[] = [
@@ -603,6 +604,62 @@ export let siteContentData: SiteContent = {
       ]
     }
   ],
+  projectsPage: {
+    ar: {
+      title: 'اكتشف مشاريعنا الرائدة',
+      subtitle: 'مجموعة من أرقى المشاريع السكنية والتجارية في هليوبوليس الجديدة، مقدمة من نخبة المطورين العقاريين.'
+    },
+    en: {
+      title: 'Discover Our Flagship Projects',
+      subtitle: 'A collection of the finest residential and commercial projects in New Heliopolis, presented by elite real estate developers.'
+    }
+  },
+  finishingPage: {
+    ar: {
+      heroTitle: 'تشطيب وتصميم داخلي في هليوبوليس الجديدة',
+      heroSubtitle: 'نقدم خدمات تشطيب وتصميم داخلي مخصصة لمشاريعكم في مدينة هليوبوليس الجديدة، ونحول رؤيتكم إلى واقع ملموس.',
+      servicesTitle: 'ابدأ التخطيط لمشروعك معنا',
+      servicesSubtitle: 'اختر الباقة التي تناسب احتياجاتك الحالية، سواء كنت في مرحلة التخطيط أو جاهزًا للتنفيذ.',
+      servicesIntro: 'نقدم من خلال فريقنا المختص خدمات الاستشارة والتصميم لمساعدتك في التخطيط لمشروعك. أما إذا كنت تبحث عن التنفيذ، فيمكنك استعراض شركائنا الموثوقين أدناه.',
+      partnerCompaniesTitle: 'اختر إحدى شركات التنفيذ',
+      partnerCompaniesSubtitle: 'تصفح شبكتنا من شركات التشطيب والتصميم الموثوقة التي لها ملفات تعريفية وأعمال سابقة.',
+      serviceProvidersTitle: 'أو تواصل مع مقدمي الخدمة مباشرة',
+      serviceProvidersSubtitle: 'قائمة بمقدمي خدمات التشطيب المسجلين في الباقة المجانية. يمكنك طلب خدمتهم مباشرة.',
+      ctaTitle: 'هل لديك مشروع في هليوبوليس الجديدة؟',
+      ctaSubtitle: 'إذا كنت تملك وحدة في هليوبوليس الجديدة وترغب في تشطيبها بأعلى جودة، تواصل معنا اليوم للحصول على استشارة مجانية.',
+      ctaButton: 'ابدأ مشروعك الآن'
+    },
+    en: {
+      heroTitle: 'Finishing & Interior Design in New Heliopolis',
+      heroSubtitle: 'We offer custom finishing and interior design services for your projects in New Heliopolis, turning your vision into a tangible reality.',
+      servicesTitle: 'Start Planning Your Project with Us',
+      servicesSubtitle: 'Choose the package that fits your current needs, whether you\'re in the planning phase or ready for execution.',
+      servicesIntro: 'Through our specialized team, we offer consultation and design services to help you plan your project. If you\'re looking for execution, you can browse our trusted partners below.',
+      partnerCompaniesTitle: 'Choose an Execution Partner Company',
+      partnerCompaniesSubtitle: 'Browse our network of trusted finishing and design companies with profiles and portfolios.',
+      serviceProvidersTitle: 'Or Contact a Service Provider Directly',
+      serviceProvidersSubtitle: 'A list of finishing service providers on our free plan. You can request their service directly.',
+      ctaTitle: 'Do you have a project in New Heliopolis?',
+      ctaSubtitle: 'If you own a unit in New Heliopolis and want to finish it to the highest quality, contact us today for a free consultation.',
+      ctaButton: 'Start Your Project Now'
+    }
+  },
+  decorationsPage: {
+    ar: {
+      heroTitle: 'إبداعات فنية تزين جدرانك',
+      heroSubtitle: 'نصمم وننفذ منحوتات فنية مباشرة على الجدران لتحويلها إلى قطعة فنية فريدة. استلهم من أعمالنا أو زودنا بفكرتك الخاصة لنحولها إلى واقع.',
+      sculptures_desc: 'نصمم وننفذ منحوتات فنية مباشرة على الجدران لتحويلها إلى قطعة فنية فريدة. استلهم من أعمالنا أو زودنا بفكرتك الخاصة لنحولها إلى واقع.',
+      paintings_desc: 'مجموعة فريدة من اللوحات الفنية التي تناسب جميع الأذواق والمساحات، منفذة بأيدي فنانين محترفين.',
+      antiques_desc: 'تشكيلة مختارة من التحف وقطع الديكور التي تضيف لمسة من الأناقة والفخامة لمساحتك.'
+    },
+    en: {
+      heroTitle: 'Artistic Creations to Adorn Your Walls',
+      heroSubtitle: 'We design and create art sculptures directly on walls to turn them into unique masterpieces. Get inspired by our work or provide your own idea to bring it to life.',
+      sculptures_desc: 'We design and execute art sculptures directly on walls to transform them into unique masterpieces. Get inspired by our work or provide your own idea to bring it to life.',
+      paintings_desc: 'A unique collection of art paintings to suit all tastes and spaces, created by professional artists.',
+      antiques_desc: 'A curated selection of antiques and decor pieces that add a touch of elegance and luxury to your space.'
+    }
+  },
   quotes: quotesData,
   footer: {
     ar: {

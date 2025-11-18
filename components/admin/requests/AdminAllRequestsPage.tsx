@@ -1,11 +1,12 @@
-import React, { useState, useMemo, useCallback } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllRequests, updateRequest } from '../../../services/requests';
 import { getAllPartnersForAdmin } from '../../../services/partners';
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
-import { Request, RequestStatus, RequestType, AdminPartner, LeadStatus, Lead, LeadMessage, Role } from '../../../types';
+import { Request, RequestStatus, RequestType, Lead, Role } from '../../../types';
 import Pagination from '../../ui/Pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 import { Input } from '../../ui/Input';
@@ -15,7 +16,7 @@ import { useAuth } from '../../auth/AuthContext';
 import { Card, CardContent, CardFooter } from '../../ui/Card';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import CardSkeleton from '../../ui/CardSkeleton';
-import TableSkeleton from '../../shared/TableSkeleton';
+import TableSkeleton from '../../ui/TableSkeleton';
 
 const statusColors: { [key in RequestStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',

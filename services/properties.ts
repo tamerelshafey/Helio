@@ -1,4 +1,3 @@
-
 // Note: This is a mock API. In a real application, these functions would make network requests
 // to a backend service. The data is modified in-memory for simulation purposes.
 
@@ -58,10 +57,11 @@ export const getPaginatedProperties = (options: {
   page: number;
   limit: number;
   filters: PropertyFiltersType;
+  disablePagination?: boolean;
 }): Promise<{ properties: Property[]; total: number }> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const { page, limit, filters } = options;
+      const { page, limit, filters, disablePagination } = options;
 
       // Start with all active properties
       const activeProperties = propertiesData
@@ -113,6 +113,12 @@ export const getPaginatedProperties = (options: {
       });
 
       const total = filtered.length;
+
+      if (disablePagination) {
+        resolve({ properties: filtered, total });
+        return;
+      }
+
       const start = (page - 1) * limit;
       const end = start + limit;
       const properties = filtered.slice(start, end);

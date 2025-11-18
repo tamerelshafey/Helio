@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import type { SubscriptionPlan, SubscriptionPlanDetails, PlanCategory } from '../../types';
 import AdminPlanEditModal from './AdminPlanEditModal';
@@ -15,7 +16,7 @@ const PlanCard: React.FC<{
     const { t } = useLanguage();
     // Check if plan is defined before trying to access its properties.
     if (!plan) {
-        return <div className="bg-red-100 p-4 rounded-lg text-red-800">Error: Plan data is missing.</div>;
+        return <div className="bg-red-100 p-4 rounded-lg">Error: Plan data is missing.</div>;
     }
     return (
         <div className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-6 flex flex-col">
@@ -100,22 +101,21 @@ const AdminPlansPage: React.FC<{ availableCategories?: PlanCategory[] }> = ({ av
         let planTypeForModal: PlanCategory;
         let subCategoryForModal: 'sale' | 'rent' | undefined = undefined;
 
-        // Safe navigation with optional chaining to prevent crashes if plans structure isn't loaded yet
         if (activeTab === 'individual-sale') {
-            plansToRender = plans?.individual?.sale || {};
+            plansToRender = (plans.individual as any)?.sale || {};
             planTypeForModal = 'individual';
             subCategoryForModal = 'sale';
         } else if (activeTab === 'individual-rent') {
-            plansToRender = plans?.individual?.rent || {};
+            plansToRender = (plans.individual as any)?.rent || {};
             planTypeForModal = 'individual';
             subCategoryForModal = 'rent';
         } else {
-            plansToRender = (plans as any)?.[activeTab] || {};
+            plansToRender = (plans as any)[activeTab];
             planTypeForModal = activeTab as PlanCategory;
         }
 
         if (!plansToRender || Object.keys(plansToRender).length === 0) {
-            return <p className="text-gray-500">No plans found for this category.</p>;
+            return <p>No plans found for this category.</p>;
         }
 
         return (

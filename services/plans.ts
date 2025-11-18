@@ -1,3 +1,4 @@
+
 import type { SubscriptionPlan, SubscriptionPlanDetails, PlanCategory } from '../types';
 import { arTranslations, enTranslations } from '../data/translations';
 
@@ -24,9 +25,15 @@ const getPlansFromTranslations = () => {
             elite: { ar: arPlans?.finishing?.elite, en: enPlans?.finishing?.elite },
         },
         individual: {
-            paid_listing: { ar: arPlans?.individual?.paid_listing, en: enPlans?.individual?.paid_listing },
-            commission: { ar: arPlans?.individual?.commission, en: enPlans?.individual?.commission },
-        }
+            sale: {
+                paid_listing: { ar: arPlans?.individual?.sale?.paid_listing, en: enPlans?.individual?.sale?.paid_listing },
+                commission: { ar: arPlans?.individual?.sale?.commission, en: enPlans?.individual?.sale?.commission },
+            },
+            rent: {
+                paid_listing: { ar: arPlans?.individual?.rent?.paid_listing, en: enPlans?.individual?.rent?.paid_listing },
+                commission: { ar: arPlans?.individual?.rent?.commission, en: enPlans?.individual?.rent?.commission },
+            }
+        },
     } as any; // Cast to avoid deep type checking for this mock
 };
 
@@ -40,12 +47,12 @@ export const getPlans = async (): Promise<Record<PlanCategory, any>> => {
 };
 
 
-export const updatePlan = (planType: PlanCategory, planKey: SubscriptionPlan, updates: { ar: Partial<SubscriptionPlanDetails>, en: Partial<SubscriptionPlanDetails> }): Promise<boolean> => {
+export const updatePlan = (planType: PlanCategory, planKey: SubscriptionPlan, updates: { ar: Partial<SubscriptionPlanDetails>, en: Partial<SubscriptionPlanDetails> }, subCategory?: 'sale' | 'rent'): Promise<boolean> => {
     return new Promise((resolve) => {
         setTimeout(() => {
             // This is a limitation of the mock setup. In a real app, this would be a POST/PUT request.
             // Here we are just resolving true without actually mutating the source `translations.ts` file.
-            console.warn("Mock API: Plan updates are not persisted in this demo.");
+            console.warn("Mock API: Plan updates are not persisted in this demo.", { planType, subCategory, planKey, updates });
             resolve(true);
         }, SIMULATED_DELAY);
     });

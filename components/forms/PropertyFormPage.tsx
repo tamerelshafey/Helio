@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Property, FilterOption } from '../../types';
 import { useAuth } from '../auth/AuthContext';
@@ -9,7 +9,6 @@ import { CloseIcon } from '../ui/Icons';
 import { addProperty as apiAddProperty, updateProperty as apiUpdateProperty, getAllProperties } from '../../services/properties';
 import { getAllProjects } from '../../services/projects';
 import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../services/filters';
-import LocationPickerModal from '../shared/LocationPickerModal';
 import { Role, Permission } from '../../types';
 import { useToast } from '../shared/ToastContext';
 import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
@@ -29,8 +28,6 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-type TranslatableField = 'title' | 'address' | 'description';
-
 const PropertyFormPage: React.FC = () => {
     const { propertyId } = useParams();
     const navigate = useNavigate();
@@ -43,21 +40,21 @@ const PropertyFormPage: React.FC = () => {
     const usageType = currentUser?.type === 'developer' ? 'units' : 'properties';
     const { isLimitReached } = useSubscriptionUsage(usageType);
 
-    const { data: properties, isLoading: isLoadingProps } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
+    const { data: properties } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
     const { data: projects, isLoading: isLoadingProjs } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
     const { data: propertyTypes, isLoading: isLoadingPropTypes } = useQuery({ queryKey: ['propertyTypes'], queryFn: getAllPropertyTypes });
     const { data: finishingStatuses, isLoading: isLoadingFinishing } = useQuery({ queryKey: ['finishingStatuses'], queryFn: getAllFinishingStatuses });
     const { data: amenities, isLoading: isLoadingAmenities } = useQuery({ queryKey: ['amenities'], queryFn: getAllAmenities });
-    const isLoadingContext = isLoadingProps || isLoadingProjs || isLoadingPropTypes || isLoadingFinishing || isLoadingAmenities;
+    
+    const isLoadingContext = isLoadingProjs || isLoadingPropTypes || isLoadingFinishing || isLoadingAmenities;
 
     const td = t.dashboard.propertyForm;
     const tp = t.propertiesPage;
     
-    const { register, handleSubmit, control, watch, setValue, reset, formState: { errors } } = useForm<any>();
+    const { register, handleSubmit, watch, setValue, reset } = useForm<any>();
     
     const [mainImage, setMainImage] = useState<string>('');
     const [galleryImages, setGalleryImages] = useState<string[]>([]);
-    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
     const watchType = watch('type');
     const watchStatus = watch('status');
@@ -67,10 +64,8 @@ const PropertyFormPage: React.FC = () => {
     const watchPrice = watch('priceNumeric');
     const watchArea = watch('area');
     const watchAmenities = watch('amenities');
-    const watchLocation = watch('location');
     const watchContactMethod = watch('contactMethod');
-    const watchListingStatus = watch('listingStatus');
-
+    
     const partnerProjects = useMemo(() => (projects || []).filter(p => p.partnerId === currentUser?.id), [projects, currentUser]);
 
     const pricePerMeter = useMemo(() => {
@@ -88,7 +83,7 @@ const PropertyFormPage: React.FC = () => {
         const projectId = property?.projectId || watch('projectId');
         
         if (hasPermission(Permission.VIEW_ADMIN_DASHBOARD)) {
-            navigate('/admin/properties');
+            navigate('/admin/properties/list');
         } else if (currentUser?.role === Role.DEVELOPER_PARTNER && projectId) {
             navigate(`/dashboard/projects/${projectId}`);
         } else if (currentUser?.role === Role.DEVELOPER_PARTNER && !projectId) {
@@ -158,8 +153,6 @@ const PropertyFormPage: React.FC = () => {
         }
     }, [propertyId, currentUser, navigate, properties, reset, searchParams, hasPermission, isLoadingContext]);
     
-    // ... (keep all other handler functions like handleImageChange, handleAmenityChange, etc. the same) ...
-
     const handleMainImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const base64 = await fileToBase64(e.target.files[0]);
@@ -229,11 +222,6 @@ const PropertyFormPage: React.FC = () => {
         );
     }, [finishingStatuses, watchType]);
 
-    const handleLocationSelect = (location: { lat: number, lng: number }) => {
-        setValue('location', location);
-        setIsLocationModalOpen(false);
-    };
-
     const onSubmit = async (formData: any) => {
         if (!currentUser || !('type' in currentUser) || !amenities) return;
         
@@ -281,13 +269,11 @@ const PropertyFormPage: React.FC = () => {
 
     return (
         <div>
-            {isLocationModalOpen && ( <LocationPickerModal onClose={() => setIsLocationModalOpen(false)} onLocationSelect={handleLocationSelect} initialLocation={watchLocation} /> )}
-            
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">{propertyId ? td.editTitle : td.addTitle}</h1>
             
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl bg-white dark:bg-gray-900 p-8 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-                {/* ... The rest of the form JSX remains the same ... */}
-                 {currentUser && 'type' in currentUser && (currentUser.role === Role.DEVELOPER_PARTNER || currentUser.role === Role.SUPER_ADMIN) && (
+                
+                 {currentUser && 'type' in currentUser && (currentUser.role === Role.DEVELOPER_PARTNER || currentUser.role === Role.SUPER_ADMIN || currentUser.role === Role.LISTINGS_MANAGER) && (
                     <FormField label="Project" id="projectId">
                         <select {...register("projectId")} className={selectClasses} >
                             <option value="">Select a project (optional)</option>
@@ -299,7 +285,7 @@ const PropertyFormPage: React.FC = () => {
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField label={td.propertyTitleAr} id="title.ar">
-                        <input type="text" {...register("title.ar", { required: true })} className={inputClasses}/>
+                        <input type="text" {...register("title.ar", { required: true })} className={inputClasses} />
                     </FormField>
                     <FormField label={td.propertyTitleEn} id="title.en">
                          <div className="relative">
@@ -413,15 +399,16 @@ const PropertyFormPage: React.FC = () => {
                     </FormField>
                 </div>
                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Location</label>
-                    <input type="hidden" {...register("location.lat")} />
-                    <input type="hidden" {...register("location.lng")} />
-                    <div className="flex items-center gap-4">
-                        <p className="text-sm font-mono p-3 bg-gray-100 dark:bg-gray-800 rounded-md">
-                            Lat: {watchLocation?.lat?.toFixed(6) || 'N/A'}, Lng: {watchLocation?.lng?.toFixed(6) || 'N/A'}
-                        </p>
-                        <button type="button" onClick={() => setIsLocationModalOpen(true)} className="font-semibold text-amber-600 hover:underline">Select on Map</button>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Location (Coordinates)</label>
+                    <div className="flex gap-4">
+                        <FormField label="Latitude" id="lat">
+                            <input type="number" step="any" {...register("location.lat", { valueAsNumber: true })} className={inputClasses} placeholder="e.g. 30.123" />
+                        </FormField>
+                        <FormField label="Longitude" id="lng">
+                            <input type="number" step="any" {...register("location.lng", { valueAsNumber: true })} className={inputClasses} placeholder="e.g. 31.123" />
+                        </FormField>
                     </div>
+                    <p className="text-xs text-gray-500">Enter coordinates manually.</p>
                 </div>
 
                 <div className="space-y-4">

@@ -78,7 +78,7 @@ const ListingsManagerHomePage: React.FC = () => {
                     title={t.totalProjects}
                     value={totalProjectsCount}
                     icon={CubeIcon}
-                    linkTo="/admin/partners/projects"
+                    linkTo="/admin/projects"
                 />
             </div>
 

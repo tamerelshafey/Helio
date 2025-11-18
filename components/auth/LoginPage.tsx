@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
@@ -83,15 +84,15 @@ const LoginPage: React.FC = () => {
 
 
     return (
-        <div className="py-20 bg-white dark:bg-gray-900 flex items-center justify-center">
-            <div className="w-full max-w-lg p-8 space-y-8 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="py-20 bg-white flex items-center justify-center">
+            <div className="w-full max-w-lg p-8 space-y-8 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="text-center">
                     <Link to="/" className="inline-flex items-center justify-center gap-3 text-3xl font-bold text-amber-500 mb-4">
                         <HelioLogo className="h-10 w-10" />
                         <span className="text-2xl">ONLY HELIO</span>
                     </Link>
-                    <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{t_auth.loginTitle}</h1>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">{t_auth.loginSubtitle}</p>
+                    <h1 className="text-3xl font-bold text-gray-800">{t_auth.loginTitle}</h1>
+                    <p className="mt-2 text-gray-600">{t_auth.loginSubtitle}</p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="rounded-md shadow-sm -space-y-px">
@@ -140,8 +141,8 @@ const LoginPage: React.FC = () => {
                 </div>
 
                 {/* Quick Login Section for Demo/Testing Purposes */}
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                    <p className="text-center text-sm font-medium text-gray-600 dark:text-gray-400 mb-4">
+                <div className="border-t border-gray-200 pt-6">
+                    <p className="text-center text-sm font-medium text-gray-600 mb-4">
                         {language === 'ar' ? 'للتجربة: تسجيل دخول سريع' : 'For Demo: Quick Logins'}
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
