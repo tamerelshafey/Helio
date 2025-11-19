@@ -1,3 +1,4 @@
+
 {
   "compilerOptions": {
     "target": "ES2020",
@@ -18,7 +19,13 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    
+    /* Path Aliases */
+    "baseUrl": ".",
+    "paths": {
+      "api/*": ["services/*"]
+    }
   },
   "include": ["."],
   "exclude": ["api"],
