@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
@@ -15,7 +14,7 @@ const PublicLayout: React.FC = () => {
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
     const { currentUser, logout, hasPermission } = useAuth();
-    const { t } = useLanguage();
+    const { language, t } = useLanguage();
 
     const dashboardPath = useMemo(() => {
         if (!currentUser) return '/login';
@@ -48,6 +47,18 @@ const PublicLayout: React.FC = () => {
 
     return (
         <div className="flex flex-col min-h-screen">
+            {/* Beta Launch Banner */}
+            <div className="bg-gray-900 text-white text-center py-3 px-4 text-sm font-medium relative z-50 border-b-2 border-amber-500">
+                <div className="container mx-auto flex items-center justify-center gap-2">
+                    <span className="text-xl">🚧</span>
+                    <span>
+                        {language === 'ar' 
+                            ? 'تنويه: الموقع حالياً في مرحلة الانطلاق التجريبي (Beta). نسعد بملاحظاتكم لتحسين التجربة.' 
+                            : 'Notice: This website is currently in Beta Launch phase. We welcome your feedback to improve the experience.'}
+                    </span>
+                </div>
+            </div>
+
             <Header
                 onToggleQuietZone={handleToggleQuietZone}
                 onOpenMobileNav={handleOpenMobileNav}

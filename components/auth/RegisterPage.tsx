@@ -66,7 +66,11 @@ const RegisterPage: React.FC = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [formSubmitted, setFormSubmitted] = useState(false);
     
-    const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<PartnerRequest>();
+    const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<PartnerRequest>({
+        defaultValues: {
+            companyType: '' as any // Ensure no default selection
+        }
+    });
     
     const { fields, append, remove } = useFieldArray({ control, name: "managementContacts" });
 

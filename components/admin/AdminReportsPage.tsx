@@ -379,7 +379,9 @@ const AdminReportsPage: React.FC = () => {
                                         <TableHeader>
                                             <TableRow>
                                                 {selectedColumns.length > 0 ? selectedColumns.map(colKey => {
-                                                    const colDef = columnDefinitions[dataSource]?.[colKey] as { label: string; path: string } | undefined;
+                                                    // Explicitly cast the lookup result
+                                                    const colDefs = columnDefinitions[dataSource] as Record<string, { label: string; path: string }>;
+                                                    const colDef = colDefs?.[colKey];
                                                     return (
                                                         <TableHead key={colKey} className="whitespace-nowrap">
                                                             {colDef?.label ?? colKey}
@@ -392,7 +394,8 @@ const AdminReportsPage: React.FC = () => {
                                             {filteredData.slice(0, 50).map((item, idx) => (
                                                 <TableRow key={idx}>
                                                      {selectedColumns.map(colKey => {
-                                                         const colDef = columnDefinitions[dataSource]?.[colKey] as { label: string; path: string } | undefined;
+                                                         const colDefs = columnDefinitions[dataSource] as Record<string, { label: string; path: string }>;
+                                                         const colDef = colDefs?.[colKey];
                                                          const path = colDef?.path;
                                                          // Safe property access using reduce
                                                          const value = path ? path.split('.').reduce((o: any, i) => o?.[i], item) : '';
@@ -400,7 +403,9 @@ const AdminReportsPage: React.FC = () => {
                                                          // Formatting specific values
                                                          let displayValue = value;
                                                          if (colKey.toLowerCase().includes('date') || colKey.toLowerCase().includes('created')) {
-                                                             displayValue = new Date(value).toLocaleDateString(language);
+                                                             try {
+                                                                displayValue = new Date(value).toLocaleDateString(language);
+                                                             } catch (e) { /* keep original value */ }
                                                          }
                                                          if (colKey === 'price') {
                                                              displayValue = typeof value === 'number' ? value.toLocaleString() : value;

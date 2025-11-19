@@ -59,11 +59,10 @@ const Footer: React.FC = () => {
                         <ul className="space-y-3">
                             <FooterLink to="/">{t.nav.home}</FooterLink>
                             <FooterLink to="/properties">{t.nav.properties}</FooterLink>
+                            <FooterLink to="/projects">{t.nav.projects}</FooterLink>
                             <FooterLink to="/finishing">{t.nav.finishing}</FooterLink>
                             <FooterLink to="/decorations">{t.nav.decorations}</FooterLink>
                             <FooterLink to="/contact">{t.nav.contact}</FooterLink>
-                            <FooterLink to="/privacy-policy">{t.nav.privacyPolicy}</FooterLink>
-                            <FooterLink to="/terms-of-use">{t.nav.termsOfUse}</FooterLink>
                         </ul>
                     </div>
                     {/* For Partners */}
@@ -99,31 +98,40 @@ const Footer: React.FC = () => {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="mt-12 pt-8 border-t border-gray-300 flex flex-col sm:flex-row justify-between items-center">
-                    <div className="flex flex-col sm:flex-row items-center gap-x-4 gap-y-2 text-sm">
+                <div className="mt-12 pt-8 border-t border-gray-300 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-center gap-x-6 gap-y-2 text-sm">
                         <p className="text-gray-500">
                             {content.copyright[language]}
                         </p>
+                        
+                         {/* Legal Links Moved Here */}
+                        <div className="flex gap-4 text-gray-500">
+                            <Link to="/privacy-policy" className="hover:text-amber-500 transition-colors">{t.nav.privacyPolicy}</Link>
+                            <Link to="/terms-of-use" className="hover:text-amber-500 transition-colors">{t.nav.termsOfUse}</Link>
+                        </div>
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row items-center gap-x-6 gap-y-4">
                         <a
                             href={`mailto:${content.email}?subject=Feedback`}
-                            className="text-gray-500 hover:text-amber-500 transition-colors duration-200"
+                            className="text-sm text-gray-500 hover:text-amber-500 transition-colors duration-200"
                         >
                             {content.feedbackText[language]}
                         </a>
-                    </div>
-                    <div className={`flex space-x-6 ${language === 'ar' ? 'space-x-reverse' : ''} mt-4 sm:mt-0`}>
-                        <SocialLink href={content.social.facebook}>
-                            <FacebookIcon className="h-6 w-6" />
-                        </SocialLink>
-                        <SocialLink href={content.social.twitter}>
-                            <TwitterIcon className="h-6 w-6" />
-                        </SocialLink>
-                        <SocialLink href={content.social.instagram}>
-                            <InstagramIcon className="h-6 w-6" />
-                        </SocialLink>
-                        <SocialLink href={content.social.linkedin}>
-                            <LinkedInIcon className="h-6 w-6" />
-                        </SocialLink>
+                        <div className={`flex space-x-6 ${language === 'ar' ? 'space-x-reverse' : ''}`}>
+                            <SocialLink href={content.social.facebook}>
+                                <FacebookIcon className="h-6 w-6" />
+                            </SocialLink>
+                            <SocialLink href={content.social.twitter}>
+                                <TwitterIcon className="h-6 w-6" />
+                            </SocialLink>
+                            <SocialLink href={content.social.instagram}>
+                                <InstagramIcon className="h-6 w-6" />
+                            </SocialLink>
+                            <SocialLink href={content.social.linkedin}>
+                                <LinkedInIcon className="h-6 w-6" />
+                            </SocialLink>
+                        </div>
                     </div>
                 </div>
             </div>
