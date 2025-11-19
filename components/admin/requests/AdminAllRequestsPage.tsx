@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllRequests, updateRequest } from '../../../services/requests';
 import { getAllPartnersForAdmin } from '../../../services/partners';
@@ -17,6 +17,7 @@ import { Card, CardContent, CardFooter } from '../../ui/Card';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import CardSkeleton from '../../ui/CardSkeleton';
 import TableSkeleton from '../../ui/TableSkeleton';
+import { PlusIcon } from '../../ui/Icons';
 
 const statusColors: { [key in RequestStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -29,19 +30,12 @@ const statusColors: { [key in RequestStatus]: string } = {
     rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 };
 
-const requestTypeLabels: Record<RequestType, { en: string; ar: string }> = {
-    [RequestType.LEAD]: { en: 'Lead', ar: 'طلب عميل' },
-    [RequestType.PARTNER_APPLICATION]: { en: 'Partner Application', ar: 'طلب شراكة' },
-    [RequestType.PROPERTY_LISTING_REQUEST]: { en: 'Listing Request', ar: 'طلب عرض عقار' },
-    [RequestType.CONTACT_MESSAGE]: { en: 'Contact Message', ar: 'رسالة تواصل' },
-    [RequestType.PROPERTY_INQUIRY]: { en: 'Property Inquiry', ar: 'طلب بحث' },
-};
-
 const AdminAllRequestsPage: React.FC = () => {
     const { language, t } = useLanguage();
     const { currentUser } = useAuth();
     const t_admin = t.adminDashboard;
     const queryClient = useQueryClient();
+    const [searchParams, setSearchParams] = useSearchParams();
     
     const [viewMode, setViewMode] = useState<'mine' | 'all'>('mine');
     const isSuperAdmin = currentUser?.role === Role.SUPER_ADMIN;
@@ -67,12 +61,19 @@ const AdminAllRequestsPage: React.FC = () => {
         }
         return requests;
     }, [requests, isSuperAdmin, viewMode, currentUser]);
-
+    
+    // Initial filters from URL
+    const initialFilters = useMemo(() => ({
+        type: searchParams.get('type') || 'all',
+        status: searchParams.get('status') || 'all',
+        assignedTo: searchParams.get('assignedTo') || 'all',
+    }), [searchParams]);
 
     const { paginatedItems, totalPages, currentPage, setCurrentPage, searchTerm, setSearchTerm, filters, setFilter } = useAdminTable({
         data: filteredData,
         itemsPerPage: 15,
         initialSort: { key: 'createdAt', direction: 'descending' },
+        initialFilters,
         searchFn: (item, term) => item.requesterInfo.name.toLowerCase().includes(term),
         filterFns: {
             type: (item, value) => item.type === value,
@@ -80,6 +81,15 @@ const AdminAllRequestsPage: React.FC = () => {
             assignedTo: (item, value) => item.assignedTo === value,
         },
     });
+    
+    const updateUrlFilter = (key: string, value: string) => {
+        setFilter(key, value);
+        setSearchParams(prev => {
+            if (value === 'all') prev.delete(key);
+            else prev.set(key, value);
+            return prev;
+        }, { replace: true });
+    };
 
     const getSubject = (request: Request) => {
         const payload = request.payload as any;
@@ -114,7 +124,7 @@ const AdminAllRequestsPage: React.FC = () => {
                         {req.type === RequestType.LEAD ? (t.dashboard.leadStatus[(req.payload as Lead).status] || (req.payload as Lead).status) : (t_admin.adminRequests.requestStatus[req.status] || req.status)}
                     </span>
                 </div>
-                <p className="text-sm text-gray-500">{requestTypeLabels[req.type][language]}</p>
+                <p className="text-sm text-gray-500">{t.adminDashboard.requestTypes[req.type]}</p>
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-2">
                     <p className="text-sm"><strong className="text-gray-500">Subject: </strong> <span className="line-clamp-2">{getSubject(req)}</span></p>
                     <p className="text-sm"><strong className="text-gray-500">Date: </strong> {new Date(req.createdAt).toLocaleDateString()}</p>
@@ -156,7 +166,7 @@ const AdminAllRequestsPage: React.FC = () => {
                  <TableBody>
                     {items.map(req => (
                         <TableRow key={req.id}>
-                            <TableCell className="font-medium text-gray-500 dark:text-gray-400">{requestTypeLabels[req.type][language]}</TableCell>
+                            <TableCell className="font-medium text-gray-500 dark:text-gray-400">{t.adminDashboard.requestTypes[req.type]}</TableCell>
                             <TableCell>
                                 <div>{req.requesterInfo.name}</div>
                                 <div className="text-xs text-gray-400">{req.requesterInfo.phone}</div>
@@ -210,26 +220,34 @@ const AdminAllRequestsPage: React.FC = () => {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{pageTitle}</h1>
                     <p className="text-gray-500 dark:text-gray-400">{pageSubtitle}</p>
                 </div>
-                {isSuperAdmin && (
-                    <div className="flex-shrink-0 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg flex gap-1">
-                        <Button variant={viewMode === 'mine' ? 'primary' : 'secondary'} onClick={() => setViewMode('mine')} className="!py-1.5">{t.adminDashboard.requestsTriage.myRequests}</Button>
-                        <Button variant={viewMode === 'all' ? 'primary' : 'secondary'} onClick={() => setViewMode('all')} className="!py-1.5">{t.adminDashboard.requestsTriage.allRequests}</Button>
-                    </div>
-                )}
+                <div className="flex items-center gap-3">
+                    {isSuperAdmin && (
+                        <div className="flex-shrink-0 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg flex gap-1">
+                            <Button variant={viewMode === 'mine' ? 'primary' : 'secondary'} onClick={() => setViewMode('mine')} className="!py-1.5">{t.adminDashboard.requestsTriage.myRequests}</Button>
+                            <Button variant={viewMode === 'all' ? 'primary' : 'secondary'} onClick={() => setViewMode('all')} className="!py-1.5">{t.adminDashboard.requestsTriage.allRequests}</Button>
+                        </div>
+                    )}
+                    <Link to="/admin/requests/new">
+                        <Button className="flex items-center gap-2">
+                            <PlusIcon className="w-5 h-5" />
+                            {t.adminShared.add} Request
+                        </Button>
+                    </Link>
+                </div>
             </div>
             
             <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border dark:border-gray-700">
                 <Input placeholder={t_admin.filter.searchByRequesterOrPhone} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                <Select value={filters.type || 'all'} onChange={e => setFilter('type', e.target.value)}>
+                <Select value={filters.type || 'all'} onChange={e => updateUrlFilter('type', e.target.value)}>
                     <option value="all">{t_admin.filter.all} Types</option>
-                    {Object.entries(requestTypeLabels).map(([key, value]) => <option key={key} value={key}>{value[language]}</option>)}
+                    {Object.entries(t_admin.requestTypes).map(([key, value]) => <option key={key} value={key}>{value as string}</option>)}
                 </Select>
-                 <Select value={filters.status || 'all'} onChange={e => setFilter('status', e.target.value)}>
+                 <Select value={filters.status || 'all'} onChange={e => updateUrlFilter('status', e.target.value)}>
                     <option value="all">{t_admin.filter.all} Statuses</option>
                     {Object.entries(t_admin.adminRequests.requestStatus).map(([key, value]) => <option key={key} value={key}>{value as string}</option>)}
                 </Select>
                  {isSuperAdmin && viewMode === 'all' && (
-                    <Select value={filters.assignedTo || 'all'} onChange={e => setFilter('assignedTo', e.target.value)}>
+                    <Select value={filters.assignedTo || 'all'} onChange={e => updateUrlFilter('assignedTo', e.target.value)}>
                         <option value="all">{t_admin.filter.all} Assignees</option>
                         {(managers || []).map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                     </Select>

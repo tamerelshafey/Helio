@@ -1,3 +1,4 @@
+
 import type { Partner } from '../types';
 
 // SECURITY WARNING: This mock data includes hardcoded passwords for demonstration purposes ONLY.
@@ -98,51 +99,86 @@ export let partnersData: Omit<Partner, 'name' | 'description' | 'role'>[] = [
         subscriptionEndDate: '2099-12-31T00:00:00Z', displayType: 'standard',
         contactMethods: { whatsapp: { enabled: true, number: '+201000000000' }, phone: { enabled: true, number: '+201000000000' }, form: { enabled: true } },
     },
+    
+    // --- NEW ROLES ---
+
+    // Decoration Manager
     {
-        id: 'service-manager-1',
+        id: 'decoration-manager-1',
         imageUrl: 'https://images.unsplash.com/photo-1531891437562-b1a5b0648509?q=75&w=1974&auto.format&fit=crop',
-        email: 'service-manager@onlyhelio.com',
+        email: 'decor@onlyhelio.com',
         password: 'password',
-        type: 'service_manager', status: 'active', subscriptionPlan: 'basic',
+        type: 'decoration_manager', status: 'active', subscriptionPlan: 'basic',
         displayType: 'standard',
         contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
-     {
-        id: 'customer-relations-manager-1',
-        imageUrl: 'https://images.unsplash.com/photo-1543462378-94183658e3e4?q=75&w=1974&auto.format&fit=crop',
-        email: 'customer-relations-manager@onlyhelio.com',
-        password: 'password',
-        type: 'customer_relations_manager', status: 'active', subscriptionPlan: 'basic',
-        displayType: 'standard',
-        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
-    },
+    
+    // Platform Finishing Manager (Internal)
     {
-        id: 'listings-manager-1',
-        imageUrl: 'https://images.unsplash.com/photo-1599948058230-787cd7a5f629?q=75&w=1974&auto.format&fit=crop',
-        email: 'listings-manager@onlyhelio.com',
+        id: 'platform-finishing-manager-1',
+        imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=75&w=1974&auto.format&fit=crop',
+        email: 'fin-platform@onlyhelio.com',
         password: 'password',
-        type: 'listings_manager', status: 'active', subscriptionPlan: 'basic',
+        type: 'platform_finishing_manager', status: 'active', subscriptionPlan: 'basic',
         displayType: 'standard',
         contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
+
+    // Finishing Market Manager (Partners)
+    {
+        id: 'finishing-market-manager-1',
+        imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=75&w=1974&auto.format&fit=crop',
+        email: 'fin-market@onlyhelio.com',
+        password: 'password',
+        type: 'finishing_market_manager', status: 'active', subscriptionPlan: 'basic',
+        displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
+    },
+
+    // Platform Real Estate Manager (Brokerage)
+    {
+        id: 'platform-real-estate-manager-1',
+        imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=75&w=1976&auto.format&fit=crop',
+        email: 're-platform@onlyhelio.com',
+        password: 'password',
+        type: 'platform_real_estate_manager', status: 'active', subscriptionPlan: 'basic',
+        displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
+    },
+
+    // Real Estate Market Manager (External)
+    {
+        id: 'real-estate-market-manager-1',
+        imageUrl: 'https://images.unsplash.com/photo-1599948058230-787cd7a5f629?q=75&w=1974&auto.format&fit=crop',
+        email: 're-market@onlyhelio.com',
+        password: 'password',
+        type: 'real_estate_market_manager', status: 'active', subscriptionPlan: 'basic',
+        displayType: 'standard',
+        contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
+    },
+
+    // Partner Relations Manager
     {
         id: 'partner-relations-manager-1',
         imageUrl: 'https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?q=75&w=1974&auto.format&fit=crop',
-        email: 'partner-relations-manager@onlyhelio.com',
+        email: 'partners@onlyhelio.com',
         password: 'password',
         type: 'partner_relations_manager', status: 'active', subscriptionPlan: 'basic',
         displayType: 'standard',
         contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
+
+    // Content Manager
     {
         id: 'content-manager-1',
         imageUrl: 'https://images.unsplash.com/photo-1587614295999-6c1c13675127?q=75&w=1974&auto.format&fit=crop',
-        email: 'content-manager@onlyhelio.com',
+        email: 'content@onlyhelio.com',
         password: 'password',
         type: 'content_manager', status: 'active', subscriptionPlan: 'basic',
         displayType: 'standard',
         contactMethods: { whatsapp: { enabled: false, number: '' }, phone: { enabled: false, number: '' }, form: { enabled: true } },
     },
+    
     // Individual Listings (system partner)
     {
         id: 'individual-listings',

@@ -14,7 +14,6 @@ export type AllTranslations = {
     [key in Language]: any;
 };
 
-// FIX: Add RequestType enum for new unified request system.
 export enum RequestType {
     LEAD = 'LEAD',
     PARTNER_APPLICATION = 'PARTNER_APPLICATION',
@@ -28,7 +27,6 @@ export enum RequestType {
 // ==================================================================
 
 /** Status for various requests (partners, properties, contacts). */
-// FIX: Add 'assigned' and 'in-progress' to handle statuses from the unified requests page.
 export type RequestStatus = 'new' | 'pending' | 'reviewed' | 'approved' | 'rejected' | 'closed' | 'assigned' | 'in-progress';
 
 /** Status for customer leads throughout their lifecycle. */
@@ -50,14 +48,28 @@ export type PartnerDisplayType = 'mega_project' | 'featured' | 'standard';
 /** Defines the access control roles within the system. */
 export enum Role {
     SUPER_ADMIN = 'admin',
+    
+    // External Partners
     DEVELOPER_PARTNER = 'developer',
     FINISHING_PARTNER = 'finishing',
     AGENCY_PARTNER = 'agency',
+
+    // Internal Specific Managers
+    DECORATION_MANAGER = 'decoration_manager',
+    
+    PLATFORM_FINISHING_MANAGER = 'platform_finishing_manager', // Internal Team
+    FINISHING_MARKET_MANAGER = 'finishing_market_manager', // External Partners
+    
+    PLATFORM_REAL_ESTATE_MANAGER = 'platform_real_estate_manager', // Brokerage
+    REAL_ESTATE_MARKET_MANAGER = 'real_estate_market_manager', // External Listings
+    
+    PARTNER_RELATIONS_MANAGER = 'partner_relations_manager',
+    CONTENT_MANAGER = 'content_manager',
+
+    // Restored Roles
     SERVICE_MANAGER = 'service_manager',
     CUSTOMER_RELATIONS_MANAGER = 'customer_relations_manager',
     LISTINGS_MANAGER = 'listings_manager',
-    PARTNER_RELATIONS_MANAGER = 'partner_relations_manager',
-    CONTENT_MANAGER = 'content_manager',
 }
 
 /** Represents the business type of an external partner account. */
@@ -66,11 +78,16 @@ export type BusinessPartnerType = 'developer' | 'finishing' | 'agency';
 /** Represents the type of an internal system user account. */
 export type InternalUserType =
     | 'admin'
+    | 'decoration_manager'
+    | 'platform_finishing_manager'
+    | 'finishing_market_manager'
+    | 'platform_real_estate_manager'
+    | 'real_estate_market_manager'
+    | 'partner_relations_manager'
+    | 'content_manager'
     | 'service_manager'
     | 'customer_relations_manager'
-    | 'listings_manager'
-    | 'partner_relations_manager'
-    | 'content_manager';
+    | 'listings_manager';
 
 /** Union of all user/partner types in the system. */
 export type PartnerType = BusinessPartnerType | InternalUserType;
@@ -79,33 +96,57 @@ export type PartnerType = BusinessPartnerType | InternalUserType;
 export enum Permission {
     VIEW_ADMIN_DASHBOARD = 'VIEW_ADMIN_DASHBOARD',
     VIEW_PARTNER_DASHBOARD = 'VIEW_PARTNER_DASHBOARD',
+    
+    // Self Management
     MANAGE_OWN_PROFILE = 'MANAGE_OWN_PROFILE',
     MANAGE_OWN_PROJECTS = 'MANAGE_OWN_PROJECTS',
     MANAGE_OWN_PROPERTIES = 'MANAGE_OWN_PROPERTIES',
     MANAGE_OWN_PORTFOLIO = 'MANAGE_OWN_PORTFOLIO',
     VIEW_OWN_LEADS = 'VIEW_OWN_LEADS',
     MANAGE_OWN_SUBSCRIPTION = 'MANAGE_OWN_SUBSCRIPTION',
-    VIEW_ANALYTICS = 'VIEW_ANALYTICS',
-    MANAGE_PARTNER_REQUESTS = 'MANAGE_PARTNER_REQUESTS',
-    MANAGE_PROPERTY_REQUESTS = 'MANAGE_PROPERTY_REQUESTS',
-    MANAGE_FINISHING_LEADS = 'MANAGE_FINISHING_LEADS',
-    MANAGE_DECORATIONS_LEADS = 'MANAGE_DECORATIONS_LEADS',
-    MANAGE_PROPERTY_INQUIRIES = 'MANAGE_PROPERTY_INQUIRIES',
-    MANAGE_CONTACT_REQUESTS = 'MANAGE_CONTACT_REQUESTS',
-    MANAGE_ALL_PARTNERS = 'MANAGE_ALL_PARTNERS',
-    MANAGE_ALL_PROJECTS = 'MANAGE_ALL_PROJECTS',
+
+    // Restored Permissions
     MANAGE_ALL_PROPERTIES = 'MANAGE_ALL_PROPERTIES',
-    MANAGE_ALL_LEADS = 'MANAGE_ALL_LEADS',
-    MANAGE_DECORATIONS_CONTENT = 'MANAGE_DECORATIONS_CONTENT',
-    MANAGE_BANNERS = 'MANAGE_BANNERS',
-    MANAGE_SITE_CONTENT = 'MANAGE_SITE_CONTENT',
+    MANAGE_ALL_PROJECTS = 'MANAGE_ALL_PROJECTS',
+    
+    // Super Admin
     MANAGE_USERS = 'MANAGE_USERS',
     MANAGE_ROLES_PERMISSIONS = 'MANAGE_ROLES_PERMISSIONS',
-    MANAGE_PLANS = 'MANAGE_PLANS',
-    MANAGE_FILTERS = 'MANAGE_FILTERS',
     MANAGE_SETTINGS = 'MANAGE_SETTINGS',
+    VIEW_ANALYTICS = 'VIEW_ANALYTICS',
+
+    // Decoration Manager
+    MANAGE_DECORATIONS_CONTENT = 'MANAGE_DECORATIONS_CONTENT', // Portfolio, Categories
+    MANAGE_DECORATIONS_LEADS = 'MANAGE_DECORATIONS_LEADS',
+
+    // Platform Finishing Manager
+    MANAGE_PLATFORM_FINISHING_PACKAGES = 'MANAGE_PLATFORM_FINISHING_PACKAGES',
+    MANAGE_PLATFORM_FINISHING_LEADS = 'MANAGE_PLATFORM_FINISHING_LEADS',
+
+    // Finishing Market Manager
+    MANAGE_FINISHING_PARTNERS = 'MANAGE_FINISHING_PARTNERS',
+    
+    // Platform Real Estate Manager
+    MANAGE_PLATFORM_PROPERTIES = 'MANAGE_PLATFORM_PROPERTIES', // Brokerage listings
+    MANAGE_PLATFORM_PROPERTY_LEADS = 'MANAGE_PLATFORM_PROPERTY_LEADS',
+
+    // Real Estate Market Manager
+    MANAGE_MARKET_PROPERTIES = 'MANAGE_MARKET_PROPERTIES', // Review listings
+    MANAGE_PROPERTY_REQUESTS = 'MANAGE_PROPERTY_REQUESTS', // Listing requests from owners
+    MANAGE_PROPERTY_INQUIRIES = 'MANAGE_PROPERTY_INQUIRIES', // "I want to buy" general inquiries
+
+    // Partner Relations
+    MANAGE_PARTNER_REQUESTS = 'MANAGE_PARTNER_REQUESTS',
+    MANAGE_ALL_PARTNERS = 'MANAGE_ALL_PARTNERS', // General overview
+    MANAGE_PLANS = 'MANAGE_PLANS',
     MANAGE_INQUIRY_ROUTING = 'MANAGE_INQUIRY_ROUTING',
     MANAGE_AUTOMATION = 'MANAGE_AUTOMATION',
+
+    // Content Manager
+    MANAGE_BANNERS = 'MANAGE_BANNERS',
+    MANAGE_SITE_CONTENT = 'MANAGE_SITE_CONTENT',
+    MANAGE_FILTERS = 'MANAGE_FILTERS',
+    MANAGE_CONTACT_REQUESTS = 'MANAGE_CONTACT_REQUESTS',
 }
 
 // ==================================================================
@@ -270,7 +311,6 @@ export interface DecorationCategory {
 //                         Requests & Leads
 // ==================================================================
 
-// FIX: Add a generic Request interface for the unified request system.
 export interface Request {
     id: string;
     type: RequestType;
@@ -415,9 +455,25 @@ export interface Quote {
     author: { [key in Language]: string };
 }
 
+// New types for Legal Pages
+export interface LegalPageSection {
+    title: string;
+    content: string;
+}
+
+export interface LegalPageContent {
+    title: string;
+    lastUpdated: string;
+    sections: LegalPageSection[];
+}
+
 export interface SiteContent {
     logoUrl: string;
     locationPickerMapUrl: string;
+    contactConfiguration: {
+        routing: 'internal' | 'email' | 'both';
+        targetEmail: string;
+    };
     hero: {
         images: {
             src: string;
@@ -425,6 +481,24 @@ export interface SiteContent {
         }[];
     } & {
         [key in Language]: { title: string; subtitle: string };
+    };
+    homeCTA: {
+        enabled: boolean;
+    } & {
+        [key in Language]: {
+            title: string;
+            subtitle: string;
+            button: string;
+            link: string;
+        };
+    };
+    homeListings: {
+        enabled: boolean;
+        count: number;
+    } & {
+        [key in Language]: {
+            title: string;
+        };
     };
     whyUs: {
         enabled: boolean;
@@ -521,12 +595,24 @@ export interface SiteContent {
         }[];
     }[];
     quotes: Quote[];
+    // Added Legal Pages
+    privacyPolicy: {
+        ar: LegalPageContent;
+        en: LegalPageContent;
+    };
+    termsOfUse: {
+        ar: LegalPageContent;
+        en: LegalPageContent;
+    };
     footer: {
         [key in Language]: { description: string; address: string; hours: string };
     } & {
         phone: string;
+        isWhatsAppOnly: boolean;
         email: string;
         social: { facebook: string; twitter: string; instagram: string; linkedin: string };
+        copyright: { [key in Language]: string };
+        feedbackText: { [key in Language]: string };
     };
 }
 
@@ -564,7 +650,6 @@ export interface Notification {
     createdAt: string;
 }
 
-// FIX: Add missing AI Estimator types.
 // ==================================================================
 //                            AI Estimator
 // ==================================================================

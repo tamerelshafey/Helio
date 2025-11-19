@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin, deletePartner } from '../../../services/partners';
@@ -11,6 +12,8 @@ import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import AdminUserFormModal from './AdminUserFormModal';
 import ConfirmationModal from '../../ui/ConfirmationModal';
+import { ResponsiveList } from '../../shared/ResponsiveList';
+import { Card, CardContent } from '../../ui/Card';
 
 const AdminUsersPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -71,6 +74,69 @@ const AdminUsersPage: React.FC = () => {
         ([key]) => !['developer', 'agency', 'finishing'].includes(key),
     );
 
+    const renderTable = (items: AdminPartner[]) => (
+         <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>{t_admin.userManagement.user}</TableHead>
+                        <TableHead>{t_admin.userManagement.role}</TableHead>
+                        <TableHead>{t_admin.userManagement.status}</TableHead>
+                        <TableHead>{t_admin.userManagement.actions}</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                        {isLoading ? (
+                        <TableRow><TableCell colSpan={4} className="text-center p-8">Loading users...</TableCell></TableRow>
+                    ) : items.map(user => (
+                        <TableRow key={user.id}>
+                            <TableCell>
+                                <div className="flex items-center gap-3">
+                                    <img src={user.imageUrl} alt={user.name} className="w-10 h-10 rounded-full object-cover"/>
+                                    <div>
+                                        <div className="font-medium text-gray-900 dark:text-white">{language === 'ar' ? user.nameAr : user.name}</div>
+                                        <div className="text-xs text-gray-500">{user.email}</div>
+                                    </div>
+                                </div>
+                            </TableCell>
+                            <TableCell className="capitalize">{t_admin.partnerTypes[user.type as keyof typeof t_admin.partnerTypes]}</TableCell>
+                            <TableCell>
+                                    <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                    {user.status}
+                                </span>
+                            </TableCell>
+                            <TableCell className="space-x-2">
+                                <Button variant="link" onClick={() => setModalState({ isOpen: true, userToEdit: user })}>{t_admin.userManagement.editUser}</Button>
+                                <Button variant="link" className="text-red-500" onClick={() => setUserToDelete(user.id)}>{t.adminShared.delete}</Button>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    );
+
+    const renderCard = (user: AdminPartner) => (
+        <Card key={user.id}>
+            <CardContent className="p-4 flex items-center gap-4">
+                 <img src={user.imageUrl} alt={user.name} className="w-12 h-12 rounded-full object-cover flex-shrink-0"/>
+                 <div className="flex-grow min-w-0">
+                     <h3 className="font-bold text-gray-900 dark:text-white truncate">{language === 'ar' ? user.nameAr : user.name}</h3>
+                     <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                     <div className="flex gap-2 mt-2">
+                         <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs font-medium">{t_admin.partnerTypes[user.type as keyof typeof t_admin.partnerTypes]}</span>
+                         <span className={`px-2 py-0.5 rounded text-xs font-medium ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{user.status}</span>
+                     </div>
+                 </div>
+            </CardContent>
+            <div className="flex border-t border-gray-200 dark:border-gray-700">
+                 <Button variant="ghost" className="flex-1 rounded-none rounded-bl-lg" onClick={() => setModalState({ isOpen: true, userToEdit: user })}>{t_admin.userManagement.editUser}</Button>
+                 <div className="w-px bg-gray-200 dark:bg-gray-700"></div>
+                 <Button variant="ghost" className="flex-1 rounded-none rounded-br-lg text-red-500 hover:bg-red-50" onClick={() => setUserToDelete(user.id)}>{t.adminShared.delete}</Button>
+            </div>
+        </Card>
+    );
+
     return (
         <div>
             {modalState.isOpen && (
@@ -93,14 +159,14 @@ const AdminUsersPage: React.FC = () => {
                 <Button onClick={() => setModalState({ isOpen: true })}>{t_admin.userManagement.addUser}</Button>
             </div>
 
-            <div className="mb-4 flex gap-4">
+            <div className="mb-4 flex gap-4 flex-wrap">
                 <Input
                     placeholder={t_admin.filter.searchByNameOrEmail}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="max-w-xs"
                 />
-                <Select value={filters.type || 'all'} onChange={(e) => setFilter('type', e.target.value)}>
+                <Select value={filters.type || 'all'} onChange={(e) => setFilter('type', e.target.value)} className="max-w-xs">
                     <option value="all">
                         {t_admin.filter.filterByType} ({t_admin.filter.all})
                     </option>
@@ -110,50 +176,21 @@ const AdminUsersPage: React.FC = () => {
                         </option>
                     ))}
                 </Select>
-                 <Select value={filters.status || 'all'} onChange={e => setFilter('status', e.target.value)}>
+                 <Select value={filters.status || 'all'} onChange={e => setFilter('status', e.target.value)} className="max-w-xs">
                     <option value="all">{t_admin.filter.filterByStatus} ({t_admin.filter.all})</option>
                     <option value="active">Active</option>
                     <option value="disabled">Disabled</option>
                 </Select>
             </div>
-             <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>{t_admin.userManagement.user}</TableHead>
-                            <TableHead>{t_admin.userManagement.role}</TableHead>
-                            <TableHead>{t_admin.userManagement.status}</TableHead>
-                            <TableHead>{t_admin.userManagement.actions}</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                         {isLoading ? (
-                            <TableRow><TableCell colSpan={4} className="text-center p-8">Loading users...</TableCell></TableRow>
-                        ) : paginatedItems.map(user => (
-                            <TableRow key={user.id}>
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <img src={user.imageUrl} alt={user.name} className="w-10 h-10 rounded-full object-cover"/>
-                                        <div>
-                                            <div className="font-medium text-gray-900 dark:text-white">{language === 'ar' ? user.nameAr : user.name}</div>
-                                            <div className="text-xs text-gray-500">{user.email}</div>
-                                        </div>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="capitalize">{t_admin.partnerTypes[user.type as keyof typeof t_admin.partnerTypes]}</TableCell>
-                                <TableCell>
-                                     <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                        {user.status}
-                                    </span>
-                                </TableCell>
-                                <TableCell className="space-x-2">
-                                    <Button variant="link" onClick={() => setModalState({ isOpen: true, userToEdit: user })}>{t_admin.userManagement.editUser}</Button>
-                                    <Button variant="link" className="text-red-500" onClick={() => setUserToDelete(user.id)}>{t.adminShared.delete}</Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+             
+            <ResponsiveList 
+                items={paginatedItems}
+                renderTable={renderTable}
+                renderCard={renderCard}
+                emptyState={<div className="text-center py-8 text-gray-500">No users found.</div>}
+            />
+
+            <div className="mt-4">
                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>

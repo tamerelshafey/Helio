@@ -1,12 +1,11 @@
 
-
-
 import React, { useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { 
   QuoteIcon, HeartIcon, HomeIcon, BuildingIcon, 
-  CubeIcon, WrenchScrewdriverIcon, SparklesIcon, PhoneIcon, CloseIcon, CogIcon, HelioLogo
+  CubeIcon, WrenchScrewdriverIcon, SparklesIcon, PhoneIcon, CloseIcon, CogIcon
 } from '../ui/Icons';
+import { SiteLogo } from './SiteLogo';
 import type { Partner } from '../../types';
 import { Permission } from '../../types';
 import { useLanguage } from './LanguageContext';
@@ -92,7 +91,7 @@ const MobileNav: React.FC<MobileNavProps> = React.memo(({ isOpen, onClose, ...pr
             >
                 <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
                      <Link to="/" onClick={onClose} id="mobile-nav-title" className="flex items-center gap-2 font-bold text-amber-500">
-                        <HelioLogo className="h-8 w-8" />
+                        <SiteLogo className="h-8 w-8" />
                         <span className="text-xl">ONLY HELIO</span>
                     </Link>
                     <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100" aria-label={language === 'ar' ? 'إغلاق القائمة' : 'Close menu'}>

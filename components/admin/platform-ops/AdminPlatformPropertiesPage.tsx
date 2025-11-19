@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAllProperties } from '../../../services/properties';
@@ -15,7 +16,11 @@ const AdminPlatformPropertiesPage: React.FC = () => {
     });
 
     const platformProperties = useMemo(() => {
-        return (allProperties || []).filter(p => p.partnerId === 'individual-listings');
+        return (allProperties || []).filter(p => 
+            p.partnerId === 'individual-listings' || 
+            p.partnerId === 'admin-user' ||
+            p.partnerId.includes('platform') // Future proofing if specific platform IDs used
+        );
     }, [allProperties]);
     
     const subtitle = language === 'ar' 
@@ -28,7 +33,7 @@ const AdminPlatformPropertiesPage: React.FC = () => {
             subtitle={subtitle}
             properties={platformProperties}
             isLoading={isLoading}
-            hideFilters={['partner']}
+            hideFilters={['partner', 'source']} // Hide partner filter since these are platform props
         />
     );
 };

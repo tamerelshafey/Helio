@@ -1,17 +1,19 @@
 
+
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getAllLeads } from '../../../services/leads';
-import { InboxIcon, WrenchScrewdriverIcon, CheckCircleIcon, SparklesIcon, ClipboardDocumentListIcon, ArrowRightIcon } from '../../ui/Icons';
+import { InboxIcon, WrenchScrewdriverIcon, CheckCircleIcon, SparklesIcon, ArrowRightIcon } from '../../ui/Icons';
 import StatCard from '../../shared/StatCard';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/Card';
 
 const AdminFinishingDashboardPage: React.FC = () => {
     const { language, t: i18n } = useLanguage();
-    const t = i18n.adminDashboard.finishingRequests;
     const t_dash = i18n.dashboard;
+    const t_page = i18n.adminDashboard.finishingManagement;
     
     // Fetch all leads
     const { data: allLeads, isLoading: loadingLeads } = useQuery({ queryKey: ['allLeads'], queryFn: getAllLeads });
@@ -19,8 +21,11 @@ const AdminFinishingDashboardPage: React.FC = () => {
     const dashboardData = useMemo(() => {
         if (!allLeads) return null;
 
-        // Filter for finishing requests
-        const finishingLeads = allLeads.filter(lead => lead.serviceType === 'finishing');
+        // Filter for finishing requests assigned to Platform (admin-user)
+        const finishingLeads = allLeads.filter(lead => 
+            lead.serviceType === 'finishing' && 
+            (lead.assignedTo === 'admin-user' || lead.partnerId === 'admin-user' || lead.managerId === 'platform-finishing-manager-1')
+        );
         
         const stats = {
             new: finishingLeads.filter(l => l.status === 'new').length,
@@ -50,34 +55,43 @@ const AdminFinishingDashboardPage: React.FC = () => {
 
     return (
         <div className="space-y-8 animate-fadeIn">
+            <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    {t_page.dashboardTitle}
+                </h1>
+                <p className="text-gray-500 dark:text-gray-400">
+                    {t_page.dashboardSubtitle}
+                </p>
+            </div>
+
             {/* Top Stats Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard 
-                    title={language === 'ar' ? 'طلبات جديدة' : 'New Requests'} 
+                    title={i18n.adminDashboard.serviceManagerHome.newRequests} 
                     value={stats.new} 
                     icon={InboxIcon} 
-                    linkTo="/admin/finishing-management/requests" 
+                    linkTo="/admin/platform-finishing/requests" 
                 />
                 <StatCard 
-                    title={language === 'ar' ? 'قيد التنفيذ' : 'In Progress'} 
+                    title={i18n.adminDashboard.serviceManagerHome.inProgress} 
                     value={stats.inProgress} 
                     icon={WrenchScrewdriverIcon} 
-                    linkTo="/admin/finishing-management/requests" 
+                    linkTo="/admin/platform-finishing/requests" 
                 />
                  <StatCard 
-                    title={language === 'ar' ? 'إجمالي الطلبات' : 'Total Requests'} 
+                    title={i18n.adminDashboard.serviceManagerHome.totalRequests} 
                     value={stats.total} 
                     icon={CheckCircleIcon} 
-                    linkTo="/admin/finishing-management/requests" 
+                    linkTo="/admin/platform-finishing/requests" 
                 />
                 
                 {/* Shortcut Card */}
-                <Link to="/admin/finishing-management/services" className="block h-full">
+                <Link to="/admin/platform-finishing/services" className="block h-full">
                     <Card className="bg-amber-500 text-white hover:bg-amber-600 transition-colors h-full border-none cursor-pointer">
                         <CardContent className="p-6 flex items-center justify-between h-full">
                             <div>
-                                <h3 className="font-bold text-lg">{language === 'ar' ? 'باقات الخدمات' : 'Service Packages'}</h3>
-                                <p className="text-amber-100 text-sm">{language === 'ar' ? 'إدارة الأسعار والتفاصيل' : 'Manage prices & details'}</p>
+                                <h3 className="font-bold text-lg">{t_page.servicePackages}</h3>
+                                <p className="text-amber-100 text-sm">{t_page.managePackages}</p>
                             </div>
                             <SparklesIcon className="w-8 h-8 text-white/80" />
                         </CardContent>
@@ -91,9 +105,9 @@ const AdminFinishingDashboardPage: React.FC = () => {
                     <Card className="h-full">
                         <CardHeader className="border-b border-gray-100 dark:border-gray-700 py-4">
                             <div className="flex justify-between items-center">
-                                <CardTitle>{language === 'ar' ? 'أحدث الطلبات الواردة' : 'Recent Requests'}</CardTitle>
-                                <Link to="/admin/finishing-management/requests" className="text-sm text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1">
-                                    {language === 'ar' ? 'عرض الكل' : 'View All'}
+                                <CardTitle>{t_page.recentInternalRequests}</CardTitle>
+                                <Link to="/admin/platform-finishing/requests" className="text-sm text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1">
+                                    {i18n.viewAll}
                                     <ArrowRightIcon className={`w-4 h-4 ${language === 'ar' ? 'rotate-180' : ''}`} />
                                 </Link>
                             </div>
@@ -129,7 +143,7 @@ const AdminFinishingDashboardPage: React.FC = () => {
                                 </div>
                             ) : (
                                 <div className="p-8 text-center text-gray-500">
-                                    {language === 'ar' ? 'لا توجد طلبات حديثة.' : 'No recent requests.'}
+                                    {i18n.adminDashboard.customerRelationsHome.noNewRequests}
                                 </div>
                             )}
                         </CardContent>
@@ -139,25 +153,15 @@ const AdminFinishingDashboardPage: React.FC = () => {
                 {/* Quick Actions / Info */}
                 <div className="space-y-6">
                     <Card>
-                        <CardHeader><CardTitle>{language === 'ar' ? 'إدارة المنظومة' : 'System Management'}</CardTitle></CardHeader>
+                        <CardHeader><CardTitle>{t_page.quickTools}</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
-                            <Link to="/admin/finishing-management/services" className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 border border-gray-200 dark:border-gray-700 transition-all group">
+                            <Link to="/admin/platform-finishing/services" className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 border border-gray-200 dark:border-gray-700 transition-all group">
                                 <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-md group-hover:bg-blue-200">
                                     <SparklesIcon className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">{language === 'ar' ? 'باقات الاستشارة' : 'Consultation Packages'}</p>
-                                    <p className="text-xs text-gray-500">{language === 'ar' ? 'تعديل محتوى الباقات المعروضة للعملاء' : 'Edit package content shown to clients'}</p>
-                                </div>
-                            </Link>
-
-                            <Link to="/admin/finishing-management/plans" className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 border border-gray-200 dark:border-gray-700 transition-all group">
-                                <div className="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-md group-hover:bg-green-200">
-                                    <ClipboardDocumentListIcon className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">{language === 'ar' ? 'خطط الشركاء' : 'Partner Plans'}</p>
-                                    <p className="text-xs text-gray-500">{language === 'ar' ? 'إدارة اشتراكات شركات التشطيب' : 'Manage finishing company subscriptions'}</p>
+                                    <p className="font-semibold text-gray-900 dark:text-white">{t_page.editPackages}</p>
+                                    <p className="text-xs text-gray-500">{t_page.updatePricing}</p>
                                 </div>
                             </Link>
                         </CardContent>

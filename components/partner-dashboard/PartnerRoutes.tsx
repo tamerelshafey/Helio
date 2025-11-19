@@ -15,6 +15,7 @@ import DashboardAnalyticsPage from './DashboardAnalyticsPage';
 import PropertyFormPage from '../forms/PropertyFormPage';
 import ProjectFormPage from '../forms/ProjectFormPage';
 import PartnerLeadDetailsPage from './PartnerLeadDetailsPage';
+import AllNotificationsPage from '../shared/AllNotificationsPage';
 
 const PartnerRoutes: React.FC = () => {
     return (
@@ -33,6 +34,7 @@ const PartnerRoutes: React.FC = () => {
             <Route path="leads/:leadId" element={<PartnerLeadDetailsPage />} />
             <Route path="subscription" element={<DashboardSubscriptionPage />} />
             <Route path="analytics" element={<DashboardAnalyticsPage />} />
+            <Route path="notifications" element={<AllNotificationsPage />} />
         </Routes>
     );
 };

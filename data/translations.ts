@@ -1,3 +1,5 @@
+
+
 // This file embeds the translation JSON content directly into the application bundle
 // to prevent any runtime file loading or path resolution errors.
 
@@ -28,6 +30,7 @@ export const arTranslations = {
         "reject": "رفض",
         "edit": "تعديل",
         "delete": "حذف",
+        "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا العنصر؟",
         "add": "إضافة",
         "addNewCategory": "إضافة قسم جديد",
         "editCategory": "تعديل القسم"
@@ -60,13 +63,19 @@ export const arTranslations = {
         "artistic-touch-decor": { "name": "لمسة فنية للديكور", "description": "متخصصون في تنفيذ أعمال الديكور والتشطيبات الفاخرة." },
         "ebdaa-integrated-finishes": { "name": "إبداع للتشطيبات المتكاملة", "description": "نقدم حلول تشطيب مبتكرة ومتكاملة للمساحات." },
         "future-real-estate": { "name": "المستقبل للتسويق العقاري", "description": "يتولون تسويق مشاريعنا العقارية بخطط مبتكرة." },
+        "individual-listings": { "name": "عقارات الأفراد", "description": "عقارات معروضة مباشرة من الملاك." },
+        
         "admin-user": { "name": "المدير العام", "description": "يمتلك صلاحيات كاملة على المنصة." },
-        "service-manager-1": { "name": "مدير الخدمات", "description": "مسؤول عن جميع طلبات التشطيب والديكور." },
-        "customer-relations-manager-1": { "name": "مدير علاقات العملاء", "description": "مسؤول عن طلبات عرض العقارات ورسائل التواصل." },
-        "listings-manager-1": { "name": "مدير العقارات والمشاريع", "description": "مسؤول عن إدارة جميع العقارات والمشاريع المعروضة." },
+        "decoration-manager-1": { "name": "مدير قسم الديكور", "description": "مسؤول عن معرض الديكورات والطلبات الخاصة." },
+        "platform-finishing-manager-1": { "name": "مدير تشطيبات المنصة", "description": "مسؤول عن باقات التشطيب الداخلية والتسعير." },
+        "finishing-market-manager-1": { "name": "مدير سوق التشطيبات", "description": "متابعة شركات ومقدمي خدمات التشطيب الخارجيين." },
+        "platform-real-estate-manager-1": { "name": "مدير عقارات المنصة", "description": "إدارة العقارات المملوكة للمنصة وخدمات الوساطة." },
+        "real-estate-market-manager-1": { "name": "مدير سوق العقارات", "description": "متابعة طلبات العرض والاستفسارات العامة." },
         "partner-relations-manager-1": { "name": "مدير علاقات الشركاء", "description": "مسؤول عن مراجعة طلبات الشركاء وإدارة حساباتهم." },
         "content-manager-1": { "name": "مدير المحتوى", "description": "مسؤول عن محتوى الموقع والإعلانات والفلاتر." },
-        "individual-listings": { "name": "عقارات الأفراد", "description": "عقارات معروضة مباشرة من الملاك." }
+        "service-manager-1": { "name": "مدير الخدمات (عام)", "description": "حساب إداري للخدمات العامة." },
+        "customer-relations-manager-1": { "name": "علاقات العملاء (عام)", "description": "حساب إداري للتواصل مع العملاء." },
+        "listings-manager-1": { "name": "مدير القوائم (عام)", "description": "حساب إداري لإدارة القوائم." }
     },
     "wisdomQuotes": {
         "title": "كلمات من الحكمة",
@@ -573,7 +582,19 @@ export const arTranslations = {
         }
     },
     "dashboardHome": {
-        "title": "نظرة عامة على لوحة التحكم", "subtitle": "ملخص سريع لنشاطك على المنصة.", "totalProjects": "إجمالي المشاريع", "totalProperties": "إجمالي العقارات", "totalUnits": "إجمالي الوحدات", "totalPortfolio": "إجمالي الأعمال", "newLeads": "طلبات العملاء الجديدة", "currentPlan": "الباقة الحالية", "recentLeads": "أحدث الطلبات", "noRecentLeads": "لا توجد طلبات جديدة لعرضها.", "viewAllLeads": "عرض كل الطلبات", "projectsOverview": "نظرة عامة على المشاريع"
+        "title": "نظرة عامة على لوحة التحكم", "subtitle": "ملخص سريع لنشاطك على المنصة.", "totalProjects": "إجمالي المشاريع", "totalProperties": "إجمالي العقارات", "totalUnits": "إجمالي الوحدات", "totalPortfolio": "إجمالي الأعمال", "newLeads": "طلبات العملاء الجديدة", "currentPlan": "الباقة الحالية", "recentLeads": "أحدث الطلبات", "noRecentLeads": "لا توجد طلبات جديدة لعرضها.", "viewAllLeads": "عرض كل الطلبات", "projectsOverview": "نظرة عامة على المشاريع",
+         "activeBanners": "إعلانات نشطة", "totalQuotes": "إجمالي الاقتباسات",
+         "topPerformingPartners": "الشركاء الأعلى أداءً",
+         "topPerformingProperties": "العقارات الأكثر طلبًا",
+         "activeProperties": "عقارات نشطة",
+         "activePartners": "شركاء نشطون",
+         "totalLeads": "إجمالي الطلبات",
+         "inquiries": "استفسار",
+         "actionableItems": "إجراءات عاجلة",
+         "pendingPartnerRequests": "طلبات شراكة معلقة",
+         "pendingPropertyRequests": "طلبات عقارات جديدة",
+         "newContactMessages": "رسائل تواصل جديدة",
+         "review": "مراجعة"
     },
     "dashboardAnalytics": {
         "title": "تحليلات الأداء",
@@ -631,7 +652,8 @@ export const arTranslations = {
             "automationRules": "قواعد الأتمتة",
             "platformProperties": "عقارات المنصة",
             "platformDecorations": "خدمات الديكور",
-            "platformFinishing": "باقات التشطيب"
+            "platformFinishing": "باقات التشطيب",
+             "aiEstimatorSettings": "إعدادات المقايسة الذكية"
         },
         "requestsTriage": {
             "title": "مركز إدارة الطلبات",
@@ -661,7 +683,9 @@ export const arTranslations = {
           },
           "confirmDelete": "هل أنت متأكد أنك تريد حذف قاعدة التوجيه هذه؟ لا يمكن التراجع عن هذا الإجراء.",
           "conditionsCount": "{count} شرط (شروط)",
-          "assignToAction": "تعيين إلى:"
+          "assignToAction": "تعيين إلى:",
+          "conditions": "الشروط",
+          "action": "الإجراء"
         },
         "requestTypes": {
             "LEAD": "طلب عميل",
@@ -686,268 +710,483 @@ export const arTranslations = {
             "table": {
                 "partner": "الشريك",
                 "whatsapp": "واتساب",
-                "phone": "اتصال مباشر",
-                "internalForm": "نموذج داخلي",
+                "phone": "الهاتف",
+                "internalForm": "النموذج الداخلي",
                 "actions": "إجراءات"
             },
             "editModalTitle": "تعديل أرقام التواصل",
             "updateSuccess": "تم تحديث طرق التواصل بنجاح!"
         },
-        "roleDescriptions": {
-            "DEVELOPER_PARTNER": "إدارة المشاريع والوحدات الخاصة بهم.", "FINISHING_PARTNER": "إدارة معرض الأعمال وطلبات خدمات التشطيب.", "AGENCY_PARTNER": "إدارة العقارات المعروضة وطلبات العملاء.", "SERVICE_MANAGER": "الإشراف على جميع طلبات التشطيبات والديكورات.", "CUSTOMER_RELATIONS_MANAGER": "متابعة طلبات الملاك الأفراد ورسائل التواصل.", "LISTINGS_MANAGER": "إدارة جميع العقارات والمشاريع على المنصة.", "PARTNER_RELATIONS_MANAGER": "مراجعة طلبات الشركاء الجدد وإدارة حساباتهم.", "CONTENT_MANAGER": "التحكم في المحتوى العام للموقع مثل الإعلانات والفلاتر."
+        "partnersManagement": {
+            "title": "علاقات الشركاء",
+            "subtitle": "نظرة عامة على الشركاء وطلبات الانضمام.",
+            "totalPartners": "إجمالي الشركاء",
+            "partnerDistributionByType": "توزيع الشركاء حسب النوع",
+            "partnersByPlan": "الشركاء حسب الباقة",
+            "recentPartnerRequests": "أحدث طلبات الانضمام"
         },
         "serviceManagerHome": {
-            "title": "لوحة تحكم مدير الخدمات", "subtitle": "نظرة عامة على جميع طلبات خدمات التشطيب والديكور.", "newRequests": "طلبات جديدة", "inProgress": "قيد التنفيذ", "completedThisMonth": "مكتملة هذا الشهر", "totalRequests": "إجمالي الطلبات", "recentActivity": "أحدث الطلبات", "manage": "إدارة",
+            "title": "إدارة الخدمات",
+            "subtitle": "إدارة ومتابعة طلبات التشطيب والديكور.",
+            "newRequests": "طلبات جديدة",
+            "inProgress": "قيد التنفيذ",
             "recentFinishing": "أحدث طلبات التشطيب",
-            "recentDecorations": "أحدث طلبات الديكور"
+            "recentDecorations": "أحدث طلبات الديكور",
+            "totalRequests": "إجمالي الطلبات"
         },
         "customerRelationsHome": {
-            "title": "لوحة تحكم علاقات العملاء", "subtitle": "نظرة عامة على جميع الطلبات الواردة من العملاء الأفراد.", "newListingRequests": "طلبات عرض عقارات جديدة", "newSearchRequests": "طلبات بحث عن عقار جديدة", "newContactMessages": "رسائل تواصل جديدة", "recentPropertyRequests": "أحدث طلبات عرض العقارات", "recentInquiries": "أحدث طلبات البحث", "recentContacts": "أحدث رسائل التواصل", "viewAll": "عرض الكل", "noNewRequests": "لا توجد طلبات جديدة."
-        },
-        "listingsManagerHome": {
-            "title": "لوحة تحكم العقارات والمشاريع", "subtitle": "نظرة عامة على جميع العقارات والمشاريع على المنصة.", "activeProperties": "العقارات النشطة", "totalProjects": "إجمالي المشاريع"
+            "title": "علاقات العملاء",
+            "subtitle": "إدارة طلبات العقارات والتواصل مع العملاء.",
+            "newListingRequests": "طلبات عرض جديدة",
+            "newSearchRequests": "طلبات بحث جديدة",
+            "newContactMessages": "رسائل جديدة",
+            "recentPropertyRequests": "أحدث طلبات العرض",
+            "recentInquiries": "أحدث الاستفسارات",
+            "recentContacts": "أحدث الرسائل",
+            "viewAll": "عرض الكل",
+            "noNewRequests": "لا توجد طلبات جديدة."
         },
         "contentManagerHome": {
-            "title": "لوحة تحكم المحتوى", "subtitle": "نظرة عامة على محتوى الموقع القابل للتعديل.", "quickLinks": "روابط سريعة"
+            "title": "إدارة المحتوى",
+            "subtitle": "التحكم في محتوى الموقع، الإعلانات، والإعدادات.",
+            "quickLinks": "روابط سريعة"
         },
-        "partnersManagement": {
-            "title": "لوحة تحكم علاقات الشركاء", "subtitle": "نظرة عامة على حسابات الشركاء وطلبات الانضمام.", "newListingRequests": "طلبات عرض جديدة", "newPropertyInquiries": "طلبات بحث جديدة", "activeProperties": "عقارات نشطة", "totalInquiries": "إجمالي طلبات البحث", "recentListingRequests": "أحدث طلبات عرض العقارات", "recentSearchInquiries": "أحدث طلبات البحث عن عقارات", "propertyDistribution": "توزيع العقارات حسب النوع", "listingsByStatus": "العقارات حسب الحالة", "totalPartners": "إجمالي الشركاء", "newPartnersThisMonth": "شركاء جدد هذا الشهر", "partnerDistributionByType": "توزيع الشركاء حسب النوع", "partnersByPlan": "الشركاء حسب الباقة", "recentPartnerRequests": "أحدث طلبات الانضمام", "companyName": "اسم الشركة", "requester": "مقدم الطلب"
-        },
-        "finishingRequests": {
-            "manage": "إدارة", "assignedTo": "مسند إلى", "internalTeam": "الفريق الداخلي", "newRequests": "طلبات جديدة", "inProgress": "قيد التنفيذ", "completedThisMonth": "مكتملة هذا الشهر", "totalRequests": "إجمالي الطلبات", "recentActivity": "أحدث الطلبات", "assignmentOverview": "نظرة عامة على التعيينات", "externalPartners": "شركاء خارجيين", "unassigned": "غير مسندة"
-        },
-        "contentManagement": {
-            "title": "إدارة المحتوى", "subtitle": "تعديل النصوص والصور في الصفحات العامة للموقع.",
-            "tabs": {
-                "hero": "الواجهة الرئيسية", "whyUs": "لماذا تختارنا", "services": "خدماتنا", "partners": "الشركاء", "testimonials": "آراء العملاء", "socialProof": "الأرقام والإحصائيات", "whyNewHeliopolis": "لماذا هليوبوليس", "quotes": "الاقتباسات", "footer": "التذييل"
-            }, "saveChanges": "حفظ التغييرات", "unsavedChanges": "لديك تغييرات غير محفوظة", "saving": "جاري الحفظ...", "addFeature": "إضافة ميزة", "addStat": "إضافة إحصائية", "remove": "إزالة", "uploadImage": "رفع صورة"
-        },
-        "userManagement": {
-            "title": "إدارة المستخدمين", "subtitle": "الإشراف على وتعديل وإدارة جميع حسابات المستخدمين والشركاء على المنصة.", "addUser": "إضافة مستخدم جديد", "user": "المستخدم", "role": "الدور", "status": "الحالة", "actions": "إجراءات", "editUser": "تعديل", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.", "form": {
-                "nameAr": "الاسم (بالعربية)", "nameEn": "الاسم (بالإنجليزية)", "email": "البريد الإلكتروني", "password": "كلمة المرور", "passwordHelp": "اتركه فارغًا لكلمة المرور الافتراضية. يمكن للمستخدم تغييرها لاحقًا."
-            }
-        },
-        "projects": {
-            "title": "إدارة كل المشاريع", "subtitle": "الإشراف على وإدارة جميع المشاريع من جميع المطورين.", "table": {
-                "project": "المشروع", "partner": "الشريك", "units": "الوحدات", "actions": "إجراءات"
-            }, "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا المشروع وجميع الوحدات المرتبطة به؟"
-        },
-        "propertyInquiries": {
-            "title": "طلبات البحث عن عقار", "subtitle": "إدارة طلبات العملاء المخصصة للبحث عن عقارات غير متوفرة حالياً بالمنصة.", "table": {
-                "details": "تفاصيل الطلب"
-            }, "noRequests": "لا توجد طلبات بحث عن عقار حاليًا."
-        },
-        "manageBanners": {
-            "title": "إدارة الإعلانات", "addBanner": "إضافة إعلان جديد", "editBanner": "تعديل الإعلان", "bannerTitle": "عنوان الإعلان", "bannerImage": "صورة الإعلان", "bannerLink": "الرابط (اختياري)", "displayLocations": "أماكن العرض", "status": "الحالة", "active": "نشط", "inactive": "غير نشط", "startDate": "تاريخ البدء (اختياري)", "endDate": "تاريخ الانتهاء (اختياري)", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الإعلان؟", "edit": "تعديل", "delete": "حذف", "tableImage": "صورة", "tableTitle": "العنوان", "tableLocations": "الأماكن", "tableStatus": "الحالة", "tableActions": "إجراءات"
+        "listingsManagerHome": {
+            "title": "إدارة العقارات والمشاريع",
+            "subtitle": "الإشراف على العقارات والمشاريع المعروضة.",
+            "activeProperties": "عقارات نشطة",
+            "totalProjects": "إجمالي المشاريع"
         },
         "home": {
-            "title": "لوحة التحكم الرئيسية", "subtitle": "نظرة سريعة على أهم مؤشرات الأداء والإجراءات المطلوبة.", "actionableItems": "إجراءات عاجلة", "pendingPartnerRequests": "طلبات شراكة معلقة", "pendingPropertyRequests": "طلبات عقارات جديدة", "newContactMessages": "رسائل تواصل جديدة", "review": "مراجعة", "leadsLast7Days": "الطلبات الجديدة (آخر 7 أيام)", "propertyStatusDistribution": "توزيع حالات العقارات", "topPerformingPartners": "الشركاء الأعلى أداءً", "topPerformingProperties": "العقارات الأكثر طلبًا", "activeProperties": "عقارات نشطة", "activePartners": "شركاء نشطون", "totalLeads": "إجمالي الطلبات", "inquiries": "استفسار", "activeBanners": "إعلانات نشطة", "totalQuotes": "إجمالي الاقتباسات"
+            "title": "لوحة التحكم الرئيسية",
+            "subtitle": "مرحبًا بك في لوحة تحكم المسؤول. اختر قسمًا للبدء.",
+            "activePartners": "شركاء نشطون",
+            "activeProperties": "عقارات نشطة",
+            "totalLeads": "إجمالي العملاء المحتملين",
+            "pendingPartnerRequests": "طلبات شركاء معلقة",
+            "pendingPropertyRequests": "طلبات عقارات معلقة",
+            "newContactMessages": "رسائل جديدة",
+            "actionableItems": "إجراءات مطلوبة",
+            "topPerformingPartners": "أفضل الشركاء أداءً",
+            "topPerformingProperties": "أفضل العقارات أداءً",
+            "activeBanners": "إعلانات نشطة",
+            "totalQuotes": "إجمالي الاقتباسات",
+            "inquiries": "استفسارات",
+            "review": "مراجعة"
         },
+        "partnerRequestsTitle": "طلبات الشركاء",
+        "partnerRequestsSubtitle": "مراجعة وإدارة طلبات الانضمام كشريك.",
+        "propertyRequestsTitle": "طلبات عرض العقارات",
+        "propertyRequestsSubtitle": "مراجعة الطلبات المقدمة من الملاك لعرض عقاراتهم.",
+        "contactRequestsTitle": "رسائل التواصل",
+        "contactRequestsSubtitle": "الرسائل الواردة عبر نموذج الاتصال العام.",
         "partnersTitle": "إدارة الشركاء",
-        "partnersSubtitle": "مراجعة حسابات الشركاء وتفعيلها أو تعطيلها على المنصة.",
+        "partnersSubtitle": "عرض وإدارة جميع حسابات الشركاء المسجلين.",
+        "propertiesTitle": "إدارة العقارات",
+        "propertiesSubtitle": "عرض وإدارة جميع العقارات المدرجة في النظام.",
+        "projects": {
+            "title": "إدارة المشاريع",
+            "subtitle": "عرض وإدارة جميع المشاريع العقارية.",
+            "table": {
+                "project": "المشروع",
+                "partner": "المطور",
+                "units": "الوحدات",
+                "actions": "إجراءات"
+            },
+            "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا المشروع وجميع وحداته؟"
+        },
+        "adminRequests": {
+            "table": {
+                "requester": "مقدم الطلب",
+                "message": "الرسالة",
+                "date": "التاريخ",
+                "status": "الحالة",
+                "actions": "إجراءات",
+                "companyInfo": "بيانات الشركة",
+                "primaryContact": "مسؤول التواصل",
+                "documents": "المستندات",
+                "download": "تحميل",
+                "managementContacts": "جهات الاتصال الإدارية",
+                "details": "التفاصيل",
+                "delete": "حذف",
+                "propertyInfo": "بيانات العقار"
+            },
+            "requestStatus": {
+                "new": "جديد",
+                "pending": "قيد الانتظار",
+                "reviewed": "تمت المراجعة",
+                "approved": "موافق عليه",
+                "rejected": "مرفوض",
+                "assigned": "مُعين",
+                "in-progress": "قيد التنفيذ",
+                "closed": "مغلق"
+            },
+            "noPartnerRequests": "لا توجد طلبات شركاء.",
+            "noPropertyRequests": "لا توجد طلبات عرض عقارات.",
+            "noContactRequests": "لا توجد رسائل تواصل.",
+            "partnerRequestsTitle": "طلبات الشركاء",
+            "partnerRequestsSubtitle": "مراجعة وإدارة طلبات الانضمام.",
+            "propertyRequestsTitle": "طلبات العقارات",
+            "propertyRequestsSubtitle": "مراجعة طلبات الملاك.",
+            "contactRequestsTitle": "رسائل التواصل",
+            "contactRequestsSubtitle": "الاستفسارات العامة.",
+            "propertyDetailsTitle": "تفاصيل طلب العقار",
+            "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الطلب؟"
+        },
+        "propertyInquiries": {
+            "table": {
+                "details": "التفاصيل"
+            },
+            "noRequests": "لا توجد طلبات بحث عن عقارات.",
+            "subtitle": "طلبات العملاء للبحث عن عقارات بمواصفات محددة."
+        },
         "partnerTable": {
-            "partner": "الشريك", "type": "النوع", "status": "الحالة", "actions": "إجراءات", "verify": "تفعيل", "disable": "تعطيل", "enable": "تمكين", "subscriptionPlan": "الباقة", "planUsage": "استهلاك الباقة", "subscriptionEndDate": "انتهاء الاشتراك", "displayType": "نوع العرض", "contactMethods": "طرق التواصل", "enableWhatsApp": "تفعيل واتساب", "whatsAppNumber": "رقم الواتساب", "enablePhone": "تفعيل الاتصال المباشر", "phoneNumber": "رقم الهاتف", "enableForm": "تفعيل النموذج الداخلي"
+            "partner": "الشريك",
+            "type": "النوع",
+            "subscriptionPlan": "الباقة",
+            "status": "الحالة",
+            "actions": "إجراءات",
+            "whatsAppNumber": "رقم الواتساب",
+            "phoneNumber": "رقم الهاتف",
+            "displayType": "نوع العرض"
         },
         "partnerDisplayTypes": {
-            "mega_project": "مشروع ضخم", "featured": "مميز", "standard": "عادي"
+            "standard": "قياسي",
+            "featured": "مميز",
+            "mega_project": "مشروع ضخم"
+        },
+        "manageBanners": {
+            "title": "إدارة الإعلانات",
+            "addBanner": "إضافة إعلان",
+            "editBanner": "تعديل الإعلان",
+            "bannerImage": "صورة الإعلان",
+            "bannerTitle": "العنوان",
+            "bannerLink": "الرابط",
+            "displayLocations": "أماكن العرض",
+            "status": "الحالة",
+            "startDate": "تاريخ البدء",
+            "endDate": "تاريخ الانتهاء",
+            "active": "نشط",
+            "inactive": "غير نشط",
+            "tableImage": "الصورة",
+            "tableTitle": "العنوان",
+            "tableLocations": "المواقع",
+            "tableStatus": "الحالة",
+            "tableActions": "إجراءات",
+            "edit": "تعديل",
+            "delete": "حذف",
+            "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الإعلان؟"
+        },
+        "contentManagement": {
+            "title": "إدارة المحتوى",
+            "subtitle": "تعديل محتوى صفحات الموقع بسهولة.",
+            "unsavedChanges": "تغييرات غير محفوظة",
+            "saveChanges": "حفظ التغييرات",
+            "saving": "جاري الحفظ...",
+            "tabs": {
+                "hero": "الواجهة الرئيسية",
+                "whyUs": "لماذا نحن",
+                "services": "الخدمات",
+                "partners": "الشركاء",
+                "projectsPage": "صفحة المشاريع",
+                "finishingPage": "صفحة التشطيبات",
+                "decorationsPage": "صفحة الديكورات",
+                "testimonials": "آراء العملاء",
+                "socialProof": "الأرقام والإحصائيات",
+                "whyNewHeliopolis": "لماذا هليوبوليس",
+                "quotes": "اقتباسات",
+                "footer": "تذييل الصفحة"
+            }
         },
         "editPartnerTitle": "تعديل الشريك",
         "changePlan": "تغيير الباقة",
-        "updateSubscription": "تحديث تاريخ الاشتراك",
-        "partnerTypes": {
-            "developer": "مطور", "finishing": "شركة تشطيب", "agency": "مكتب عقاري", "admin": "مدير عام", "service_manager": "مدير الخدمات", "customer_relations_manager": "مدير علاقات العملاء", "listings_manager": "مدير العقارات", "partner_relations_manager": "مدير علاقات الشركاء", "content_manager": "مدير المحتوى"
-        },
-        "partnerStatuses": {
-            "active": "نشط", "pending": "قيد المراجعة", "disabled": "معطل"
-        },
-        "propertiesTitle": "إدارة كل العقارات",
-        "propertiesSubtitle": "الإشراف على وإدارة جميع قوائم العقارات من جميع الشركاء.",
-        "propertyTable": {
-            "partner": "الشريك", "edit": "تعديل", "liveStatus": "حالة العرض", "listingPeriod": "فترة العرض", "active": "نشط", "inactive": "غير نشط",
-            "routing": "التوجيه",
-            "default": "افتراضي",
-            "custom": "مخصص",
-            "preview": "معاينة"
-        },
+        "updateSubscription": "تحديث تاريخ انتهاء الاشتراك",
         "editPropertyModal": {
-            "title": "تعديل العقار", "listingStartDate": "تاريخ بدء العرض", "listingEndDate": "تاريخ نهاية العرض"
-        },
-        "manageLeadsSubtitle": "عرض وإدارة جميع طلبات العملاء الواردة لجميع الشركاء.",
-        "plans": {
-            "title": "إدارة باقات الاشتراك", "subtitle": "عرض وتعديل تفاصيل باقات الاشتراك المتاحة للشركاء.", "editPlanTitle": "تعديل الباقة", "price": "السعر", "description": "الوصف", "features": "المميزات", "featuresHelpText": "كل ميزة في سطر جديد.", "commissionRate": "نسبة العمولة (%)", "planCategories": {
-                "developer": "المطورون", "agency": "المكاتب العقارية", "finishing": "شركات التشطيب", "individual": "المستخدمين الأفراد", "sale": "باقات البيع", "rent": "باقات الإيجار"
-            }
-        },
-        "decorationsManagement": {
-            "title": "إدارة الديكورات", "subtitle": "إدارة محتوى صفحة الديكورات والطلبات الواردة.",
-            "portfolioTab": "معرض الأعمال",
-            "categoriesTab": "الأقسام",
-            "addNewItem": "إضافة عمل جديد",
-            "editItem": "تعديل العمل",
-            "itemPartner": "الشريك",
-            "itemImage": "الصورة",
-            "itemTitle": "العنوان",
-            "itemCategory": "التصنيف",
-            "itemActions": "إجراءات",
-            "noItems": "لا توجد أعمال ديكور حاليًا.",
-            "noRequests": "لا توجد طلبات ديكور حاليًا.",
-            "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا العنصر؟",
-            "lastUpdated": "آخر تحديث",
-            "internalNotes": "ملاحظات داخلية",
-            "filterByDate": "فلترة بالتاريخ",
-            "startDate": "تاريخ البدء",
-            "endDate": "تاريخ الانتهاء",
-            "backToRequests": "العودة للطلبات",
-            "requestDetails": "تفاصيل الطلب",
-            "customerInformation": "بيانات العميل",
-            "requestInformation": "بيانات الطلب",
-            "management": "إدارة الطلب",
-            "newRequests": "طلبات جديدة",
-            "inProgress": "قيد التنفيذ",
-            "completedThisMonth": "مكتملة هذا الشهر",
-            "totalPortfolioItems": "إجمالي الأعمال",
-            "recentActivity": "أحدث الطلبات",
-            "categoryOverview": "نظرة عامة على الأقسام",
-            "portfolioDistribution": "توزيع الأعمال",
-            "leadsByCategory": "الطلبات المفتوحة حسب القسم",
-            "addNewCategory": "إضافة قسم جديد",
-            "editCategory": "تعديل القسم"
-        },
-        "adminRequests": {
-            "partnerRequestsTitle": "طلبات انضمام الشركاء", "partnerRequestsSubtitle": "مراجعة طلبات الشركاء الجدد واتخاذ إجراء بشأنها.", "propertyRequestsTitle": "طلبات عرض العقارات", "propertyRequestsSubtitle": "مراجعة طلبات عرض العقارات من الملاك والموافقة عليها.", "contactRequestsTitle": "رسائل التواصل", "contactRequestsSubtitle": "عرض وإدارة الرسائل الواردة من نموذج التواصل العام.", "table": {
-                "requester": "مقدم الطلب", "phone": "الهاتف", "date": "التاريخ", "status": "الحالة", "actions": "إجراءات", "details": "عرض التفاصيل", "propertyInfo": "معلومات العقار", "message": "الرسالة", "approve": "موافقة", "reject": "رفض", "markAsReviewed": "تحديد كمقروء", "delete": "حذف", "companyInfo": "معلومات الشركة", "primaryContact": "معلومات التواصل", "managementContacts": "جهات اتصال الإدارة", "documents": "المستندات الرسمية", "download": "تحميل",
-                "type": "النوع",
-                "subject": "الموضوع",
-                "assignedTo": "مسند إلى"
-            },
-            "requestStatus": {
-                "pending": "قيد الانتظار", "reviewed": "تمت المراجعة", "closed": "مغلق", "approved": "تمت الموافقة", "rejected": "مرفوض", "new": "جديد",
-                "assigned": "تم التعيين", "in-progress": "قيد التنفيذ"
-            },
-            "noPartnerRequests": "لا توجد طلبات انضمام جديدة حاليًا.", "noPropertyRequests": "لا توجد طلبات عرض عقارات جديدة حاليًا.", "noContactRequests": "لا توجد رسائل تواصل جديدة حاليًا.", "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الطلب؟", "propertyDetailsTitle": "تفاصيل طلب عرض العقار", "subscriptionPlan": "باقة الاشتراك", "cooperationType": "نموذج التعاون"
+            "title": "تعديل حالة العقار",
+            "listingStartDate": "تاريخ بدء العرض",
+            "listingEndDate": "تاريخ نهاية العرض"
         },
         "filter": {
-            "search": "بحث...", "searchByNameOrEmail": "بحث بالاسم أو البريد الإلكتروني...", "searchByRequesterOrPhone": "بحث بالاسم أو الهاتف...", "filterByType": "فلترة بالنوع", "filterByStatus": "فلترة بالحالة", "filterByPlan": "فلترة بالباقة", "filterByDisplayType": "فلترة بنوع العرض", "filterByPartner": "فلترة بالشريك", "all": "الكل", "allPartners": "كل الشركاء", "listingDateRange": "نطاق تاريخ العرض", "leadDateRange": "نطاق تاريخ الطلب"
+            "search": "بحث...",
+            "searchByNameOrEmail": "بحث بالاسم أو البريد...",
+            "searchByRequesterOrPhone": "بحث بالاسم أو الهاتف...",
+            "filterByType": "تصفية حسب النوع",
+            "filterByStatus": "تصفية بالحالة",
+            "filterByPlan": "تصفية حسب الباقة",
+            "leadDateRange": "نطاق التاريخ",
+            "all": "الكل"
+        },
+        "plans": {
+            "title": "إدارة باقات الاشتراك",
+            "subtitle": "تعديل الأسعار والمميزات لكل باقة.",
+            "editPlanTitle": "تعديل الباقة",
+            "price": "السعر",
+            "description": "الوصف",
+            "features": "المميزات",
+            "featuresHelpText": "ميزة واحدة في كل سطر.",
+            "commissionRate": "نسبة العمولة (%)",
+            "planCategories": {
+                "developer": "المطورون",
+                "agency": "المكاتب العقارية",
+                "finishing": "شركات التشطيب",
+                "sale": "بيع (أفراد)",
+                "rent": "إيجار (أفراد)"
+            }
+        },
+        "userManagement": {
+            "title": "إدارة المستخدمين الداخليين",
+            "addUser": "إضافة مستخدم",
+            "editUser": "تعديل المستخدم",
+            "user": "المستخدم",
+            "role": "الدور",
+            "status": "الحالة",
+            "actions": "إجراءات",
+            "form": {
+                "nameAr": "الاسم (بالعربية)",
+                "nameEn": "الاسم (بالإنجليزية)",
+                "password": "كلمة المرور",
+                "passwordHelp": "اتركه فارغًا للإبقاء على كلمة المرور الحالية."
+            },
+            "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا المستخدم؟"
         },
         "bulkActions": {
             "selected": "تم تحديد",
-            "activate": "تفعيل المحدد",
-            "deactivate": "تعطيل المحدد",
-            "delete": "حذف المحدد",
-            "clear": "مسح"
+            "activate": "تفعيل",
+            "deactivate": "تعطيل",
+            "delete": "حذف",
+            "clear": "إلغاء التحديد"
+        },
+        "partnerTypes": {
+            "developer": "مطور عقاري",
+            "finishing": "شركة تشطيبات",
+            "agency": "مكتب تسويق عقاري",
+            "admin": "المشرف العام",
+            "decoration_manager": "مدير قسم الديكور",
+            "platform_finishing_manager": "مدير تشطيبات المنصة (داخلي)",
+            "finishing_market_manager": "مدير سوق التشطيبات (شركاء)",
+            "platform_real_estate_manager": "مدير عقارات المنصة (وساطة)",
+            "real_estate_market_manager": "مدير سوق العقارات (عام)",
+            "partner_relations_manager": "مدير علاقات الشركاء",
+            "content_manager": "مدير المحتوى",
+            "service_manager": "مدير الخدمات (عام)",
+            "customer_relations_manager": "مدير علاقات العملاء",
+            "listings_manager": "مدير القوائم"
+        },
+        "partnerStatuses": {
+            "active": "نشط",
+            "pending": "معلق",
+            "disabled": "معطل"
+        },
+        "roleDescriptions": {
+            "DECORATION_MANAGER": "إدارة محتوى وطلبات قسم الديكور.",
+            "PLATFORM_FINISHING_MANAGER": "إدارة باقات وطلبات التشطيب الخاصة بالمنصة.",
+            "FINISHING_MARKET_MANAGER": "متابعة شركات ومقدمي خدمات التشطيب الخارجيين.",
+            "PLATFORM_REAL_ESTATE_MANAGER": "إدارة العقارات المعروضة مباشرة من المنصة (الوساطة).",
+            "REAL_ESTATE_MARKET_MANAGER": "متابعة طلبات العرض والاستفسارات العقارية العامة.",
+            "PARTNER_RELATIONS_MANAGER": "إدارة طلبات الشراكة وعلاقات الشركاء.",
+            "CONTENT_MANAGER": "إدارة محتوى الموقع، الإعلانات، والإعدادات العامة.",
+            "SERVICE_MANAGER": "دور عام لإدارة الخدمات (قديم).",
+            "CUSTOMER_RELATIONS_MANAGER": "دور عام لإدارة علاقات العملاء (قديم).",
+            "LISTINGS_MANAGER": "دور عام لإدارة القوائم (قديم)."
+        },
+        "decorationsManagement": {
+            "title": "إدارة الديكورات",
+            "subtitle": "التحكم في معرض الأعمال، الفئات، والطلبات الخاصة بقسم الديكور.",
+            "portfolioTab": "معرض الأعمال",
+            "categoriesTab": "الفئات",
+            "newRequests": "طلبات جديدة",
+            "inProgress": "قيد التنفيذ",
+            "completedThisMonth": "مكتملة هذا الشهر",
+            "totalPortfolioItems": "عناصر المعرض",
+            "recentActivity": "آخر الأنشطة",
+            "lastUpdated": "آخر تحديث",
+            "noRequests": "لا توجد طلبات حالياً.",
+            "categoryOverview": "نظرة عامة على الفئات",
+            "portfolioDistribution": "توزيع الأعمال",
+            "leadsByCategory": "الطلبات حسب الفئة",
+            "addNewItem": "إضافة عمل جديد",
+            "editItem": "تعديل",
+            "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا العنصر؟",
+            "noItems": "لا توجد عناصر في المعرض.",
+            "itemCategory": "الفئة",
+            "addNewCategory": "إضافة فئة جديدة",
+            "requestDetails": "تفاصيل الطلب",
+            "requestInformation": "معلومات الطلب",
+            "customerInformation": "بيانات العميل",
+            "management": "الإدارة"
+        },
+        "finishingManagement": {
+            "title": "إدارة تشطيبات المنصة",
+            "subtitle": "إدارة طلبات التشطيب الداخلية وباقات الخدمات.",
+            "dashboardTitle": "لوحة تحكم تشطيبات المنصة",
+            "dashboardSubtitle": "متابعة الطلبات الواردة لفريق التشطيب الداخلي وتعديل الباقات.",
+            "servicePackages": "باقات التشطيب",
+            "managePackages": "تعديل الأسعار والتفاصيل",
+            "recentInternalRequests": "أحدث الطلبات الداخلية",
+            "quickTools": "أدوات سريعة",
+            "editPackages": "تعديل الباقات",
+            "updatePricing": "تحديث الأسعار",
+            "leadsTitle": "طلبات التشطيب (المنصة)",
+            "noPlatformRequests": "لا توجد طلبات تشطيب خاصة بالمنصة حالياً.",
+            "tabs": {
+                "dashboard": "لوحة التحكم",
+                "requests": "الطلبات",
+                "services": "الخدمات",
+                "plans": "الباقات"
+            }
+        },
+        "aiEstimatorSettings": {
+            "title": "إعدادات المقايسة الذكية"
         }
     },
     "adminAnalytics": {
-        "title": "التحليلات المتقدمة", "subtitle": "نظرة معمقة على أداء المنصة والبيانات الرئيسية.", "timeFilter": "الفترة الزمنية", "last7days": "آخر 7 أيام", "last30days": "آخر 30 يومًا", "thismonth": "هذا الشهر", "thisyear": "هذه السنة", "userGrowth": "نمو المستخدمين والشركاء", "users": "المستخدمين", "partners": "الشركاء", "propertyPerformance": "أداء العقارات", "leads": "الطلبات", "topPerformingProperties": "العقارات الأكثر تلقيًا للطلبات", "topPerformingPartners": "الشركاء الأكثر تلقيًا للطلبات", "conversionRate": "معدل التحويل", "leadsPerProperty": "طلب / عقار", "propertyHotspots": "المناطق الأكثر طلبًا للعقارات", "newLeads": "الطلبات الجديدة", "newPartners": "شركاء جدد", "newProperties": "عقارات جديدة",
-        "leadsOverTime": "الطلبات عبر الزمن",
-        "leadStatusDistribution": "توزيع حالات الطلبات",
-        "propertyTypeDistribution": "توزيع أنواع العقارات",
-        "requestTypeDistribution": "توزيع أنواع الطلبات"
+        "title": "التحليلات العامة",
+        "subtitle": "نظرة شاملة على أداء المنصة.",
+        "newLeads": "طلبات جديدة",
+        "newPartners": "شركاء جدد",
+        "newProperties": "عقارات جديدة",
+        "conversionRate": "معدل التحويل",
+        "leadsOverTime": "نمو الطلبات",
+        "requestTypeDistribution": "توزيع أنواع الطلبات",
+        "topPerformingPartners": "الشركاء الأكثر نشاطاً",
+        "topPerformingProperties": "العقارات الأكثر طلباً",
+        "leads": "طلبات",
+        "last7days": "آخر 7 أيام",
+        "last30days": "آخر 30 يوم",
+        "thismonth": "هذا الشهر",
+        "thisyear": "هذا العام"
     },
     "adminReports": {
-        "title": "نظام التقارير المخصصة", "subtitle": "أنشئ وصَدّر تقارير مخصصة بناءً على بيانات المنصة.", "step1": "الخطوة 1: اختر مصدر البيانات", "selectDataSource": "اختر مصدرًا...", "dataSources": {
-            "leads": "طلبات العملاء", "properties": "العقارات", "partners": "الشركاء"
-        }, "step2": "الخطوة 2: اختر الأعمدة", "step3": "الخطوة 3: تطبيق الفلاتر", "dateRange": "النطاق الزمني", "startDate": "من تاريخ", "endDate": "إلى تاريخ", "step4": "الخطوة 4: تصدير التقرير", "exportCSV": "تصدير CSV", "exportPDF": "تصدير PDF", "noColumnsSelected": "الرجاء اختيار عمود واحد على الأقل."
+        "title": "التقارير",
+        "subtitle": "تصدير بيانات مخصصة للتحليل.",
+        "step1": "الخطوة 1: اختر مصدر البيانات",
+        "selectDataSource": "اختر المصدر...",
+        "dataSources": {
+            "leads": "الطلبات (Leads)",
+            "properties": "العقارات",
+            "partners": "الشركاء"
+        },
+        "step2": "الخطوة 2: اختر الأعمدة",
+        "step3": "الخطوة 3: نطاق التاريخ (اختياري)",
+        "startDate": "من تاريخ",
+        "endDate": "إلى تاريخ",
+        "step4": "الخطوة 4: التصدير",
+        "exportCSV": "تصدير CSV",
+        "exportPDF": "تصدير PDF",
+        "noColumnsSelected": "الرجاء اختيار عمود واحد على الأقل."
     },
     "subscriptionPlans": {
-        "title": "اختر الباقة التي تناسبك", "selectButton": "اختر الباقة", "developer": {
-            "basic": { "name": "الأساسية", "price": "مجانية", "description": "مثالية للبدء وعرض عدد محدود من المشاريع.", "features": ["إضافة حتى مشروع واحد", "إضافة حتى 5 وحدات", "ملف شخصي أساسي"] }, "professional": { "name": "الاحترافية", "price": "799 ج.م / شهرياً", "description": "للشركات النامية التي ترغب في عرض مشاريع متعددة.", "features": ["إضافة حتى 5 مشاريع", "إضافة حتى 50 وحدة", "شارة 'شريك مميز'"] }, "elite": { "name": "النخبة", "price": "1499 ج.م / شهرياً", "description": "للشركات الكبرى التي تبحث عن أقصى استفادة.", "features": ["عدد غير محدود من المشاريع", "عدد غير محدود من الوحدات", "ظهور بارز في الصفحة الرئيسية", "شارة 'شريك النخبة'"] }
-        }, "agency": {
-            "basic": { "name": "الأساسية", "price": "مجانية", "description": "مثالية للبدء وعرض عدد محدود من العقارات.", "features": ["إضافة حتى 3 عقارات", "ملف شخصي أساسي", "ظهور قياسي في البحث"] }, "professional": { "name": "الاحترافية", "price": "499 ج.م / شهرياً", "description": "للشركاء الذين يسعون للنمو وزيادة الظهور.", "features": ["إضافة حتى 15 عقارًا", "شارة 'شريك مميز'", "أولوية أعلى في نتائج البحث", "تحليلات أساسية للأداء"] }, "elite": { "name": "النخبة", "price": "999 ج.م / شهرياً", "description": "للشركات الكبرى التي تبحث عن أقصى استفادة.", "features": ["عدد غير محدود من العقارات", "ظهور بارز في الصفحة الرئيسية", "شارة 'شريك النخبة'", "تحليلات متقدمة ودعم فني"] }
-        }, "finishing": {
-            "commission": { "name": "باقة العمولة", "price": "رسوم رمزية + عمولة 10%", "description": "ابدأ بدون التزام كبير. نحن نجلب لك العملاء، ونتقاسم النجاح.", "features": ["ملف شخصي أساسي", "معرض أعمال (10 صور)", "استقبال طلبات العملاء عبر المنصة", "دعم أساسي"], "commissionRate": 10 }, "professional": { "name": "الباقة الاحترافية", "price": "499 ج.م / شهرياً", "description": "للشركات التي ترغب في تعزيز حضورها والحصول على عملاء مباشرين بدون عمولة.", "features": ["كل شيء في باقة العمولة، بالإضافة إلى:", "شارة 'شريك مميز'", "أولوية في الظهور بصفحة التشطيبات", "معرض أعمال أكبر (50 صورة)", "لا يوجد عمولة على المشاريع"], "commissionRate": 0 }, "elite": { "name": "باقة النخبة", "price": "999 ج.م / شهرياً", "description": "للوصول الأقصى للعملاء والظهور الأبرز في المنصة.", "features": ["كل شيء في الباقة الاحترافية، بالإضافة إلى:", "شارة 'شريك النخبة'", "ظهور بارز في أماكن مميزة", "معرض أعمال غير محدود + فيديو", "دعم مخصص"], "commissionRate": 0 }
+        "title": "خطط الاشتراك",
+        "selectButton": "اختر الخطة",
+        "developer": {
+            "basic": { "name": "أساسي", "price": "مجاني", "description": "للمطورين الجدد، ابدأ بعرض مشروع واحد.", "features": ["مشروع واحد", "10 وحدات", "لوحة تحكم أساسية"] },
+            "professional": { "name": "احترافي", "price": "5,000 ج.م/شهر", "description": "للمطورين المتنامين، اعرض المزيد من المشاريع.", "features": ["5 مشاريع", "50 وحدة", "تحليلات متقدمة", "دعم فني"] },
+            "elite": { "name": "نخبة", "price": "15,000 ج.م/شهر", "description": "للمطورين الكبار، بلا حدود.", "features": ["مشاريع غير محدودة", "وحدات غير محدودة", "أولوية العرض", "مدير حساب مخصص"] }
+        },
+        "agency": {
+            "basic": { "name": "أساسي", "price": "مجاني", "description": "للمكاتب الصغيرة.", "features": ["3 عقارات", "لوحة تحكم أساسية"] },
+            "professional": { "name": "احترافي", "price": "2,000 ج.م/شهر", "description": "للمكاتب النشطة.", "features": ["15 عقار", "عرض مميز", "تحليلات"] },
+            "elite": { "name": "نخبة", "price": "5,000 ج.م/شهر", "description": "للمكاتب الكبرى.", "features": ["عقارات غير محدودة", "أعلى القائمة", "دعم 24/7"] }
+        },
+        "finishing": {
+            "commission": { "name": "عمولة", "price": "مجاني", "description": "ادفع فقط عند الحصول على عمل.", "features": ["ملف شخصي", "استقبال طلبات", "عمولة 10%"] },
+            "professional": { "name": "احترافي", "price": "3,000 ج.م/شهر", "description": "للشركات المحترفة.", "features": ["معرض أعمال", "بدون عمولة", "أولوية الظهور"] },
+            "elite": { "name": "نخبة", "price": "8,000 ج.م/شهر", "description": "للشركات الكبرى.", "features": ["معرض غير محدود", "شارة شريك موثوق", "ترويج حصري"] }
         },
         "individual": {
             "sale": {
-                "paid_listing": { "name": "باقة الإعلان المدفوع (بيع)", "price": "500 ج.م / 3 أشهر", "description": "أضف عقارك للبيع على منصتنا لمدة محددة مقابل رسوم ثابتة.", "features": ["إعلان لمدة 3 أشهر", "تحكم كامل في إعلانك", "لا يوجد عمولات على البيع"], "commissionRate": 0 },
-                "commission": { "name": "التفويض بالتسويق (بيع)", "price": "مقابل عمولة 2.5%", "description": "فوض فريقنا لتولي كافة مهام بيع عقارك، من التسويق وحتى إتمام الصفقة.", "features": ["تسويق احترافي وتصوير مميز", "نتولى الرد على الاستفسارات والمعاينات", "متابعة قانونية حتى إتمام الصفقة"], "commissionRate": 2.5 }
+                "paid_listing": { "name": "إعلان مدفوع", "price": "500 ج.م", "description": "ادفع مرة واحدة لعرض عقارك.", "features": ["عرض لمدة 3 شهور", "تواصل مباشر مع المشترين"] },
+                "commission": { "name": "عمولة", "price": "مجاني", "description": "نحن نبيع لك مقابل عمولة.", "features": ["نحن ندير العملية", "تصوير احترافي", "عمولة 2.5% عند البيع"] }
             },
             "rent": {
-                "paid_listing": { "name": "باقة الإعلان المدفوع (إيجار)", "price": "250 ج.م / شهر", "description": "أضف عقارك للإيجار على منصتنا لمدة شهر مقابل رسوم ثابتة.", "features": ["إعلان لمدة شهر", "استقبل استفسارات المهتمين مباشرة", "لا يوجد عمولات على الإيجار"], "commissionRate": 0 },
-                "commission": { "name": "التفويض بالتسويق (إيجار)", "price": "مقابل عمولة", "description": "دع فريقنا يتولى مهمة تأجير عقارك بسرعة واحترافية.", "features": ["تسويق احترافي", "نتولى الرد على الاستفسارات والمعاينات", "المساعدة في إبرام العقد"], "commissionRate": 8.33 }
+                "paid_listing": { "name": "إعلان مدفوع", "price": "300 ج.م", "description": "اعرض وحدتك للإيجار.", "features": ["عرض لمدة شهرين", "تواصل مباشر"] },
+                "commission": { "name": "عمولة", "price": "مجاني", "description": "نحن نؤجر لك.", "features": ["نحن ندير العملية", "عمولة شهر إيجار"] }
             }
         }
     },
     "upgradePlanModal": {
-        "title": "الوصول للحد الأقصى", "message": "لقد وصلت إلى الحد الأقصى لعدد العقارات المسموح به في باقتك الحالية. قم بترقية باقتك لإضافة المزيد من العقارات.", "closeButton": "إغلاق", "upgradeButton": "الترقية الآن"
+        "title": "ترقية باقتك",
+        "message": "لقد وصلت إلى الحد الأقصى المسموح به في باقتك الحالية. للوصول إلى المزيد من الميزات وإضافة المزيد من العناصر، يرجى ترقية اشتراكك.",
+        "upgradeButton": "ترقية الآن",
+        "closeButton": "إلغاء"
     },
     "privacyPolicyPage": {
         "title": "سياسة الخصوصية",
-        "lastUpdated": "آخر تحديث: 26 يوليو 2024",
+        "lastUpdated": "آخر تحديث: نوفمبر 2025",
         "introduction": {
             "title": "1. مقدمة",
-            "content": "تحترم منصة ONLY HELIO ('نحن'، 'المنصة') خصوصيتك وتلتزم بحماية بياناتك الشخصية. توضح سياسة الخصوصية هذه كيف نجمع معلوماتك الشخصية ونستخدمها ونشاركها ونحميها عند استخدامك لموقعنا وخدماتنا. باستخدامك للمنصة، فإنك توافق على الممارسات الموضحة في هذه السياسة."
+            "content": "نحن في منصة ONLY HELIO (المشار إليها بـ \"نحن\"، \"المنصة\"، أو \"الموقع\")، نلتزم بحماية خصوصيتك وبياناتك الشخصية. توضح سياسة الخصوصية هذه كيفية جمعنا واستخدامنا ومشاركتنا لمعلوماتك عند استخدامك لمنصتنا المتخصصة في عقارات وخدمات مدينة هليوبوليس الجديدة. باستخدامك للموقع، فإنك توافق على الممارسات الموضحة في هذه السياسة."
         },
         "dataCollection": {
-            "title": "2. المعلومات التي نجمعها",
-            "content": "قد نجمع ونعالج الأنواع التالية من المعلومات:\n- **البيانات الشخصية:** الاسم ورقم الهاتف والبريد الإلكتروني عند تقديم طلب، أو التسجيل كشريك، أو التواصل معنا.\n- **بيانات العقارات:** التفاصيل والصور التي تقدمها عند عرض عقار للبيع أو الإيجار.\n- **بيانات الاستخدام:** معلومات حول كيفية وصولك إلى الخدمة واستخدامها، مثل عنوان IP ونوع المتصفح والصفحات التي تمت زيارتها والوقت المستغرق فيها.\n- **ملفات تعريف الارتباط (الكوكيز):** نستخدم ملفات تعريف الارتباط لتحسين تجربتك وتتبع النشاط على خدمتنا."
+            "title": "2. البيانات التي نجمعها",
+            "content": "قد نقوم بجمع الأنواع التالية من البيانات:\n• **معلومات الهوية:** الاسم الكامل، رقم الهاتف، عنوان البريد الإلكتروني.\n• **تفاصيل الطلبات:** تفاصيل العقار الذي ترغب في شرائه أو بيعه، تفضيلات التشطيب، ونوع الخدمة المطلوبة.\n• **المحتوى الذي تنشئه:** صور العقارات، وصف العقارات، والاستفسارات المرسلة عبر النماذج.\n• **البيانات التقنية:** عنوان IP، نوع المتصفح، وتفضيلات اللغة.\n• **بيانات الموقع الجغرافي:** قد نطلب الوصول إلى موقعك لتسهيل عرض العقارات القريبة، وذلك بموافقتك الصريحة."
         },
         "dataUsage": {
-            "title": "3. كيف نستخدم معلوماتك",
-            "content": "نستخدم البيانات التي نجمعها للأغراض التالية:\n- لتوفير خدماتنا وصيانتها، بما في ذلك عرض العقارات وتسهيل التواصل بين الأطراف.\n- لإدارة حسابك كشريك وتسهيل التواصل معك.\n- لتوصيل طلباتك واستفساراتك إلى الشركاء المعنيين (المطورين، شركات التشطيب، إلخ).\n- لإعلامك بالتغييرات التي تطرأ على خدماتنا أو سياساتنا.\n- لتحليل الاستخدام بهدف تحسين وتطوير منصتنا وخدماتنا.\n- لمنع الاحتيال وضمان أمان المنصة."
+            "title": "3. كيف نستخدم بياناتك (بما في ذلك الذكاء الاصطناعي)",
+            "content": "نستخدم بياناتك للأغراض التالية:\n• ربطك بمقدمي الخدمات المناسبين (مطورين، سماسرة، شركات تشطيب).\n• تحسين تجربة البحث عن العقارات باستخدام خوارزميات التوصية.\n• **استخدام الذكاء الاصطناعي (AI):** نستخدم نماذج الذكاء الاصطناعي (مثل Google Gemini) لتحليل استعلامات البحث الخاصة بك وتقديم نتائج أكثر دقة، بالإضافة إلى إنشاء تقديرات أولية لتكاليف التشطيب. يتم معالجة هذه البيانات بطريقة آمنة ولا يتم استخدامها لتدريب نماذج عامة بطريقة تكشف هويتك.\n• التواصل معك بخصوص تحديثات الطلبات أو العروض الجديدة."
         },
         "dataSharing": {
-            "title": "4. مشاركة معلوماتك",
-            "content": "قد نشارك معلوماتك الشخصية في الحالات التالية:\n- **مع الشركاء:** عند تقديم طلب خدمة أو استفسار عن عقار، تتم مشاركة معلومات الاتصال الخاصة بك وتفاصيل طلبك مع الشريك المعني (المعلن عن العقار أو مقدم الخدمة) لتمكينه من التواصل معك.\n- **مع مقدمي الخدمات:** قد نستعين بأطراف ثالثة لمساعدتنا في تشغيل خدمتنا (مثل خدمات الاستضافة وتحليل البيانات)، وقد يكون لديهم وصول محدود إلى بياناتك لأداء هذه المهام نيابة عنا.\n- **للامتثال القانوني:** إذا طُلب منا ذلك بموجب القانون أو استجابة لطلبات صالحة من السلطات العامة."
+            "title": "4. مشاركة البيانات مع أطراف ثالثة",
+            "content": "بصفتنا منصة وسيطة، فإننا نشارك بيانات الاتصال الخاصة بك وتفاصيل طلبك مع:\n• **الشركاء المسجلين:** (المطورون العقاريون، شركات التشطيب، المكاتب العقارية) فقط عندما تقوم بإرسال طلب استفسار أو خدمة محددة لجهة معينة أو تطلب خدمة عامة تتطلب توجيهها لأفضل مزود خدمة.\n• **مقدمي الخدمات التقنية:** الذين يساعدوننا في تشغيل الموقع (مثل استضافة البيانات وخدمات التحليل).\n• **الجهات القانونية:** عند الضرورة للامتثال للقوانين المحلية."
         },
         "security": {
-            "title": "5. أمن بياناتك",
-            "content": "أمن بياناتك مهم بالنسبة لنا. نحن نتخذ تدابير معقولة لحماية معلوماتك الشخصية من الوصول غير المصرح به أو التغيير أو الكشف أو التدمير. ومع ذلك، تذكر أنه لا توجد وسيلة نقل عبر الإنترنت أو طريقة تخزين إلكتروني آمنة 100%، ولا يمكننا ضمان أمنها المطلق."
+            "title": "5. أمن البيانات",
+            "content": "نطبق تدابير أمنية تقنية وتنظيمية مناسبة لحماية بياناتك من الوصول غير المصرح به أو الفقدان. ومع ذلك، لا يمكن ضمان أمن البيانات المنقولة عبر الإنترنت بنسبة 100%."
         },
         "changes": {
-            "title": "6. التغييرات على سياسة الخصوصية",
-            "content": "قد نقوم بتحديث سياسة الخصوصية الخاصة بنا من وقت لآخر. سنعلمك بأي تغييرات عن طريق نشر سياسة الخصوصية الجديدة على هذه الصفحة وتحديث تاريخ 'آخر تحديث' في الأعلى. يُنصح بمراجعة هذه السياسة بشكل دوري."
+            "title": "6. التغييرات على السياسة",
+            "content": "قد نقوم بتحديث سياسة الخصوصية هذه من وقت لآخر لتعكس التغييرات في ممارساتنا أو القوانين المعمول بها. سيتم نشر أي تغييرات في هذه الصفحة مع تحديث تاريخ \"آخر تحديث\"."
         },
         "contact": {
             "title": "7. تواصل معنا",
-            "content": "إذا كان لديك أي أسئلة حول سياسة الخصوصية هذه، يمكنك الاتصال بنا عبر المعلومات المتاحة في صفحة 'تواصل معنا'."
+            "content": "إذا كان لديك أي أسئلة أو مخاوف بخصوص خصوصيتك، يرجى التواصل معنا عبر صفحة \"تواصل معنا\" أو عبر البريد الإلكتروني: info@onlyhelio.com."
         }
     },
     "termsOfUsePage": {
         "title": "شروط الاستخدام",
-        "lastUpdated": "آخر تحديث: 26 يوليو 2024",
+        "lastUpdated": "آخر تحديث: نوفمبر 2025",
         "agreement": {
             "title": "1. الموافقة على الشروط",
-            "content": "باستخدامك لمنصة ONLY HELIO ('المنصة')، فإنك توافق على الالتزام بشروط الاستخدام هذه ('الشروط'). إذا كنت لا توافق على هذه الشروط، فالرجاء عدم استخدام المنصة. تشكل هذه الشروط اتفاقية ملزمة قانونيًا بينك وبين ONLY HELIO."
+            "content": "مرحبًا بك في ONLY HELIO. بوصولك إلى هذا الموقع واستخدامه، فإنك توافق على الالتزام بشروط الاستخدام هذه وجميع القوانين واللوائح المعمول بها. إذا كنت لا توافق على أي من هذه الشروط، فيُحظر عليك استخدام هذا الموقع."
         },
         "serviceDescription": {
-            "title": "2. وصف الخدمة",
-            "content": "ONLY HELIO هي منصة إلكترونية تعمل كوسيط لعرض العقارات والخدمات ذات الصلة (مثل التشطيب والديكور) المتخصصة في مدينة هليوبوليس الجديدة. نحن نسهل التواصل بين العملاء الباحثين عن عقارات أو خدمات وبين مقدمي هذه الخدمات ('الشركاء'). دورنا يقتصر على الربط، ونحن لسنا طرفًا في أي اتفاقيات أو معاملات تتم بين المستخدمين والشركاء."
+            "title": "2. وصف الخدمة ودور المنصة",
+            "content": "ONLY HELIO هي منصة رقمية تعمل كدليل وسوق للعقارات وخدمات التشطيب في مدينة هليوبوليس الجديدة.\n• **نحن لسنا طرفاً في المعاملات العقارية:** نحن نعمل كمنصة للإدراج والربط بين المستخدمين ومقدمي الخدمات. نحن لا نملك العقارات المعروضة (إلا ما تم ذكره صراحة) ولا نضمن جودة أعمال التشطيب.\n• **دقة المعلومات:** بينما نسعى جاهدين لضمان دقة المعلومات، فإننا لا نضمن خلو الموقع من الأخطاء."
         },
         "userAccounts": {
-            "title": "3. حسابات الشركاء",
-            "content": "يجب على الشركاء تقديم معلومات دقيقة وكاملة عند التسجيل. الشركاء مسؤولون عن الحفاظ على سرية معلومات حساباتهم وعن جميع الأنشطة التي تحدث تحت حساباتهم. نحتفظ بالحق في تعليق أو إنهاء الحسابات التي تقدم معلومات مضللة أو تنتهك هذه الشروط."
+            "title": "3. حسابات المستخدمين",
+            "content": "• أنت مسؤول عن الحفاظ على سرية معلومات حسابك وكلمة المرور.\n• يجب أن تكون المعلومات التي تقدمها دقيقة وحديثة.\n• نحتفظ بالحق في إنهاء الحسابات أو إزالة المحتوى الذي ينتهك شروطنا."
         },
         "prohibited": {
-            "title": "4. الأنشطة المحظورة",
-            "content": "أنت توافق على عدم استخدام المنصة لأي غرض غير قانوني أو محظور بموجب هذه الشروط. يشمل ذلك، على سبيل المثال لا الحصر: نشر محتوى كاذب أو مضلل أو احتيالي؛ انتهاك حقوق الملكية الفكرية لأي طرف؛ استخدام المنصة بطريقة قد تضر بها أو تعطلها؛ جمع معلومات عن الآخرين دون موافقتهم."
+            "title": "4. الاستخدام المحظور",
+            "content": "يُمنع منعًا باتًا:\n• استخدام الموقع لأي غرض غير قانوني.\n• محاولة اختراق الموقع أو جمع البيانات بشكل آلي (Scraping).\n• نشر معلومات عقارية كاذبة أو مضللة.\n• الإساءة أو المضايقة لأي مستخدم آخر أو شريك."
         },
         "intellectualProperty": {
-            "title": "5. حقوق الملكية الفكرية",
-            "content": "المنصة وجميع محتوياتها الأصلية وميزاتها ووظائفها (بما في ذلك على سبيل المثال لا الحصر جميع المعلومات والبرامج والنصوص والصور والفيديو والصوت) مملوكة لـ ONLY HELIO وهي محمية بموجب قوانين حقوق النشر والعلامات التجارية وبراءات الاختراع والأسرار التجارية وغيرها من قوانين الملكية الفكرية."
+            "title": "5. الملكية الفكرية",
+            "content": "جميع المحتويات الموجودة على الموقع، بما في ذلك النصوص، التصاميم، الشعارات، والأكواد، هي ملك لـ ONLY HELIO أو مرخصة لها، ومحمية بموجب قوانين حقوق النشر."
         },
         "disclaimer": {
-            "title": "6. إخلاء المسؤولية عن الضمانات",
-            "content": "يتم توفير الخدمة 'كما هي' و 'كما هي متاحة'. نحن لا نضمن دقة أو اكتمال أو موثوقية أي معلومات على المنصة، بما في ذلك قوائم العقارات وتفاصيل الشركاء. أنت توافق صراحة على أن استخدامك للمنصة على مسؤوليتك الخاصة. نحن لا نضمن أن المنصة ستكون خالية من الأخطاء أو الانقطاعات."
+            "title": "6. إخلاء المسؤولية",
+            "content": "يتم تقديم المواد على موقع ONLY HELIO \"كما هي\". لا تقدم المنصة أي ضمانات، صريحة أو ضمنية، وتخلي مسؤوليتها عن أي أضرار قد تنشأ عن استخدام الموقع أو الاعتماد على أي معلومات مدرجة فيه. أي تعامل بينك وبين أي شريك (مطور أو شركة تشطيب) هو تعامل مباشر وعلى مسؤوليتك الخاصة."
         },
         "limitation": {
-            "title": "7. تحديد المسؤولية",
-            "content": "لن تكون ONLY HELIO أو مديريها أو موظفيها أو شركائها مسؤولين بأي حال من الأحوال عن أي أضرار غير مباشرة أو عرضية أو خاصة أو تبعية أو عقابية تنشأ عن أو فيما يتعلق بوصولك إلى المنصة أو استخدامها."
+            "title": "7. حدود المسؤولية",
+            "content": "لن تكون ONLY HELIO أو موردوها مسؤولين بأي حال من الأحوال عن أي أضرار (بما في ذلك، دون حصر، الأضرار الناجمة عن فقدان البيانات أو الأرباح) تنشأ عن استخدام أو عدم القدرة على استخدام المواد على الموقع."
         },
         "governingLaw": {
-            "title": "8. القانون الحاكم",
-            "content": "تخضع هذه الشروط وتُفسر وفقًا لقوانين جمهورية مصر العربية، بغض النظر عن تعارضها مع أحكام القانون."
+            "title": "8. القانون الواجب التطبيق",
+            "content": "تخضع هذه الشروط والأحكام وتفسر وفقًا لقوانين جمهورية مصر العربية، وتخضع أي نزاعات للاختصاص القضائي الحصري للمحاكم المصرية."
         },
         "contact": {
-            "title": "9. تواصل معنا",
-            "content": "إذا كان لديك أي أسئلة حول شروط الاستخدام هذه، يمكنك الاتصال بنا عبر المعلومات المتاحة في صفحة 'تواصل معنا'."
+            "title": "9. الاستفسارات",
+            "content": "لأي استفسارات بخصوص شروط الاستخدام، يرجى التواصل معنا عبر: info@onlyhelio.com."
         }
     }
-}
+};
 
 export const enTranslations = {
-    "addProperty": "Add Property",
-    "joinAsPartner": "Join As Partner",
+    "addProperty": "List Your Property",
+    "joinAsPartner": "Join as Partner",
     "viewAll": "View All",
     "latestProperties": "Latest Properties",
     "heroButtons": {
@@ -972,6 +1211,7 @@ export const enTranslations = {
         "reject": "Reject",
         "edit": "Edit",
         "delete": "Delete",
+        "confirmDelete": "Are you sure you want to delete this item?",
         "add": "Add",
         "addNewCategory": "Add New Category",
         "editCategory": "Edit Category"
@@ -983,42 +1223,48 @@ export const enTranslations = {
         "finishing": "Finishing",
         "decorations": "Decorations",
         "favorites": "Favorites",
-        "contact": "Contact Us",
+        "contact": "Contact",
         "privacyPolicy": "Privacy Policy",
         "termsOfUse": "Terms of Use",
         "analytics": "Analytics",
         "platformProperties": "Platform Properties",
-        "platformDecorations": "Decoration Services",
+        "platformDecorations": "Decor Services",
         "platformFinishing": "Finishing Packages"
     },
     "partnerInfo": {
-        "united-development": { "name": "United Development", "description": "Our strategic partner in developing luxury residential projects." },
+        "united-development": { "name": "United Development Co.", "description": "Our strategic partner in developing luxury residential projects." },
         "modern-construction-group": { "name": "Modern Construction Group", "description": "Specialists in providing high-quality building materials." },
-        "sodic": { "name": "SODIC", "description": "One of Egypt's leading real estate development companies." },
-        "capital-group-properties": { "name": "Capital Group Properties", "description": "An international developer focused on creating integrated communities." },
-        "heliopolis-developers-group": { "name": "Heliopolis Developers Group", "description": "An alliance of developers focused on delivering high-quality projects." },
-        "alrowad-engineering": { "name": "Alrowad Engineering & Consulting", "description": "They provide engineering support and technical consulting." },
-        "future-real-estate-dev": { "name": "Future for Real Estate Development", "description": "Pioneers in building integrated residential compounds." },
-        "el-mottaheda-group": { "name": "El Mottaheda Group for Contracting", "description": "Our executive arm in contracting and finishing." },
-        "design-hub": { "name": "Design Hub", "description": "Interior design experts for creating modern spaces." },
+        "sodic": { "name": "SODIC", "description": "One of the leading real estate development companies in Egypt." },
+        "capital-group-properties": { "name": "Capital Group Properties", "description": "A global developer focused on creating integrated communities." },
+        "heliopolis-developers-group": { "name": "Heliopolis Developers Group", "description": "A coalition of developers focused on delivering high-quality projects." },
+        "alrowad-engineering": { "name": "Al-Rowad Engineering & Consulting", "description": "Providing engineering support and technical consultation." },
+        "future-real-estate-dev": { "name": "Future Real Estate Development", "description": "Pioneers in building integrated residential complexes." },
+        "el-mottaheda-group": { "name": "El Mottaheda Group", "description": "Our executive arm in contracting and finishing." },
+        "design-hub": { "name": "Design Hub", "description": "Interior design experts creating modern spaces." },
         "artistic-touch-decor": { "name": "Artistic Touch Decor", "description": "Specialists in executing luxury decor and finishing works." },
-        "ebdaa-integrated-finishes": { "name": "Ebdaa for Integrated Finishes", "description": "We offer innovative and integrated finishing solutions." },
-        "future-real-estate": { "name": "Future for Real Estate Marketing", "description": "They handle the marketing of our real estate projects with innovative plans." },
-        "admin-user": { "name": "Super Admin", "description": "Has full permissions on the platform." },
-        "service-manager-1": { "name": "Service Manager", "description": "Responsible for all finishing and decoration requests." },
-        "customer-relations-manager-1": { "name": "Customer Relations Manager", "description": "Responsible for property listing requests and contact messages." },
-        "listings-manager-1": { "name": "Listings & Projects Manager", "description": "Responsible for managing all listed properties and projects." },
-        "partner-relations-manager-1": { "name": "Partner Relations Manager", "description": "Responsible for reviewing partner requests and managing their accounts." },
+        "ebdaa-integrated-finishes": { "name": "Ebdaa Integrated Finishes", "description": "Offering innovative and integrated finishing solutions for spaces." },
+        "future-real-estate": { "name": "Future Real Estate Marketing", "description": "Handling the marketing of our real estate projects with innovative plans." },
+        "individual-listings": { "name": "Individual Listings", "description": "Properties listed directly by owners." },
+
+        "admin-user": { "name": "Super Admin", "description": "Has full access to the platform." },
+        "decoration-manager-1": { "name": "Decorations Manager", "description": "Responsible for decorations portfolio and custom requests." },
+        "platform-finishing-manager-1": { "name": "Platform Finishing Mgr", "description": "Responsible for internal finishing packages and pricing." },
+        "finishing-market-manager-1": { "name": "Finishing Market Mgr", "description": "Overseeing external finishing partners and providers." },
+        "platform-real-estate-manager-1": { "name": "Platform Real Estate Mgr", "description": "Managing platform-owned listings and brokerage services." },
+        "real-estate-market-manager-1": { "name": "Real Estate Market Mgr", "description": "Monitoring listing requests and general inquiries." },
+        "partner-relations-manager-1": { "name": "Partner Relations Mgr", "description": "Responsible for reviewing partner applications and managing accounts." },
         "content-manager-1": { "name": "Content Manager", "description": "Responsible for site content, banners, and filters." },
-        "individual-listings": { "name": "Individual Listings", "description": "Properties listed directly by owners." }
+        "service-manager-1": { "name": "Service Manager (General)", "description": "General service administration account." },
+        "customer-relations-manager-1": { "name": "Customer Relations (General)", "description": "General customer communication account." },
+        "listings-manager-1": { "name": "Listings Manager (General)", "description": "General listings administration account." }
     },
     "wisdomQuotes": {
         "title": "Words of Wisdom",
-        "description": "Inspirational quotes on architecture, design, and home."
+        "description": "Inspiring quotes on architecture, design, and home."
     },
     "cta": {
-        "title": "Ready to get started?",
-        "subtitle": "Join our network of successful partners and premium service providers in New Heliopolis.",
+        "title": "Ready to Get Started?",
+        "subtitle": "Join our network of successful partners and distinguished service providers in New Heliopolis.",
         "button": "Contact Us Now"
     },
     "footer": {
@@ -1044,7 +1290,7 @@ export const enTranslations = {
     },
     "propertiesPage": {
         "title": "Exclusive Properties in New Heliopolis",
-        "subtitle": "Find your ideal property from our carefully selected collection of real estate within New Heliopolis.",
+        "subtitle": "Find your perfect property from our carefully curated selection within New Heliopolis city.",
         "listView": "List View",
         "mapView": "Map View",
         "statusLabel": "Status",
@@ -1059,10 +1305,10 @@ export const enTranslations = {
         "commercial": "Commercial",
         "land": "Land",
         "floor": "Floor",
-        "noResults": "No properties match the current search criteria.",
-        "cantFindTitle": "Couldn't find what you're looking for?",
-        "cantFindSubtitle": "Leave us the details of your request, and our team will search for a suitable property for you and contact you as soon as it's available.",
-        "leaveRequestButton": "Leave Your Request Now",
+        "noResults": "No properties match your current search criteria.",
+        "cantFindTitle": "Can't find what you're looking for?",
+        "cantFindSubtitle": "Leave us your request details, and our team will search for the right property and contact you as soon as it's available.",
+        "leaveRequestButton": "Leave Request Now",
         "searchPlaceholder": "Search by name, address, or partner name...",
         "priceRange": "Price Range",
         "minPricePlaceholder": "Min Price",
@@ -1071,7 +1317,7 @@ export const enTranslations = {
         "allFinishes": "All Finishes",
         "fullyFinished": "Fully Finished",
         "semiFinished": "Semi-finished",
-        "withoutFinishing": "Without Finishing",
+        "withoutFinishing": "Core & Shell",
         "superLux": "Super Lux",
         "luxuryFinishing": "Luxury Finishing",
         "fullyFurnished": "Fully Furnished",
@@ -1079,11 +1325,11 @@ export const enTranslations = {
         "allInstallments": "All",
         "installmentsYes": "Available",
         "installmentsNo": "Not Available",
-        "realEstateFinance": "Real Estate Finance",
+        "realEstateFinance": "Mortgage",
         "allRealEstateFinance": "All",
         "realEstateFinanceYes": "Available",
         "realEstateFinanceNo": "Not Available",
-        "inCompound": "In a Compound",
+        "inCompound": "In Compound",
         "allCompound": "All",
         "compoundYes": "Yes",
         "compoundNo": "No",
@@ -1093,22 +1339,22 @@ export const enTranslations = {
         "amenities": "Amenities",
         "advancedFilters": "Advanced Filters",
         "hideFilters": "Hide Filters",
-        "filtersApplied": "Filters",
+        "filtersApplied": "filters",
         "project": "Project",
         "allProjects": "All Projects",
         "additionalOptions": "Additional Options",
-        "resultsFound": "Found {count} results."
+        "resultsFound": "{count} results found."
     },
     "propertyInquiryModal": {
-        "title": "Request a Property Search",
-        "subtitle": "Tell us about the property you're looking for, and we'll do our best to find it for you.",
+        "title": "Property Search Request",
+        "subtitle": "Tell us the specifications of the property you are looking for, and we will do our best to find it for you.",
         "fullName": "Full Name",
         "phone": "Phone Number",
         "contactTime": "Preferred Contact Time",
-        "propertyDetails": "Required Property Specifications",
-        "detailsPlaceholder": "e.g., Apartment for sale, 3 rooms, 150m², around 2 million EGP, in the 2nd district...",
-        "submitButton": "Submit Request",
-        "successMessage": "Your request has been received successfully! We will contact you soon."
+        "propertyDetails": "Property Specifications",
+        "detailsPlaceholder": "Example: Apartment for sale, 3 bedrooms, 150m, around 2 million EGP, in the 2nd District...",
+        "submitButton": "Send Request",
+        "successMessage": "Your request has been received successfully! We will contact you shortly."
     },
     "propertyDetailsPage": {
         "projectFeatures": "Project Features",
@@ -1140,42 +1386,42 @@ export const enTranslations = {
         "yes": "Yes",
         "no": "No",
         "immediate": "Immediate",
-        "onDate": "On",
-        "partOfProject": "This property is part of the project",
+        "onDate": "on",
+        "partOfProject": "This property is part of a project",
         "viewProject": "View Project Details",
-        "realEstateFinanceAvailable": "Real Estate Finance Available",
+        "realEstateFinanceAvailable": "Mortgage Available",
         "amenitiesIncluded": {
             "Private Garden": "Private Garden", "Swimming Pool": "Swimming Pool", "Covered Parking": "Covered Parking", "24/7 Security": "24/7 Security", "Balcony": "Balcony", "Maid's Room": "Maid's Room", "Electricity Meter": "Electricity Meter", "Water Meter": "Water Meter", "Natural Gas": "Natural Gas", "Panoramic View": "Panoramic View", "Fully Air-Conditioned": "Fully Air-Conditioned", "Security": "Security", "Shared Health Club": "Shared Health Club", "Elevator": "Elevator", "Prime Location": "Prime Location", "Close to Services": "Close to Services", "Separate Meters": "Separate Meters", "Private Roof": "Private Roof", "Open View": "Open View", "Jacuzzi": "Jacuzzi", "Dressing Room": "Dressing Room", "Modern Design": "Modern Design", "Large Garden": "Large Garden", "Complete Privacy": "Complete Privacy", "Panoramic Windows": "Panoramic Windows", "Private Garage": "Private Garage", "Fully Furnished": "Fully Furnished", "Modern Appliances": "Modern Appliances", "Ready to Move In": "Ready to Move In", "High-Speed Internet": "High-Speed Internet", "Strategic Location": "Strategic Location", "Frontage on a Main Street": "Frontage on a Main Street", "Fully Serviced": "Fully Serviced", "Full Customization Potential": "Full Customization Potential", "Quiet Area": "Quiet Area", "Parking": "Parking"
         }
     },
     "contactOptionsModal": {
-        "title": "How would you like to connect?",
+        "title": "How would you like to contact?",
         "whatsapp": "Chat via WhatsApp",
         "phone": "Direct Call",
         "form": "Send Inquiry"
     },
     "addPropertyPage": {
-        "title": "List Your Property with Us",
+        "title": "List Your Property With Us",
         "subtitle": "This service is for individual owners. Companies and real estate agencies, please contact us to join as a partner.",
-        "howItWorksTitle": "How It Works",
-        "step1": "Select the purpose of your listing (Sale or Rent).",
-        "step2": "Choose the cooperation model that suits you.",
-        "step3": "Fill out the form with your property and contact details.",
+        "howItWorksTitle": "How it works?",
+        "step1": "Choose the purpose (Sale or Rent).",
+        "step2": "Select the cooperation model that suits you.",
+        "step3": "Fill in the form with your property and contact details.",
         "step4": "Our team will review your request and contact you.",
         "cooperation": {
             "title": "Step 2: Choose Cooperation Model",
-            "subtitle": "Select how you'd like to list your property with us.",
-            "selectButton": "Select This Model"
+            "subtitle": "Choose how you prefer to list your property with us.",
+            "selectButton": "Select this model"
         },
         "purposeStep": {
-            "title": "Step 1: Listing Purpose",
-            "subtitle": "Would you like to list your property for sale or for rent?",
+            "title": "Step 1: Purpose of Listing",
+            "subtitle": "Do you want to list your property for sale or for rent?",
             "forSale": "For Sale",
             "forRent": "For Rent"
         },
         "contactPreference": {
-            "title": "How to receive inquiries",
-            "platform": "Receive inquiries via the platform",
+            "title": "Inquiry Handling",
+            "platform": "Receive inquiries via Platform",
             "direct": "Receive inquiries directly on my phone"
         },
         "formTitle": "Step 3: Property Details",
@@ -1192,7 +1438,7 @@ export const enTranslations = {
         "selectFinishing": "Select finishing...",
         "fullyFinished": "Fully Finished",
         "semiFinished": "Semi-finished",
-        "withoutFinishing": "Without Finishing",
+        "withoutFinishing": "Core & Shell",
         "superLux": "Super Lux",
         "luxuryFinishing": "Luxury Finishing",
         "fullyFurnished": "Fully Furnished",
@@ -1203,40 +1449,40 @@ export const enTranslations = {
         "commercial": "Commercial",
         "area": "Area (m²)",
         "price": "Asking Price (EGP)",
-        "bedrooms": "Number of Bedrooms",
-        "bathrooms": "Number of Bathrooms",
+        "bedrooms": "Bedrooms",
+        "bathrooms": "Bathrooms",
         "floor": "Floor",
         "address": "Detailed Address",
         "description": "Property Description",
-        "descriptionPlaceholder": "Describe the details and features of the property here...",
-        "images": "Property Photos",
-        "imagesHelpText": "Upload clear photos of the property (up to 10 images).",
+        "descriptionPlaceholder": "Mention details and features here...",
+        "images": "Property Images",
+        "imagesHelpText": "Upload clear images of the property (up to 10 images).",
         "confirmationLabel": "I confirm that I am the actual owner of the property and agree to be contacted by the ONLY HELIO team.",
         "submitButton": "Submit Request",
-        "successTitle": "Your Request Has Been Received!",
-        "successMessage": "Thank you. A member of our team will review your request and contact you as soon as possible to discuss the next steps.",
+        "successTitle": "Request Received Successfully!",
+        "successMessage": "Thank you. A member of our team will review your request and contact you as soon as possible to discuss next steps.",
         "backToHome": "Back to Home",
-        "inCompound": "Is the property in a compound?",
+        "inCompound": "Is property in a compound?",
         "yes": "Yes",
         "no": "No",
         "deliveryDate": "Delivery Date",
         "immediate": "Immediate",
         "future": "Future",
-        "deliveryMonth": "Delivery Month",
-        "deliveryYear": "Delivery Year",
-        "installments": "Are installments available?",
-        "realEstateFinance": "Is real estate finance available?",
+        "deliveryMonth": "Month",
+        "deliveryYear": "Year",
+        "installments": "Installments available?",
+        "realEstateFinance": "Mortgage available?",
         "installmentsDetails": "Installment Details",
         "downPayment": "Down Payment",
         "monthlyInstallment": "Monthly Installment",
-        "years": "Number of Years",
-        "listingStartDate": "Listing Start Date (optional)",
-        "listingEndDate": "Listing End Date (optional)",
+        "years": "Years",
+        "listingStartDate": "Listing Start Date (Optional)",
+        "listingEndDate": "Listing End Date (Optional)",
         "errors": {
             "required": "This field is required.",
-            "positiveNumber": "Value must be a positive number.",
+            "positiveNumber": "Must be a positive number.",
             "invalidPhone": "Please enter a valid phone number.",
-            "mustBeOwner": "You must agree to the declaration to proceed.",
+            "mustBeOwner": "You must agree to the confirmation to proceed.",
             "cooperationType": "Please select a cooperation model."
         },
         "back": "Back"
@@ -1258,36 +1504,36 @@ export const enTranslations = {
     },
     "servicesPage": {
         "title": "Our Services",
-        "subtitle": "Comprehensive solutions to meet all your real estate needs, from design and decor to finishing and marketing.",
+        "subtitle": "Comprehensive solutions meeting all your real estate needs, from design and decor to finishing and marketing.",
         "service1Title": "Integrated Real Estate Services",
-        "service1Desc": "We provide services for selling, buying, and renting residential and commercial properties. We help you list your property on our platform to reach the largest number of potential clients.",
+        "service1Desc": "We provide buying, selling, and renting services for residential and commercial properties. We help you list your property on our platform to reach the largest number of potential clients.",
         "service2Title": "Finishing & Interior Design",
-        "service2Desc": "We offer integrated solutions for finishing and interior design, from creating designs and accurate estimates to execution and supervision with the highest quality standards.",
-        "service3Title": "Decorations & Art Pieces",
-        "service3Desc": "We design and create unique wall decorations and magnificent art sculptures. We offer a wide range of paintings and antiques that add an exceptional aesthetic touch to your home or office."
+        "service2Desc": "We offer integrated solutions for finishing and interior design, starting from designs and precise estimates, to high-quality execution and supervision.",
+        "service3Title": "Decorations & Artworks",
+        "service3Desc": "We design and execute unique wall decorations and art sculptures. We provide a wide range of paintings and antiques that add an exceptional aesthetic touch to your home or office."
     },
     "partnersPage": {
-        "title": "Partners in Success",
-        "subtitle": "Our journey towards excellence is built on trust and collaboration with a selection of the best companies in various fields.",
+        "title": "Success Partners",
+        "subtitle": "Our journey to excellence is built on trust and cooperation with a selection of the best companies in various fields.",
         "partners": [
-            { "name": "United Development Company", "description": "Our strategic partner in developing luxury residential projects, known for quality and adherence to deadlines." },
-            { "name": "El Mottaheda Group for Contracting", "description": "Our executive arm in the field of contracting and finishing, with extensive experience in executing large projects." },
+            { "name": "United Development Co.", "description": "Our strategic partner in developing luxury residential projects, known for quality and punctuality." },
+            { "name": "El Mottaheda Group", "description": "Our executive arm in contracting and finishing, possessing extensive experience in executing major projects." },
             { "name": "Modern Construction Group", "description": "Specialists in providing high-quality building materials that we rely on in all our projects to ensure durability and safety." },
-            { "name": "Alrowad for Engineering & Consulting", "description": "They provide us with engineering support and technical advice to ensure all our designs meet the highest international standards." },
+            { "name": "Al-Rowad Engineering", "description": "Providing us with engineering support and technical consultations to ensure all our designs follow the highest international standards." },
             { "name": "Design Hub", "description": "Interior design experts we collaborate with to create modern and functional spaces that meet our clients' tastes." },
-            { "name": "Future Real Estate Marketing", "description": "They handle the marketing of our real estate projects with innovative plans that ensure effective reach to the target audience." }
+            { "name": "Future Real Estate", "description": "Handling the marketing of our real estate projects with innovative plans ensuring effective reach to the target audience." }
         ]
     },
     "serviceRequestModal": {
-        "title": "Request a Service",
+        "title": "Request Service",
         "fullName": "Full Name",
         "phone": "Phone Number",
-        "notes": "Additional Notes (optional)",
-        "notesPlaceholder": "Mention any additional details that might help, such as unit area or any initial ideas you have...",
+        "notes": "Additional Notes (Optional)",
+        "notesPlaceholder": "Mention any extra details that might help us, like unit area or initial ideas...",
         "submitButton": "Submit Request",
-        "successMessage": "Your request has been received successfully and the partner will contact you soon!",
+        "successMessage": "Your request has been received successfully! The partner will contact you shortly.",
         "preferredContactTime": "Preferred Contact Time",
-        "preferredContactTimeDefault": "Select preferred time...",
+        "preferredContactTimeDefault": "Select time...",
         "preferredContactTimeMorning": "Morning (9am - 12pm)",
         "preferredContactTimeAfternoon": "Afternoon (12pm - 3pm)",
         "preferredContactTimeEvening": "Evening (3pm - 6pm)"
@@ -1304,7 +1550,7 @@ export const enTranslations = {
         "paintings_desc": "A unique collection of art paintings to suit all tastes and spaces, created by professional artists.",
         "antiques_desc": "A curated selection of antiques and decor pieces that add a touch of elegance and luxury to your space.",
         "requestSimilarButton": "Request Similar Work",
-        "requestCustomDesign": "Request a Custom Design",
+        "requestCustomDesign": "Request Custom Design",
         "dimensions": "Dimensions",
         "availability": "Availability",
         "inStock": "In Stock",
@@ -1313,46 +1559,46 @@ export const enTranslations = {
     },
     "decorationRequestModal": {
         "title": "Inquire About This Piece",
-        "subtitle": "Confirm your details and our team will contact you regarding the creation of this piece.",
+        "subtitle": "Confirm your details and our team will contact you regarding this piece.",
         "reference": "Reference Piece:",
         "fullName": "Full Name",
         "phone": "Phone Number",
-        "notes": "Notes (optional)",
+        "notes": "Notes (Optional)",
         "notesPlaceholder": "Mention any modifications or details you'd like to add...",
         "submitButton": "Submit Request",
-        "successMessage": "Your request has been received successfully and our team will contact you soon!",
+        "successMessage": "Your request has been received successfully! Our team will contact you shortly.",
         "viewLarger": "View Larger"
     },
     "customDecorationRequestModal": {
-        "title": "Request a Custom Design",
+        "title": "Request Custom Design",
         "categoryLabel": "Category",
         "serviceTitle": "Custom Design Request",
         "fullName": "Full Name",
         "phone": "Phone Number",
         "ideaDescription": "Describe Your Idea",
-        "ideaPlaceholder": "Describe the design you want in detail, dimensions, colors, and any other details...",
-        "referenceImage": "Upload a Reference Image (Optional)",
+        "ideaPlaceholder": "Describe the design you want in detail, dimensions, colors, and any other specifics...",
+        "referenceImage": "Upload Reference Image (Optional)",
         "submitButton": "Submit Request",
-        "successMessage": "Your request has been received successfully! Our team will review your idea and contact you soon."
+        "successMessage": "Request received! Our team will review your idea and contact you soon."
     },
     "partnerProfilePage": {
         "requestService": "Request Service Now",
         "galleryTitle": "Portfolio",
-        "ourListings": "Our Listings",
+        "ourListings": "Our Properties",
         "partnerNotFound": "Partner Not Found",
-        "partnerNotFoundText": "Sorry, we couldn't find the partner you are looking for.",
+        "partnerNotFoundText": "Sorry, we couldn't find the partner you're looking for.",
         "backToHome": "Back to Home",
-        "serviceRequestFor": "Service Request for"
+        "serviceRequestFor": "Service request from"
     },
     "contactPage": {
         "title": "Contact Us",
-        "subtitle": "We're here to help. If you have an inquiry about our services and properties in New Heliopolis, or want to start a project, don't hesitate to contact us.",
-        "formTitle": "Send Us a Message",
+        "subtitle": "We are here to help. If you have any questions about our services and properties in New Heliopolis, or wish to start a project, feel free to contact us.",
+        "formTitle": "Send us a message",
         "namePlaceholder": "Full Name",
         "phonePlaceholder": "Phone Number",
         "messagePlaceholder": "Write your message here...",
         "sendButton": "Send",
-        "successMessage": "Your message has been received successfully! We will contact you soon.",
+        "successMessage": "Your message has been sent! We'll be in touch shortly.",
         "errorMessage": "Something went wrong. Please try again later.",
         "contactInfoTitle": "Contact Information",
         "addressTitle": "Address",
@@ -1360,54 +1606,54 @@ export const enTranslations = {
         "emailTitle": "Email",
         "hoursTitle": "Working Hours",
         "contactTimeLabel": "Preferred Contact Time",
-        "contactTimeDefault": "Select preferred time...",
+        "contactTimeDefault": "Select time...",
         "contactTimeMorning": "Morning (9am - 12pm)",
         "contactTimeAfternoon": "Afternoon (12pm - 3pm)",
         "contactTimeEvening": "Evening (3pm - 6pm)",
-        "inquiryTypeLabel": "I am inquiring as a:",
+        "inquiryTypeLabel": "I am inquiring as:",
         "clientOption": "Client",
         "partnerOption": "Potential Partner",
         "companyNamePlaceholder": "Company Name",
         "businessTypeLabel": "Business Type",
-        "developerOption": "Developer",
+        "developerOption": "Real Estate Developer",
         "finishingOption": "Finishing Company",
-        "agencyOption": "Agency"
+        "agencyOption": "Real Estate Agency"
     },
     "sharing": {
         "share": "Share",
         "shareProperty": "Share Property",
         "sharePartner": "Share Partner",
         "shareProject": "Share Project",
-        "shareDecorations": "Share Decorations Page",
-        "linkCopied": "Link copied!",
-        "shareFailed": "Sharing failed. Please try again.",
+        "shareDecorations": "Share Decorations",
+        "linkCopied": "Link Copied!",
+        "shareFailed": "Share failed. Please try again.",
         "copyLink": "Copy Link",
         "shareOnWhatsApp": "Share on WhatsApp"
     },
     "favoritesPage": {
         "title": "My Favorites",
         "subtitle": "Here you can find all the properties and services you have saved.",
-        "noFavorites": "You haven't saved any favorite items yet.",
+        "noFavorites": "You haven't saved any favorites yet.",
         "browseButton": "Browse Properties",
         "addToFavorites": "Add to Favorites",
         "removeFromFavorites": "Remove from Favorites",
-        "addedToFavorites": "Successfully added to favorites!",
+        "addedToFavorites": "Added to favorites successfully!",
         "removedFromFavorites": "Removed from favorites."
     },
     "auth": {
-        "login": "Login",
-        "logout": "Logout",
-        "register": "Register a new account",
+        "login": "Log In",
+        "logout": "Log Out",
+        "register": "Register New Account",
         "email": "Email Address",
         "password": "Password",
         "loginTitle": "Partner Portal",
         "loginSubtitle": "Log in to manage your properties and profile.",
-        "loginButton": "Login",
-        "loginError": "Incorrect email or password.",
+        "loginButton": "Log In",
+        "loginError": "Invalid email or password.",
         "registerTitle": "Join Our Partner Network",
-        "registerSubtitle": "Fill out the following form to apply to become a partner on the ONLY HELIO platform.",
-        "registerSuccessTitle": "Your request has been received!",
-        "registerSuccessMessage": "Thank you for your interest in joining us. Our team will review your application and contact you as soon as possible.",
+        "registerSubtitle": "Fill out the form below to apply as a partner on ONLY HELIO.",
+        "registerSuccessTitle": "Application Received!",
+        "registerSuccessMessage": "Thank you for your interest. Our team will review your application and contact you shortly.",
         "loginAsDeveloper": "Login as Developer",
         "loginAsFinishing": "Login as Finishing Co.",
         "loginAsAgency": "Login as Agency",
@@ -1415,26 +1661,26 @@ export const enTranslations = {
     },
     "notFoundPage": {
         "title": "404 - Page Not Found",
-        "subtitle": "Sorry, the page you are looking for does not exist or has been removed.",
-        "backButton": "Back to Homepage"
+        "subtitle": "Sorry, the page you are looking for does not exist or has been moved.",
+        "backButton": "Back to Home"
     },
     "partnerRequestForm": {
         "companyInfo": "Company Information",
         "companyName": "Company Name",
         "companyType": "Company Type",
-        "selectType": "Select company type...",
+        "selectType": "Select type...",
         "developer": "Real Estate Developer",
         "finishing": "Finishing Company",
         "agency": "Real Estate Agency",
         "companyAddress": "Company Address",
-        "website": "Website (optional)",
+        "website": "Website (Optional)",
         "companyDescription": "Company Description",
         "companyLogo": "Company Logo",
-        "primaryContact": "Primary Contact Information",
+        "primaryContact": "Primary Contact Info",
         "contactName": "Contact Person Name",
-        "contactEmail": "Contact Person Email",
-        "contactPhone": "Contact Person Phone",
-        "managementContacts": "Top Management Contacts",
+        "contactEmail": "Contact Email",
+        "contactPhone": "Contact Phone",
+        "managementContacts": "Upper Management Contacts",
         "addManagementContact": "Add Another Contact",
         "remove": "Remove",
         "managementName": "Name",
@@ -1443,15 +1689,15 @@ export const enTranslations = {
         "managementPhone": "Phone",
         "officialDocs": "Official Documents",
         "uploadDocs": "Upload Documents (Commercial Register, Tax ID, etc.)",
-        "submitRequest": "Submit Join Request",
+        "submitRequest": "Submit Application",
         "next": "Next",
         "back": "Back",
         "step1_title": "Choose Your Plan",
-        "step1_subtitle": "First, tell us about your business type to see suitable plans.",
+        "step1_subtitle": "First, tell us your business type to see suitable plans.",
         "step2_title": "Company Details",
-        "step2_subtitle": "Tell us more about your company and how we can contact you.",
-        "step3_title": "Final Touches",
-        "step3_subtitle": "Upload your company logo and any official documents to complete your profile."
+        "step2_subtitle": "Tell us more about your company and how to reach you.",
+        "step3_title": "Finishing Touches",
+        "step3_subtitle": "Upload your logo and any official documents to complete your profile."
     },
     "dashboard": {
         "title": "Dashboard",
@@ -1469,29 +1715,29 @@ export const enTranslations = {
         "propertiesTitle": "Manage Properties",
         "addProperty": "Add New Property",
         "profileTitle": "Manage Profile",
-        "profileSubtitle": "Update your information that appears to customers on your public page.",
+        "profileSubtitle": "Update your information visible to customers on your public page.",
         "partnerName": "Partner Name",
         "partnerDescription": "Description",
-        "partnerImageUrl": "Upload Company Logo",
+        "partnerImageUrl": "Upload Logo",
         "saveChanges": "Save Changes",
         "profileUpdateSuccess": "Profile updated successfully!",
         "portfolioTitle": "Manage Portfolio",
         "addWork": "Add New Work",
-        "workImageURL": "Upload Work Image",
-        "workTitleAr": "Work Title (Arabic)",
-        "workTitleEn": "Work Title (English)",
+        "workImageURL": "Upload Image",
+        "workTitleAr": "Title (Arabic)",
+        "workTitleEn": "Title (English)",
         "workCategoryAr": "Category (Arabic)",
         "workCategoryEn": "Category (English)",
         "saveWork": "Save Work",
         "confirmDeleteWork": "Are you sure you want to delete this work?",
         "leadsTitle": "Manage Customer Leads",
-        "leadsSubtitle": "Here you can view and manage all incoming customer requests.",
+        "leadsSubtitle": "Here you can view and manage all incoming requests from customers.",
         "subscription": "Subscription Plan",
         "currentPlan": "Your Current Plan:",
         "manageSubscription": "Manage Subscription",
         "upgradePlan": "Upgrade Plan",
         "leadTable": {
-            "customer": "Customer", "phone": "Phone", "service": "Service Requested", "date": "Date", "status": "Status", "actions": "Actions", "notes": "Notes", "contactTime": "Contact Time", "delete": "Delete", "confirmDelete": "Are you sure you want to delete this request?", "noLeads": "No incoming requests at the moment."
+            "customer": "Customer", "phone": "Phone", "service": "Service Requested", "date": "Date", "status": "Status", "actions": "Actions", "notes": "Notes", "contactTime": "Contact Time", "delete": "Delete", "confirmDelete": "Are you sure you want to delete this lead?", "noLeads": "No incoming leads at the moment."
         },
         "leadStatus": {
             "new": "New", "contacted": "Contacted", "site-visit": "Site Visit", "quoted": "Quoted", "in-progress": "In Progress", "completed": "Completed", "cancelled": "Cancelled"
@@ -1503,30 +1749,42 @@ export const enTranslations = {
             "image": "Image", "title": "Title", "category": "Category", "actions": "Actions", "edit": "Edit", "delete": "Delete", "noWorks": "You haven't added any works yet."
         },
         "propertyForm": {
-            "addTitle": "Add New Property", "editTitle": "Edit Property", "propertyTitleAr": "Property Title (Arabic)", "propertyTitleEn": "Property Title (English)", "addressAr": "Address (Arabic)", "addressEn": "Address (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "mainImage": "Main Image", "galleryImages": "Gallery Images", "saveProperty": "Save Property", "addSuccess": "Property added successfully!", "updateSuccess": "Property updated successfully!", "isInCompound": "In a Compound", "realEstateFinanceAvailable": "Real Estate Finance Available", "deliveryInfo": "Delivery Information", "immediateDelivery": "Immediate Delivery", "futureDelivery": "Future Delivery", "deliveryDate": "Delivery Date (YYYY-MM)", "installmentsInfo": "Installment Information", "installmentsAvailable": "Installments Available", "downPayment": "Down Payment", "monthlyInstallment": "Monthly Installment", "years": "Number of Years", "amenities": "Amenities", "amenitiesAr": "Amenities (Arabic)", "amenitiesEn": "Amenities (English)", "pricePerMeter": "Price per Meter (Calculated)",
+            "addTitle": "Add New Property", "editTitle": "Edit Property", "propertyTitleAr": "Title (Arabic)", "propertyTitleEn": "Title (English)", "addressAr": "Address (Arabic)", "addressEn": "Address (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "mainImage": "Main Image", "galleryImages": "Gallery Images", "saveProperty": "Save Property", "addSuccess": "Property added successfully!", "updateSuccess": "Property updated successfully!", "isInCompound": "In Compound", "realEstateFinanceAvailable": "Mortgage Available", "deliveryInfo": "Delivery Info", "immediateDelivery": "Immediate", "futureDelivery": "Future", "deliveryDate": "Delivery Date (YYYY-MM)", "installmentsInfo": "Installments Info", "installmentsAvailable": "Installments Available", "downPayment": "Down Payment", "monthlyInstallment": "Monthly Installment", "years": "Years", "amenities": "Amenities", "amenitiesAr": "Amenities (Arabic)", "amenitiesEn": "Amenities (English)", "pricePerMeter": "Price/Meter (Calc)",
             "inquiryRouting": "Inquiry Routing",
-            "useDefaultSettings": "Use default partner settings",
-            "customizeForProperty": "Customize contact info for this property",
+            "useDefaultSettings": "Use Default Partner Settings",
+            "customizeForProperty": "Customize Contact for Property",
             "directContactPhone": "Direct Contact Phone"
         },
         "filter": {
             "search": "Search...", "filterByStatus": "Filter by Status", "all": "All"
         },
         "projectAnalytics": {
-            "title": "Project Analytics", "totalLeads": "Total Project Leads", "topPerformingUnits": "Top Performing Units", "leadsCount": "Leads", "unit": "Unit"
+            "title": "Project Analytics", "totalLeads": "Total Leads for Project", "topPerformingUnits": "Top Performing Units", "leadsCount": "Leads", "unit": "Unit"
         }
     },
     "dashboardHome": {
-        "title": "Dashboard Overview", "subtitle": "A quick summary of your activity on the platform.", "totalProjects": "Total Projects", "totalProperties": "Total Properties", "totalUnits": "Total Units", "totalPortfolio": "Total Portfolio Items", "newLeads": "New Customer Leads", "currentPlan": "Current Plan", "recentLeads": "Recent Leads", "noRecentLeads": "No new leads to display.", "viewAllLeads": "View All Leads", "projectsOverview": "Projects Overview"
+        "title": "Dashboard Overview", "subtitle": "Quick summary of your activity on the platform.", "totalProjects": "Total Projects", "totalProperties": "Total Properties", "totalUnits": "Total Units", "totalPortfolio": "Total Works", "newLeads": "New Leads", "currentPlan": "Current Plan", "recentLeads": "Recent Leads", "noRecentLeads": "No new leads to display.", "viewAllLeads": "View All Leads", "projectsOverview": "Projects Overview",
+        "activeBanners": "Active Banners", "totalQuotes": "Total Quotes",
+        "topPerformingPartners": "Top Partners",
+        "topPerformingProperties": "Top Properties",
+        "activeProperties": "Active Properties",
+        "activePartners": "Active Partners",
+        "totalLeads": "Total Leads",
+        "inquiries": "Inquiry",
+        "actionableItems": "Actionable Items",
+        "pendingPartnerRequests": "Pending Partner Requests",
+        "pendingPropertyRequests": "Pending Property Requests",
+        "newContactMessages": "New Messages",
+        "review": "Review"
     },
-     "dashboardAnalytics": {
+    "dashboardAnalytics": {
         "title": "Performance Analytics",
-        "subtitle": "Track how your listings are performing on the platform.",
+        "subtitle": "Track your properties performance on the platform.",
         "totalListings": "Total Listings",
         "totalLeads": "Total Leads",
         "conversionRate": "Conversion Rate",
-        "leadsPerListing": "leads/listing",
-        "topPerforming": "Top Performing Listings",
+        "leadsPerListing": "Leads/Listing",
+        "topPerforming": "Top Performing Properties",
         "leads": "Leads",
         "noData": "Not enough data to display analytics."
     },
@@ -1534,12 +1792,12 @@ export const enTranslations = {
         "addTitle": "Add New Work", "editTitle": "Edit Work"
     },
     "projectDashboard": {
-        "title": "My Projects", "addProject": "Add New Project", "editProject": "Edit Project", "noProjects": "You haven't added any projects yet.", "addUnit": "Add Unit", "units": "Units", "editProjectButton": "Edit Project", "deleteProjectButton": "Delete", "confirmDelete": "Are you sure you want to delete this project and all its associated units? This action cannot be undone.", "projectForm": {
-            "addTitle": "Add New Project", "editTitle": "Edit Project", "nameAr": "Project Name (Arabic)", "nameEn": "Project Name (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "image": "Project Image", "saveChanges": "Save Changes", "createProject": "Create Project"
+        "title": "My Projects", "addProject": "Add New Project", "editProject": "Edit Project", "noProjects": "You haven't added any projects yet.", "addUnit": "Add Unit", "units": "Units", "editProjectButton": "Edit Project", "deleteProjectButton": "Delete", "confirmDelete": "Are you sure you want to delete this project and all associated units? This cannot be undone.", "projectForm": {
+            "addTitle": "Add New Project", "editTitle": "Edit Project", "nameAr": "Name (Arabic)", "nameEn": "Name (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "image": "Project Image", "saveChanges": "Save Changes", "createProject": "Create Project"
         }, "manageProject": "Manage Project"
     },
     "dashboardSubscription": {
-        "title": "Manage Subscription", "subtitle": "View your current plan details or upgrade to access more features.", "currentPlanTitle": "Your Current Plan", "usageTitle": "Plan Usage", "propertiesListed": "Properties Listed", "of": "of", "unlimited": "Unlimited", "upgradeOptionsTitle": "Available Upgrade Plans", "yourCurrentPlan": "Your Current Plan"
+        "title": "Subscription Management", "subtitle": "View your plan details or upgrade for more features.", "currentPlanTitle": "Current Plan", "usageTitle": "Plan Usage", "propertiesListed": "Properties Listed", "of": "of", "unlimited": "Unlimited", "upgradeOptionsTitle": "Available Upgrades", "yourCurrentPlan": "Your Current Plan"
     },
     "adminDashboard": {
         "title": "Admin Dashboard",
@@ -1548,12 +1806,12 @@ export const enTranslations = {
             "analytics": "Analytics",
             "reports": "Reports",
             "partnerRequests": "Partner Requests",
-            "propertyRequests": "Listing Requests",
-            "propertyInquiries": "Search Requests",
+            "propertyRequests": "Property Requests",
+            "propertyInquiries": "Property Inquiries",
             "contactRequests": "Contact Messages",
             "partners": "Partners & Projects",
             "partnersList": "Partners List",
-            "users": "Users",
+            "users": "Internal Users",
             "rolesAndPermissions": "Roles & Permissions",
             "properties": "Properties",
             "propertiesList": "Properties List",
@@ -1562,328 +1820,555 @@ export const enTranslations = {
             "myRequests": "My Requests",
             "subscriptionPlans": "Subscription Plans",
             "propertyFilters": "Property Filters",
-            "decorationsManagement": "Decorations Mgmt",
+            "decorationsManagement": "Decorations",
             "banners": "Banners",
             "siteContent": "Site Content",
             "settings": "Settings",
             "finishingRequests": "Finishing Requests",
-            "decorationsRequests": "Decoration Requests",
+            "decorationsRequests": "Decorations Requests",
             "finishingServices": "Finishing Services",
             "inquiryManagement": "Inquiry Management",
-            "finishingManagement": "Finishing Mgmt",
+            "finishingManagement": "Finishing Management",
             "inquiryRouting": "Inquiry Routing",
             "automationRules": "Automation Rules",
             "platformProperties": "Platform Properties",
-            "platformDecorations": "Decoration Services",
-            "platformFinishing": "Finishing Packages"
+            "platformDecorations": "Decor Services",
+            "platformFinishing": "Finishing Packages",
+             "aiEstimatorSettings": "AI Estimator Settings"
         },
         "requestsTriage": {
             "title": "Requests Triage Center",
-            "subtitle": "View and manage all incoming requests and leads in one place.",
+            "subtitle": "View and manage all incoming requests and inquiries in one place.",
             "myRequests": "My Requests",
             "allRequests": "All Requests",
             "unauthorized": "You are not authorized to view this request."
         },
         "automation": {
-            "title": "Automation Rules",
-            "subtitle": "Create rules to automatically assign incoming requests.",
-            "addNewRule": "Add New Rule",
-            "table": {
-                "ruleName": "Rule Name",
-                "status": "Status",
-                "conditions": "Conditions",
-                "action": "Action",
-                "actions": "Actions"
-            },
-            "modal": {
-                "addTitle": "Add New Routing Rule",
-                "editTitle": "Edit Routing Rule",
-                "ruleName": "Rule Name",
-                "conditions": "Conditions",
-                "action": "Action",
-                "assignTo": "Assign To"
-            },
-            "confirmDelete": "Are you sure you want to delete this routing rule? This action cannot be undone.",
-            "conditionsCount": "{count} condition(s)",
-            "assignToAction": "Assign to:"
+          "title": "Automation Rules",
+          "subtitle": "Create rules to automatically assign incoming requests.",
+          "addNewRule": "Add New Rule",
+          "table": {
+            "ruleName": "Rule Name",
+            "status": "Status",
+            "conditions": "Conditions",
+            "action": "Action",
+            "actions": "Actions"
+          },
+          "modal": {
+            "addTitle": "Add Routing Rule",
+            "editTitle": "Edit Routing Rule",
+            "ruleName": "Rule Name",
+            "conditions": "Conditions",
+            "action": "Action",
+            "assignTo": "Assign To"
+          },
+          "confirmDelete": "Are you sure you want to delete this routing rule? This cannot be undone.",
+          "conditionsCount": "{count} condition(s)",
+          "assignToAction": "Assign to:",
+          "conditions": "Conditions",
+          "action": "Action"
         },
         "requestTypes": {
-            "LEAD": "Lead",
-            "PARTNER_APPLICATION": "Partner Application",
+            "LEAD": "Service Lead",
+            "PARTNER_APPLICATION": "Partner App",
             "PROPERTY_LISTING_REQUEST": "Listing Request",
-            "CONTACT_MESSAGE": "Contact Message",
-            "PROPERTY_INQUIRY": "Property Inquiry"
+            "CONTACT_MESSAGE": "Contact Msg",
+            "PROPERTY_INQUIRY": "Prop. Inquiry"
         },
         "propertiesDashboard": {
             "title": "Properties Dashboard",
-            "subtitle": "An overview of all properties on the platform.",
+            "subtitle": "Overview of all properties on the platform.",
             "activeProperties": "Active Properties",
-            "propertiesForSale": "Properties for Sale",
-            "propertiesForRent": "Properties for Rent",
+            "propertiesForSale": "For Sale",
+            "propertiesForRent": "For Rent",
             "propertiesByType": "Properties by Type",
             "topPartnersByListings": "Top Partners by Listings",
             "latestPropertiesAdded": "Latest Properties Added"
         },
         "inquiryManagement": {
             "title": "Inquiry Management",
-            "subtitle": "View and manage how inquiries are routed for all partners.",
+            "subtitle": "View and manage inquiry reception methods for all partners.",
             "table": {
                 "partner": "Partner",
                 "whatsapp": "WhatsApp",
-                "phone": "Direct Call",
+                "phone": "Phone",
                 "internalForm": "Internal Form",
                 "actions": "Actions"
             },
-            "editModalTitle": "Edit Contact Numbers",
+            "editModalTitle": "Edit Contact Methods",
             "updateSuccess": "Contact methods updated successfully!"
         },
-        "roleDescriptions": {
-            "DEVELOPER_PARTNER": "Manage their own projects and units.", "FINISHING_PARTNER": "Manage portfolio and finishing service requests.", "AGENCY_PARTNER": "Manage listed properties and customer leads.", "SERVICE_MANAGER": "Oversee all finishing and decoration requests.", "CUSTOMER_RELATIONS_MANAGER": "Follow up on individual owner requests and contact messages.", "LISTINGS_MANAGER": "Manage all properties and projects on the platform.", "PARTNER_RELATIONS_MANAGER": "Review new partner requests and manage their accounts.", "CONTENT_MANAGER": "Control general site content like banners and filters."
+        "partnersManagement": {
+            "title": "Partner Relations",
+            "subtitle": "Overview of partners and applications.",
+            "totalPartners": "Total Partners",
+            "partnerDistributionByType": "Partner Distribution by Type",
+            "partnersByPlan": "Partners by Plan",
+            "recentPartnerRequests": "Recent Applications"
         },
         "serviceManagerHome": {
-            "title": "Service Manager Dashboard", "subtitle": "Overview of all finishing and decoration service requests.", "newRequests": "New Requests", "inProgress": "In Progress", "completedThisMonth": "Completed This Month", "totalRequests": "Total Requests", "recentActivity": "Recent Requests", "manage": "Manage",
+            "title": "Service Management",
+            "subtitle": "Manage and track finishing and decoration requests.",
+            "newRequests": "New Requests",
+            "inProgress": "In Progress",
             "recentFinishing": "Recent Finishing Requests",
-            "recentDecorations": "Recent Decoration Requests"
+            "recentDecorations": "Recent Decor Requests",
+            "totalRequests": "Total Requests"
         },
         "customerRelationsHome": {
-            "title": "Customer Relations Dashboard", "subtitle": "Overview of all incoming requests from individual customers.", "newListingRequests": "New Property Listing Requests", "newSearchRequests": "New Property Search Requests", "newContactMessages": "New Contact Messages", "recentPropertyRequests": "Recent Property Listing Requests", "recentInquiries": "Recent Search Inquiries", "recentContacts": "Recent Contact Messages", "viewAll": "View All", "noNewRequests": "No new requests."
-        },
-        "listingsManagerHome": {
-            "title": "Listings & Projects Dashboard", "subtitle": "Overview of all properties and projects on the platform.", "activeProperties": "Active Properties", "totalProjects": "Total Projects"
+            "title": "Customer Relations",
+            "subtitle": "Manage property requests and customer communications.",
+            "newListingRequests": "New Listings",
+            "newSearchRequests": "New Inquiries",
+            "newContactMessages": "New Messages",
+            "recentPropertyRequests": "Recent Listings",
+            "recentInquiries": "Recent Inquiries",
+            "recentContacts": "Recent Messages",
+            "viewAll": "View All",
+            "noNewRequests": "No new requests."
         },
         "contentManagerHome": {
-            "title": "Content Dashboard", "subtitle": "Overview of editable site content.", "quickLinks": "Quick Links"
+            "title": "Content Management",
+            "subtitle": "Control site content, banners, and settings.",
+            "quickLinks": "Quick Links"
         },
-        "partnersManagement": {
-            "title": "Partner Relations Dashboard", "subtitle": "Overview of partner accounts and join requests.", "newListingRequests": "New Listing Requests", "newPropertyInquiries": "New Search Inquiries", "activeProperties": "Active Properties", "totalInquiries": "Total Search Inquiries", "recentListingRequests": "Recent Property Listing Requests", "recentSearchInquiries": "Recent Property Search Inquiries", "propertyDistribution": "Property Distribution by Type", "listingsByStatus": "Listings by Status", "totalPartners": "Total Partners", "newPartnersThisMonth": "New Partners This Month", "partnerDistributionByType": "Partner Distribution by Type", "partnersByPlan": "Partners by Plan", "recentPartnerRequests": "Recent Join Requests", "companyName": "Company Name", "requester": "Requester"
-        },
-        "finishingRequests": {
-            "manage": "Manage", "assignedTo": "Assigned To", "internalTeam": "Internal Team", "newRequests": "New Requests", "inProgress": "In Progress", "completedThisMonth": "Completed This Month", "totalRequests": "Total Requests", "recentActivity": "Recent Requests", "assignmentOverview": "Assignment Overview", "externalPartners": "External Partners", "unassigned": "Unassigned"
-        },
-        "contentManagement": {
-            "title": "Content Management", "subtitle": "Edit text and images on the public pages of the website.",
-            "tabs": {
-                "hero": "Hero Section", "whyUs": "Why Us", "services": "Services", "partners": "Partners", "testimonials": "Testimonials", "socialProof": "Social Proof", "whyNewHeliopolis": "Why New Heliopolis", "quotes": "Quotes", "footer": "Footer"
-            }, "saveChanges": "Save Changes", "unsavedChanges": "You have unsaved changes", "saving": "Saving...", "addFeature": "Add Feature", "addStat": "Add Stat", "remove": "Remove", "uploadImage": "Upload Image"
-        },
-        "userManagement": {
-            "title": "User Management", "subtitle": "Oversee, edit, and manage all user and partner accounts on the platform.", "addUser": "Add New User", "user": "User", "role": "Role", "status": "Status", "actions": "Actions", "editUser": "Edit", "confirmDelete": "Are you sure you want to delete this user? This action cannot be undone.", "form": {
-                "nameAr": "Name (Arabic)", "nameEn": "Name (English)", "email": "Email", "password": "Password", "passwordHelp": "Leave blank for a default password. User can change it later."
-            }
-        },
-        "projects": {
-            "title": "Manage All Projects", "subtitle": "Oversee and manage all projects from all developers.", "table": {
-                "project": "Project", "partner": "Partner", "units": "Units", "actions": "Actions"
-            }, "confirmDelete": "Are you sure you want to delete this project and all its associated units?"
-        },
-        "propertyInquiries": {
-            "title": "Property Search Requests", "subtitle": "Manage custom requests from clients looking for properties not currently available on the platform.", "table": {
-                "details": "Request Details"
-            }, "noRequests": "There are no property search requests currently."
-        },
-        "manageBanners": {
-            "title": "Manage Banners", "addBanner": "Add New Banner", "editBanner": "Edit Banner", "bannerTitle": "Banner Title", "bannerImage": "Banner Image", "bannerLink": "Link (optional)", "displayLocations": "Display Locations", "status": "Status", "active": "Active", "inactive": "Inactive", "startDate": "Start Date (optional)", "endDate": "End Date (optional)", "confirmDelete": "Are you sure you want to delete this banner?", "edit": "Edit", "delete": "Delete", "tableImage": "Image", "tableTitle": "Title", "tableLocations": "Locations", "tableStatus": "Status", "tableActions": "Actions"
+        "listingsManagerHome": {
+            "title": "Listings & Projects",
+            "subtitle": "Oversee displayed properties and projects.",
+            "activeProperties": "Active Properties",
+            "totalProjects": "Total Projects"
         },
         "home": {
-            "title": "Main Dashboard", "subtitle": "A quick overview of key performance indicators and required actions.", "actionableItems": "Actionable Items", "pendingPartnerRequests": "Pending Partner Requests", "pendingPropertyRequests": "New Property Requests", "newContactMessages": "New Contact Messages", "review": "Review", "leadsLast7Days": "New Leads (Last 7 Days)", "propertyStatusDistribution": "Property Status Distribution", "topPerformingPartners": "Top Performing Partners", "topPerformingProperties": "Top Performing Properties", "activeProperties": "Active Properties", "activePartners": "Active Partners", "totalLeads": "Total Leads", "inquiries": "Inquiries", "activeBanners": "Active Banners", "totalQuotes": "Total Wisdom Quotes"
+            "title": "Main Dashboard",
+            "subtitle": "Welcome to the Super Admin Dashboard. Select a section to begin.",
+            "activePartners": "Active Partners",
+            "activeProperties": "Active Properties",
+            "totalLeads": "Total Leads",
+            "pendingPartnerRequests": "Pending Partner Requests",
+            "pendingPropertyRequests": "Pending Property Requests",
+            "newContactMessages": "New Messages",
+            "actionableItems": "Actionable Items",
+            "topPerformingPartners": "Top Performing Partners",
+            "topPerformingProperties": "Top Performing Properties",
+            "activeBanners": "Active Banners",
+            "totalQuotes": "Total Quotes",
+            "inquiries": "Inquiries",
+            "review": "Review"
         },
-        "partnersTitle": "Manage Partners",
-        "partnersSubtitle": "Review, verify, or disable partner accounts on the platform.",
+        "partnerRequestsTitle": "Partner Applications",
+        "partnerRequestsSubtitle": "Review and manage requests to join as a partner.",
+        "propertyRequestsTitle": "Listing Requests",
+        "propertyRequestsSubtitle": "Review requests from owners to list properties.",
+        "contactRequestsTitle": "Contact Messages",
+        "contactRequestsSubtitle": "General inquiries from the contact form.",
+        "partnersTitle": "Partner Management",
+        "partnersSubtitle": "View and manage all registered partner accounts.",
+        "propertiesTitle": "Property Management",
+        "propertiesSubtitle": "View and manage all properties listed in the system.",
+        "projects": {
+            "title": "Project Management",
+            "subtitle": "View and manage all real estate projects.",
+            "table": {
+                "project": "Project",
+                "partner": "Developer",
+                "units": "Units",
+                "actions": "Actions"
+            },
+            "confirmDelete": "Are you sure you want to delete this project and all its units?"
+        },
+        "adminRequests": {
+            "table": {
+                "requester": "Requester",
+                "message": "Message",
+                "date": "Date",
+                "status": "Status",
+                "actions": "Actions",
+                "companyInfo": "Company Info",
+                "primaryContact": "Primary Contact",
+                "documents": "Documents",
+                "download": "Download",
+                "managementContacts": "Management Contacts",
+                "details": "Details",
+                "delete": "Delete",
+                "propertyInfo": "Property Info"
+            },
+            "requestStatus": {
+                "new": "New",
+                "pending": "Pending",
+                "reviewed": "Reviewed",
+                "approved": "Approved",
+                "rejected": "Rejected",
+                "assigned": "Assigned",
+                "in-progress": "In Progress",
+                "closed": "Closed"
+            },
+            "noPartnerRequests": "No partner requests found.",
+            "noPropertyRequests": "No property listing requests found.",
+            "noContactRequests": "No contact messages found.",
+            "partnerRequestsTitle": "Partner Applications",
+            "partnerRequestsSubtitle": "Review and manage requests to join as a partner.",
+            "propertyRequestsTitle": "Listing Requests",
+            "propertyRequestsSubtitle": "Review requests from owners to list properties.",
+            "contactRequestsTitle": "Contact Messages",
+            "contactRequestsSubtitle": "General inquiries from the contact form.",
+            "propertyDetailsTitle": "Property Request Details",
+            "confirmDelete": "Are you sure you want to delete this request?"
+        },
+        "propertyInquiries": {
+            "table": {
+                "details": "Details"
+            },
+            "noRequests": "No property search requests found.",
+            "subtitle": "Customer requests searching for specific properties."
+        },
         "partnerTable": {
-            "partner": "Partner", "type": "Type", "status": "Status", "actions": "Actions", "verify": "Verify", "disable": "Disable", "enable": "Enable", "subscriptionPlan": "Plan", "planUsage": "Plan Usage", "subscriptionEndDate": "Subscription End", "displayType": "Display Type", "contactMethods": "Contact Methods", "enableWhatsApp": "Enable WhatsApp", "whatsAppNumber": "WhatsApp Number", "enablePhone": "Enable Phone Call", "phoneNumber": "Phone Number", "enableForm": "Enable Internal Form"
+            "partner": "Partner",
+            "type": "Type",
+            "subscriptionPlan": "Plan",
+            "status": "Status",
+            "actions": "Actions",
+            "whatsAppNumber": "WhatsApp Number",
+            "phoneNumber": "Phone Number",
+            "displayType": "Display Type"
         },
         "partnerDisplayTypes": {
-            "mega_project": "Mega Project", "featured": "Featured", "standard": "Standard"
+            "standard": "Standard",
+            "featured": "Featured",
+            "mega_project": "Mega Project"
+        },
+        "manageBanners": {
+            "title": "Banner Management",
+            "addBanner": "Add Banner",
+            "editBanner": "Edit Banner",
+            "bannerImage": "Banner Image",
+            "bannerTitle": "Title",
+            "bannerLink": "Link",
+            "displayLocations": "Display Locations",
+            "status": "Status",
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "active": "Active",
+            "inactive": "Inactive",
+            "tableImage": "Image",
+            "tableTitle": "Title",
+            "tableLocations": "Locations",
+            "tableStatus": "Status",
+            "tableActions": "Actions",
+            "edit": "Edit",
+            "delete": "Delete",
+            "confirmDelete": "Are you sure you want to delete this banner?"
+        },
+        "contentManagement": {
+            "title": "Content Management",
+            "subtitle": "Easily edit website page content.",
+            "unsavedChanges": "Unsaved Changes",
+            "saveChanges": "Save Changes",
+            "saving": "Saving...",
+            "tabs": {
+                "hero": "Hero Section",
+                "whyUs": "Why Us",
+                "services": "Services",
+                "partners": "Partners",
+                "projectsPage": "Projects Page",
+                "finishingPage": "Finishing Page",
+                "decorationsPage": "Decorations Page",
+                "testimonials": "Testimonials",
+                "socialProof": "Social Proof",
+                "whyNewHeliopolis": "Why New Heliopolis",
+                "quotes": "Quotes",
+                "footer": "Footer"
+            }
+        },
+        "propertyTable": {
+            "image": "Image",
+            "title": "Title",
+            "partner": "Partner",
+            "liveStatus": "Live Status",
+            "actions": "Actions",
+            "edit": "Edit"
         },
         "editPartnerTitle": "Edit Partner",
         "changePlan": "Change Plan",
-        "updateSubscription": "Update Subscription End Date",
-        "partnerTypes": {
-            "developer": "Developer", "finishing": "Finishing Co.", "agency": "Agency", "admin": "Super Admin", "service_manager": "Service Manager", "customer_relations_manager": "Customer Relations Manager", "listings_manager": "Listings Manager", "partner_relations_manager": "Partner Relations Manager", "content_manager": "Content Manager"
-        },
-        "partnerStatuses": {
-            "active": "Active", "pending": "Pending", "disabled": "Disabled"
-        },
-        "propertiesTitle": "Manage All Properties",
-        "propertiesSubtitle": "Oversee and manage all property listings from all partners.",
-        "propertyTable": {
-            "partner": "Partner", "edit": "Edit", "liveStatus": "Live Status", "listingPeriod": "Listing Period", "active": "Active", "inactive": "Inactive",
-            "routing": "Routing",
-            "default": "Default",
-            "custom": "Custom",
-            "preview": "Preview"
-        },
+        "updateSubscription": "Update Subscription Expiry",
         "editPropertyModal": {
-            "title": "Edit Property", "listingStartDate": "Listing Start Date", "listingEndDate": "Listing End Date"
+            "title": "Edit Property Status",
+            "listingStartDate": "Listing Start Date",
+            "listingEndDate": "Listing End Date"
         },
-        "manageLeadsSubtitle": "View and manage all customer leads received for all partners.",
+        "filter": {
+            "search": "Search...",
+            "searchByNameOrEmail": "Search by name or email...",
+            "searchByRequesterOrPhone": "Search by name or phone...",
+            "filterByType": "Filter by Type",
+            "filterByStatus": "Filter by Status",
+            "filterByPlan": "Filter by Plan",
+            "leadDateRange": "Date Range",
+            "all": "All"
+        },
         "plans": {
-            "title": "Manage Subscription Plans", "subtitle": "View and edit the details of subscription plans available to partners.", "editPlanTitle": "Edit Plan", "price": "Price", "description": "Description", "features": "Features", "featuresHelpText": "Each feature on a new line.", "commissionRate": "Commission Rate (%)", "planCategories": {
-                "developer": "Developers", "agency": "Agencies", "finishing": "Finishing Companies", "individual": "Individual Users", "sale": "Sale Plans", "rent": "Rent Plans"
+            "title": "Subscription Plan Management",
+            "subtitle": "Edit prices and features for each plan.",
+            "editPlanTitle": "Edit Plan",
+            "price": "Price",
+            "description": "Description",
+            "features": "Features",
+            "featuresHelpText": "One feature per line.",
+            "commissionRate": "Commission Rate (%)",
+            "planCategories": {
+                "developer": "Developers",
+                "agency": "Agencies",
+                "finishing": "Finishing Companies",
+                "sale": "Sale (Individuals)",
+                "rent": "Rent (Individuals)"
             }
         },
+        "userManagement": {
+            "title": "Internal User Management",
+            "addUser": "Add User",
+            "editUser": "Edit User",
+            "user": "User",
+            "role": "Role",
+            "status": "Status",
+            "actions": "Actions",
+            "form": {
+                "nameAr": "Name (Arabic)",
+                "nameEn": "Name (English)",
+                "password": "Password",
+                "passwordHelp": "Leave blank to keep current password."
+            },
+            "confirmDelete": "Are you sure you want to delete this user?"
+        },
+        "bulkActions": {
+            "selected": "selected",
+            "activate": "Activate",
+            "deactivate": "Deactivate",
+            "delete": "Delete",
+            "clear": "Clear Selection"
+        },
+        "partnerTypes": {
+            "developer": "Real Estate Developer",
+            "finishing": "Finishing Company",
+            "agency": "Real Estate Agency",
+            "admin": "Super Admin",
+            "decoration_manager": "Decorations Manager",
+            "platform_finishing_manager": "Platform Finishing Mgr (Internal)",
+            "finishing_market_manager": "Finishing Market Mgr (Partners)",
+            "platform_real_estate_manager": "Platform Real Estate Mgr (Brokerage)",
+            "real_estate_market_manager": "Real Estate Market Mgr (General)",
+            "partner_relations_manager": "Partner Relations Manager",
+            "content_manager": "Content Manager",
+            "service_manager": "Service Manager (General)",
+            "customer_relations_manager": "Customer Relations Manager",
+            "listings_manager": "Listings Manager"
+        },
+        "partnerStatuses": {
+            "active": "Active",
+            "pending": "Pending",
+            "disabled": "Disabled"
+        },
+        "roleDescriptions": {
+            "DECORATION_MANAGER": "Manages decoration content and requests.",
+            "PLATFORM_FINISHING_MANAGER": "Manages platform finishing packages and requests.",
+            "FINISHING_MARKET_MANAGER": "Oversees external finishing partners and providers.",
+            "PLATFORM_REAL_ESTATE_MANAGER": "Manages properties listed directly by the platform (Brokerage).",
+            "REAL_ESTATE_MARKET_MANAGER": "Oversees listing requests and general real estate inquiries.",
+            "PARTNER_RELATIONS_MANAGER": "Manages partner applications and relationships.",
+            "CONTENT_MANAGER": "Manages site content, banners, and general settings.",
+            "SERVICE_MANAGER": "General role for service management (Legacy).",
+            "CUSTOMER_RELATIONS_MANAGER": "General role for customer relations (Legacy).",
+            "LISTINGS_MANAGER": "General role for listings management (Legacy)."
+        },
         "decorationsManagement": {
-            "title": "Decorations Management", "subtitle": "Manage decoration content and incoming service requests.",
+            "title": "Decorations Management",
+            "subtitle": "Control portfolio, categories, and decoration requests.",
             "portfolioTab": "Portfolio",
             "categoriesTab": "Categories",
-            "addNewItem": "Add New Item",
-            "editItem": "Edit Item",
-            "itemPartner": "Partner",
-            "itemImage": "Image",
-            "itemTitle": "Title",
-            "itemCategory": "Category",
-            "itemActions": "Actions",
-            "noItems": "No decoration items currently.",
-            "noRequests": "No decoration requests currently.",
-            "confirmDelete": "Are you sure you want to delete this item?",
-            "lastUpdated": "Last Updated",
-            "internalNotes": "Internal Notes",
-            "filterByDate": "Filter by Date",
-            "startDate": "Start Date",
-            "endDate": "End Date",
-            "backToRequests": "Back to Requests",
-            "requestDetails": "Request Details",
-            "customerInformation": "Customer Information",
-            "requestInformation": "Request Information",
-            "management": "Request Management",
             "newRequests": "New Requests",
             "inProgress": "In Progress",
             "completedThisMonth": "Completed This Month",
-            "totalPortfolioItems": "Total Portfolio Items",
+            "totalPortfolioItems": "Portfolio Items",
             "recentActivity": "Recent Activity",
+            "lastUpdated": "Last Updated",
+            "noRequests": "No requests at the moment.",
             "categoryOverview": "Category Overview",
             "portfolioDistribution": "Portfolio Distribution",
-            "leadsByCategory": "Open Leads by Category",
+            "leadsByCategory": "Leads by Category",
+            "addNewItem": "Add New Item",
+            "editItem": "Edit",
+            "confirmDelete": "Are you sure you want to delete this item?",
+            "noItems": "No items in portfolio.",
+            "itemCategory": "Category",
             "addNewCategory": "Add New Category",
-            "editCategory": "Edit Category"
+            "requestDetails": "Request Details",
+            "requestInformation": "Request Information",
+            "customerInformation": "Customer Information",
+            "management": "Management"
         },
-        "adminRequests": {
-            "partnerRequestsTitle": "Partner Join Requests", "partnerRequestsSubtitle": "Review and take action on new partner applications.", "propertyRequestsTitle": "Property Listing Requests", "propertyRequestsSubtitle": "Review and approve property listing requests from owners.", "contactRequestsTitle": "Contact Messages", "contactRequestsSubtitle": "View and manage messages from the public contact form.", "table": {
-                "requester": "Requester", "phone": "Phone", "date": "Date", "status": "Status", "actions": "Actions", "details": "View Details", "propertyInfo": "Property Info", "message": "Message", "approve": "Approve", "reject": "Reject", "markAsReviewed": "Mark as Reviewed", "delete": "Delete", "companyInfo": "Company Info", "primaryContact": "Contact Info", "managementContacts": "Management Contacts", "documents": "Official Documents", "download": "Download",
-                "type": "Type",
-                "subject": "Subject",
-                "assignedTo": "Assigned To"
-            },
-            "requestStatus": {
-                "pending": "Pending", "reviewed": "Reviewed", "closed": "Closed", "approved": "Approved", "rejected": "Rejected", "new": "New", "assigned": "Assigned", "in-progress": "In Progress"
-            },
-            "noPartnerRequests": "There are no new partner requests at the moment.", "noPropertyRequests": "There are no new property listing requests at the moment.", "noContactRequests": "There are no new contact messages at the moment.", "confirmDelete": "Are you sure you want to delete this request?", "propertyDetailsTitle": "Property Listing Request Details", "subscriptionPlan": "Subscription Plan", "cooperationType": "Cooperation Model"
+        "finishingManagement": {
+            "title": "Platform Finishing Management",
+            "subtitle": "Manage internal finishing requests and service packages.",
+            "dashboardTitle": "Platform Finishing Dashboard",
+            "dashboardSubtitle": "Monitor incoming requests for the internal finishing team and adjust packages.",
+            "servicePackages": "Finishing Packages",
+            "managePackages": "Manage Prices & Details",
+            "recentInternalRequests": "Recent Internal Requests",
+            "quickTools": "Quick Tools",
+            "editPackages": "Edit Packages",
+            "updatePricing": "Update Pricing",
+            "leadsTitle": "Finishing Leads (Platform)",
+            "noPlatformRequests": "No platform finishing requests found.",
+            "tabs": {
+                "dashboard": "Dashboard",
+                "requests": "Requests",
+                "services": "Services",
+                "plans": "Plans"
+            }
         },
-        "filter": {
-            "search": "Search...", "searchByNameOrEmail": "Search by name or email...", "searchByRequesterOrPhone": "Search by name or phone...", "filterByType": "Filter by type", "filterByStatus": "Filter by status", "filterByPlan": "Filter by plan", "filterByDisplayType": "Filter by display type", "filterByPartner": "Filter by partner", "all": "All", "allPartners": "All Partners", "listingDateRange": "Listing Date Range", "leadDateRange": "Lead Date Range"
-        },
-        "bulkActions": {
-            "selected": "Selected",
-            "activate": "Activate Selected",
-            "deactivate": "Deactivate Selected",
-            "delete": "Delete Selected",
-            "clear": "Clear"
+        "aiEstimatorSettings": {
+            "title": "AI Estimator Settings"
         }
     },
     "adminAnalytics": {
-        "title": "Advanced Analytics", "subtitle": "An in-depth look at platform performance and key data.", "timeFilter": "Time Period", "last7days": "Last 7 Days", "last30days": "Last 30 Days", "thismonth": "This Month", "thisyear": "This Year", "userGrowth": "User & Partner Growth", "users": "Users", "partners": "Partners", "propertyPerformance": "Property Performance", "leads": "Leads", "topPerformingProperties": "Top Performing Properties", "topPerformingPartners": "Top Performing Partners", "conversionRate": "Conversion Rate", "leadsPerProperty": "Lead/Property", "propertyHotspots": "Property Hotspots", "newLeads": "New Leads", "newPartners": "New Partners", "newProperties": "New Properties",
-        "leadsOverTime": "Leads Over Time",
-        "leadStatusDistribution": "Lead Status Distribution",
-        "propertyTypeDistribution": "Property Type Distribution",
-        "requestTypeDistribution": "Request Type Distribution"
+        "title": "General Analytics",
+        "subtitle": "Comprehensive overview of platform performance.",
+        "newLeads": "New Leads",
+        "newPartners": "New Partners",
+        "newProperties": "New Properties",
+        "conversionRate": "Conversion Rate",
+        "leadsOverTime": "Leads Growth",
+        "requestTypeDistribution": "Request Type Distribution",
+        "topPerformingPartners": "Most Active Partners",
+        "topPerformingProperties": "Most Popular Properties",
+        "leads": "Leads",
+        "last7days": "Last 7 Days",
+        "last30days": "Last 30 Days",
+        "thismonth": "This Month",
+        "thisyear": "This Year"
     },
     "adminReports": {
-        "title": "Custom Reporting System", "subtitle": "Generate and export custom reports based on platform data.", "step1": "Step 1: Choose Data Source", "selectDataSource": "Select a source...", "dataSources": {
-            "leads": "Customer Leads", "properties": "Properties", "partners": "Partners"
-        }, "step2": "Step 2: Select Columns", "step3": "Step 3: Apply Filters", "dateRange": "Date Range", "startDate": "Start Date", "endDate": "End Date", "step4": "Step 4: Export Report", "exportCSV": "Export as CSV", "exportPDF": "Export as PDF", "noColumnsSelected": "Please select at least one column."
-    },
-    "subscriptionPlans": {
-        "title": "Choose the plan that's right for you", "selectButton": "Select Plan", "developer": {
-            "basic": { "name": "Basic", "price": "Free", "description": "Ideal for getting started and listing a limited number of projects.", "features": ["List up to 1 project", "List up to 5 units", "Basic company profile"] }, "professional": { "name": "Professional", "price": "799 EGP / month", "description": "For growing companies wanting to list multiple projects.", "features": ["List up to 5 projects", "List up to 50 units", "'Featured Partner' badge"] }, "elite": { "name": "Elite", "price": "1499 EGP / month", "description": "For major companies seeking maximum exposure.", "features": ["Unlimited projects", "Unlimited units", "Prominent homepage placement", "'Elite Partner' badge"] }
-        }, "agency": {
-            "basic": { "name": "Basic", "price": "Free", "description": "Ideal for getting started and listing a few properties.", "features": ["List up to 3 properties", "Basic company profile", "Standard search visibility"] }, "professional": { "name": "Professional", "price": "499 EGP / month", "description": "For partners looking to grow and increase visibility.", "features": ["List up to 15 properties", "'Featured Partner' badge", "Higher priority in search results", "Basic performance analytics"] }, "elite": { "name": "Elite", "price": "999 EGP / month", "description": "For major companies seeking maximum exposure.", "features": ["Unlimited properties", "Prominent homepage placement", "'Elite Partner' badge", "Advanced analytics and support"] }
-        }, "finishing": {
-            "commission": { "name": "Commission Plan", "price": "Nominal Fee + 10% Commission", "description": "Start without a major commitment. We bring you clients, and we share the success.", "features": ["Basic company profile", "Portfolio (10 images)", "Receive leads via the platform", "Basic support"], "commissionRate": 10 }, "professional": { "name": "Professional Plan", "price": "499 EGP / month", "description": "For companies wanting to boost their presence and get direct clients with no commission.", "features": ["Everything in Commission Plan, plus:", "'Featured Partner' badge", "Priority on the finishing page", "Larger portfolio (50 images)", "No commission on projects"], "commissionRate": 0 }, "elite": { "name": "Elite Plan", "price": "999 EGP / month", "description": "For maximum client reach and top visibility on the platform.", "features": ["Everything in Professional Plan, plus:", "'Elite Partner' badge", "Prominent feature placement", "Unlimited portfolio + video", "Dedicated support"], "commissionRate": 0 }
+        "title": "Reports",
+        "subtitle": "Export custom data for analysis.",
+        "step1": "Step 1: Select Data Source",
+        "selectDataSource": "Select source...",
+        "dataSources": {
+            "leads": "Leads",
+            "properties": "Properties",
+            "partners": "Partners"
         },
-        "individual": {
-            "sale": {
-                "paid_listing": { "name": "Paid Listing Package (Sale)", "price": "500 EGP / 3 months", "description": "List your property for sale on our platform for a fixed fee.", "features": ["3-month listing", "Full control over your listing", "No commission on sale"], "commissionRate": 0 },
-                "commission": { "name": "Exclusive Marketing Mandate (Sale)", "price": "2.5% Commission", "description": "Delegate selling your property to our specialized team, from marketing to closing the deal.", "features": ["Professional marketing", "We handle inquiries and viewings", "Legal follow-up until the deal is closed"], "commissionRate": 2.5 }
-            },
-            "rent": {
-                "paid_listing": { "name": "Paid Listing Package (Rent)", "price": "250 EGP / 1 month", "description": "List your property for rent on our platform for a fixed fee.", "features": ["1-month listing", "Receive inquiries directly", "No commission on rent"], "commissionRate": 0 },
-                "commission": { "name": "Marketing Mandate (Rent)", "price": "Commission-based", "description": "Let our team handle renting out your property. Commission is typically one month's rent.", "features": ["Professional marketing", "We handle inquiries and viewings", "Contract assistance"], "commissionRate": 8.33 }
-            }
-        }
-    },
-    "upgradePlanModal": {
-        "title": "Limit Reached", "message": "You have reached the maximum number of properties allowed for your current plan. Upgrade your plan to add more.", "closeButton": "Close", "upgradeButton": "Upgrade Now"
+        "step2": "Step 2: Select Columns",
+        "step3": "Step 3: Date Range (Optional)",
+        "startDate": "From Date",
+        "endDate": "To Date",
+        "step4": "Step 4: Export",
+        "exportCSV": "Export CSV",
+        "exportPDF": "Export PDF",
+        "noColumnsSelected": "Please select at least one column."
     },
     "privacyPolicyPage": {
         "title": "Privacy Policy",
-        "lastUpdated": "Last updated: July 26, 2024",
+        "lastUpdated": "Last Updated: November 2025",
         "introduction": {
             "title": "1. Introduction",
-            "content": "ONLY HELIO ('we', 'us', 'our', 'the Platform') respects your privacy and is committed to protecting your personal data. This privacy policy will inform you how we collect, use, share, and protect your personal data when you visit our website and use our services. By using the Platform, you agree to the practices described in this policy."
+            "content": "At ONLY HELIO (\"we\", \"our\", or \"the Platform\"), we are committed to protecting your privacy and personal data. This Privacy Policy explains how we collect, use, and share your information when you use our platform specialized in New Heliopolis real estate and services. By using the site, you agree to the practices described in this policy."
         },
         "dataCollection": {
-            "title": "2. The Data We Collect About You",
-            "content": "We may collect and process the following types of information:\n- **Personal Data:** Your name, phone number, and email address when you submit a request, register as a partner, or contact us.\n- **Property Data:** Details and images you provide when listing a property for sale or rent.\n- **Usage Data:** Information about how you access and use the Service, such as your IP address, browser type, pages visited, and time spent.\n- **Cookies:** We use cookies to improve your experience and track activity on our service."
+            "title": "2. Data We Collect",
+            "content": "We may collect the following types of data:\n• **Identity Information:** Full name, phone number, email address.\n• **Request Details:** Details of the property you wish to buy or sell, finishing preferences, and type of service requested.\n• **User-Generated Content:** Property photos, descriptions, and inquiries sent via forms.\n• **Technical Data:** IP address, browser type, and language preferences.\n• **Geolocation Data:** We may request access to your location to facilitate showing nearby properties, with your explicit consent."
         },
         "dataUsage": {
-            "title": "3. How We Use Your Personal Data",
-            "content": "We use the data we collect for various purposes:\n- To provide and maintain our Service, including displaying listings and facilitating communication.\n- To manage your account as a partner and facilitate communication with you.\n- To forward your requests and inquiries to the relevant partners (developers, finishing companies, etc.).\n- To notify you about changes to our Service or policies.\n- To analyze usage to improve and develop our platform and services.\n- To prevent fraud and ensure the security of the Platform."
+            "title": "3. How We Use Your Data (Including AI)",
+            "content": "We use your data for the following purposes:\n• Connecting you with appropriate service providers (developers, brokers, finishing companies).\n• Improving the property search experience using recommendation algorithms.\n• **AI Usage:** We utilize Artificial Intelligence models (such as Google Gemini) to analyze your search queries to provide more accurate results and to generate initial finishing cost estimates. This data is processed securely and is not used to train public models in a way that reveals your identity.\n• Contacting you regarding request updates or new offers."
         },
         "dataSharing": {
-            "title": "4. Disclosures of Your Personal Data",
-            "content": "We may share your personal data in the following situations:\n- **With Partners:** When you submit a service request or an inquiry about a property, your contact information and request details are shared with the relevant partner (the property lister or service provider) to enable them to contact you.\n- **With Service Providers:** We may employ third-party companies and individuals to facilitate our Service (e.g., hosting, data analysis), who may have limited access to your data to perform these tasks on our behalf.\n- **For Legal Compliance:** If required to do so by law or in response to valid requests by public authorities."
+            "title": "4. Data Sharing with Third Parties",
+            "content": "As an intermediary platform, we share your contact data and request details with:\n• **Registered Partners:** (Real Estate Developers, Finishing Companies, Agencies) only when you submit an inquiry or specific service request to a particular entity or request a general service that requires routing to the best provider.\n• **Technical Service Providers:** Who assist us in operating the site (such as data hosting and analytics services).\n• **Legal Authorities:** When necessary to comply with local laws."
         },
         "security": {
             "title": "5. Data Security",
-            "content": "The security of your data is important to us. We take reasonable measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. However, remember that no method of transmission over the Internet or method of electronic storage is 100% secure, and we cannot guarantee its absolute security."
+            "content": "We implement appropriate technical and organizational security measures to protect your data from unauthorized access or loss. However, data transmission over the internet cannot be guaranteed to be 100% secure."
         },
         "changes": {
-            "title": "6. Changes to This Privacy Policy",
-            "content": "We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the 'last updated' date at the top. You are advised to review this policy periodically."
+            "title": "6. Changes to Policy",
+            "content": "We may update this Privacy Policy from time to time to reflect changes in our practices or applicable laws. Any changes will be posted on this page with an updated \"Last Updated\" date."
         },
         "contact": {
             "title": "7. Contact Us",
-            "content": "If you have any questions about this Privacy Policy, you can contact us via the information provided on our 'Contact Us' page."
+            "content": "If you have any questions or concerns regarding your privacy, please contact us via the \"Contact Us\" page or email: info@onlyhelio.com."
         }
     },
     "termsOfUsePage": {
         "title": "Terms of Use",
-        "lastUpdated": "Last updated: July 26, 2024",
+        "lastUpdated": "Last Updated: November 2025",
         "agreement": {
             "title": "1. Agreement to Terms",
-            "content": "By using the ONLY HELIO platform (the 'Platform'), you agree to be bound by these Terms of Use (the 'Terms'). If you disagree with any part of the terms, then you may not access the Platform. These Terms constitute a legally binding agreement between you and ONLY HELIO."
+            "content": "Welcome to ONLY HELIO. By accessing and using this website, you agree to be bound by these Terms of Use and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this site."
         },
         "serviceDescription": {
-            "title": "2. Service Description",
-            "content": "ONLY HELIO is an online platform that acts as an intermediary for listing real estate and related services (such as finishing and decoration) specializing in New Heliopolis city. We facilitate communication between clients seeking properties or services and the providers of those services ('Partners'). Our role is limited to connecting parties, and we are not a party to any agreements or transactions made between users and Partners."
+            "title": "2. Service Description & Platform Role",
+            "content": "ONLY HELIO is a digital platform acting as a directory and marketplace for real estate and finishing services in New Heliopolis.\n• **We are not a party to real estate transactions:** We act as a listing and connecting platform between users and service providers. We do not own the listed properties (unless explicitly stated) and do not guarantee the quality of finishing works.\n• **Information Accuracy:** While we strive to ensure information accuracy, we do not warrant that the site is free of errors."
         },
         "userAccounts": {
-            "title": "3. Partner Accounts",
-            "content": "Partners must provide accurate and complete information upon registration. Partners are responsible for maintaining the confidentiality of their account information and for all activities that occur under their account. We reserve the right to suspend or terminate accounts that provide misleading information or violate these Terms."
+            "title": "3. User Accounts",
+            "content": "• You are responsible for maintaining the confidentiality of your account information and password.\n• The information you provide must be accurate and up-to-date.\n• We reserve the right to terminate accounts or remove content that violates our terms."
         },
         "prohibited": {
-            "title": "4. Prohibited Activities",
-            "content": "You agree not to use the Platform for any purpose that is unlawful or prohibited by these Terms. This includes, but is not limited to: posting false, misleading, or fraudulent content; infringing upon any party's intellectual property rights; using the Platform in a way that could damage or disrupt it; collecting information about others without their consent."
+            "title": "4. Prohibited Use",
+            "content": "It is strictly prohibited to:\n• Use the site for any illegal purpose.\n• Attempt to hack the site or collect data automatically (Scraping).\n• Post false or misleading real estate information.\n• Abuse or harass any other user or partner."
         },
         "intellectualProperty": {
-            "title": "5. Intellectual Property Rights",
-            "content": "The Platform and its entire original contents, features, and functionality (including but not limited to all information, software, text, displays, images, video, and audio) are owned by ONLY HELIO and are protected by copyright, trademark, patent, trade secret, and other intellectual property laws."
+            "title": "5. Intellectual Property",
+            "content": "All content on the site, including text, designs, logos, and code, is the property of ONLY HELIO or its licensors and is protected by copyright laws."
         },
         "disclaimer": {
-            "title": "6. Disclaimer of Warranties",
-            "content": "The service is provided on an 'AS IS' and 'AS AVAILABLE' basis. We do not warrant the accuracy, completeness, or reliability of any information on the platform, including property listings and partner details. You expressly agree that your use of the platform is at your sole risk. We do not guarantee that the platform will be error-free or uninterrupted."
+            "title": "6. Disclaimer",
+            "content": "The materials on ONLY HELIO website are provided \"as is\". The platform makes no warranties, expressed or implied, and disclaims liability for any damages arising from the use of the site or reliance on any listed information. Any dealing between you and any partner (developer or finishing company) is a direct dealing at your own risk."
         },
         "limitation": {
             "title": "7. Limitation of Liability",
-            "content": "In no event shall ONLY HELIO, nor its directors, employees, or partners, be liable for any indirect, incidental, special, consequential or punitive damages, arising out of or in connection with your access to or use of the Platform."
+            "content": "In no event shall ONLY HELIO or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit) arising out of the use or inability to use the materials on the site."
         },
         "governingLaw": {
             "title": "8. Governing Law",
-            "content": "These Terms shall be governed and construed in accordance with the laws of the Arab Republic of Egypt, without regard to its conflict of law provisions."
+            "content": "These terms and conditions are governed by and construed in accordance with the laws of the Arab Republic of Egypt, and any disputes shall be subject to the exclusive jurisdiction of the Egyptian courts."
         },
         "contact": {
-            "title": "9. Contact Us",
-            "content": "If you have any questions about these Terms of Use, you can contact us via the information available on our 'Contact Us' page."
+            "title": "9. Inquiries",
+            "content": "For any inquiries regarding the Terms of Use, please contact us at: info@onlyhelio.com."
         }
+    },
+    "subscriptionPlans": {
+        "title": "Subscription Plans",
+        "selectButton": "Select Plan",
+        "developer": {
+            "basic": { "name": "Basic", "price": "Free", "description": "For new developers, start with one project.", "features": ["1 Project", "10 Units", "Basic Dashboard"] },
+            "professional": { "name": "Professional", "price": "5,000 EGP/mo", "description": "For growing developers, showcase more.", "features": ["5 Projects", "50 Units", "Advanced Analytics", "Tech Support"] },
+            "elite": { "name": "Elite", "price": "15,000 EGP/mo", "description": "For major developers, unlimited access.", "features": ["Unlimited Projects", "Unlimited Units", "Priority Display", "Dedicated Account Manager"] }
+        },
+        "agency": {
+            "basic": { "name": "Basic", "price": "Free", "description": "For small agencies.", "features": ["3 Properties", "Basic Dashboard"] },
+            "professional": { "name": "Professional", "price": "2,000 EGP/mo", "description": "For active agencies.", "features": ["15 Properties", "Featured Listing", "Analytics"] },
+            "elite": { "name": "Elite", "price": "5,000 EGP/mo", "description": "For large agencies.", "features": ["Unlimited Properties", "Top of List", "24/7 Support"] }
+        },
+        "finishing": {
+            "commission": { "name": "Commission", "price": "Free", "description": "Pay only when you get a job.", "features": ["Profile", "Receive Requests", "10% Commission"] },
+            "professional": { "name": "Professional", "price": "3,000 EGP/mo", "description": "For professional companies.", "features": ["Portfolio", "No Commission", "Priority Visibility"] },
+            "elite": { "name": "Elite", "price": "8,000 EGP/mo", "description": "For major companies.", "features": ["Unlimited Portfolio", "Trusted Partner Badge", "Exclusive Promotion"] }
+        },
+        "individual": {
+            "sale": {
+                "paid_listing": { "name": "Paid Listing", "price": "500 EGP", "description": "One-time fee to list your property.", "features": ["Listed for 3 months", "Direct contact with buyers"] },
+                "commission": { "name": "Commission", "price": "Free", "description": "We sell for you for a commission.", "features": ["We manage the process", "Professional photography", "2.5% Commission on sale"] }
+            },
+            "rent": {
+                "paid_listing": { "name": "Paid Listing", "price": "300 EGP", "description": "List your unit for rent.", "features": ["Listed for 2 months", "Direct contact"] },
+                "commission": { "name": "Commission", "price": "Free", "description": "We rent it for you.", "features": ["We manage the process", "1 Month Rent Commission"] }
+            }
+        }
+    },
+    "upgradePlanModal": {
+        "title": "Upgrade Your Plan",
+        "message": "You have reached the maximum limit allowed on your current plan. To access more features and add more items, please upgrade your subscription.",
+        "upgradeButton": "Upgrade Now",
+        "closeButton": "Cancel"
     }
 };

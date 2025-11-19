@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, PartnerType } from '../../types';
@@ -12,6 +13,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Textarea } from '../ui/Textarea';
+import { WhatsAppIcon, PhoneIcon } from '../ui/Icons';
 
 type FormData = {
     name: string;
@@ -38,7 +40,28 @@ const ContactPage: React.FC = () => {
     });
 
     const mutation = useMutation({
-        mutationFn: (data: any) => addRequest(RequestType.CONTACT_MESSAGE, data),
+        mutationFn: async (data: any) => {
+            const routing = siteContent?.contactConfiguration?.routing || 'internal';
+            const targetEmail = siteContent?.contactConfiguration?.targetEmail;
+
+            // Simulate sending email
+            if (routing === 'email' || routing === 'both') {
+                if (targetEmail) {
+                    console.log(`[Simulated Email] Sending contact form to ${targetEmail}:`, data);
+                    // In a real app, you would call an API endpoint here to send the email
+                } else {
+                    console.warn("Target email not configured in settings.");
+                }
+            }
+
+            // Save to internal database
+            if (routing === 'internal' || routing === 'both') {
+                 return addRequest(RequestType.CONTACT_MESSAGE, data);
+            }
+
+            // If email only, just return a success resolve for the mutation
+            return Promise.resolve();
+        },
         onSuccess: () => {
             showToast(t.contactPage.successMessage, 'success');
             reset({
@@ -50,7 +73,9 @@ const ContactPage: React.FC = () => {
                 message: '',
                 companyName: '',
             });
-            queryClient.invalidateQueries({ queryKey: ['allRequests'] });
+            if (siteContent?.contactConfiguration?.routing !== 'email') {
+                queryClient.invalidateQueries({ queryKey: ['allRequests'] });
+            }
         },
         onError: (error) => {
             console.error("Contact form submission failed:", error);
@@ -159,10 +184,21 @@ const ContactPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
-                                    <span className="text-amber-500 mt-1">📞</span>
+                                    <div className="mt-1">
+                                        {siteContent?.footer.isWhatsAppOnly ? (
+                                            <WhatsAppIcon className="w-5 h-5 text-green-600" />
+                                        ) : (
+                                            <PhoneIcon className="w-5 h-5 text-amber-500" />
+                                        )}
+                                    </div>
                                     <div>
                                         <h3 className="font-semibold text-gray-900">{t.contactPage.phoneTitle}</h3>
                                         <p className="text-gray-600" dir="ltr">{siteContent?.footer.phone}</p>
+                                        {siteContent?.footer.isWhatsAppOnly && (
+                                            <p className="text-xs text-green-600 mt-1">
+                                                {language === 'ar' ? '(واتساب فقط)' : '(WhatsApp Only)'}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">

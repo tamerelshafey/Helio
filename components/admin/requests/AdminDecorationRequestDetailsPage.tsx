@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus, AdminPartner } from '../../../types';
@@ -61,7 +59,7 @@ const AdminDecorationRequestDetailsPage: React.FC = () => {
 
     return (
         <div className="space-y-6">
-             <Link to="/admin/decorations-management/requests" className="inline-flex items-center gap-2 text-amber-600 hover:underline mb-4">
+             <Link to="/admin/platform-decorations/requests" className="inline-flex items-center gap-2 text-amber-600 hover:underline mb-4">
                 <ArrowLeftIcon className="w-5 h-5" />
                 {t.backToRequests}
             </Link>
@@ -127,7 +125,7 @@ const AdminDecorationRequestDetailsPage: React.FC = () => {
                     </div>
                     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                         <h2 className="text-xl font-bold p-6">Conversation</h2>
-                         <ConversationThread lead={lead} onMessageSent={refetchLeads} />
+                         <ConversationThread lead={lead} onMessageSent={refetchLeads} requestId={lead.id} />
                     </div>
                 </div>
             </div>

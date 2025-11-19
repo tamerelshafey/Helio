@@ -1,9 +1,9 @@
 
-
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import type { Partner } from '../../types';
-import { QuoteIcon, HeartIcon, MenuIcon, HelioLogo } from '../ui/Icons';
+import { QuoteIcon, HeartIcon, MenuIcon } from '../ui/Icons';
+import { SiteLogo } from './SiteLogo';
 import { useLanguage } from './LanguageContext';
 import NotificationBell from './NotificationBell';
 
@@ -43,7 +43,7 @@ export const Header: React.FC<HeaderProps> = React.memo(({
             <div className="container mx-auto px-6">
                 <div className="flex justify-between items-center h-16 lg:h-20">
                     <Link to="/" className="flex items-center gap-3 text-3xl font-bold text-amber-500">
-                        <HelioLogo className="h-10 w-10" />
+                        <SiteLogo className="h-10 w-10" />
                         <span className="text-2xl hidden sm:block">ONLY HELIO</span>
                     </Link>
 
@@ -63,7 +63,11 @@ export const Header: React.FC<HeaderProps> = React.memo(({
                     </nav>
 
                     <div className="flex items-center gap-2 md:gap-4">
-                        {currentUser && <NotificationBell />}
+                        {currentUser && (
+                            <div className="flex items-center justify-center">
+                                <NotificationBell />
+                            </div>
+                        )}
                         <Link
                             to="/favorites"
                             className="hidden lg:block text-gray-500 hover:text-amber-500 transition-colors"

@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ArrowUpIcon, ArrowDownIcon } from '../components/ui/Icons';
 import { useDebounce } from './useDebounce';
@@ -20,12 +19,14 @@ export function useAdminTable<T extends Record<string, any>>({
     data = [],
     itemsPerPage = 10,
     initialSort,
+    initialFilters = {},
     searchFn,
     filterFns,
 }: {
     data: T[] | undefined;
     itemsPerPage?: number;
     initialSort: SortConfig<T>;
+    initialFilters?: Record<string, string>;
     searchFn: (item: T, searchTerm: string) => boolean;
     filterFns: Record<string, (item: T, value: string) => boolean>;
 }) {
@@ -33,7 +34,14 @@ export function useAdminTable<T extends Record<string, any>>({
     const [sortConfig, setSortConfig] = useState<SortConfig<T>>(initialSort);
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
-    const [filters, setFilters] = useState<Record<string, string>>({});
+    const [filters, setFilters] = useState<Record<string, string>>(initialFilters);
+
+    // Update filters if initialFilters change (e.g. navigation between dashboard links)
+    useEffect(() => {
+        if (Object.keys(initialFilters).length > 0) {
+            setFilters(prev => ({ ...prev, ...initialFilters }));
+        }
+    }, [initialFilters]);
 
     const setFilter = useCallback((key: string, value: string) => {
         setFilters((prev) => ({ ...prev, [key]: value }));

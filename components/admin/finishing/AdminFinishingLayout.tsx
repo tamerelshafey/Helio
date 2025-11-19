@@ -6,26 +6,28 @@ import { useLanguage } from '../../shared/LanguageContext';
 const AdminFinishingLayout: React.FC = () => {
     const { language, t } = useLanguage();
     const t_nav = t.adminDashboard.nav;
+    const t_tabs = t.adminDashboard.finishingManagement.tabs;
+    const t_page = t.adminDashboard.finishingManagement;
 
     const tabs = [
         { 
-            name: language === 'ar' ? 'لوحة التحكم' : 'Dashboard', 
-            href: '/admin/finishing-management', 
+            name: t_tabs.dashboard, 
+            href: '/admin/platform-finishing', 
             exact: true 
         },
         { 
-            name: language === 'ar' ? 'الطلبات الواردة' : 'Incoming Requests', 
-            href: '/admin/finishing-management/requests', 
+            name: t_tabs.requests, 
+            href: '/admin/platform-finishing/requests', 
             exact: false 
         },
         { 
-            name: language === 'ar' ? 'باقات الاستشارة والتصميم' : 'Consultation & Design Packages', 
-            href: '/admin/finishing-management/services', 
+            name: t_tabs.services, 
+            href: '/admin/platform-finishing/services', 
             exact: false 
         },
         { 
-            name: language === 'ar' ? 'باقات اشتراك الشركات' : 'Partner Subscription Plans', 
-            href: '/admin/finishing-management/plans', 
+            name: t_tabs.plans, 
+            href: '/admin/platform-finishing/plans', 
             exact: false 
         },
     ];
@@ -38,12 +40,10 @@ const AdminFinishingLayout: React.FC = () => {
         <div className="space-y-6">
             <div>
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    {language === 'ar' ? 'إدارة التشطيبات والديكور' : 'Finishing & Decor Management'}
+                    {t_page.title}
                 </h1>
                 <p className="text-gray-500 dark:text-gray-400">
-                    {language === 'ar' 
-                        ? 'مركز التحكم في طلبات التشطيب، وباقات الاستشارة والتصميم، واشتراكات شركات التنفيذ.' 
-                        : 'Control center for finishing requests, consultation/design packages, and contractor subscriptions.'}
+                    {t_page.subtitle}
                 </p>
             </div>
 

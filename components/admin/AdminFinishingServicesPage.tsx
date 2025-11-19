@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { SiteContent } from '../../types';
 import { inputClasses } from '../ui/FormField';
-import { TrashIcon, SparklesIcon } from '../ui/Icons';
+import { TrashIcon } from '../ui/Icons';
 import { getContent, updateContent as updateSiteContent } from '../../services/content';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../shared/ToastContext';
@@ -47,22 +47,6 @@ const AdminFinishingServicesPage: React.FC = () => {
 
     return (
         <div>
-            <div className="flex items-start gap-4 mb-8">
-                <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-500">
-                    <SparklesIcon className="w-8 h-8" />
-                </div>
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        {language === 'ar' ? 'إدارة باقات الاستشارة والتصميم' : 'Consultation & Design Packages'}
-                    </h1>
-                    <p className="text-gray-500 dark:text-gray-400 max-w-3xl">
-                        {language === 'ar' 
-                            ? 'هذه الباقات هي الخدمات التي تقدمها المنصة (أو فريق التصميم الداخلي) مباشرة للعملاء. تظهر في صفحة "التشطيبات" وتسمح للعملاء بطلب استشارة أو تصميم.' 
-                            : 'These packages are services offered directly by the platform (or internal design team) to clients. They appear on the "Finishing" page and allow clients to request consultation or design.'}
-                    </p>
-                </div>
-            </div>
-            
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
                     <div className="space-y-8">

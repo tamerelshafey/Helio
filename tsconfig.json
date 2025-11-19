@@ -1,4 +1,3 @@
-
 {
   "compilerOptions": {
     "target": "ES2020",
@@ -19,15 +18,8 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    
-    /* Path Aliases */
-    "baseUrl": ".",
-    "paths": {
-      "api/*": ["services/*"]
-    }
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["."],
-  "exclude": ["api"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

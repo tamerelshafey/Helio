@@ -18,24 +18,13 @@ import ProjectFormPage from '../forms/ProjectFormPage';
 
 // Admin - Platform Operations (New)
 import AdminPlatformPropertiesPage from './platform-ops/AdminPlatformPropertiesPage';
+import AdminPlatformFinishingPage from './platform-ops/AdminPlatformFinishingPage';
+import AdminPlatformDecorationsPage from './platform-ops/AdminPlatformDecorationsPage';
 
 // Admin - Requests (New Unified Structure)
 import AdminAllRequestsPage from './requests/AdminAllRequestsPage';
 import AdminRequestDetailsPage from './requests/AdminRequestDetailsPage';
-
-// Admin - Decorations Management
-import DecorationsLayout from './decorations/DecorationsDashboardLayout';
-import DecorationsDashboardHomePage from './decorations/DecorationsDashboardHomePage';
-import RequestsManagement from './decorations/RequestsManagement';
-import PortfolioManagement from './decorations/PortfolioManagement';
-import CategoriesManagement from './decorations/CategoriesManagement';
-
-// Admin - Finishing Management
-import AdminFinishingLayout from './finishing/AdminFinishingLayout';
-import AdminFinishingDashboardPage from './finishing/AdminFinishingDashboardPage';
-import AdminFinishingServicesPage from './AdminFinishingServicesPage';
-import AdminFinishingRequestsPage from './requests/AdminFinishingRequestsPage'; 
-// AdminAIEstimatorPage import removed
+import AdminCreateRequestPage from './requests/AdminCreateRequestPage'; // Import New Page
 
 // Admin - Partners & Projects Management (New Structure)
 import AdminPartnersLayout from './partners/AdminPartnersLayout';
@@ -63,9 +52,18 @@ import ContentFooterPage from './content/ContentFooterPage';
 import ContentProjectsPage from './content/ContentProjectsPage';
 import ContentFinishingPage from './content/ContentFinishingPage';
 import ContentDecorationsPage from './content/ContentDecorationsPage';
+import ContentCTAPage from './content/ContentCTAPage';
+import ContentHomeListingsPage from './content/ContentHomeListingsPage';
+import ContentPrivacyPolicyPage from './content/ContentPrivacyPolicyPage';
+import ContentTermsOfUsePage from './content/ContentTermsOfUsePage';
+
 
 // Admin - Automation
 import RoutingRulesPage from './automation/RoutingRulesPage';
+
+// Shared
+import AllNotificationsPage from '../shared/AllNotificationsPage';
+import AdminAIEstimatorPage from './AdminAIEstimatorPage';
 
 
 const AdminRoutes: React.FC = () => {
@@ -76,17 +74,22 @@ const AdminRoutes: React.FC = () => {
             <Route path="reports" element={<AdminReportsPage />} />
             <Route path="automation" element={<RoutingRulesPage />} />
             <Route path="profile" element={<AdminProfilePage />} />
+            <Route path="notifications" element={<AllNotificationsPage />} />
 
             {/* ===== NEW UNIFIED REQUESTS ROUTE ===== */}
+            {/* Create must come before :requestId to match correctly */}
+            <Route path="requests/new" element={<AdminCreateRequestPage />} /> 
             <Route path="requests" element={<AdminAllRequestsPage />} />
             <Route path="requests/:requestId" element={<AdminRequestDetailsPage />} />
 
             {/* ===== NEW PLATFORM OPERATIONS ROUTES ===== */}
             <Route path="platform-properties" element={<AdminPlatformPropertiesPage />} />
+            <Route path="platform-finishing/*" element={<AdminPlatformFinishingPage />} />
+            <Route path="platform-decorations/*" element={<AdminPlatformDecorationsPage />} />
             
             {/* Redirect old platform routes to the new management modules */}
-            <Route path="platform-decorations" element={<Navigate to="/admin/decorations-management" replace />} />
-            <Route path="platform-finishing" element={<Navigate to="/admin/finishing-management" replace />} />
+            <Route path="decorations-management/*" element={<Navigate to="platform-decorations" replace />} />
+            <Route path="finishing-management/*" element={<Navigate to="platform-finishing" replace />} />
 
 
             {/* ===== DEPRECATED - Redirect old request URLs to the new triage center ===== */}
@@ -94,9 +97,7 @@ const AdminRoutes: React.FC = () => {
             <Route path="partner-requests/:requestId" element={<Navigate to="/admin/requests/:requestId" replace />} />
             <Route path="contact-requests" element={<Navigate to="/admin/requests?type=CONTACT_MESSAGE" replace />} />
             <Route path="leads" element={<Navigate to="/admin/requests?type=LEAD" replace />} />
-            
-            <Route path="finishing-requests" element={<Navigate to="/admin/finishing-management/requests" replace />} />
-            <Route path="decorations-requests" element={<Navigate to="/admin/decorations-management/requests" replace />} />
+            <Route path="finishing-requests" element={<Navigate to="/admin/platform-finishing" replace />} />
             
             <Route path="partners" element={<AdminPartnersLayout />}>
                 <Route index element={<AdminPartnersDashboard />} />
@@ -128,6 +129,8 @@ const AdminRoutes: React.FC = () => {
             <Route path="content" element={<AdminContentLayout />}>
                 <Route index element={<Navigate to="hero" replace />} />
                 <Route path="hero" element={<ContentHeroPage />} />
+                <Route path="home-listings" element={<ContentHomeListingsPage />} />
+                <Route path="home-cta" element={<ContentCTAPage />} />
                 <Route path="why-us" element={<ContentWhyUsPage />} />
                 <Route path="services" element={<ContentServicesPage />} />
                 <Route path="partners" element={<ContentPartnersPage />} />
@@ -139,24 +142,13 @@ const AdminRoutes: React.FC = () => {
                 <Route path="why-new-heliopolis" element={<ContentWhyNewHeliopolisPage />} />
                 <Route path="quotes" element={<ContentQuotesPage />} />
                 <Route path="footer" element={<ContentFooterPage />} />
+                <Route path="privacy-policy" element={<ContentPrivacyPolicyPage />} />
+                <Route path="terms-of-use" element={<ContentTermsOfUsePage />} />
             </Route>
             
             <Route path="settings" element={<AdminSettingsPage />} />
+            <Route path="ai-estimator" element={<AdminAIEstimatorPage />} />
             
-            <Route path="finishing-management" element={<AdminFinishingLayout />}>
-                <Route index element={<AdminFinishingDashboardPage />} />
-                <Route path="requests" element={<AdminFinishingRequestsPage />} />
-                <Route path="services" element={<AdminFinishingServicesPage />} />
-                {/* estimator route removed */}
-                <Route path="plans" element={<AdminPlansPage availableCategories={['finishing']} />} />
-            </Route>
-
-            <Route path="decorations-management" element={<DecorationsLayout />}>
-                <Route index element={<DecorationsDashboardHomePage />} />
-                <Route path="requests" element={<RequestsManagement />} />
-                <Route path="portfolio" element={<PortfolioManagement />} />
-                <Route path="categories" element={<CategoriesManagement />} />
-            </Route>
         </Routes>
     );
 };

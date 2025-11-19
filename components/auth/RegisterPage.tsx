@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import type { Language, ManagementContact, OfficialDocument, PartnerRequest, SubscriptionPlan, PartnerType } from '../../types';
 import FormField from '../ui/FormField';
-import { CheckCircleIcon, CloseIcon, ClipboardDocumentListIcon, HelioLogo } from '../ui/Icons';
+import { CheckCircleIcon, CloseIcon, ClipboardDocumentListIcon } from '../ui/Icons';
+import { SiteLogo } from '../shared/SiteLogo';
 import { addRequest } from '../../services/requests';
 import { RequestType } from '../../types';
 import SubscriptionPlanSelector from '../shared/SubscriptionPlanSelector';
@@ -132,7 +134,7 @@ const RegisterPage: React.FC = () => {
                  <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg border border-gray-200">
                     <div className="text-center mb-8">
                         <Link to="/" className="inline-flex items-center justify-center gap-3 text-3xl font-bold text-amber-500 mb-4">
-                            <HelioLogo className="h-10 w-10" />
+                            <SiteLogo className="h-10 w-10" />
                             <span className="text-2xl">ONLY HELIO</span>
                         </Link>
                         <h1 className="text-3xl font-bold text-gray-800">{t.auth.registerTitle}</h1>

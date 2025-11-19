@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -57,7 +58,7 @@ const AdminPartnersDashboard: React.FC = () => {
             labels: Object.keys(partnerDistribution),
             datasets: [{
                 data: Object.values(partnerDistribution),
-                backgroundColor: ['#F59E0B', '#D97706', '#B45309'],
+                backgroundColor: ['#FBBF24', '#F97316', '#D97706'],
                  borderColor: document.documentElement.classList.contains('dark') ? '#1f2937' : '#ffffff',
                 borderWidth: 2,
             }],
@@ -76,27 +77,39 @@ const AdminPartnersDashboard: React.FC = () => {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-fadeIn">
+            <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    {language === 'ar' ? 'لوحة تحكم علاقات الشركاء' : 'Partner Relations Dashboard'}
+                </h1>
+                <p className="text-gray-500 dark:text-gray-400">
+                    {language === 'ar' 
+                        ? 'إدارة حسابات الشركاء، مراجعة طلبات الانضمام، ومتابعة الأداء.' 
+                        : 'Manage partner accounts, review applications, and monitor performance.'}
+                </p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <StatCard title={t_admin.partnersManagement.totalPartners} value={dashboardData.totalPartners} icon={UsersIcon} linkTo="/admin/partners/list" />
                 <StatCard title={t_admin.listingsManagerHome.totalProjects} value={dashboardData.totalProjects} icon={CubeIcon} linkTo="/admin/projects" />
                 <StatCard title={t_admin.home.pendingPartnerRequests} value={dashboardData.pendingRequests} icon={UserPlusIcon} linkTo="/admin/partner-requests" />
             </div>
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t_admin.partnersManagement.partnerDistributionByType}</h2>
-                    <div className="h-64">
+                    <div className="h-64 flex justify-center">
                         <Doughnut data={dashboardData.chartData} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: document.documentElement.classList.contains('dark') ? '#E5E7EB' : '#374151' } } } }} />
                     </div>
                 </div>
-                {/* FIX: Add generic type to RequestList to correctly infer item type */}
+                
                 <RequestList<PartnerRequest>
                     title={t_admin.partnersManagement.recentPartnerRequests}
                     requests={partnerRequests}
-                    linkTo="/admin/partner-requests"
+                    linkTo="/admin/requests?type=PARTNER_APPLICATION"
                     itemRenderer={(item) => (
                         <li key={item.id} className="py-3">
-                            <Link to={`/admin/partner-requests/${item.id}`} className="flex justify-between items-center group">
+                            <Link to={`/admin/requests/${item.id}`} className="flex justify-between items-center group">
                                 <div>
                                     <p className="font-medium group-hover:text-amber-600">{item.companyName}</p>
                                     <p className="text-sm text-gray-500">{item.contactName}</p>

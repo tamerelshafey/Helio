@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -28,7 +27,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
-        darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
@@ -53,20 +51,6 @@
         }
       }
     </script>
-    <script>
-      // FOUC prevention for Dark Mode
-      (function() {
-        try {
-          var savedTheme = localStorage.getItem('onlyhelio-theme');
-          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-            document.documentElement.classList.add('dark');
-          } else {
-            document.documentElement.classList.remove('dark');
-          }
-        } catch (e) {}
-      })();
-    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="index.css" />
 <script type="importmap">
@@ -74,24 +58,23 @@
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
-    "@tanstack/react-query": "https://aistudiocdn.com/@tanstack/react-query@^5.90.10",
-    "@tanstack/react-query-devtools": "https://aistudiocdn.com/@tanstack/react-query-devtools@^5.90.2",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react-hook-form": "https://aistudiocdn.com/react-hook-form@^7.66.1",
+    "react-hook-form": "https://aistudiocdn.com/react-hook-form@^7.66.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0",
+    "@tanstack/react-query": "https://aistudiocdn.com/@tanstack/react-query@^5.51.11",
+    "@tanstack/react-query-devtools": "https://aistudiocdn.com/@tanstack/react-query-devtools@^5.51.11",
     "chart.js": "https://aistudiocdn.com/chart.js@^4.5.1",
     "react-chartjs-2": "https://aistudiocdn.com/react-chartjs-2@^5.3.1",
     "jspdf": "https://aistudiocdn.com/jspdf@^3.0.3",
     "jspdf-autotable": "https://aistudiocdn.com/jspdf-autotable@^5.0.2",
-    "vite": "https://aistudiocdn.com/vite@^7.2.2",
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
-    "path": "https://aistudiocdn.com/path@^0.12.7",
-    "url": "https://aistudiocdn.com/url@^0.11.4"
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.0",
+    "vite": "https://aistudiocdn.com/vite@^7.2.2"
   }
 }
 </script>
 </head>
-  <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
+  <body class="bg-gray-50 text-gray-800">
     <div id="root"></div>
     <script type="module" src="index.tsx"></script>
   </body>

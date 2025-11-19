@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Hero from './Hero';
 import Services from './Services';
@@ -6,7 +7,7 @@ import Integrations from './Integrations';
 import CTA from './CTA';
 import BannerDisplay from '../shared/BannerDisplay';
 import AboutCity from './AboutCity';
-import LatestProperties from '../properties/LatestProperties';
+import LatestProperties from './LatestProperties';
 import SEO from '../shared/SEO';
 import { useLanguage } from '../shared/LanguageContext';
 import SocialProof from './SocialProof';

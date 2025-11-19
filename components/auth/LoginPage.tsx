@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
@@ -8,7 +6,7 @@ import { Role, Permission } from '../../types';
 import type { Language, Partner } from '../../types';
 import { getPartnerByEmail } from '../../services/partners';
 import { Input } from '../ui/Input';
-import { HelioLogo } from '../ui/Icons';
+import { SiteLogo } from '../shared/SiteLogo';
 import { partnersData } from '../../data/partners';
 import { rolePermissions } from '../../data/permissions';
 import { useLanguage } from '../shared/LanguageContext';
@@ -58,29 +56,37 @@ const LoginPage: React.FC = () => {
 
     const quickLoginUsers = useMemo(() => {
         const quickLoginEmails = [
+            // Internal Roles
             'admin@onlyhelio.com',
-            'dev1@onlyhelio.com',
-            'fin1@onlyhelio.com',
-            'agency1@onlyhelio.com',
-            'service-manager@onlyhelio.com',
-            'customer-relations-manager@onlyhelio.com',
-            'listings-manager@onlyhelio.com',
-            'partner-relations-manager@onlyhelio.com',
-            'content-manager@onlyhelio.com',
+            'decor@onlyhelio.com',
+            'fin-platform@onlyhelio.com',
+            'fin-market@onlyhelio.com',
+            're-platform@onlyhelio.com',
+            're-market@onlyhelio.com',
+            'partners@onlyhelio.com',
+            'content@onlyhelio.com',
+            // External Partners (Demo Accounts)
+            'dev1@onlyhelio.com',      // Developer (United Development)
+            'fin1@onlyhelio.com',      // Finishing (El Mottaheda)
+            'agency1@onlyhelio.com',   // Agency (Future Real Estate)
         ];
 
         return quickLoginEmails
             .map(email => {
                 const partner = partnersData.find(p => p.email === email);
                 if (!partner) return null;
-                const localizedInfo = t.partnerInfo[partner.id];
+                
+                // Use translation if available, otherwise fallback to ID
+                // @ts-ignore
+                const localizedName = t.partnerInfo[partner.id]?.name || partner.id;
+                
                 return {
-                    name: localizedInfo?.name || partner.id,
+                    name: localizedName,
                     email: partner.email,
                 };
             })
             .filter(Boolean) as { name: string; email: string }[];
-    }, [language, t.partnerInfo]);
+    }, [language, t]);
 
 
     return (
@@ -88,7 +94,7 @@ const LoginPage: React.FC = () => {
             <div className="w-full max-w-lg p-8 space-y-8 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="text-center">
                     <Link to="/" className="inline-flex items-center justify-center gap-3 text-3xl font-bold text-amber-500 mb-4">
-                        <HelioLogo className="h-10 w-10" />
+                        <SiteLogo className="h-10 w-10" />
                         <span className="text-2xl">ONLY HELIO</span>
                     </Link>
                     <h1 className="text-3xl font-bold text-gray-800">{t_auth.loginTitle}</h1>
@@ -145,7 +151,7 @@ const LoginPage: React.FC = () => {
                     <p className="text-center text-sm font-medium text-gray-600 mb-4">
                         {language === 'ar' ? 'للتجربة: تسجيل دخول سريع' : 'For Demo: Quick Logins'}
                     </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
                         {quickLoginUsers.map(user => (
                             <Button
                                 key={user.email}
@@ -153,7 +159,7 @@ const LoginPage: React.FC = () => {
                                 size="sm"
                                 onClick={() => handleQuickLogin(user.email)}
                                 isLoading={loading === user.email}
-                                className="w-full text-xs"
+                                className="w-full text-xs h-auto py-2 whitespace-normal leading-tight"
                             >
                                 {user.name}
                             </Button>

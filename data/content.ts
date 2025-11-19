@@ -367,7 +367,12 @@ const quotesData: Quote[] = [
 export let siteContentData: SiteContent = {
   logoUrl: '',
   locationPickerMapUrl: 'https://images.unsplash.com/photo-1589578228257-29283998b311?q=75&w=2070&auto=format&fit=crop',
+  contactConfiguration: {
+    routing: 'internal',
+    targetEmail: 'admin@onlyhelio.com',
+  },
   hero: {
+      // ... existing hero data ...
     ar: {
       title: 'بوابتك الحصرية لأرقى العقارات في هليوبوليس الجديدة',
       subtitle: 'في ONLY HELIO، نختص بتقديم روائع معمارية وخدمات متكاملة مصممة خصيصًا لتلبية طموحات سكان مدينة هليوبوليس الجديدة.',
@@ -394,6 +399,32 @@ export let siteContentData: SiteContent = {
             alt: { ar: "مبنى سكني حديث بواجهات زجاجية", en: "Modern apartment building with glass facades" }
         }
     ],
+  },
+  // ... keep existing homeCTA, homeListings, whyUs, services, partners, testimonials, socialProof, whyNewHeliopolis ...
+  homeCTA: {
+      enabled: true,
+      ar: {
+        title: "هل أنت مستعد للبدء؟",
+        subtitle: "انضم إلى شبكة شركائنا الناجحين ومقدمي الخدمات المميزة في هليوبوليس الجديدة.",
+        button: "تواصل الآن",
+        link: "/contact"
+      },
+      en: {
+        title: "Ready to Get Started?",
+        subtitle: "Join our network of successful partners and distinguished service providers in New Heliopolis.",
+        button: "Contact Us Now",
+        link: "/contact"
+      }
+  },
+  homeListings: {
+      enabled: true,
+      count: 4,
+      ar: {
+          title: "أحدث العقارات",
+      },
+      en: {
+          title: "Latest Properties",
+      }
   },
   whyUs: {
     enabled: true,
@@ -545,74 +576,34 @@ export let siteContentData: SiteContent = {
   },
   finishingServices: [
     {
-      title: {
-        ar: 'الاستشارة ووضع التصور',
-        en: 'Consultation & Concept Design'
-      },
+      title: { ar: 'الاستشارة ووضع التصور', en: 'Consultation & Concept Design' },
       description: {
         ar: 'جلسات استشارية معمقة مع مهندسينا لفهم رؤيتك ومتطلباتك، نترجمها إلى تصورات مبدئية مبتكرة للتصميم الداخلي مع تقديم مقايسات تقديرية دقيقة للتكاليف وخيارات المواد.',
         en: 'In-depth consultation sessions with our engineers to understand your vision and requirements, translating them into innovative initial interior design concepts with accurate cost estimates and material options.'
       },
       pricingTiers: [
-        {
-          unitType: { ar: 'مكالمة استشارية أولية', en: 'Initial Consultation Call' },
-          areaRange: { ar: 'جلسة أونلاين (60 دقيقة)', en: 'Online Session (60 min)' },
-          price: 1500
-        },
-        {
-          unitType: { ar: 'زيارة موقع واستشارة', en: 'On-site Visit & Consultation' },
-          areaRange: { ar: 'جلسة في الموقع (3 ساعات)', en: 'On-site Session (3 hours)' },
-          price: 4000
-        },
-        {
-          unitType: { ar: 'ورشة عمل وتخطيط', en: 'Full Planning Workshop' },
-          areaRange: { ar: 'يوم كامل (موقع/مكتب)', en: 'Full Day (Site/Office)' },
-          price: 10000
-        }
+        { unitType: { ar: 'مكالمة استشارية أولية', en: 'Initial Consultation Call' }, areaRange: { ar: 'جلسة أونلاين (60 دقيقة)', en: 'Online Session (60 min)' }, price: 1500 },
+        { unitType: { ar: 'زيارة موقع واستشارة', en: 'On-site Visit & Consultation' }, areaRange: { ar: 'جلسة في الموقع (3 ساعات)', en: 'On-site Session (3 hours)' }, price: 4000 },
+        { unitType: { ar: 'ورشة عمل وتخطيط', en: 'Full Planning Workshop' }, areaRange: { ar: 'يوم كامل (موقع/مكتب)', en: 'Full Day (Site/Office)' }, price: 10000 }
       ]
     },
     {
-      title: {
-        ar: 'التصميم ثلاثي الأبعاد',
-        en: '3D Design & Visualization'
-      },
+      title: { ar: 'التصميم ثلاثي الأبعاد', en: '3D Design & Visualization' },
       description: {
         ar: 'نحول التصور المبدئي إلى تصميم ثلاثي الأبعاد واقعي وتفاعلي، مما يسمح لك بالتجول افتراضيًا في منزلك المستقبلي وتعديل التفاصيل قبل البدء في أي أعمال تنفيذ.',
         en: 'We transform the initial concept into a realistic and interactive 3D design, allowing you to virtually walk through your future home and adjust details before any implementation work begins.'
       },
       pricingTiers: [
-        {
-          unitType: { ar: 'شقة', en: 'Apartment' },
-          areaRange: { ar: 'حتى 150 م²', en: 'Up to 150m²' },
-          price: 15000
-        },
-        {
-          unitType: { ar: 'شقة', en: 'Apartment' },
-          areaRange: { ar: '151 - 250 م²', en: '151m² - 250m²' },
-          price: 20000
-        },
-        {
-          unitType: { ar: 'فيلا', en: 'Villa' },
-          areaRange: { ar: 'حتى 300 م²', en: 'Up to 300m²' },
-          price: 30000
-        },
-        {
-          unitType: { ar: 'فيلا', en: 'Villa' },
-          areaRange: { ar: 'أكثر من 300 م²', en: 'Above 300m²' },
-          price: 45000
-        }
+        { unitType: { ar: 'شقة', en: 'Apartment' }, areaRange: { ar: 'حتى 150 م²', en: 'Up to 150m²' }, price: 15000 },
+        { unitType: { ar: 'شقة', en: 'Apartment' }, areaRange: { ar: '151 - 250 م²', en: '151m² - 250m²' }, price: 20000 },
+        { unitType: { ar: 'فيلا', en: 'Villa' }, areaRange: { ar: 'حتى 300 م²', en: 'Up to 300m²' }, price: 30000 },
+        { unitType: { ar: 'فيلا', en: 'Villa' }, areaRange: { ar: 'أكثر من 300 م²', en: 'Above 300m²' }, price: 45000 }
       ]
     }
   ],
   projectsPage: {
-    ar: {
-      title: 'اكتشف مشاريعنا الرائدة',
-      subtitle: 'مجموعة من أرقى المشاريع السكنية والتجارية في هليوبوليس الجديدة، مقدمة من نخبة المطورين العقاريين.'
-    },
-    en: {
-      title: 'Discover Our Flagship Projects',
-      subtitle: 'A collection of the finest residential and commercial projects in New Heliopolis, presented by elite real estate developers.'
-    }
+    ar: { title: 'اكتشف مشاريعنا الرائدة', subtitle: 'مجموعة من أرقى المشاريع السكنية والتجارية في هليوبوليس الجديدة، مقدمة من نخبة المطورين العقاريين.' },
+    en: { title: 'Discover Our Flagship Projects', subtitle: 'A collection of the finest residential and commercial projects in New Heliopolis, presented by elite real estate developers.' }
   },
   finishingPage: {
     ar: {
@@ -661,6 +652,67 @@ export let siteContentData: SiteContent = {
     }
   },
   quotes: quotesData,
+  // Legal Pages Initialization
+  privacyPolicy: {
+      ar: {
+          title: "سياسة الخصوصية",
+          lastUpdated: "آخر تحديث: نوفمبر 2025",
+          sections: [
+              { title: "1. مقدمة", content: "نحن في منصة ONLY HELIO (المشار إليها بـ \"نحن\"، \"المنصة\"، أو \"الموقع\")، نلتزم بحماية خصوصيتك وبياناتك الشخصية. توضح سياسة الخصوصية هذه كيفية جمعنا واستخدامنا ومشاركتنا لمعلوماتك عند استخدامك لمنصتنا المتخصصة في عقارات وخدمات مدينة هليوبوليس الجديدة. باستخدامك للموقع، فإنك توافق على الممارسات الموضحة في هذه السياسة." },
+              { title: "2. البيانات التي نجمعها", content: "قد نقوم بجمع الأنواع التالية من البيانات:\n• **معلومات الهوية:** الاسم الكامل، رقم الهاتف، عنوان البريد الإلكتروني.\n• **تفاصيل الطلبات:** تفاصيل العقار الذي ترغب في شرائه أو بيعه، تفضيلات التشطيب، ونوع الخدمة المطلوبة.\n• **المحتوى الذي تنشئه:** صور العقارات، وصف العقارات، والاستفسارات المرسلة عبر النماذج.\n• **البيانات التقنية:** عنوان IP، نوع المتصفح، وتفضيلات اللغة.\n• **بيانات الموقع الجغرافي:** قد نطلب الوصول إلى موقعك لتسهيل عرض العقارات القريبة، وذلك بموافقتك الصريحة." },
+              { title: "3. كيف نستخدم بياناتك", content: "نستخدم بياناتك للأغراض التالية:\n• ربطك بمقدمي الخدمات المناسبين (مطورين، سماسرة، شركات تشطيب).\n• تحسين تجربة البحث عن العقارات باستخدام خوارزميات التوصية.\n• **استخدام الذكاء الاصطناعي (AI):** نستخدم نماذج الذكاء الاصطناعي (مثل Google Gemini) لتحليل استعلامات البحث الخاصة بك وتقديم نتائج أكثر دقة، بالإضافة إلى إنشاء تقديرات أولية لتكاليف التشطيب. يتم معالجة هذه البيانات بطريقة آمنة ولا يتم استخدامها لتدريب نماذج عامة بطريقة تكشف هويتك.\n• التواصل معك بخصوص تحديثات الطلبات أو العروض الجديدة." },
+              { title: "4. مشاركة البيانات", content: "بصفتنا منصة وسيطة، فإننا نشارك بيانات الاتصال الخاصة بك وتفاصيل طلبك مع:\n• **الشركاء المسجلين:** (المطورون العقاريون، شركات التشطيب، المكاتب العقارية) فقط عندما تقوم بإرسال طلب استفسار أو خدمة محددة لجهة معينة أو تطلب خدمة عامة تتطلب توجيهها لأفضل مزود خدمة.\n• **مقدمي الخدمات التقنية:** الذين يساعدوننا في تشغيل الموقع (مثل استضافة البيانات وخدمات التحليل).\n• **الجهات القانونية:** عند الضرورة للامتثال للقوانين المحلية." },
+              { title: "5. أمن البيانات", content: "نطبق تدابير أمنية تقنية وتنظيمية مناسبة لحماية بياناتك من الوصول غير المصرح به أو الفقدان. ومع ذلك، لا يمكن ضمان أمن البيانات المنقولة عبر الإنترنت بنسبة 100%." },
+              { title: "6. التغييرات على السياسة", content: "قد نقوم بتحديث سياسة الخصوصية هذه من وقت لآخر لتعكس التغييرات في ممارساتنا أو القوانين المعمول بها. سيتم نشر أي تغييرات في هذه الصفحة مع تحديث تاريخ \"آخر تحديث\"." },
+              { title: "7. تواصل معنا", content: "إذا كان لديك أي أسئلة أو مخاوف بخصوص خصوصيتك، يرجى التواصل معنا عبر صفحة \"تواصل معنا\" أو عبر البريد الإلكتروني: info@onlyhelio.com." }
+          ]
+      },
+      en: {
+          title: "Privacy Policy",
+          lastUpdated: "Last Updated: November 2025",
+          sections: [
+              { title: "1. Introduction", content: "At ONLY HELIO (\"we\", \"our\", or \"the Platform\"), we are committed to protecting your privacy and personal data. This Privacy Policy explains how we collect, use, and share your information when you use our platform specialized in New Heliopolis real estate and services. By using the site, you agree to the practices described in this policy." },
+              { title: "2. Data We Collect", content: "We may collect the following types of data:\n• **Identity Information:** Full name, phone number, email address.\n• **Request Details:** Details of the property you wish to buy or sell, finishing preferences, and type of service requested.\n• **User-Generated Content:** Property photos, descriptions, and inquiries sent via forms.\n• **Technical Data:** IP address, browser type, and language preferences.\n• **Geolocation Data:** We may request access to your location to facilitate showing nearby properties, with your explicit consent." },
+              { title: "3. How We Use Your Data", content: "We use your data for the following purposes:\n• Connecting you with appropriate service providers (developers, brokers, finishing companies).\n• Improving the property search experience using recommendation algorithms.\n• **AI Usage:** We utilize Artificial Intelligence models (such as Google Gemini) to analyze your search queries to provide more accurate results and to generate initial finishing cost estimates. This data is processed securely and is not used to train public models in a way that reveals your identity.\n• Contacting you regarding request updates or new offers." },
+              { title: "4. Data Sharing with Third Parties", content: "As an intermediary platform, we share your contact data and request details with:\n• **Registered Partners:** (Real Estate Developers, Finishing Companies, Agencies) only when you submit an inquiry or specific service request to a particular entity or request a general service that requires routing to the best provider.\n• **Technical Service Providers:** Who assist us in operating the site (such as data hosting and analytics services).\n• **Legal Authorities:** When necessary to comply with local laws." },
+              { title: "5. Data Security", content: "We implement appropriate technical and organizational security measures to protect your data from unauthorized access or loss. However, data transmission over the internet cannot be guaranteed to be 100% secure." },
+              { title: "6. Changes to Policy", content: "We may update this Privacy Policy from time to time to reflect changes in our practices or applicable laws. Any changes will be posted on this page with an updated \"Last Updated\" date." },
+              { title: "7. Contact Us", content: "If you have any questions or concerns regarding your privacy, please contact us via the \"Contact Us\" page or email: info@onlyhelio.com." }
+          ]
+      }
+  },
+  termsOfUse: {
+      ar: {
+          title: "شروط الاستخدام",
+          lastUpdated: "آخر تحديث: نوفمبر 2025",
+          sections: [
+              { title: "1. الموافقة على الشروط", content: "مرحبًا بك في ONLY HELIO. بوصولك إلى هذا الموقع واستخدامه، فإنك توافق على الالتزام بشروط الاستخدام هذه وجميع القوانين واللوائح المعمول بها. إذا كنت لا توافق على أي من هذه الشروط، فيُحظر عليك استخدام هذا الموقع." },
+              { title: "2. وصف الخدمة ودور المنصة", content: "ONLY HELIO هي منصة رقمية تعمل كدليل وسوق للعقارات وخدمات التشطيب في مدينة هليوبوليس الجديدة.\n• **نحن لسنا طرفاً في المعاملات العقارية:** نحن نعمل كمنصة للإدراج والربط بين المستخدمين ومقدمي الخدمات. نحن لا نملك العقارات المعروضة (إلا ما تم ذكره صراحة) ولا نضمن جودة أعمال التشطيب.\n• **دقة المعلومات:** بينما نسعى جاهدين لضمان دقة المعلومات، فإننا لا نضمن خلو الموقع من الأخطاء." },
+              { title: "3. حسابات المستخدمين", content: "• أنت مسؤول عن الحفاظ على سرية معلومات حسابك وكلمة المرور.\n• يجب أن تكون المعلومات التي تقدمها دقيقة وحديثة.\n• نحتفظ بالحق في إنهاء الحسابات أو إزالة المحتوى الذي ينتهك شروطنا." },
+              { title: "4. الاستخدام المحظور", content: "يُمنع منعًا باتًا:\n• استخدام الموقع لأي غرض غير قانوني.\n• محاولة اختراق الموقع أو جمع البيانات بشكل آلي (Scraping).\n• نشر معلومات عقارية كاذبة أو مضللة.\n• الإساءة أو المضايقة لأي مستخدم آخر أو شريك." },
+              { title: "5. الملكية الفكرية", content: "جميع المحتويات الموجودة على الموقع، بما في ذلك النصوص، التصاميم، الشعارات، والأكواد، هي ملك لـ ONLY HELIO أو مرخصة لها، ومحمية بموجب قوانين حقوق النشر." },
+              { title: "6. إخلاء المسؤولية", content: "يتم تقديم المواد على موقع ONLY HELIO \"كما هي\". لا تقدم المنصة أي ضمانات، صريحة أو ضمنية، وتخلي مسؤوليتها عن أي أضرار قد تنشأ عن استخدام الموقع أو الاعتماد على أي معلومات مدرجة فيه. أي تعامل بينك وبين أي شريك (مطور أو شركة تشطيب) هو تعامل مباشر وعلى مسؤوليتك الخاصة." },
+              { title: "7. حدود المسؤولية", content: "لن تكون ONLY HELIO أو موردوها مسؤولين بأي حال من الأحوال عن أي أضرار (بما في ذلك، دون حصر، الأضرار الناجمة عن فقدان البيانات أو الأرباح) تنشأ عن استخدام أو عدم القدرة على استخدام المواد على الموقع." },
+              { title: "8. القانون الواجب التطبيق", content: "تخضع هذه الشروط والأحكام وتفسر وفقًا لقوانين جمهورية مصر العربية، وتخضع أي نزاعات للاختصاص القضائي الحصري للمحاكم المصرية." },
+              { title: "9. الاستفسارات", content: "لأي استفسارات بخصوص شروط الاستخدام، يرجى التواصل معنا عبر: info@onlyhelio.com." }
+          ]
+      },
+      en: {
+          title: "Terms of Use",
+          lastUpdated: "Last Updated: November 2025",
+          sections: [
+              { title: "1. Agreement to Terms", content: "Welcome to ONLY HELIO. By accessing and using this website, you agree to be bound by these Terms of Use and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this site." },
+              { title: "2. Service Description & Platform Role", content: "ONLY HELIO is a digital platform acting as a directory and marketplace for real estate and finishing services in New Heliopolis.\n• **We are not a party to real estate transactions:** We act as a listing and connecting platform between users and service providers. We do not own the listed properties (unless explicitly stated) and do not guarantee the quality of finishing works.\n• **Information Accuracy:** While we strive to ensure information accuracy, we do not warrant that the site is free of errors." },
+              { title: "3. User Accounts", content: "• You are responsible for maintaining the confidentiality of your account information and password.\n• The information you provide must be accurate and up-to-date.\n• We reserve the right to terminate accounts or remove content that violates our terms." },
+              { title: "4. Prohibited Use", content: "It is strictly prohibited to:\n• Use the site for any illegal purpose.\n• Attempt to hack the site or collect data automatically (Scraping).\n• Post false or misleading real estate information.\n• Abuse or harass any other user or partner." },
+              { title: "5. Intellectual Property", content: "All content on the site, including text, designs, logos, and code, is the property of ONLY HELIO or its licensors and is protected by copyright laws." },
+              { title: "6. Disclaimer", content: "The materials on ONLY HELIO website are provided \"as is\". The platform makes no warranties, expressed or implied, and disclaims liability for any damages arising from the use of the site or reliance on any listed information. Any dealing between you and any partner (developer or finishing company) is a direct dealing at your own risk." },
+              { title: "7. Limitation of Liability", content: "In no event shall ONLY HELIO or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit) arising out of the use or inability to use the materials on the site." },
+              { title: "8. Governing Law", content: "These terms and conditions are governed by and construed in accordance with the laws of the Arab Republic of Egypt, and any disputes shall be subject to the exclusive jurisdiction of the Egyptian courts." },
+              { title: "9. Inquiries", content: "For any inquiries regarding the Terms of Use, please contact us at: info@onlyhelio.com." }
+          ]
+      }
+  },
   footer: {
     ar: {
       description: 'وجهتكم الأولى لاستكشاف أرقى العقارات والخدمات المتكاملة في قلب هليوبوليس الجديدة. نحن نصنع روائع معمارية تلبي طموحاتكم.',
@@ -673,12 +725,21 @@ export let siteContentData: SiteContent = {
       hours: 'Sunday - Thursday: 9 AM - 6 PM',
     },
     phone: '+20 123 456 7890',
+    isWhatsAppOnly: true,
     email: 'info@onlyhelio.com',
     social: {
       facebook: '#',
       twitter: '#',
       instagram: '#',
       linkedin: '#'
+    },
+    copyright: {
+        en: '© 2025 ONLY HELIO. All rights reserved.',
+        ar: '© 2025 ONLY HELIO. جميع الحقوق محفوظة.'
+    },
+    feedbackText: {
+        en: 'Send Feedback',
+        ar: 'إرسال ملاحظات'
     }
   }
 };

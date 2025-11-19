@@ -1,9 +1,8 @@
 
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, SiteContent } from '../../types';
-import { inputClasses } from '../ui/FormField';
+import { inputClasses, selectClasses } from '../ui/FormField';
 // FIX: Corrected import path for Icons
 import { CloseIcon, PhotoIcon } from '../ui/Icons';
 import { getContent, updateContent as updateSiteContent } from '../../services/content';
@@ -13,6 +12,8 @@ import { useLanguage } from '../shared/LanguageContext';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
+import { Checkbox } from '../ui/Checkbox';
+import { Select } from '../ui/Select';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -46,6 +47,7 @@ const AdminSettingsPage: React.FC = () => {
     };
     
     const watchLogoUrl = watch('logoUrl');
+    const watchRouting = watch('contactConfiguration.routing');
 
     const onSubmit = async (formData: SiteContent) => {
         // Exclude finishingServices from the update
@@ -95,6 +97,26 @@ const AdminSettingsPage: React.FC = () => {
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Site Description (in Footer) (EN)</label>
                                     <Textarea {...register('footer.en.description')} className={inputClasses} rows={3}/>
                                 </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                     <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Copyright Text (AR)</label>
+                                        <Input {...register('footer.copyright.ar')} className={inputClasses} dir="rtl"/>
+                                    </div>
+                                     <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Copyright Text (EN)</label>
+                                        <Input {...register('footer.copyright.en')} className={inputClasses} dir="ltr"/>
+                                    </div>
+                                     <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Feedback Link Text (AR)</label>
+                                        <Input {...register('footer.feedbackText.ar')} className={inputClasses} dir="rtl"/>
+                                    </div>
+                                     <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Feedback Link Text (EN)</label>
+                                        <Input {...register('footer.feedbackText.en')} className={inputClasses} dir="ltr"/>
+                                    </div>
+                                </div>
+
                                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                                     <label htmlFor="logoUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Site Logo</label>
                                     <div className="flex items-center gap-4">
@@ -110,9 +132,38 @@ const AdminSettingsPage: React.FC = () => {
                         )}
 
                         {activeTab === 'contact' && (
-                            <div className="space-y-4 animate-fadeIn">
+                            <div className="space-y-6 animate-fadeIn">
+                                <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Form Routing</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Contact Form Routing</label>
+                                            <Select {...register('contactConfiguration.routing')} className={selectClasses}>
+                                                <option value="internal">Internal Messages (Dashboard)</option>
+                                                <option value="email">External Email Only</option>
+                                                <option value="both">Both (Internal & Email)</option>
+                                            </Select>
+                                        </div>
+                                        {(watchRouting === 'email' || watchRouting === 'both') && (
+                                            <div>
+                                                <label className="block text-sm font-medium mb-1">Target Email Address</label>
+                                                <Input type="email" {...register('contactConfiguration.targetEmail')} placeholder="admin@example.com" />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><label className="block text-sm font-medium">Phone Number</label><Input {...register('footer.phone')} /></div>
+                                    <div>
+                                        <label className="block text-sm font-medium">Phone Number</label>
+                                        <Input {...register('footer.phone')} />
+                                        <div className="mt-2 flex items-center gap-2">
+                                            <Checkbox id="isWhatsAppOnly" {...register('footer.isWhatsAppOnly')} />
+                                            <label htmlFor="isWhatsAppOnly" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+                                                This number is for WhatsApp only (no calls)
+                                            </label>
+                                        </div>
+                                    </div>
                                     <div><label className="block text-sm font-medium">Email Address</label><Input type="email" {...register('footer.email')} /></div>
                                     <div><label className="block text-sm font-medium">Address (AR)</label><Input {...register('footer.ar.address')} /></div>
                                     <div><label className="block text-sm font-medium">Address (EN)</label><Input {...register('footer.en.address')} /></div>

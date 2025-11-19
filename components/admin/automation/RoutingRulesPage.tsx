@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAllRoutingRules, deleteRoutingRule, updateRoutingRule } from '../../../services/routingRules';
+import { getAllRoutingRules, deleteRoutingRule, updateRoutingRule, reorderRoutingRules } from '../../../services/routingRules';
 import { getAllPartnersForAdmin } from '../../../services/partners';
 import type { RoutingRule } from '../../../data/routingRules';
 import { useLanguage } from '../../shared/LanguageContext';
@@ -10,7 +10,7 @@ import { Button } from '../../ui/Button';
 import { ToggleSwitch } from '../../ui/ToggleSwitch';
 import RoutingRuleFormModal from './RoutingRuleFormModal';
 import ConfirmationModal from '../../ui/ConfirmationModal';
-import { AdjustmentsHorizontalIcon, TrashIcon, CheckCircleIcon, XCircleIcon, ArrowRightIcon } from '../../ui/Icons';
+import { AdjustmentsHorizontalIcon, TrashIcon, CheckCircleIcon, XCircleIcon, ArrowRightIcon, ArrowUpIcon, ArrowDownIcon } from '../../ui/Icons';
 
 const RoutingRulesPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -30,6 +30,13 @@ const RoutingRulesPage: React.FC = () => {
         mutationFn: ({ id, updates }: { id: string, updates: Partial<RoutingRule> }) => updateRoutingRule(id, updates),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['routingRules'] });
+        }
+    });
+
+    const reorderMutation = useMutation({
+        mutationFn: ({ id, direction }: { id: string, direction: 'up' | 'down' }) => reorderRoutingRules(id, direction),
+        onSuccess: () => {
+             queryClient.invalidateQueries({ queryKey: ['routingRules'] });
         }
     });
 
@@ -80,6 +87,13 @@ const RoutingRulesPage: React.FC = () => {
                 </Button>
             </div>
             
+            <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 text-amber-800 dark:text-amber-200 text-sm rounded-r-lg">
+                <p className="font-bold">⚠️ {language === 'ar' ? 'الترتيب مهم!' : 'Order Matters!'}</p>
+                <p>{language === 'ar' 
+                    ? 'يتم تقييم القواعد من أعلى إلى أسفل. أول قاعدة نشطة تتطابق مع الطلب ستحدد تعيينه. استخدم الأسهم لتحديد أولويات القواعد.' 
+                    : 'Rules are evaluated from top to bottom. The first active rule that matches a request will determine its assignment. Use the arrow buttons to prioritize important rules.'}</p>
+            </div>
+
             <div className="space-y-4">
                 {isLoading ? (
                      <div className="text-center p-8">Loading rules...</div>
@@ -87,7 +101,7 @@ const RoutingRulesPage: React.FC = () => {
                      <div className="text-center p-12 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-500">
                         No automation rules defined yet.
                      </div>
-                ) : (rules || []).map(rule => {
+                ) : (rules || []).map((rule, index) => {
                     const assignedToUser = (partners || []).find(p => p.id === rule.action.assignTo);
                     const assignedToName = assignedToUser ? (language === 'ar' ? assignedToUser.nameAr : assignedToUser.name) : rule.action.assignTo;
 
@@ -95,13 +109,19 @@ const RoutingRulesPage: React.FC = () => {
                         <div key={rule.id} className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border transition-all duration-200 ${rule.active ? 'border-gray-200 dark:border-gray-700 hover:border-amber-400' : 'border-gray-100 dark:border-gray-800 opacity-75'}`}>
                             <div className="p-5">
                                 <div className="flex justify-between items-start mb-4">
-                                    <div>
-                                        <div className="flex items-center gap-3 mb-1">
-                                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{rule.name[language]}</h3>
-                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${rule.active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'}`}>
-                                                {rule.active ? <CheckCircleIcon className="w-3 h-3" /> : <XCircleIcon className="w-3 h-3" />}
-                                                {rule.active ? 'Active' : 'Inactive'}
-                                            </span>
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex flex-col gap-1 mr-2">
+                                            <button onClick={() => reorderMutation.mutate({ id: rule.id, direction: 'up' })} disabled={index === 0} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"><ArrowUpIcon className="w-4 h-4" /></button>
+                                            <button onClick={() => reorderMutation.mutate({ id: rule.id, direction: 'down' })} disabled={index === (rules?.length || 0) - 1} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"><ArrowDownIcon className="w-4 h-4" /></button>
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-1">
+                                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{rule.name[language]}</h3>
+                                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${rule.active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'}`}>
+                                                    {rule.active ? <CheckCircleIcon className="w-3 h-3" /> : <XCircleIcon className="w-3 h-3" />}
+                                                    {rule.active ? (language === 'ar' ? 'نشط' : 'Active') : (language === 'ar' ? 'غير نشط' : 'Inactive')}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -119,9 +139,9 @@ const RoutingRulesPage: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-md text-sm">
+                                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-md text-sm ml-10">
                                     <div className="flex-grow space-y-2">
-                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">IF (Conditions)</span>
+                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">IF ({t_auto.conditions})</span>
                                         <div className="flex flex-wrap gap-2">
                                             {rule.conditions.map((cond, idx) => (
                                                 <span key={idx} className="inline-flex items-center px-2.5 py-0.5 rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-mono text-xs">
@@ -138,7 +158,7 @@ const RoutingRulesPage: React.FC = () => {
                                     </div>
 
                                     <div className="flex-shrink-0 w-full md:w-auto md:min-w-[200px]">
-                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">THEN (Action)</span>
+                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">THEN ({t_auto.action})</span>
                                         <div className="flex items-center gap-2">
                                             <span className="text-gray-600 dark:text-gray-400">{t_auto.assignToAction}</span>
                                             <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-1.5 rounded border border-gray-200 dark:border-gray-600 shadow-sm">

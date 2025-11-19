@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Property, FilterOption } from '../../types';
+import type { Property, FilterOption, Language } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import FormField, { inputClasses, selectClasses } from '../ui/FormField';
 import { CloseIcon } from '../ui/Icons';
@@ -28,6 +29,39 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
+// Define specific interface for the form data structure
+interface PropertyFormData {
+    projectId?: string;
+    title: { ar: string; en: string };
+    description: { ar: string; en: string };
+    address: { ar: string; en: string };
+    status: { en: string; ar: string };
+    type: { en: string; ar: string };
+    finishingStatus: { en: string; ar: string };
+    area: number;
+    priceNumeric: number;
+    beds?: number;
+    baths?: number;
+    floor?: number;
+    amenities: { en: string[], ar: string[] };
+    location: { lat: number; lng: number };
+    listingStatus: string;
+    isInCompound: string; // Radio inputs return strings
+    realEstateFinanceAvailable: string;
+    installmentsAvailable: string;
+    delivery: {
+        isImmediate: string;
+        date?: string;
+    };
+    installments?: {
+        downPayment: number;
+        monthlyInstallment: number;
+        years: number;
+    };
+    contactMethod: 'platform' | 'direct';
+    ownerPhone?: string;
+}
+
 const PropertyFormPage: React.FC = () => {
     const { propertyId } = useParams();
     const navigate = useNavigate();
@@ -51,7 +85,7 @@ const PropertyFormPage: React.FC = () => {
     const td = t.dashboard.propertyForm;
     const tp = t.propertiesPage;
     
-    const { register, handleSubmit, watch, setValue, reset } = useForm<any>();
+    const { register, handleSubmit, watch, setValue, reset } = useForm<PropertyFormData>();
     
     const [mainImage, setMainImage] = useState<string>('');
     const [galleryImages, setGalleryImages] = useState<string[]>([]);
@@ -119,6 +153,7 @@ const PropertyFormPage: React.FC = () => {
             if (prop && userCanEdit) {
                 reset({
                     ...prop,
+                    // Convert booleans/complex objects to form-friendly strings where needed
                     isInCompound: String(prop.isInCompound),
                     realEstateFinanceAvailable: String(prop.realEstateFinanceAvailable),
                     installmentsAvailable: String(prop.installmentsAvailable),
@@ -127,7 +162,7 @@ const PropertyFormPage: React.FC = () => {
                     installments: prop.installments || { downPayment: 0, monthlyInstallment: 0, years: 0 },
                     contactMethod: prop.contactMethod || 'platform',
                     ownerPhone: prop.ownerPhone || '',
-                });
+                } as any); // Type assertion needed due to mismatch in nested optional structures
                 setMainImage(prop.imageUrl);
                 setGalleryImages(prop.gallery);
             } else if (propertyId && !isLoadingContext) {
@@ -149,6 +184,10 @@ const PropertyFormPage: React.FC = () => {
                 installments: { downPayment: 0, monthlyInstallment: 0, years: 0 },
                 contactMethod: 'platform', ownerPhone: '',
                 listingStatus: 'active',
+                priceNumeric: 0,
+                title: { ar: '', en: '' },
+                description: { ar: '', en: '' },
+                address: { ar: '', en: '' }
             });
         }
     }, [propertyId, currentUser, navigate, properties, reset, searchParams, hasPermission, isLoadingContext]);
@@ -222,7 +261,7 @@ const PropertyFormPage: React.FC = () => {
         );
     }, [finishingStatuses, watchType]);
 
-    const onSubmit = async (formData: any) => {
+    const onSubmit = async (formData: PropertyFormData) => {
         if (!currentUser || !('type' in currentUser) || !amenities) return;
         
         const priceNumeric = Number(formData.priceNumeric) || 0;
@@ -235,8 +274,14 @@ const PropertyFormPage: React.FC = () => {
             en: `EGP ${pricePerMeterNumeric.toLocaleString('en-US')}/m²`,
         } : undefined;
 
-        const propertyData = {
+        // Explicit mapping to Property type
+        const propertyData: Omit<Property, 'id' | 'partnerName' | 'partnerImageUrl'> = {
             ...formData,
+            status: { 
+                en: formData.status.en as 'For Sale' | 'For Rent', 
+                ar: formData.status.ar as 'للبيع' | 'إيجار' 
+            },
+            // Convert 'yes'/'no' strings back to booleans
             isInCompound: formData.isInCompound === 'true',
             realEstateFinanceAvailable: formData.realEstateFinanceAvailable === 'true',
             installmentsAvailable: formData.installmentsAvailable === 'true',
@@ -246,9 +291,15 @@ const PropertyFormPage: React.FC = () => {
             },
             partnerId: propertyId ? properties?.find(p => p.id === propertyId)?.partnerId || currentUser.id : currentUser.id,
             price: { ar: formattedPriceAr, en: formattedPriceEn },
+            priceNumeric,
             pricePerMeter,
             imageUrl: mainImage,
             gallery: galleryImages,
+            listingStatus: formData.listingStatus as any,
+            type: { en: formData.type.en as any, ar: formData.type.ar },
+            beds: formData.beds || 0,
+            baths: formData.baths || 0,
+            floor: formData.floor
         };
         
         if (propertyId) {

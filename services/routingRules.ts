@@ -1,3 +1,4 @@
+
 import { routingRulesData } from '../data/routingRules';
 import type { RoutingRule } from '../data/routingRules';
 
@@ -40,6 +41,26 @@ export const deleteRoutingRule = (id: string): Promise<boolean> => {
             const initialLength = localRoutingRulesData.length;
             localRoutingRulesData = localRoutingRulesData.filter(r => r.id !== id);
             resolve(localRoutingRulesData.length < initialLength);
+        }, SIMULATED_DELAY);
+    });
+};
+
+export const reorderRoutingRules = (id: string, direction: 'up' | 'down'): Promise<RoutingRule[]> => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            const index = localRoutingRulesData.findIndex(r => r.id === id);
+            if (index < 0) {
+                resolve([...localRoutingRulesData]);
+                return;
+            }
+            
+            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            if (newIndex >= 0 && newIndex < localRoutingRulesData.length) {
+                const item = localRoutingRulesData[index];
+                localRoutingRulesData.splice(index, 1);
+                localRoutingRulesData.splice(newIndex, 0, item);
+            }
+            resolve([...localRoutingRulesData]);
         }, SIMULATED_DELAY);
     });
 };

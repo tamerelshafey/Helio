@@ -42,8 +42,8 @@ const ContentHeroPage: React.FC = () => {
                             <SparklesIcon className="w-6 h-6 text-amber-600 dark:text-amber-500" />
                         </div>
                         <div>
-                            <CardTitle>Main Content</CardTitle>
-                            <p className="text-sm text-gray-500 mt-1">Edit the primary headline and subtitle displayed on the homepage hero.</p>
+                            <CardTitle>Main Text Content</CardTitle>
+                            <p className="text-sm text-gray-500 mt-1">Edit the headline and subtitle displayed over the slider.</p>
                         </div>
                     </div>
                 </CardHeader>
@@ -83,8 +83,8 @@ const ContentHeroPage: React.FC = () => {
                                 <PhotoIcon className="w-6 h-6 text-blue-600 dark:text-blue-500" />
                             </div>
                             <div>
-                                <CardTitle>Background Slider</CardTitle>
-                                <p className="text-sm text-gray-500 mt-1">Manage the rotation of high-quality images.</p>
+                                <CardTitle>Background Slider Images</CardTitle>
+                                <p className="text-sm text-gray-500 mt-1">Manage the rotating background images. Upload high-quality images for best results.</p>
                             </div>
                         </div>
                         <Button 
@@ -106,7 +106,7 @@ const ContentHeroPage: React.FC = () => {
                             
                             <div className="flex flex-col md:flex-row gap-6">
                                 <div className="w-full md:w-1/3 shrink-0">
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Preview</label>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Preview (Slide {index + 1})</label>
                                     <div className="relative aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
                                         <img 
                                             src={(field as any).src || 'https://via.placeholder.com/300x169?text=No+Image'} 

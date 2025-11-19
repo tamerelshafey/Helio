@@ -53,7 +53,20 @@ const RoutingRuleFormModal: React.FC<RoutingRuleFormModalProps> = ({ ruleToEdit,
         mutation.mutate(data);
     };
 
-    const conditionFields = ['type', 'status', 'payload.serviceType', 'payload.companyType', 'payload.cooperationType', 'payload.area', 'payload.price'];
+    const fieldOptions = [
+        { value: 'type', label: 'Request Type' },
+        { value: 'status', label: 'Status' },
+        { value: 'requesterInfo.name', label: 'Requester Name' },
+        { value: 'requesterInfo.email', label: 'Requester Email' },
+        { value: 'requesterInfo.phone', label: 'Requester Phone' },
+        { value: 'payload.serviceType', label: 'Service Type (Finishing/Decor)' },
+        { value: 'payload.companyType', label: 'Company Type (Partner App)' },
+        { value: 'payload.cooperationType', label: 'Cooperation Model' },
+        { value: 'payload.propertyDetails.price', label: 'Property Price' },
+        { value: 'payload.propertyDetails.area', label: 'Property Area' },
+        { value: 'payload.propertyDetails.address', label: 'Property Address' },
+    ];
+
     const operators = ['equals', 'not_equals', 'contains', 'greater_than', 'less_than'];
     const managers = (partners || []).filter(p => p.role.includes('_manager') || p.role === 'admin');
 
@@ -90,7 +103,7 @@ const RoutingRuleFormModal: React.FC<RoutingRuleFormModalProps> = ({ ruleToEdit,
                                     {fields.map((field, index) => (
                                         <div key={field.id} className="flex items-center gap-2">
                                             <Select {...register(`conditions.${index}.field`)} className="w-1/3" defaultValue="type">
-                                                {conditionFields.map(f => <option key={f} value={f}>{f}</option>)}
+                                                {fieldOptions.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
                                             </Select>
                                             <Select {...register(`conditions.${index}.operator`)} className="w-1/4" defaultValue="equals">
                                                 {operators.map(op => <option key={op} value={op}>{op.replace('_', ' ')}</option>)}

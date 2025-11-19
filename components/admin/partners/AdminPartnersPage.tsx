@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -8,8 +5,9 @@ import { getAllPartnersForAdmin, updatePartnerStatus, deletePartner } from '../.
 import { getPlans } from '../../../services/plans';
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
-import type { AdminPartner, PartnerStatus, PartnerType, SubscriptionPlan } from '../../../types';
+import type { AdminPartner, PartnerStatus } from '../../../types';
 import AdminPartnerEditModal from './AdminPartnerEditModal';
+import AdminPartnerFormModal from './AdminPartnerFormModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 import Pagination from '../../ui/Pagination';
 import { Input } from '../../ui/Input';
@@ -17,6 +15,9 @@ import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { ToggleSwitch } from '../../ui/ToggleSwitch';
 import ConfirmationModal from '../../ui/ConfirmationModal';
+import { ResponsiveList } from '../../shared/ResponsiveList';
+import { Card, CardContent } from '../../ui/Card';
+import TableSkeleton from '../../ui/TableSkeleton';
 
 const AdminPartnersPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -25,9 +26,10 @@ const AdminPartnersPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const { data: partners, isLoading } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
-    useQuery({ queryKey: ['plans'], queryFn: getPlans }); // Pre-fetch plans for the modal
+    useQuery({ queryKey: ['plans'], queryFn: getPlans }); 
 
     const [partnerToEdit, setPartnerToEdit] = useState<AdminPartner | null>(null);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [selectedPartners, setSelectedPartners] = useState<string[]>([]);
     const [actionToConfirm, setActionToConfirm] = useState<'activate' | 'deactivate' | 'delete' | null>(null);
     const highlightedId = searchParams.get('highlight');
@@ -55,6 +57,13 @@ const AdminPartnersPage: React.FC = () => {
         statusMutation.mutate({ id, status: newStatus });
     };
 
+    // Prepare initial filters from URL
+    const initialFilters = useMemo(() => ({
+        type: searchParams.get('type') || 'all',
+        status: searchParams.get('status') || 'all',
+        plan: searchParams.get('plan') || 'all',
+    }), [searchParams]);
+
     const {
         paginatedItems: paginatedPartners,
         totalPages,
@@ -68,6 +77,7 @@ const AdminPartnersPage: React.FC = () => {
         data: partners,
         itemsPerPage: 15,
         initialSort: { key: 'name', direction: 'ascending' },
+        initialFilters,
         searchFn: (p: AdminPartner, term: string) => p.name.toLowerCase().includes(term) || (p.nameAr && p.nameAr.toLowerCase().includes(term)) || p.email.toLowerCase().includes(term),
         filterFns: {
             type: (p: AdminPartner, v) => p.type === v,
@@ -107,10 +117,120 @@ const AdminPartnersPage: React.FC = () => {
         setActionToConfirm(null);
         queryClient.invalidateQueries({ queryKey: ['allPartnersAdmin'] });
     };
+    
+    // Helper to update URL when filters change
+    const updateUrlFilter = (key: string, value: string) => {
+        setFilter(key, value);
+        setSearchParams(prev => {
+            if (value === 'all') {
+                prev.delete(key);
+            } else {
+                prev.set(key, value);
+            }
+            return prev;
+        }, { replace: true });
+    };
+
+    const renderTable = (items: AdminPartner[]) => (
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+            {selectedPartners.length > 0 && (
+                <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 flex items-center gap-4 border-b border-gray-200 dark:border-gray-700">
+                    <span className="font-semibold text-sm">{selectedPartners.length} {t_admin.bulkActions.selected}</span>
+                    <Button variant="ghost" size="sm" onClick={() => handleBulkAction()}> {t_admin.bulkActions.activate}</Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleBulkAction()}>{t_admin.bulkActions.deactivate}</Button>
+                    <Button variant="ghost" size="sm" className="text-red-500" onClick={() => setActionToConfirm('delete')}>{t_admin.bulkActions.delete}</Button>
+                    <button onClick={() => setSelectedPartners([])} className={`text-sm font-medium text-gray-500 hover:text-gray-700 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}>{t_admin.bulkActions.clear}</button>
+                </div>
+            )}
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="w-12"><input type="checkbox" onChange={handleSelectAll} checked={selectedPartners.length === items.length && items.length > 0} /></TableHead>
+                        <TableHead>{t_admin.partnerTable.partner}</TableHead>
+                        <TableHead>{t_admin.partnerTable.type}</TableHead>
+                        <TableHead>{t_admin.partnerTable.subscriptionPlan}</TableHead>
+                        <TableHead>{t_admin.partnerTable.status}</TableHead>
+                        <TableHead>{t_admin.partnerTable.actions}</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {isLoading ? (
+                         <TableRow><TableCell colSpan={6} className="p-0"><TableSkeleton cols={6} rows={5} /></TableCell></TableRow>
+                    ) : items.map(p => (
+                        <TableRow key={p.id} className={highlightedId === p.id ? 'highlight-item' : ''}>
+                            <TableCell><input type="checkbox" checked={selectedPartners.includes(p.id)} onChange={() => handleSelect(p.id)}/></TableCell>
+                            <TableCell>
+                                <div className="flex items-center gap-3">
+                                    <img src={p.imageUrl} alt={p.name} className="w-10 h-10 rounded-full object-cover"/>
+                                    <div>
+                                        <div className="font-medium text-gray-900 dark:text-white">{language === 'ar' ? p.nameAr : p.name}</div>
+                                        <div className="text-xs text-gray-500">{p.email}</div>
+                                    </div>
+                                </div>
+                            </TableCell>
+                            <TableCell className="capitalize">{t_admin.partnerTypes[p.type as keyof typeof t_admin.partnerTypes]}</TableCell>
+                            <TableCell className="capitalize">{p.subscriptionPlan}</TableCell>
+                            <TableCell>
+                                <ToggleSwitch 
+                                    checked={p.status === 'active'}
+                                    onChange={() => handleStatusToggle(p.id, p.status)}
+                                    disabled={p.status === 'pending' || statusMutation.isPending}
+                                />
+                            </TableCell>
+                            <TableCell>
+                                <Button variant="link" onClick={() => setPartnerToEdit(p)}>
+                                    {t.adminShared.edit}
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    );
+
+    const renderCard = (p: AdminPartner) => (
+        <Card key={p.id} className={`relative ${selectedPartners.includes(p.id) ? 'ring-2 ring-amber-500' : ''}`}>
+            <div className="absolute top-3 right-3 z-10">
+                <input 
+                    type="checkbox" 
+                    className="h-5 w-5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                    checked={selectedPartners.includes(p.id)} 
+                    onChange={() => handleSelect(p.id)} 
+                />
+            </div>
+            <CardContent className="p-5 flex flex-col items-center text-center">
+                <img src={p.imageUrl} alt={p.name} className="w-16 h-16 rounded-full object-cover mb-3 border-2 border-gray-100 dark:border-gray-700"/>
+                <h3 className="font-bold text-gray-900 dark:text-white truncate w-full">{language === 'ar' ? p.nameAr : p.name}</h3>
+                <p className="text-xs text-gray-500 mb-3">{p.email}</p>
+                
+                <div className="flex gap-2 mb-4">
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs font-medium capitalize">
+                         {t_admin.partnerTypes[p.type as keyof typeof t_admin.partnerTypes]}
+                    </span>
+                    <span className="px-2 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded text-xs font-medium capitalize">
+                        {p.subscriptionPlan}
+                    </span>
+                </div>
+
+                <div className="w-full flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-3 mt-auto">
+                    <ToggleSwitch 
+                        checked={p.status === 'active'}
+                        onChange={() => handleStatusToggle(p.id, p.status)}
+                        disabled={p.status === 'pending' || statusMutation.isPending}
+                    />
+                    <Button variant="link" size="sm" onClick={() => setPartnerToEdit(p)}>
+                        {t.adminShared.edit}
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
 
     return (
         <div>
             {partnerToEdit && <AdminPartnerEditModal partner={partnerToEdit} onClose={() => { setPartnerToEdit(null); setSearchParams({}); }} />}
+            {isAddModalOpen && <AdminPartnerFormModal onClose={() => setIsAddModalOpen(false)} />}
             
             {actionToConfirm === 'delete' && (
                 <ConfirmationModal
@@ -123,20 +243,25 @@ const AdminPartnersPage: React.FC = () => {
                 />
             )}
 
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_admin.partnersTitle}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">{t_admin.partnersSubtitle}</p>
+            <div className="flex justify-between items-center mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_admin.partnersTitle}</h1>
+                    <p className="text-gray-500 dark:text-gray-400">{t_admin.partnersSubtitle}</p>
+                </div>
+                <Button onClick={() => setIsAddModalOpen(true)}>{t.adminShared.add}</Button>
+            </div>
             
             <div className="mb-4 flex flex-wrap gap-4">
                 <Input placeholder={t_admin.filter.searchByNameOrEmail} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="max-w-xs"/>
-                <Select value={filters.type || 'all'} onChange={e => setFilter('type', e.target.value)}>
+                <Select value={filters.type || 'all'} onChange={e => updateUrlFilter('type', e.target.value)}>
                     <option value="all">{t_admin.filter.filterByType} ({t_admin.filter.all})</option>
                     {Object.entries(t_admin.partnerTypes).map(([key, value]) => <option key={key} value={key}>{value as string}</option>)}
                 </Select>
-                <Select value={filters.status || 'all'} onChange={e => setFilter('status', e.target.value)}>
+                <Select value={filters.status || 'all'} onChange={e => updateUrlFilter('status', e.target.value)}>
                     <option value="all">{t_admin.filter.filterByStatus} ({t_admin.filter.all})</option>
                     {Object.entries(t_admin.partnerStatuses).map(([key, value]) => <option key={key} value={key}>{value as string}</option>)}
                 </Select>
-                 <Select value={filters.plan || 'all'} onChange={e => setFilter('plan', e.target.value)}>
+                 <Select value={filters.plan || 'all'} onChange={e => updateUrlFilter('plan', e.target.value)}>
                     <option value="all">{t_admin.filter.filterByPlan} ({t_admin.filter.all})</option>
                     <option value="basic">Basic</option>
                     <option value="professional">Professional</option>
@@ -144,60 +269,27 @@ const AdminPartnersPage: React.FC = () => {
                 </Select>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
-                {selectedPartners.length > 0 && (
-                    <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 flex items-center gap-4 border-b border-gray-200 dark:border-gray-700">
-                        <span className="font-semibold text-sm">{selectedPartners.length} {t_admin.bulkActions.selected}</span>
-                        <Button variant="ghost" size="sm" onClick={() => handleBulkAction()}> {t_admin.bulkActions.activate}</Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleBulkAction()}>{t_admin.bulkActions.deactivate}</Button>
-                        <Button variant="ghost" size="sm" className="text-red-500" onClick={() => setActionToConfirm('delete')}>{t_admin.bulkActions.delete}</Button>
-                        <button onClick={() => setSelectedPartners([])} className={`text-sm font-medium text-gray-500 hover:text-gray-700 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}>{t_admin.bulkActions.clear}</button>
+             {/* Mobile Bulk Actions Bar */}
+             <div className="lg:hidden mb-4">
+                 {selectedPartners.length > 0 && (
+                    <div className="p-3 bg-gray-50 dark:bg-gray-800 flex items-center justify-between gap-2 border border-gray-200 dark:border-gray-700 rounded-lg">
+                        <span className="font-semibold text-sm whitespace-nowrap">{selectedPartners.length} selected</span>
+                        <div className="flex gap-1">
+                            <Button variant="ghost" size="sm" onClick={() => setActionToConfirm('delete')} className="text-red-500 px-2">Delete</Button>
+                            <Button variant="ghost" size="sm" onClick={() => setSelectedPartners([])} className="text-gray-500 px-2">Clear</Button>
+                        </div>
                     </div>
                 )}
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-12"><input type="checkbox" onChange={handleSelectAll} /></TableHead>
-                            <TableHead>{t_admin.partnerTable.partner}</TableHead>
-                            <TableHead>{t_admin.partnerTable.type}</TableHead>
-                            <TableHead>{t_admin.partnerTable.subscriptionPlan}</TableHead>
-                            <TableHead>{t_admin.partnerTable.status}</TableHead>
-                            <TableHead>{t_admin.partnerTable.actions}</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {isLoading ? (
-                            <TableRow><TableCell colSpan={6} className="text-center p-8">Loading partners...</TableCell></TableRow>
-                        ) : paginatedPartners.map(p => (
-                            <TableRow key={p.id} className={highlightedId === p.id ? 'highlight-item' : ''}>
-                                <TableCell><input type="checkbox" checked={selectedPartners.includes(p.id)} onChange={() => handleSelect(p.id)}/></TableCell>
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <img src={p.imageUrl} alt={p.name} className="w-10 h-10 rounded-full object-cover"/>
-                                        <div>
-                                            <div className="font-medium text-gray-900 dark:text-white">{language === 'ar' ? p.nameAr : p.name}</div>
-                                            <div className="text-xs text-gray-500">{p.email}</div>
-                                        </div>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="capitalize">{t_admin.partnerTypes[p.type as keyof typeof t_admin.partnerTypes]}</TableCell>
-                                <TableCell className="capitalize">{p.subscriptionPlan}</TableCell>
-                                <TableCell>
-                                    <ToggleSwitch 
-                                        checked={p.status === 'active'}
-                                        onChange={() => handleStatusToggle(p.id, p.status)}
-                                        disabled={p.status === 'pending' || statusMutation.isPending}
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    <Button variant="link" onClick={() => setPartnerToEdit(p)}>
-                                        {t.adminShared.edit}
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+            </div>
+
+            <ResponsiveList 
+                items={paginatedPartners}
+                renderTable={renderTable}
+                renderCard={renderCard}
+                emptyState={<div className="text-center py-8 text-gray-500">No partners found.</div>}
+            />
+
+            <div className="mt-4">
                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>

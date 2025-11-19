@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import type { Language } from '../../types';
 import FormField, { inputClasses, selectClasses } from '../ui/FormField';
 import { addRequest } from '../../services/requests';
 import { RequestType } from '../../types';
-import { HelioLogo } from '../ui/Icons';
+import { SiteLogo } from '../shared/SiteLogo';
 import { useToast } from '../shared/ToastContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../../services/partners';
@@ -104,7 +105,7 @@ const ServiceRequestPage: React.FC = () => {
                 <div className="max-w-3xl mx-auto">
                     <div className="text-center mb-8">
                         <Link to="/" className="inline-flex items-center justify-center gap-3 text-3xl font-bold text-amber-500 mb-6">
-                            <HelioLogo className="h-10 w-10" />
+                            <SiteLogo className="h-10 w-10" />
                             <span className="text-2xl">ONLY HELIO</span>
                         </Link>
                     </div>
