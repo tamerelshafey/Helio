@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -116,16 +115,14 @@ const PropertyDetailsPage: React.FC = () => {
 
 
     const handleWhatsAppShare = () => {
-        const baseUrl = window.location.href.split('#')[0];
-        const urlToShare = new URL(`#/properties/${property.id}`, baseUrl).href;
+        const urlToShare = window.location.href;
         const text = encodeURIComponent(`${property.title[language]}\n${urlToShare}`);
         window.open(`https://wa.me/?text=${text}`, '_blank');
         handleCloseShareModal();
     };
 
     const handleCopyLink = async () => {
-        const baseUrl = window.location.href.split('#')[0];
-        const urlToShare = new URL(`#/properties/${property.id}`, baseUrl).href;
+        const urlToShare = window.location.href;
         try {
             await navigator.clipboard.writeText(urlToShare);
             showToast(t.sharing.linkCopied, 'success');

@@ -1,6 +1,4 @@
 
-
-
 import React, { useMemo, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
@@ -95,9 +93,10 @@ const SidebarContent: React.FC<Omit<DashboardSidebarProps, 'isOpen' | 'setIsOpen
                             <ul role="list" className="mt-2 space-y-1">
                                 {group.links.map(link => {
                                     const Icon = link.icon;
-                                    const t_group = group.name === 'Partner' ? t.dashboard : t.adminDashboard;
                                     
-                                    let linkName = link.name(t_group);
+                                    // Pass the full translation object 't' instead of slicing it
+                                    let linkName = link.name(t);
+                                    
                                     // Dynamically change "All Requests" to "My Requests" for managers
                                     if (link.href === '/admin/requests' && user.role !== Role.SUPER_ADMIN) {
                                         linkName = t.adminDashboard.nav.myRequests;

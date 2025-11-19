@@ -24,6 +24,19 @@ export const getLeadsByPartnerId = (partnerId: string): Promise<Lead[]> => {
     });
 };
 
+export const getLeadById = (leadId: string): Promise<Lead | undefined> => {
+    return new Promise((resolve) => {
+        setTimeout(async () => {
+            const lead = leadsData.find(l => l.id === leadId);
+            if (lead) {
+                resolve(await populateLeadWithPartnerInfo(lead));
+            } else {
+                resolve(undefined);
+            }
+        }, SIMULATED_DELAY);
+    });
+};
+
 export const getAllLeads = (): Promise<(Lead & { partnerName?: string })[]> => {
     return new Promise(async (resolve) => {
         setTimeout(async () => {

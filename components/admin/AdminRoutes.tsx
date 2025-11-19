@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
@@ -5,21 +6,18 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminHomePage from './AdminHomePage';
 import AdminAnalyticsPage from './AdminAnalyticsPage';
 import AdminReportsPage from './AdminReportsPage';
-// FIX: The default export now exists in AdminUsersPage.tsx
 import AdminUsersPage from './users/AdminUsersPage';
 import AdminRolesPage from './users/AdminRolesPage';
 import AdminPlansPage from './AdminPlansPage';
 import AdminFilterManagementPage from './AdminFilterManagementPage';
 import AdminBannersPage from './AdminBannersPage';
 import AdminSettingsPage from './AdminSettingsPage';
+import AdminProfilePage from './AdminProfilePage';
 import PropertyFormPage from '../forms/PropertyFormPage';
 import ProjectFormPage from '../forms/ProjectFormPage';
 
 // Admin - Platform Operations (New)
 import AdminPlatformPropertiesPage from './platform-ops/AdminPlatformPropertiesPage';
-import AdminPlatformDecorationsPage from './platform-ops/AdminPlatformDecorationsPage';
-import AdminPlatformFinishingPage from './platform-ops/AdminPlatformFinishingPage';
-
 
 // Admin - Requests (New Unified Structure)
 import AdminAllRequestsPage from './requests/AdminAllRequestsPage';
@@ -36,8 +34,8 @@ import CategoriesManagement from './decorations/CategoriesManagement';
 import AdminFinishingLayout from './finishing/AdminFinishingLayout';
 import AdminFinishingDashboardPage from './finishing/AdminFinishingDashboardPage';
 import AdminFinishingServicesPage from './AdminFinishingServicesPage';
-import AdminFinishingRequestsPage from './requests/AdminFinishingRequestsPage'; // Import directly
-import AdminAIEstimatorPage from './AdminAIEstimatorPage';
+import AdminFinishingRequestsPage from './requests/AdminFinishingRequestsPage'; 
+// AdminAIEstimatorPage import removed
 
 // Admin - Partners & Projects Management (New Structure)
 import AdminPartnersLayout from './partners/AdminPartnersLayout';
@@ -77,6 +75,7 @@ const AdminRoutes: React.FC = () => {
             <Route path="analytics" element={<AdminAnalyticsPage />} />
             <Route path="reports" element={<AdminReportsPage />} />
             <Route path="automation" element={<RoutingRulesPage />} />
+            <Route path="profile" element={<AdminProfilePage />} />
 
             {/* ===== NEW UNIFIED REQUESTS ROUTE ===== */}
             <Route path="requests" element={<AdminAllRequestsPage />} />
@@ -84,8 +83,10 @@ const AdminRoutes: React.FC = () => {
 
             {/* ===== NEW PLATFORM OPERATIONS ROUTES ===== */}
             <Route path="platform-properties" element={<AdminPlatformPropertiesPage />} />
-            <Route path="platform-decorations" element={<AdminPlatformDecorationsPage />} />
-            <Route path="platform-finishing" element={<AdminPlatformFinishingPage />} />
+            
+            {/* Redirect old platform routes to the new management modules */}
+            <Route path="platform-decorations" element={<Navigate to="/admin/decorations-management" replace />} />
+            <Route path="platform-finishing" element={<Navigate to="/admin/finishing-management" replace />} />
 
 
             {/* ===== DEPRECATED - Redirect old request URLs to the new triage center ===== */}
@@ -93,7 +94,7 @@ const AdminRoutes: React.FC = () => {
             <Route path="partner-requests/:requestId" element={<Navigate to="/admin/requests/:requestId" replace />} />
             <Route path="contact-requests" element={<Navigate to="/admin/requests?type=CONTACT_MESSAGE" replace />} />
             <Route path="leads" element={<Navigate to="/admin/requests?type=LEAD" replace />} />
-            {/* Removed direct redirects for finishing/decorations to use nested layouts instead */}
+            
             <Route path="finishing-requests" element={<Navigate to="/admin/finishing-management/requests" replace />} />
             <Route path="decorations-requests" element={<Navigate to="/admin/decorations-management/requests" replace />} />
             
@@ -144,10 +145,9 @@ const AdminRoutes: React.FC = () => {
             
             <Route path="finishing-management" element={<AdminFinishingLayout />}>
                 <Route index element={<AdminFinishingDashboardPage />} />
-                {/* Replaced Navigate with direct component render to keep layout */}
                 <Route path="requests" element={<AdminFinishingRequestsPage />} />
                 <Route path="services" element={<AdminFinishingServicesPage />} />
-                <Route path="estimator" element={<AdminAIEstimatorPage />} />
+                {/* estimator route removed */}
                 <Route path="plans" element={<AdminPlansPage availableCategories={['finishing']} />} />
             </Route>
 

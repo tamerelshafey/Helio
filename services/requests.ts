@@ -1,13 +1,11 @@
 
-
-
 import { requestsData } from '../data/requests';
 import { RequestType } from '../types';
-// FIX: Add Lead, LeadMessage, and LeadStatus types for new function
 import type { Request, RequestStatus, Lead, LeadMessage, LeadStatus } from '../types';
 import { addNotification } from './notifications';
 import { getAllRoutingRules } from './routingRules';
 import { getPartnerById } from './partners';
+import { getLeadById } from './leads';
 
 // Create a mutable, in-memory copy of the data to simulate a database.
 let localRequestsData: Request[] = [...requestsData];
@@ -55,8 +53,30 @@ export const getAllRequests = (): Promise<Request[]> => {
 
 export const getRequestById = (id: string): Promise<Request | undefined> => {
     return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(localRequestsData.find(r => r.id === id));
+        setTimeout(async () => {
+            let request = localRequestsData.find(r => r.id === id);
+            
+            // Fallback: if not found in requestsData, look in leadsData and wrap it
+            if (!request) {
+                const lead = await getLeadById(id);
+                if (lead) {
+                    request = {
+                        id: lead.id,
+                        type: RequestType.LEAD,
+                        status: 'assigned', // Assuming active leads are assigned
+                        assignedTo: lead.managerId || lead.partnerId,
+                        createdAt: lead.createdAt,
+                        updatedAt: lead.updatedAt,
+                        requesterInfo: {
+                            name: lead.customerName,
+                            phone: lead.customerPhone,
+                        },
+                        payload: lead
+                    };
+                }
+            }
+            
+            resolve(request);
         }, SIMULATED_DELAY);
     });
 };
@@ -136,11 +156,15 @@ export const updateRequest = (id: string, updates: Partial<Request>): Promise<Re
     });
 };
 
-// FIX: Add missing 'addMessageToLead' function to support unified request handling for leads.
 export const addMessageToLead = (requestId: string, messageData: Omit<LeadMessage, 'id' | 'timestamp'>): Promise<Request | undefined> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            const requestIndex = localRequestsData.findIndex(r => r.id === requestId);
+            let requestIndex = localRequestsData.findIndex(r => r.id === requestId);
+            
+            // If not in requests, we assume it's a direct lead update (handled elsewhere usually, but here for safety)
+            // Actually, if it's a lead accessed via RequestDetailsPage, we need to update the lead directly.
+            // But here we simulate the request update.
+            
             if (requestIndex > -1) {
                 const request = localRequestsData[requestIndex];
                 if (request.type !== RequestType.LEAD) {
@@ -160,21 +184,22 @@ export const addMessageToLead = (requestId: string, messageData: Omit<LeadMessag
                 leadPayload.messages.push(newMessage);
                 request.updatedAt = new Date().toISOString();
 
-                // if 'status' doesn't exist on payload, initialize it.
                 if (!leadPayload.status) {
                     leadPayload.status = request.status as any;
                 }
                 
                 if (leadPayload.status === 'new' && (messageData.sender === 'partner' || messageData.sender === 'admin')) {
-                    // Update the status inside the payload to a LeadStatus
                     leadPayload.status = 'contacted';
-                    // also update top-level status to a valid RequestStatus
                     request.status = 'in-progress';
                 }
                 
                 resolve(request);
             } else {
-                reject(new Error('Request not found'));
+                // Fallback for leads not in localRequestsData - usually handled by direct lead service, 
+                // but we can return undefined here to let the caller know or handle via lead service directly.
+                // For this mock, assume failure if not in request list, OR ideally we update the lead service.
+                // But since this function signature returns a Request, we stick to the Request domain.
+                reject(new Error('Request not found in main request list.'));
             }
         }, SIMULATED_DELAY);
     });

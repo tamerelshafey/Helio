@@ -84,8 +84,7 @@ const PartnerProfilePage: React.FC = () => {
 
     const handleWhatsAppShare = () => {
         if (!partnerId || !localizedPartner) return;
-        const baseUrl = window.location.href.split('#')[0];
-        const urlToShare = new URL(`#/partners/${partnerId}`, baseUrl).href;
+        const urlToShare = window.location.href;
         const text = encodeURIComponent(`${localizedPartner.name}\n${urlToShare}`);
         window.open(`https://wa.me/?text=${text}`, '_blank');
         setShareModalOpen(false);
@@ -93,8 +92,7 @@ const PartnerProfilePage: React.FC = () => {
 
     const handleCopyLink = async () => {
         if (!partnerId) return;
-        const baseUrl = window.location.href.split('#')[0];
-        const urlToShare = new URL(`#/partners/${partnerId}`, baseUrl).href;
+        const urlToShare = window.location.href;
         try {
             await navigator.clipboard.writeText(urlToShare);
             showToast(t.sharing.linkCopied, 'success');

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem } from '../../types';
@@ -87,16 +86,14 @@ const DecorationsPage: React.FC = () => {
     };
     
     const handleWhatsAppShare = () => {
-        const baseUrl = window.location.href.split('#')[0];
-        const urlToShare = new URL(`#/decorations`, baseUrl).href;
+        const urlToShare = window.location.href;
         const text = encodeURIComponent(`${t.nav.decorations} | ONLY HELIO\n${content.heroSubtitle}\n${urlToShare}`);
         window.open(`https://wa.me/?text=${text}`, '_blank');
         setShareModalOpen(false);
     };
 
     const handleCopyLink = async () => {
-        const baseUrl = window.location.href.split('#')[0];
-        const urlToShare = new URL(`#/decorations`, baseUrl).href;
+        const urlToShare = window.location.href;
         try {
             await navigator.clipboard.writeText(urlToShare);
             showToast(t.sharing.linkCopied, 'success');

@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem, AdminPartner } from '../../types';
@@ -148,8 +147,7 @@ const FinishingPage: React.FC = () => {
     };
     
     const handleShare = async () => {
-        const baseUrl = window.location.href.split('#')[0];
-        const urlToShare = `${baseUrl}#/finishing`;
+        const urlToShare = window.location.href;
         const shareData = {
             title: `${t.nav.finishing} | ONLY HELIO`,
             text: content.heroSubtitle,
@@ -295,12 +293,6 @@ const FinishingPage: React.FC = () => {
                 </section>
             )}
 
-            {/* Reusing CTA but passing specific content if needed, though CTA component uses static translations. 
-                Since siteContent structure doesn't fully replicate CTA structure, we'll keep CTA static or
-                pass props if CTA component is updated to accept them. 
-                For now, assuming CTA component uses standard translation context which we aren't updating dynamically.
-                However, we added ctaTitle/Subtitle to siteContent.finishingPage type.
-             */}
             <section className="py-20 md:py-32 bg-white dark:bg-gray-900 subtle-bg">
                 <div className="container mx-auto px-6 text-center">
                     <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-gray-900 dark:text-white">
