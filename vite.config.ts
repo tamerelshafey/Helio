@@ -19,7 +19,8 @@ export default defineConfig({
             { find: /^\.\/api\/(.*)/, replacement: path.resolve(__dirname, 'services/$1') },
             { find: /^\.\.\/api\/(.*)/, replacement: path.resolve(__dirname, 'services/$1') },
             { find: /^\.\.\/\.\.\/api\/(.*)/, replacement: path.resolve(__dirname, 'services/$1') },
-            { find: /^\.\.\/\.\.\/\.\.\/api\/(.*)/, replacement: path.resolve(__dirname, 'services/$1') }
+            { find: /^\.\.\/\.\.\/\.\.\/api\/(.*)/, replacement: path.resolve(__dirname, 'services/$1') },
+            { find: /^\.\.\/\.\.\/\.\.\/\.\.\/api\/(.*)/, replacement: path.resolve(__dirname, 'services/$1') }
         ]
     },
     build: {
