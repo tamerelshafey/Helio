@@ -1,4 +1,7 @@
 
+
+
+
 import React, { useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -7,7 +10,8 @@ import { getAllPartnersForAdmin } from '../../../services/partners';
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Request, RequestStatus, RequestType, Lead, Role } from '../../../types';
-import Pagination from '../../ui/Pagination';
+// FIX: Corrected import path for Pagination from 'ui' to 'shared'.
+import Pagination from '../../shared/Pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
@@ -16,7 +20,8 @@ import { useAuth } from '../../auth/AuthContext';
 import { Card, CardContent, CardFooter } from '../../ui/Card';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import CardSkeleton from '../../ui/CardSkeleton';
-import TableSkeleton from '../../ui/TableSkeleton';
+// FIX: Corrected import path for TableSkeleton from 'shared' to 'ui'.
+import TableSkeleton from '../../shared/TableSkeleton';
 import { PlusIcon } from '../../ui/Icons';
 
 const statusColors: { [key in RequestStatus]: string } = {

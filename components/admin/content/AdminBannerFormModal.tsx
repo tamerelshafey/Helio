@@ -1,7 +1,10 @@
 
+
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { Banner } from '../../../types';
 import FormField, { inputClasses, selectClasses } from '../../ui/FormField';
+// FIX: Corrected import path for Icons
 import { CloseIcon, PhotoIcon, CheckCircleIcon, SparklesIcon } from '../../ui/Icons';
 import { addBanner, updateBanner } from '../../../services/banners';
 import { useLanguage } from '../../shared/LanguageContext';
@@ -198,63 +201,4 @@ const AdminBannerFormModal: React.FC<AdminBannerFormModalProps> = ({ bannerToEdi
                                     <FormField label={t_page.bannerTitle} id="title">
                                         <Input name="title" value={formData.title} onChange={handleChange} required className={inputClasses} placeholder="Ex: Summer Sale 2024" />
                                     </FormField>
-                                    <FormField label={t_page.bannerLink} id="link">
-                                        <Input name="link" value={formData.link} onChange={handleChange} placeholder="/properties?status=sale" className={inputClasses} />
-                                    </FormField>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t_page.displayLocations}</label>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        {(Object.keys(LOCATION_GUIDE) as Array<keyof typeof LOCATION_GUIDE>).map(loc => (
-                                            <label 
-                                                key={loc} 
-                                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-                                                    formData.locations.includes(loc) 
-                                                    ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 ring-1 ring-amber-500' 
-                                                    : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:border-gray-300'
-                                                }`}
-                                            >
-                                                <Checkbox
-                                                    checked={formData.locations.includes(loc)}
-                                                    onCheckedChange={() => handleLocationChange(loc)}
-                                                    id={`loc-${loc}`}
-                                                    className="text-amber-500 focus:ring-amber-500"
-                                                />
-                                                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                                                    {LOCATION_GUIDE[loc].label[language]}
-                                                </span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                    <FormField label={t_page.status} id="status">
-                                        <Select name="status" value={formData.status} onChange={handleChange} className={selectClasses}>
-                                            <option value="active">{t_page.active}</option>
-                                            <option value="inactive">{t_page.inactive}</option>
-                                        </Select>
-                                    </FormField>
-                                    <FormField label={t_page.startDate} id="startDate">
-                                        <Input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className={inputClasses} />
-                                    </FormField>
-                                    <FormField label={t_page.endDate} id="endDate">
-                                        <Input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className={inputClasses} />
-                                    </FormField>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div className="p-5 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                    <Button type="button" variant="secondary" onClick={onClose}>{t_shared.cancel}</Button>
-                    <Button type="submit" onClick={handleSubmit} isLoading={loading}>{t_shared.save}</Button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default AdminBannerFormModal;
+                                    <FormField label={t_page.bannerLink}

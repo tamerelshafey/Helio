@@ -1,11 +1,13 @@
 
+
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus } from '../../../types';
 import { useQuery } from '@tanstack/react-query';
 import { getAllLeads, deleteLead as apiDeleteLead } from '../../../services/leads';
 import { inputClasses } from '../../ui/FormField';
-import Pagination from '../../ui/Pagination';
+// FIX: Corrected import path for Pagination from 'ui' to 'shared'.
+import Pagination from '../../shared/Pagination';
 import { useLanguage } from '../../shared/LanguageContext';
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';

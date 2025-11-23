@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -6,7 +7,8 @@ import { getAllPartnerRequests } from '../../../services/partnerRequests';
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
-import Pagination from '../../ui/Pagination';
+// FIX: Corrected import path for Pagination from 'ui' to 'shared'.
+import Pagination from '../../shared/Pagination';
 import type { PartnerRequest } from '../../../types';
 import { Button } from '../../ui/Button';
 import { ResponsiveList } from '../../shared/ResponsiveList';
@@ -83,7 +85,7 @@ const AdminPartnerRequestsPage: React.FC = () => {
     const renderCard = (req: PartnerRequest) => (
         <Card key={req.id}>
             <CardContent className="p-4 space-y-3">
-                <div className="flex justify-between items-start">
+                 <div className="flex justify-between items-start">
                     <div>
                         <h3 className="font-bold text-gray-900 dark:text-white">{req.companyName}</h3>
                         <p className="text-sm text-gray-500 capitalize">{req.companyType}</p>

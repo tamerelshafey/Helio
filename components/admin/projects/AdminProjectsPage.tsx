@@ -1,4 +1,6 @@
 
+
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,7 +12,7 @@ import { useLanguage } from '../../shared/LanguageContext';
 import { Project, AdminPartner } from '../../../types';
 import ConfirmationModal from '../../ui/ConfirmationModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
-import Pagination from '../../ui/Pagination';
+import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 import { ResponsiveList } from '../../shared/ResponsiveList';

@@ -1,5 +1,3 @@
-
-
 import { siteContentData as initialContentData } from '../data/content';
 import type { SiteContent } from '../types';
 

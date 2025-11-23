@@ -5,6 +5,7 @@ export const usePropertyFilters = () => {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const filters = useMemo(() => ({
+        view: searchParams.get('view') || 'grid',
         status: searchParams.get('status') || 'all',
         type: searchParams.get('type') || 'all',
         query: searchParams.get('q') || '',
@@ -40,8 +41,10 @@ export const usePropertyFilters = () => {
                     newParams.set(filterName, value);
                 }
             }
-            // Always reset to page 1 when a filter is changed
-            newParams.delete('page');
+            // Always reset to page 1 when a filter is changed, except for the 'view' filter
+            if (filterName !== 'view') {
+                newParams.delete('page');
+            }
             return newParams;
         }, { replace: true });
     }, [setSearchParams]);
@@ -55,7 +58,15 @@ export const usePropertyFilters = () => {
     }, [setSearchParams]);
 
     const resetFilters = useCallback(() => {
-        setSearchParams({}, { replace: true });
+        // Preserve the current view when resetting other filters
+        setSearchParams(prev => {
+            const currentView = prev.get('view');
+            const newParams = new URLSearchParams();
+            if (currentView) {
+                newParams.set('view', currentView);
+            }
+            return newParams;
+        }, { replace: true });
     }, [setSearchParams]);
 
     return useMemo(() => ({

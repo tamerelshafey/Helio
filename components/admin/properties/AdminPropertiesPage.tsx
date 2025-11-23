@@ -1,6 +1,8 @@
 
 
 
+
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,7 +12,7 @@ import { useLanguage } from '../../shared/LanguageContext';
 import type { Property, ListingStatus } from '../../../types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 // FIX: Corrected import path for Pagination from '../shared/Pagination' to '../../ui/Pagination'.
-import Pagination from '../../ui/Pagination';
+import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 import AdminPropertyEditModal from './AdminPropertyEditModal';

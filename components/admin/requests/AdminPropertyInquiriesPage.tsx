@@ -9,11 +9,11 @@ import {
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
-import Pagination from '../../ui/Pagination';
+import Pagination from '../../shared/Pagination';
 import type { PropertyInquiryRequest, RequestStatus } from '../../../types';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
-import ConfirmationModal from '../../ui/ConfirmationModal';
+import ConfirmationModal from '../../shared/ConfirmationModal';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import { Card, CardContent, CardFooter } from '../../ui/Card';
 
@@ -59,7 +59,7 @@ const AdminPropertyInquiriesPage: React.FC = () => {
         data: requests,
         itemsPerPage: 10,
         initialSort: { key: 'createdAt', direction: 'descending' },
-        searchFn: (item: PropertyInquiryRequest, term) =>
+        searchFn: (item: PropertyInquiryRequest, term: string) =>
             item.customerName.toLowerCase().includes(term) || item.customerPhone.includes(term),
         filterFns: {},
     });

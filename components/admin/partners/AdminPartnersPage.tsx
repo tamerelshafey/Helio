@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,15 +10,15 @@ import type { AdminPartner, PartnerStatus } from '../../../types';
 import AdminPartnerEditModal from './AdminPartnerEditModal';
 import AdminPartnerFormModal from './AdminPartnerFormModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
-import Pagination from '../../ui/Pagination';
+import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { ToggleSwitch } from '../../ui/ToggleSwitch';
-import ConfirmationModal from '../../ui/ConfirmationModal';
+import ConfirmationModal from '../../shared/ConfirmationModal';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import { Card, CardContent } from '../../ui/Card';
-import TableSkeleton from '../../ui/TableSkeleton';
+import TableSkeleton from '../../shared/TableSkeleton';
 
 const AdminPartnersPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -136,9 +137,11 @@ const AdminPartnersPage: React.FC = () => {
             {selectedPartners.length > 0 && (
                 <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 flex items-center gap-4 border-b border-gray-200 dark:border-gray-700">
                     <span className="font-semibold text-sm">{selectedPartners.length} {t_admin.bulkActions.selected}</span>
-                    <Button variant="ghost" size="sm" onClick={() => handleBulkAction()}> {t_admin.bulkActions.activate}</Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleBulkAction()}>{t_admin.bulkActions.deactivate}</Button>
-                    <Button variant="ghost" size="sm" className="text-red-500" onClick={() => setActionToConfirm('delete')}>{t_admin.bulkActions.delete}</Button>
+                    <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => setActionToConfirm('activate')}> {t_admin.bulkActions.activate}</Button>
+                        <Button variant="ghost" size="sm" onClick={() => setActionToConfirm('deactivate')}>{t_admin.bulkActions.deactivate}</Button>
+                        <Button variant="ghost" size="sm" className="text-red-500" onClick={() => setActionToConfirm('delete')}>{t_admin.bulkActions.delete}</Button>
+                    </div>
                     <button onClick={() => setSelectedPartners([])} className={`text-sm font-medium text-gray-500 hover:text-gray-700 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}>{t_admin.bulkActions.clear}</button>
                 </div>
             )}
@@ -154,9 +157,7 @@ const AdminPartnersPage: React.FC = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {isLoading ? (
-                         <TableRow><TableCell colSpan={6} className="p-0"><TableSkeleton cols={6} rows={5} /></TableCell></TableRow>
-                    ) : items.map(p => (
+                    {items.map(p => (
                         <TableRow key={p.id} className={highlightedId === p.id ? 'highlight-item' : ''}>
                             <TableCell><input type="checkbox" checked={selectedPartners.includes(p.id)} onChange={() => handleSelect(p.id)}/></TableCell>
                             <TableCell>
@@ -226,20 +227,30 @@ const AdminPartnersPage: React.FC = () => {
             </CardContent>
         </Card>
     );
+    
+    const loadingSkeletons = (
+        <>
+            <div className="hidden lg:block"><TableSkeleton cols={6} rows={5} /></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:hidden">
+                {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-48 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>)}
+            </div>
+        </>
+    );
+    const emptyState = <div className="text-center py-8 text-gray-500">No partners found.</div>;
 
     return (
         <div>
             {partnerToEdit && <AdminPartnerEditModal partner={partnerToEdit} onClose={() => { setPartnerToEdit(null); setSearchParams({}); }} />}
             {isAddModalOpen && <AdminPartnerFormModal onClose={() => setIsAddModalOpen(false)} />}
             
-            {actionToConfirm === 'delete' && (
+            {actionToConfirm && (
                 <ConfirmationModal
-                    isOpen={true}
+                    isOpen={!!actionToConfirm}
                     onClose={() => setActionToConfirm(null)}
                     onConfirm={handleBulkAction}
-                    title={t.adminDashboard.bulkActions.delete}
-                    message={`Are you sure you want to delete ${selectedPartners.length} selected partners? This action cannot be undone.`}
-                    confirmText={t.adminDashboard.bulkActions.delete}
+                    title={`${actionToConfirm.charAt(0).toUpperCase() + actionToConfirm.slice(1)} Partners`}
+                    message={`Are you sure you want to ${actionToConfirm} ${selectedPartners.length} selected partner(s)? This action cannot be undone.`}
+                    confirmText={t_admin.bulkActions[actionToConfirm as 'activate' | 'deactivate' | 'delete']}
                 />
             )}
 
@@ -270,24 +281,27 @@ const AdminPartnersPage: React.FC = () => {
             </div>
 
              {/* Mobile Bulk Actions Bar */}
-             <div className="lg:hidden mb-4">
+             <div className="lg:hidden mb-4 sticky top-16 z-20">
                  {selectedPartners.length > 0 && (
-                    <div className="p-3 bg-gray-50 dark:bg-gray-800 flex items-center justify-between gap-2 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div className="p-3 bg-white dark:bg-gray-800 flex items-center justify-between gap-2 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md animate-fadeIn">
                         <span className="font-semibold text-sm whitespace-nowrap">{selectedPartners.length} selected</span>
-                        <div className="flex gap-1">
-                            <Button variant="ghost" size="sm" onClick={() => setActionToConfirm('delete')} className="text-red-500 px-2">Delete</Button>
-                            <Button variant="ghost" size="sm" onClick={() => setSelectedPartners([])} className="text-gray-500 px-2">Clear</Button>
+                        <div className="flex gap-2">
+                             <Button variant="secondary" size="sm" onClick={() => setActionToConfirm('activate')}>Activate</Button>
+                            <Button variant="danger" size="sm" onClick={() => setActionToConfirm('delete')}>Delete</Button>
+                            <Button variant="ghost" size="sm" onClick={() => setSelectedPartners([])} className="text-gray-500">X</Button>
                         </div>
                     </div>
                 )}
             </div>
-
-            <ResponsiveList 
-                items={paginatedPartners}
-                renderTable={renderTable}
-                renderCard={renderCard}
-                emptyState={<div className="text-center py-8 text-gray-500">No partners found.</div>}
-            />
+            
+            {isLoading ? loadingSkeletons : (
+                <ResponsiveList 
+                    items={paginatedPartners}
+                    renderTable={renderTable}
+                    renderCard={renderCard}
+                    emptyState={emptyState}
+                />
+            )}
 
             <div className="mt-4">
                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />

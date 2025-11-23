@@ -14,7 +14,7 @@ import { Card, CardContent, CardFooter } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { ResponsiveList } from '../shared/ResponsiveList';
 import CardSkeleton from '../ui/CardSkeleton';
-import TableSkeleton from '../ui/TableSkeleton';
+import TableSkeleton from '../shared/TableSkeleton';
 import { Input } from '../ui/Input';
 
 const statusColors: { [key in LeadStatus]: string } = {

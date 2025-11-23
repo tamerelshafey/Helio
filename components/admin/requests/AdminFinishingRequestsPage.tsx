@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import type { Lead, LeadStatus } from '../../../types';
+import type { Language, Lead, LeadStatus } from '../../../types';
 import { useAuth } from '../../auth/AuthContext';
 import { ChevronRightIcon } from '../../ui/Icons';
 import { inputClasses } from '../../ui/FormField';
@@ -9,7 +9,7 @@ import ExportDropdown from '../../shared/ExportDropdown';
 import { updateLead, deleteLead as apiDeleteLead, getAllLeads } from '../../../services/leads';
 import { useQuery } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../../../services/partners';
-import Pagination from '../../ui/Pagination';
+import Pagination from '../../shared/Pagination';
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import ConversationThread from '../../shared/ConversationThread';
 import { useLanguage } from '../../shared/LanguageContext';
@@ -32,9 +32,9 @@ const statusColors: { [key in LeadStatus]: string } = {
 const ITEMS_PER_PAGE = 10;
 
 const AdminFinishingRequestsPage: React.FC = () => {
-    const { language, t } = useLanguage();
-    const t_admin = t.adminDashboard;
-    const t_dash = t.dashboard;
+    const { language, t: i18n } = useLanguage();
+    const t = i18n.adminDashboard;
+    const t_dash = i18n.dashboard;
     
     const { data: allLeads, isLoading: isLoadingLeads, refetch: refetchLeads } = useQuery({ queryKey: ['allLeadsAdmin'], queryFn: getAllLeads });
     const { data: partners, isLoading: isLoadingPartners, refetch: refetchPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
@@ -91,7 +91,7 @@ const AdminFinishingRequestsPage: React.FC = () => {
 
     const exportColumns = {
         customerName: t_dash.leadTable.customer,
-        partnerName: t_admin.propertyTable.partner,
+        partnerName: t.propertyTable.partner,
         customerPhone: t_dash.leadTable.phone,
         serviceTitle: t_dash.leadTable.service,
         status: t_dash.leadTable.status,
@@ -195,7 +195,7 @@ const AdminFinishingRequestsPage: React.FC = () => {
         <div>
             <div className="flex justify-between items-start mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_admin.nav.finishingRequests}</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t.nav.finishingRequests}</h1>
                     <p className="text-gray-500 dark:text-gray-400">Manage all finishing service requests.</p>
                 </div>
                  <ExportDropdown
@@ -208,10 +208,10 @@ const AdminFinishingRequestsPage: React.FC = () => {
              <div className="my-8 p-6 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="lg:col-span-1">
-                        <input type="text" placeholder={t_admin.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={inputClasses} />
+                        <input type="text" placeholder={t.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={inputClasses} />
                     </div>
                     <div className="lg:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t_admin.filter.leadDateRange}</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.filter.leadDateRange}</label>
                         <div className="flex items-center gap-2">
                             <input type="date" value={filters.startDate || ''} onChange={e => setFilter('startDate', e.target.value)} className={inputClasses} />
                             <span className="text-gray-400 dark:text-gray-500">-</span>

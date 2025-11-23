@@ -1,4 +1,6 @@
 
+
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin, deletePartner } from '../../../services/partners';
@@ -6,7 +8,7 @@ import { useAdminTable } from '../../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { AdminPartner, PartnerStatus, PartnerType, Role } from '../../../types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
-import Pagination from '../../ui/Pagination';
+import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';

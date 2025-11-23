@@ -1,3 +1,4 @@
+
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Project } from '../../types';
@@ -6,7 +7,8 @@ import { useAuth } from '../auth/AuthContext';
 import { BuildingIcon } from '../ui/Icons';
 import { useQuery } from '@tanstack/react-query';
 import { getProperties } from '../../services/properties';
-import UpgradePlanModal from '../UpgradePlanModal';
+// FIX: Corrected import path for UpgradePlanModal from root 'components' to 'shared'.
+import UpgradePlanModal from '../shared/UpgradePlanModal';
 import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
 import { Card, CardContent } from '../ui/Card';

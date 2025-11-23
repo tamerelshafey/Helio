@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { PortfolioItem, DecorationCategory } from '../../../types';
@@ -7,7 +8,8 @@ import { getAllPortfolioItems, deletePortfolioItem as apiDeletePortfolioItem } f
 import { getAllPartnersForAdmin } from '../../../services/partners';
 import { getDecorationCategories } from '../../../services/decorations';
 import AdminPortfolioItemFormModal from '../AdminPortfolioItemFormModal';
-import Pagination from '../../ui/Pagination';
+// FIX: Corrected import path for Pagination from 'ui' to 'shared'.
+import Pagination from '../../shared/Pagination';
 import { useLanguage } from '../../shared/LanguageContext';
 
 const ITEMS_PER_PAGE = 8;

@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Property, Lead } from '../../types';
@@ -8,15 +6,13 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllProjects, deleteProject as apiDeleteProject } from '../../services/projects';
 import { getPropertiesByPartnerId, deleteProperty as apiDeleteProperty } from '../../services/properties';
 import { getLeadsByPartnerId } from '../../services/leads';
-// FIX: Corrected import path for Icons
 import { BuildingIcon, ChartBarIcon, InboxIcon } from '../ui/Icons';
 import { useAuth } from '../auth/AuthContext';
-import UpgradePlanModal from '../UpgradePlanModal';
+import UpgradePlanModal from '../shared/UpgradePlanModal';
 import StatCard from '../shared/StatCard';
 import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
-// FIX: Corrected import path for ConfirmationModal from '../shared/ConfirmationModal' to '../../ui/ConfirmationModal'.
-import ConfirmationModal from '../../ui/ConfirmationModal';
+import ConfirmationModal from '../shared/ConfirmationModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
 
 const DashboardProjectDetailsPage: React.FC = () => {

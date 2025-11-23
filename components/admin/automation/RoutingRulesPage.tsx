@@ -9,7 +9,7 @@ import { useToast } from '../../shared/ToastContext';
 import { Button } from '../../ui/Button';
 import { ToggleSwitch } from '../../ui/ToggleSwitch';
 import RoutingRuleFormModal from './RoutingRuleFormModal';
-import ConfirmationModal from '../../ui/ConfirmationModal';
+import ConfirmationModal from '../../shared/ConfirmationModal';
 import { AdjustmentsHorizontalIcon, TrashIcon, CheckCircleIcon, XCircleIcon, ArrowRightIcon, ArrowUpIcon, ArrowDownIcon } from '../../ui/Icons';
 
 const RoutingRulesPage: React.FC = () => {

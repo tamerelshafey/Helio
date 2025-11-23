@@ -367,6 +367,13 @@ const quotesData: Quote[] = [
 export let siteContentData: SiteContent = {
   logoUrl: '',
   locationPickerMapUrl: 'https://images.unsplash.com/photo-1589578228257-29283998b311?q=75&w=2070&auto=format&fit=crop',
+  topBanner: {
+    enabled: true,
+    content: {
+        ar: 'تنويه: الموقع حالياً في مرحلة الانطلاق التجريبي (Beta). نسعد بملاحظاتكم لتحسين التجربة.',
+        en: 'Notice: This website is currently in Beta Launch phase. We welcome your feedback to improve the experience.'
+    }
+  },
   contactConfiguration: {
     routing: 'internal',
     targetEmail: 'admin@onlyhelio.com',

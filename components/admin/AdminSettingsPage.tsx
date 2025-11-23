@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import type { Language, SiteContent } from '../../types';
 import { inputClasses, selectClasses } from '../ui/FormField';
 // FIX: Corrected import path for Icons
-import { CloseIcon, PhotoIcon } from '../ui/Icons';
+import { CloseIcon, PhotoIcon, MegaphoneIcon } from '../ui/Icons';
 import { getContent, updateContent as updateSiteContent } from '../../services/content';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../shared/ToastContext';
@@ -31,7 +31,7 @@ const AdminSettingsPage: React.FC = () => {
     
     const { register, handleSubmit, reset, watch, setValue, formState: { isSubmitting, isDirty } } = useForm<SiteContent>();
     
-    const [activeTab, setActiveTab] = useState<'general' | 'contact' | 'social'>('general');
+    const [activeTab, setActiveTab] = useState<'general' | 'banner' | 'contact' | 'social'>('general');
 
     useEffect(() => {
         if (siteContent) {
@@ -61,7 +61,7 @@ const AdminSettingsPage: React.FC = () => {
         return <div>Loading settings...</div>;
     }
     
-    const TabButton: React.FC<{tabKey: 'general' | 'contact' | 'social', label: string}> = ({tabKey, label}) => (
+    const TabButton: React.FC<{tabKey: 'general' | 'banner' | 'contact' | 'social', label: string}> = ({tabKey, label}) => (
         <button
             type="button"
             onClick={() => setActiveTab(tabKey)}
@@ -79,8 +79,9 @@ const AdminSettingsPage: React.FC = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                     <div className="px-6 border-b border-gray-200 dark:border-gray-700">
-                         <div className="flex -mb-px space-x-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+                         <div className="flex -mb-px space-x-6 overflow-x-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                             <TabButton tabKey="general" label="General Settings" />
+                            <TabButton tabKey="banner" label="Top Banner" />
                             <TabButton tabKey="contact" label="Contact Info" />
                             <TabButton tabKey="social" label="Social Media" />
                          </div>
@@ -127,6 +128,36 @@ const AdminSettingsPage: React.FC = () => {
                                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                                     <label htmlFor="locationPickerMapUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location Picker Map Image URL</label>
                                     <Input id="locationPickerMapUrl" {...register('locationPickerMapUrl')} />
+                                </div>
+                             </div>
+                        )}
+
+                        {activeTab === 'banner' && (
+                             <div className="space-y-6 animate-fadeIn">
+                                 <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg flex items-start gap-4">
+                                     <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-full text-amber-600 dark:text-amber-400">
+                                         <MegaphoneIcon className="w-6 h-6" />
+                                     </div>
+                                     <div>
+                                         <h4 className="text-lg font-semibold text-amber-800 dark:text-amber-300">Top Notification Banner</h4>
+                                         <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">This banner appears at the very top of every page to announce important news or beta status.</p>
+                                     </div>
+                                 </div>
+
+                                 <div className="flex items-center gap-4 p-4 border rounded-md bg-gray-50 dark:bg-gray-800/50">
+                                    <Checkbox id="top-banner-enabled" {...register('topBanner.enabled')} />
+                                    <label htmlFor="top-banner-enabled" className="font-medium cursor-pointer text-gray-900 dark:text-white">Enable Top Banner</label>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banner Text (AR)</label>
+                                        <Input {...register('topBanner.content.ar')} dir="rtl" placeholder="تنويه: الموقع في مرحلة تجريبية..." />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banner Text (EN)</label>
+                                        <Input {...register('topBanner.content.en')} dir="ltr" placeholder="Notice: Site is in beta..." />
+                                    </div>
                                 </div>
                              </div>
                         )}

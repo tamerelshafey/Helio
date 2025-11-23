@@ -1,5 +1,6 @@
 
 
+
 import React, { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
@@ -7,8 +8,10 @@ import ScrollToTop from './components/shared/ScrollToTop';
 import { FavoritesProvider } from './components/shared/FavoritesContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Permission } from './types';
-import ToastContainer from './components/ui/ToastContainer';
-import BackToTopButton from './components/ui/BackToTopButton';
+// FIX: Corrected import path for ToastContainer from 'ui' to 'shared'.
+import ToastContainer from './components/shared/ToastContainer';
+// FIX: Corrected import path for BackToTopButton from 'ui' to 'shared'.
+import BackToTopButton from './components/shared/BackToTopButton';
 import { useLanguage } from './components/shared/LanguageContext';
 import { adminNavLinks, partnerNavLinks } from './data/navigation';
 

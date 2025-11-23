@@ -1,19 +1,19 @@
+
 import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import type { Property, Lead } from '../../types';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getAllProjects, deleteProject as apiDeleteProject } from '../../services/projects';
 import { getPropertiesByPartnerId, deleteProperty as apiDeleteProperty } from '../../services/properties';
 import { getLeadsByPartnerId } from '../../services/leads';
 import { BuildingIcon, ChartBarIcon, InboxIcon } from '../ui/Icons';
 import { useAuth } from '../auth/AuthContext';
-import UpgradePlanModal from '../UpgradePlanModal';
+import UpgradePlanModal from '../shared/UpgradePlanModal';
 import StatCard from '../shared/StatCard';
 import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
-import ConfirmationModal from '../ui/ConfirmationModal';
+import ConfirmationModal from '../shared/ConfirmationModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
-import { useToast } from '../shared/ToastContext';
 
 const DashboardProjectDetailsPage: React.FC = () => {
     const { projectId } = useParams<{ projectId: string }>();
@@ -23,16 +23,14 @@ const DashboardProjectDetailsPage: React.FC = () => {
     const t_proj = t.projectDashboard;
     const t_prop_table = t.dashboard.propertyTable;
     const t_analytics = t.dashboard.projectAnalytics;
-    const queryClient = useQueryClient();
-    const { showToast } = useToast();
 
-    const { data: projects, isLoading: loadingProjects } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
-    const { data: partnerProperties, isLoading: loadingProperties } = useQuery({
+    const { data: projects, isLoading: loadingProjects, refetch: refetchProjects } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
+    const { data: partnerProperties, isLoading: loadingProperties, refetch: refetchProperties } = useQuery({
         queryKey: [`partner-properties-${currentUser?.id}`],
         queryFn: () => getPropertiesByPartnerId(currentUser!.id),
         enabled: !!currentUser,
     });
-    const { data: leads, isLoading: loadingLeads } = useQuery({ queryKey: [`leads-${currentUser?.id}`], queryFn: () => getLeadsByPartnerId(currentUser!.id), enabled: !!currentUser });
+    const { data: leads, isLoading: loadingLeads, refetch: refetchLeads } = useQuery({ queryKey: [`leads-${currentUser?.id}`], queryFn: () => getLeadsByPartnerId(currentUser!.id), enabled: !!currentUser });
     
     const { isLimitReached: isUnitsLimitReached } = useSubscriptionUsage('units');
     
@@ -40,32 +38,9 @@ const DashboardProjectDetailsPage: React.FC = () => {
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const [modalState, setModalState] = useState<{ type: 'deleteProject' | 'deleteProperty'; id: string } | null>(null);
 
+
     const project = useMemo(() => (projects || []).find(p => p.id === projectId), [projects, projectId]);
     const projectProperties = useMemo(() => (partnerProperties || []).filter(p => p.projectId === projectId), [partnerProperties, projectId]);
-
-    const deleteProjectMutation = useMutation({
-        mutationFn: async (projectIdToDelete: string) => {
-            const propertyDeletions = projectProperties.map(p => apiDeleteProperty(p.id));
-            await Promise.all(propertyDeletions);
-            await apiDeleteProject(projectIdToDelete);
-        },
-        onSuccess: () => {
-            showToast('Project and its units deleted successfully.', 'success');
-            queryClient.invalidateQueries({ queryKey: ['allProjects'] });
-            queryClient.invalidateQueries({ queryKey: [`partner-properties-${currentUser?.id}`] });
-            navigate('/dashboard/projects');
-        },
-        onError: () => showToast('Failed to delete project.', 'error'),
-    });
-
-    const deletePropertyMutation = useMutation({
-        mutationFn: apiDeleteProperty,
-        onSuccess: () => {
-            showToast('Property deleted successfully.', 'success');
-            queryClient.invalidateQueries({ queryKey: [`partner-properties-${currentUser?.id}`] });
-        },
-        onError: () => showToast('Failed to delete property.', 'error'),
-    });
 
     const handleAddUnitClick = () => {
         if (!project) return;
@@ -76,41 +51,73 @@ const DashboardProjectDetailsPage: React.FC = () => {
         }
     };
     
-    const handleDeleteProject = () => {
+    const refetchAll = useCallback(() => {
+        refetchProjects();
+        refetchProperties();
+        refetchLeads();
+    }, [refetchProjects, refetchProperties, refetchLeads]);
+
+
+    const handleDeleteProject = async () => {
         if (project && modalState?.type === 'deleteProject') {
-            deleteProjectMutation.mutate(project.id);
+            const propertyDeletions = projectProperties.map(p => apiDeleteProperty(p.id));
+            await Promise.all(propertyDeletions);
+            await apiDeleteProject(project.id);
+            refetchAll();
             setModalState(null);
+            navigate('/dashboard/projects');
         }
     };
     
-    const handleDeleteProperty = () => {
+    const handleDeleteProperty = async () => {
         if (modalState?.type === 'deleteProperty') {
-            deletePropertyMutation.mutate(modalState.id);
+            await apiDeleteProperty(modalState.id);
+            refetchProperties();
             setModalState(null);
         }
     };
     
+    // Analytics Data Memoization
     const projectAnalytics = useMemo(() => {
         if (!leads || !projectProperties) return { totalLeads: 0, topUnits: [] };
         
-        const projectPropertyIds = new Set(projectProperties.map(p => p.id));
-        const projectLeads = leads.filter(lead => lead.propertyId && projectPropertyIds.has(lead.propertyId));
+        const propertyIdMap = new Map<string, string>(); // Map title -> propertyId
+        projectProperties.forEach(p => {
+            propertyIdMap.set(p.title.ar, p.id);
+            propertyIdMap.set(p.title.en, p.id);
+        });
+
+        const projectLeads = leads.filter(lead => {
+            const titleMatch = lead.serviceTitle.match(/"([^"]+)"/);
+            if(titleMatch) {
+                const propertyId = propertyIdMap.get(titleMatch[1]);
+                return !!propertyId;
+            }
+            return false;
+        });
 
         const leadCounts: Record<string, number> = {};
         projectLeads.forEach(lead => {
-            if (lead.propertyId) {
-                leadCounts[lead.propertyId] = (leadCounts[lead.propertyId] || 0) + 1;
-            }
+             const titleMatch = lead.serviceTitle.match(/"([^"]+)"/);
+             if(titleMatch) {
+                const propertyId = propertyIdMap.get(titleMatch[1]);
+                if(propertyId) {
+                    leadCounts[propertyId] = (leadCounts[propertyId] || 0) + 1;
+                }
+             }
         });
 
         const topUnits = Object.entries(leadCounts)
-            .sort(([, a], [, b]) => Number(b) - Number(a)).slice(0, 5)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5)
             .map(([propertyId, count]) => ({
                 property: projectProperties.find(p => p.id === propertyId),
                 count,
-            })).filter(item => item.property);
+            }))
+            .filter(item => item.property);
 
         return { totalLeads: projectLeads.length, topUnits };
+
     }, [leads, projectProperties]);
 
 

@@ -29,17 +29,52 @@ const AdminPropertyRequestDetailsPage: React.FC = () => {
         mutationFn: (status: 'approved' | 'rejected') => updatePropertyRequestStatus(request!.id, status),
         onSuccess: async (data, status) => {
             if (status === 'approved' && request) {
-                const newProperty: Omit<Property, 'id'> = {
-                    ...request.propertyDetails,
+                const pd = request.propertyDetails;
+
+                const priceNumeric = pd.price;
+                const pricePerMeter = (pd.area > 0) ? Math.round(priceNumeric / pd.area) : 0;
+
+                const newProperty: Omit<Property, 'id' | 'partnerName' | 'partnerImageUrl' | 'projectName'> = {
                     partnerId: 'individual-listings',
-                    title: { en: request.propertyDetails.address, ar: request.propertyDetails.address }, // Simplified for now
-                    description: { en: request.propertyDetails.description, ar: request.propertyDetails.description },
-                    price: { en: `EGP ${request.propertyDetails.price.toLocaleString()}`, ar: `${request.propertyDetails.price.toLocaleString('ar-EG')} ج.م` },
-                    priceNumeric: request.propertyDetails.price,
-                    imageUrl: request.images[0] || '', // Use first image as main
+                    title: pd.title,
+                    description: pd.description,
+                    address: { en: pd.address, ar: pd.address },
+                    location: pd.location,
+                    status: pd.purpose,
+                    type: { en: pd.propertyType.en as any, ar: pd.propertyType.ar },
+                    finishingStatus: pd.finishingStatus ? { en: pd.finishingStatus.en, ar: pd.finishingStatus.ar } : undefined,
+                    area: pd.area,
+                    price: { 
+                        en: `EGP ${priceNumeric.toLocaleString('en-US')}`,
+                        ar: `${priceNumeric.toLocaleString('ar-EG')} ج.م`
+                    },
+                    priceNumeric: priceNumeric,
+                    pricePerMeter: pricePerMeter > 0 ? {
+                        en: `EGP ${pricePerMeter.toLocaleString('en-US')}/m²`,
+                        ar: `${pricePerMeter.toLocaleString('ar-EG')} ج.م/م²`
+                    } : undefined,
+                    beds: pd.bedrooms || 0,
+                    baths: pd.bathrooms || 0,
+                    floor: pd.floor,
+                    amenities: pd.amenities,
+                    isInCompound: pd.isInCompound,
+                    delivery: { 
+                        isImmediate: pd.deliveryType === 'immediate', 
+                        date: pd.deliveryType === 'future' ? `${pd.deliveryYear}-${pd.deliveryMonth}` : undefined
+                    },
+                    installmentsAvailable: pd.hasInstallments,
+                    installments: pd.hasInstallments ? {
+                        downPayment: pd.downPayment || 0,
+                        monthlyInstallment: pd.monthlyInstallment || 0,
+                        years: pd.years || 0
+                    } : undefined,
+                    realEstateFinanceAvailable: pd.realEstateFinanceAvailable,
+                    imageUrl: request.images[0] || '',
                     gallery: request.images.slice(1),
                     listingStatus: 'active',
-                    amenities: {en: [], ar: []}, // Assuming this is not collected in form for now
+                    contactMethod: pd.contactMethod,
+                    ownerPhone: pd.ownerPhone,
+                    listingStartDate: pd.listingStartDate || new Date().toISOString().split('T')[0],
                 };
                 await addPropertyMutation.mutateAsync(newProperty);
             }
@@ -87,9 +122,11 @@ const AdminPropertyRequestDetailsPage: React.FC = () => {
                 <section className="pt-6 border-t border-gray-200 dark:border-gray-700">
                     <h2 className="text-xl font-bold text-amber-500 mb-4">Property Details</h2>
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-y-4 gap-x-6">
+                        <DetailItem label="Title (EN)" value={pd.title?.en} />
+                        <DetailItem label="Title (AR)" value={pd.title?.ar} />
                         <DetailItem label="Purpose" value={pd.purpose[language]} />
                         <DetailItem label="Property Type" value={pd.propertyType[language]} />
-                        <DetailItem label="Finishing" value={pd.finishingStatus[language]} />
+                        <DetailItem label="Finishing" value={pd.finishingStatus?.[language]} />
                         <DetailItem label="Area" value={`${pd.area} m²`} />
                         <DetailItem label="Price" value={`EGP ${pd.price.toLocaleString()}`} />
                         <DetailItem label="Bedrooms" value={pd.bedrooms} />
@@ -100,9 +137,12 @@ const AdminPropertyRequestDetailsPage: React.FC = () => {
                         <DetailItem label="Real Estate Finance" value={pd.realEstateFinanceAvailable} />
                         <DetailItem label="Delivery" value={pd.deliveryType === 'immediate' ? 'Immediate' : `${pd.deliveryMonth}/${pd.deliveryYear}`} />
                      </div>
-                     <div className="mt-4">
+                     <div className="mt-4 space-y-2">
                          <DetailItem label="Address" value={pd.address} layout="grid"/>
-                         <DetailItem label="Description" value={<p className="whitespace-pre-line">{pd.description}</p>} layout="grid"/>
+                         <DetailItem label="Location" value={`Lat: ${pd.location.lat}, Lng: ${pd.location.lng}`} layout="grid"/>
+                         <DetailItem label="Description (EN)" value={<p className="whitespace-pre-line">{pd.description?.en}</p>} layout="grid"/>
+                         <DetailItem label="Description (AR)" value={<p className="whitespace-pre-line">{pd.description?.ar}</p>} layout="grid"/>
+                         <DetailItem label="Amenities" value={(pd.amenities?.en || []).join(', ')} layout="grid" />
                      </div>
                 </section>
 

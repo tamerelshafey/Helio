@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { PortfolioItem } from '../../types';
@@ -9,12 +7,12 @@ import { useAuth } from '../auth/AuthContext';
 import { ArrowUpIcon, ArrowDownIcon, CubeIcon } from '../ui/Icons';
 import { inputClasses } from '../ui/FormField';
 import PortfolioItemFormModal from './PortfolioItemFormModal';
-import UpgradePlanModal from '../UpgradePlanModal';
+import UpgradePlanModal from '../shared/UpgradePlanModal';
 import { deletePortfolioItem as apiDeletePortfolioItem } from '../../services/portfolio';
 import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
 import { Card, CardContent, CardFooter } from '../ui/Card';
-import ConfirmationModal from '../ui/ConfirmationModal';
+import ConfirmationModal from '../shared/ConfirmationModal';
 import { useToast } from '../shared/ToastContext';
 
 type SortConfig = {

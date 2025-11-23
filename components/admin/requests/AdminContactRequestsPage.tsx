@@ -9,11 +9,11 @@ import {
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
-import Pagination from '../../ui/Pagination';
+import Pagination from '../../shared/Pagination';
 import type { ContactRequest, RequestStatus } from '../../../types';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
-import ConfirmationModal from '../../ui/ConfirmationModal';
+import ConfirmationModal from '../../shared/ConfirmationModal';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import { Card, CardContent, CardFooter } from '../../ui/Card';
 
@@ -137,7 +137,7 @@ const AdminContactRequestsPage: React.FC = () => {
     const renderCard = (req: ContactRequest) => (
         <Card key={req.id}>
             <CardContent className="p-4 space-y-3">
-                <div className="flex justify-between items-start">
+                 <div className="flex justify-between items-start">
                     <div>
                         <h3 className="font-bold text-gray-900 dark:text-white">{req.name}</h3>
                         <p className="text-sm text-gray-500">{req.phone}</p>

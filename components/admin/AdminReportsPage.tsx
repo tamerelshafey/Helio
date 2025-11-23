@@ -315,7 +315,8 @@ const AdminReportsPage: React.FC = () => {
                                 {columnDefinitions[dataSource] && Object.entries(columnDefinitions[dataSource]).map(([key, def]) => (
                                     <label key={key} className="flex items-center gap-2 text-sm p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
                                         <Checkbox {...register('columns')} value={key} />
-                                        <span className="text-gray-700 dark:text-gray-300">{def.label}</span>
+                                        {/* FIX: Cast 'def' to a known type to access 'label' property. */}
+                                        <span className="text-gray-700 dark:text-gray-300">{(def as { label: string }).label}</span>
                                     </label>
                                 ))}
                             </div>

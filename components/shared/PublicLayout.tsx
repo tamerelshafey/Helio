@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
@@ -8,6 +7,7 @@ import MobileNav from './MobileNav';
 import { useAuth } from '../auth/AuthContext';
 import { useLanguage } from './LanguageContext';
 import { Permission } from '../../types';
+import { useSiteContent } from '../../hooks/useSiteContent';
 
 const PublicLayout: React.FC = () => {
     const [isQuietZoneActive, setIsQuietZoneActive] = useState(false);
@@ -15,6 +15,7 @@ const PublicLayout: React.FC = () => {
 
     const { currentUser, logout, hasPermission } = useAuth();
     const { language, t } = useLanguage();
+    const { data: siteContent } = useSiteContent();
 
     const dashboardPath = useMemo(() => {
         if (!currentUser) return '/login';
@@ -47,17 +48,17 @@ const PublicLayout: React.FC = () => {
 
     return (
         <div className="flex flex-col min-h-screen">
-            {/* Beta Launch Banner */}
-            <div className="bg-gray-900 text-white text-center py-3 px-4 text-sm font-medium relative z-50 border-b-2 border-amber-500">
-                <div className="container mx-auto flex items-center justify-center gap-2">
-                    <span className="text-xl">🚧</span>
-                    <span>
-                        {language === 'ar' 
-                            ? 'تنويه: الموقع حالياً في مرحلة الانطلاق التجريبي (Beta). نسعد بملاحظاتكم لتحسين التجربة.' 
-                            : 'Notice: This website is currently in Beta Launch phase. We welcome your feedback to improve the experience.'}
-                    </span>
+            {/* Dynamic Top Banner */}
+            {siteContent?.topBanner?.enabled && (
+                <div className="bg-gray-900 text-white text-center py-3 px-4 text-sm font-medium relative z-50 border-b-2 border-amber-500">
+                    <div className="container mx-auto flex items-center justify-center gap-2">
+                        <span className="text-xl">🚧</span>
+                        <span>
+                            {siteContent.topBanner.content[language]}
+                        </span>
+                    </div>
                 </div>
-            </div>
+            )}
 
             <Header
                 onToggleQuietZone={handleToggleQuietZone}

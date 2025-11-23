@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useSiteContent } from '../../hooks/useSiteContent';
 import { HelioLogo } from '../ui/Icons';

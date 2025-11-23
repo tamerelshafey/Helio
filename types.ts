@@ -364,6 +364,7 @@ export interface AddPropertyRequest {
     cooperationType: 'paid_listing' | 'commission';
     propertyDetails: {
         purpose: { en: 'For Sale' | 'For Rent'; ar: 'للبيع' | 'إيجار' };
+        title: { [key in Language]: string };
         propertyType: FilterOption;
         finishingStatus: FilterOption;
         area: number;
@@ -372,7 +373,8 @@ export interface AddPropertyRequest {
         bathrooms?: number;
         floor?: number;
         address: string;
-        description: string;
+        description: { [key in Language]: string };
+        amenities: { [key in Language]: string[] };
         location: { lat: number; lng: number };
         isInCompound: boolean;
         deliveryType: 'immediate' | 'future';
@@ -470,6 +472,10 @@ export interface LegalPageContent {
 export interface SiteContent {
     logoUrl: string;
     locationPickerMapUrl: string;
+    topBanner: {
+        enabled: boolean;
+        content: { [key in Language]: string };
+    };
     contactConfiguration: {
         routing: 'internal' | 'email' | 'both';
         targetEmail: string;

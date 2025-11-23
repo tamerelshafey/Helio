@@ -1,21 +1,23 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllProperties, updateProperty, deleteProperty } from '../../../services/properties';
 import { useAdminTable } from '../../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
-import type { Property } from '../../../types';
+import type { Property, ListingStatus } from '../../../types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
-import Pagination from '../../ui/Pagination';
+// FIX: Corrected import path for Pagination from '../shared/Pagination' to '../../ui/Pagination'.
+import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
-import { Select } from '../../ui/Select';
-import ConfirmationModal from '../../ui/ConfirmationModal';
+import AdminPropertyEditModal from './AdminPropertyEditModal';
+import ConfirmationModal from '../../shared/ConfirmationModal';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import { Card, CardContent } from '../../ui/Card';
-import TableSkeleton from '../../ui/TableSkeleton';
+import TableSkeleton from '../../shared/TableSkeleton';
 import { LocationMarkerIcon, CalendarIcon } from '../../ui/Icons';
+import { Select } from '../../ui/Select';
 
 interface AdminPropertiesListPageProps {
     title?: string;
@@ -36,9 +38,11 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
     const t_admin = t.adminDashboard;
     const queryClient = useQueryClient();
     const [searchParams, setSearchParams] = useSearchParams();
-    
+
+    const [propertyToEdit, setPropertyToEdit] = useState<Property | null>(null);
     const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
     const [actionToConfirm, setActionToConfirm] = useState<'activate' | 'deactivate' | 'delete' | null>(null);
+    const highlightedId = searchParams.get('highlight');
 
     const { data: fetchedProperties, isLoading: isFetching } = useQuery({ 
         queryKey: ['allPropertiesAdmin'], 
@@ -67,8 +71,8 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['allPropertiesAdmin'] })
     });
 
-    // Initialize filters from URL params only if we are in "full list" mode (not embedded)
-    const initialFilters = useMemo(() => {
+    // Prepare initial filters from URL
+    const initialFilters = React.useMemo(() => {
         if (propProperties) return {}; 
         return {
             status: searchParams.get('status') || 'all',
@@ -92,7 +96,7 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
         itemsPerPage: 10,
         initialSort: { key: 'listingStartDate', direction: 'descending' },
         initialFilters,
-        searchFn: (item: Property, term) => 
+        searchFn: (item: Property, term: string) => 
             item.title.en.toLowerCase().includes(term) || 
             item.title.ar.includes(term) ||
             (item.partnerName?.toLowerCase() || '').includes(term),
@@ -162,9 +166,9 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
                 <div className="px-6 py-3 bg-amber-50 dark:bg-amber-900/20 flex items-center gap-4 border-b border-gray-200 dark:border-gray-700">
                     <span className="font-semibold text-sm text-amber-900 dark:text-amber-100">{selectedProperties.length} {t_admin.bulkActions.selected}</span>
                     <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => setActionToConfirm('activate')} className="bg-white dark:bg-gray-800 text-green-600 hover:bg-green-50"> {t_admin.bulkActions.activate}</Button>
-                        <Button variant="ghost" size="sm" onClick={() => setActionToConfirm('deactivate')} className="bg-white dark:bg-gray-800 text-gray-600 hover:bg-gray-50">{t_admin.bulkActions.deactivate}</Button>
-                        <Button variant="ghost" size="sm" onClick={() => setActionToConfirm('delete')} className="bg-white dark:bg-gray-800 text-red-600 hover:bg-red-50">{t_admin.bulkActions.delete}</Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleBulkAction()}> {t_admin.bulkActions.activate}</Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleBulkAction()}>{t_admin.bulkActions.deactivate}</Button>
+                        <Button variant="ghost" size="sm" className="text-red-500" onClick={() => setActionToConfirm('delete')}>{t_admin.bulkActions.delete}</Button>
                     </div>
                     <button onClick={() => setSelectedProperties([])} className={`text-sm font-medium text-gray-500 hover:text-gray-700 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}>{t_admin.bulkActions.clear}</button>
                 </div>
@@ -196,62 +200,56 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {isLoading ? (
-                        <TableRow><TableCell colSpan={hideFilters.includes('partner') ? 8 : 9} className="p-0"><TableSkeleton cols={hideFilters.includes('partner') ? 8 : 9} rows={5} /></TableCell></TableRow>
-                    ) : items.length > 0 ? (
-                        items.map(prop => (
-                            <TableRow key={prop.id}>
-                                <TableCell><input type="checkbox" checked={selectedProperties.includes(prop.id)} onChange={() => handleSelect(prop.id)} /></TableCell>
-                                <TableCell>
-                                    <div className="w-16 h-12 bg-gray-100 dark:bg-gray-800 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
-                                        <img src={prop.imageUrl_small || prop.imageUrl} alt="" className="w-full h-full object-cover" />
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <div className="font-medium text-gray-900 dark:text-white max-w-xs truncate" title={prop.title[language]}>
-                                        {prop.title[language]}
-                                    </div>
-                                    <div className="text-xs text-gray-500">{prop.type[language]} • {prop.area} m²</div>
-                                </TableCell>
-                                {!hideFilters.includes('partner') && <TableCell className="text-sm text-gray-600 dark:text-gray-400">{prop.partnerName}</TableCell>}
-                                <TableCell className="font-semibold text-amber-600 dark:text-amber-500 text-sm whitespace-nowrap">{prop.price[language]}</TableCell>
-                                <TableCell>
-                                    <div className="flex items-center text-xs text-gray-500 gap-1 max-w-[150px] truncate">
-                                        <LocationMarkerIcon className="w-3 h-3 flex-shrink-0"/>
-                                        {prop.address[language]}
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <div className="text-xs text-gray-500 flex items-center gap-1 whitespace-nowrap">
-                                        <CalendarIcon className="w-3 h-3" />
-                                        {prop.listingStartDate ? new Date(prop.listingStartDate).toLocaleDateString(language) : '-'}
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <span className={`px-2 py-1 text-xs font-bold rounded-full capitalize inline-flex items-center gap-1 ${
-                                        prop.listingStatus === 'active' 
-                                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                                        : prop.listingStatus === 'sold'
-                                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                                        : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                                    }`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full ${prop.listingStatus === 'active' ? 'bg-green-500' : prop.listingStatus === 'sold' ? 'bg-blue-500' : 'bg-gray-500'}`}></span>
-                                        {prop.listingStatus}
-                                    </span>
-                                </TableCell>
-                                <TableCell>
-                                    {/* Switch to Full Page Edit */}
-                                    <Link to={`/admin/properties/edit/${prop.id}`}>
-                                        <Button variant="secondary" size="sm" className="px-2 py-1 text-xs h-auto">
-                                            {t_table.edit}
-                                        </Button>
-                                    </Link>
-                                </TableCell>
-                            </TableRow>
-                        ))
-                    ) : (
-                         <TableRow><TableCell colSpan={hideFilters.includes('partner') ? 8 : 9} className="text-center p-8 text-gray-500">No properties found.</TableCell></TableRow>
-                    )}
+                    {items.map(prop => (
+                        <TableRow key={prop.id} className={highlightedId === prop.id ? 'highlight-item' : ''}>
+                            <TableCell><input type="checkbox" checked={selectedProperties.includes(prop.id)} onChange={() => handleSelect(prop.id)}/></TableCell>
+                            <TableCell>
+                                <div className="w-16 h-12 bg-gray-100 dark:bg-gray-800 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
+                                    <img src={prop.imageUrl_small || prop.imageUrl} alt="" className="w-full h-full object-cover" />
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <div className="font-medium text-gray-900 dark:text-white max-w-xs truncate" title={prop.title[language]}>
+                                    {prop.title[language]}
+                                </div>
+                                <div className="text-xs text-gray-500">{prop.type[language]} • {prop.area} m²</div>
+                            </TableCell>
+                            {!hideFilters.includes('partner') && <TableCell className="text-sm text-gray-600 dark:text-gray-400">{prop.partnerName}</TableCell>}
+                            <TableCell className="font-semibold text-amber-600 dark:text-amber-500 text-sm whitespace-nowrap">{prop.price[language]}</TableCell>
+                            <TableCell>
+                                <div className="flex items-center text-xs text-gray-500 gap-1 max-w-[150px] truncate">
+                                    <LocationMarkerIcon className="w-3 h-3 flex-shrink-0"/>
+                                    {prop.address[language]}
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <div className="text-xs text-gray-500 flex items-center gap-1 whitespace-nowrap">
+                                    <CalendarIcon className="w-3 h-3" />
+                                    {prop.listingStartDate ? new Date(prop.listingStartDate).toLocaleDateString(language) : '-'}
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <span className={`px-2 py-1 text-xs font-bold rounded-full capitalize inline-flex items-center gap-1 ${
+                                    prop.listingStatus === 'active' 
+                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                                    : prop.listingStatus === 'sold'
+                                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                                }`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${prop.listingStatus === 'active' ? 'bg-green-500' : prop.listingStatus === 'sold' ? 'bg-blue-500' : 'bg-gray-500'}`}></span>
+                                    {prop.listingStatus}
+                                </span>
+                            </TableCell>
+                            <TableCell>
+                                {/* Switch to Full Page Edit */}
+                                <Link to={`/admin/properties/edit/${prop.id}`}>
+                                    <Button variant="secondary" size="sm" className="px-2 py-1 text-xs h-auto">
+                                        {t_table.edit}
+                                    </Button>
+                                </Link>
+                            </TableCell>
+                        </TableRow>
+                    ))}
                 </TableBody>
             </Table>
         </div>
@@ -296,6 +294,18 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
             </CardContent>
         </Card>
     );
+    
+    const loadingSkeletons = (
+        <>
+            <div className="hidden lg:block"><TableSkeleton cols={hideFilters.includes('partner') ? 8 : 9} /></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:hidden">
+                {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="h-80 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
+                ))}
+            </div>
+        </>
+    );
+    const emptyState = <div className="text-center py-8 text-gray-500">No properties found.</div>;
 
     return (
         <div className="animate-fadeIn">
@@ -320,7 +330,7 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
                 </Link>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-6 flex-wrap bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row gap-4 mb-6 flex-wrap bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border dark:border-gray-700">
                 {!hideFilters.includes('search') && (
                      <Input placeholder={t_admin.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="sm:max-w-xs bg-white dark:bg-gray-700"/>
                 )}
@@ -361,17 +371,21 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
                     </div>
                 )}
             </div>
+            
+            {isLoading ? loadingSkeletons : (
+                <ResponsiveList 
+                    items={paginatedItems}
+                    renderTable={renderTable}
+                    renderCard={renderCard}
+                    emptyState={emptyState}
+                />
+            )}
 
-            <ResponsiveList 
-                items={paginatedItems}
-                renderTable={renderTable}
-                renderCard={renderCard}
-                emptyState={<div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-gray-500 border-2 border-dashed border-gray-200 dark:border-gray-700">No properties found matching your criteria.</div>}
-            />
-
-            <div className="mt-4">
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-            </div>
+            {totalPages > 1 && (
+                <div className="mt-8">
+                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                </div>
+            )}
         </div>
     );
 };

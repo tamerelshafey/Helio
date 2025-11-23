@@ -1,21 +1,24 @@
+
 import React, { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, AddPropertyRequest, FilterOption } from '../../types';
 import { addRequest } from '../../services/requests';
 import { RequestType } from '../../types';
 import FormField from '../ui/FormField';
-import { CloseIcon } from '../ui/Icons';
+import { CloseIcon, LocationMarkerIcon } from '../ui/Icons';
 import CooperationCard from '../shared/CooperationCard';
 import LocationPickerModal from '../shared/LocationPickerModal';
 import { useToast } from '../shared/ToastContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAllPropertyTypes, getAllFinishingStatuses } from '../../services/filters';
+import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../services/filters';
 import { getPlans } from '../../services/plans';
 import { useLanguage } from '../shared/LanguageContext';
 import { Select } from '../ui/Select';
 import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
 import { RadioGroup, RadioGroupItem } from '../ui/RadioGroup';
+import { Checkbox } from '../ui/Checkbox';
+import { Button } from '../ui/Button';
 
 const purposeOptions = [
     { en: 'For Sale', ar: 'للبيع' },
@@ -28,8 +31,9 @@ const AddPropertyPage: React.FC = () => {
     const t_page = t.addPropertyPage;
     const { data: propertyTypes, isLoading: isLoadingPropTypes } = useQuery({ queryKey: ['propertyTypes'], queryFn: getAllPropertyTypes });
     const { data: finishingStatuses, isLoading: isLoadingFinishing } = useQuery({ queryKey: ['finishingStatuses'], queryFn: getAllFinishingStatuses });
+    const { data: amenities, isLoading: isLoadingAmenities } = useQuery({ queryKey: ['amenities'], queryFn: getAllAmenities });
     const { data: plans, isLoading: isLoadingPlans } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
-    const isLoadingContext = isLoadingPropTypes || isLoadingFinishing || isLoadingPlans;
+    const isLoadingContext = isLoadingPropTypes || isLoadingFinishing || isLoadingPlans || isLoadingAmenities;
     const { showToast } = useToast();
     const queryClient = useQueryClient();
 
@@ -39,34 +43,22 @@ const AddPropertyPage: React.FC = () => {
 
     const { register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm({
         defaultValues: {
-            customerName: '',
-            customerPhone: '',
-            contactTime: '',
-            propertyType: '',
-            finishingStatus: '',
-            area: '',
-            price: '',
-            bedrooms: '',
-            bathrooms: '',
-            floor: '',
-            address: '',
-            description: '',
-            latitude: '',
-            longitude: '',
+            customerName: '', customerPhone: '', contactTime: '',
+            title: { ar: '', en: '' }, description: { ar: '', en: '' },
+            propertyType: '', finishingStatus: '', area: '', price: '',
+            bedrooms: '', bathrooms: '', floor: '', address: '',
+            latitude: '', longitude: '',
             isInCompound: 'no' as 'yes' | 'no',
             deliveryType: 'immediate' as 'immediate' | 'future',
-            deliveryMonth: '',
-            deliveryYear: '',
+            deliveryMonth: '', deliveryYear: '',
             hasInstallments: 'no' as 'yes' | 'no',
             realEstateFinanceAvailable: 'no' as 'yes' | 'no',
-            downPayment: '',
-            monthlyInstallment: '',
-            years: '',
-            listingStartDate: '',
-            listingEndDate: '',
+            downPayment: '', monthlyInstallment: '', years: '',
+            listingStartDate: '', listingEndDate: '',
             isOwner: false,
             contactMethod: 'platform' as 'platform' | 'direct',
             ownerPhone: '',
+            amenities: { en: [], ar: [] },
         }
     });
 
@@ -98,6 +90,7 @@ const AddPropertyPage: React.FC = () => {
     const watchLatitude = watch("latitude");
     const watchLongitude = watch("longitude");
     const watchContactMethod = watch("contactMethod");
+    const watchAmenities = watch('amenities');
     
     const plansForPurpose = useMemo(() => {
         if (!purpose || !plans?.individual) return {};
@@ -141,6 +134,28 @@ const AddPropertyPage: React.FC = () => {
         setIsLocationModalOpen(false);
     };
 
+    const availableAmenities = useMemo(() => {
+        if (!amenities) return [];
+        if (!watchPropertyType) return amenities;
+        return amenities.filter(amenity => 
+            !amenity.applicableTo || amenity.applicableTo.length === 0 || amenity.applicableTo.includes(watchPropertyType)
+        );
+    }, [amenities, watchPropertyType]);
+
+    const handleAmenityChange = (amenityEn: string) => {
+        const currentAmenitiesEn = watchAmenities?.en || [];
+        const newAmenitiesEn = currentAmenitiesEn.includes(amenityEn)
+            ? currentAmenitiesEn.filter(a => a !== amenityEn)
+            : [...currentAmenitiesEn, amenityEn];
+        
+        const amenitiesAr = newAmenitiesEn.map(en => {
+            const amenity = amenities?.find(a => a.en === en);
+            return amenity ? amenity.ar : en;
+        });
+
+        setValue('amenities', { en: newAmenitiesEn, ar: amenitiesAr });
+    };
+
     const onSubmit = async (formData: any) => {
         if (!cooperationType || !purpose) {
             showToast(t_page.errors.cooperationType, 'error');
@@ -151,6 +166,8 @@ const AddPropertyPage: React.FC = () => {
         
         const propertyDetails = {
             purpose: purposeOptions.find(o => o.en === purpose)!,
+            title: formData.title,
+            description: formData.description,
             propertyType: (propertyTypes || []).find(o => o.en === formData.propertyType)!,
             finishingStatus: (finishingStatuses || []).find(o => o.en === formData.finishingStatus)!,
             area: parseInt(formData.area),
@@ -159,7 +176,7 @@ const AddPropertyPage: React.FC = () => {
             bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : undefined,
             floor: formData.floor ? parseInt(formData.floor) : undefined,
             address: formData.address,
-            description: formData.description,
+            amenities: formData.amenities,
             location: { lat: parseFloat(formData.latitude), lng: parseFloat(formData.longitude) },
             isInCompound: formData.isInCompound === 'yes',
             deliveryType: formData.deliveryType,
@@ -210,7 +227,6 @@ const AddPropertyPage: React.FC = () => {
                 </div>
 
                 <div className="grid lg:grid-cols-3 gap-12">
-                    {/* How it works */}
                     <div className="lg:col-span-1">
                         <div className="bg-white p-8 rounded-lg border border-gray-200 sticky top-28">
                             <h2 className="text-2xl font-bold text-amber-500 mb-6">{t_page.howItWorksTitle}</h2>
@@ -225,11 +241,9 @@ const AddPropertyPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Form */}
                     <div className="lg:col-span-2">
                         <div className="bg-white p-8 rounded-lg border border-gray-200">
-                             {/* Step 1: Purpose */}
-                            {currentStep === 1 && (
+                             {currentStep === 1 && (
                                 <fieldset className="space-y-4 animate-fadeIn">
                                     <legend className="text-lg font-semibold text-amber-500 mb-2">{t_page.purposeStep.title}</legend>
                                     <p className="text-sm text-gray-500 -mt-2 mb-4">{t_page.purposeStep.subtitle}</p>
@@ -244,7 +258,6 @@ const AddPropertyPage: React.FC = () => {
                                 </fieldset>
                             )}
 
-                             {/* Step 2: Cooperation Model */}
                              {currentStep === 2 && (
                                 <fieldset className="space-y-4 animate-fadeIn">
                                     <legend className="text-lg font-semibold text-amber-500 mb-2">{t_page.cooperation.title}</legend>
@@ -268,7 +281,6 @@ const AddPropertyPage: React.FC = () => {
                                 </fieldset>
                              )}
 
-                             {/* Step 3: Form */}
                              {currentStep === 3 && (
                                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 animate-fadeIn">
                                     <h2 className="text-2xl font-bold text-gray-900 mb-6">{t_page.formTitle}</h2>
@@ -319,20 +331,53 @@ const AddPropertyPage: React.FC = () => {
                                     <fieldset className="space-y-4 border-t border-gray-200 pt-4">
                                         <legend className="text-lg font-semibold text-amber-500 mb-2">{t_page.propertyInfo}</legend>
                                         
-                                        {/* Simplified Fields */}
-                                        <FormField label={t_page.address} id="address" error={errors.address?.message}>
-                                            <Input type="text" {...register("address", { required: t_page.errors.required })} />
-                                        </FormField>
-                                        <div className="grid sm:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <FormField label={t.dashboard.propertyForm.propertyTitleAr} id="title.ar"><Input {...register("title.ar", { required: true })} /></FormField>
+                                            <FormField label={t.dashboard.propertyForm.propertyTitleEn} id="title.en"><Input {...register("title.en", { required: true })} /></FormField>
+                                        </div>
+                                        <FormField label={t_page.address} id="address" error={errors.address?.message}><Input type="text" {...register("address", { required: t_page.errors.required })} /></FormField>
+                                        
+                                        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                            <FormField label={t_page.propertyType} id="propertyType"><Select {...register("propertyType", { required: true })}><option value="" disabled>{t_page.selectType}</option>{(propertyTypes || []).map(o => <option key={o.id} value={o.en}>{o[language]}</option>)}</Select></FormField>
                                             <FormField label={t_page.area} id="area" error={errors.area?.message}><Input type="number" {...register("area", { required: t_page.errors.required, min: 1 })} min="1" /></FormField>
                                             <FormField label={t_page.price} id="price" error={errors.price?.message}><Input type="number" {...register("price", { required: t_page.errors.required, min: 1 })} min="1"/></FormField>
                                         </div>
-
-                                        {/* Other Fields can be added back here if needed */}
-
-                                        <FormField label={t_page.description} id="description" error={errors.description?.message}>
-                                            <Textarea {...register("description", { required: t_page.errors.required })} rows={5} placeholder={t_page.descriptionPlaceholder} />
+                                        
+                                         <FormField label={t.propertiesPage.amenities} id="amenities">
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-md max-h-60 overflow-y-auto">
+                                                {(availableAmenities || []).map(amenity => (
+                                                    <label key={amenity.id} className="flex items-center gap-2">
+                                                        <Checkbox
+                                                            checked={(watchAmenities?.en || []).includes(amenity.en)}
+                                                            onCheckedChange={() => handleAmenityChange(amenity.en)}
+                                                            id={`amenity-${amenity.id}`}
+                                                        />
+                                                        <span className="text-sm">{amenity[language]}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
                                         </FormField>
+
+                                        <FormField label={t_page.description} id="description.ar">
+                                            <Textarea {...register("description.ar")} rows={3} placeholder={t_page.descriptionPlaceholder + ' (بالعربية)'} />
+                                        </FormField>
+                                        <FormField label="" id="description.en">
+                                            <Textarea {...register("description.en")} rows={3} placeholder={t_page.descriptionPlaceholder + ' (in English)'} />
+                                        </FormField>
+
+                                        <FormField label="Location" id="location">
+                                            <div className="flex items-center gap-4">
+                                                <Button type="button" variant="outline" onClick={() => setIsLocationModalOpen(true)} className="flex items-center gap-2">
+                                                    <LocationMarkerIcon className="w-5 h-5"/> Select on Map
+                                                </Button>
+                                                {(watchLatitude && watchLongitude) && (
+                                                    <div className="text-sm font-mono text-gray-600 bg-gray-100 px-3 py-1 rounded">
+                                                        {parseFloat(watchLatitude).toFixed(4)}, {parseFloat(watchLongitude).toFixed(4)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </FormField>
+
                                         <FormField label={t_page.images} id="images">
                                             <div>
                                                 <Input type="file" id="images" multiple accept="image/*" onChange={handleImageChange} className="p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" />

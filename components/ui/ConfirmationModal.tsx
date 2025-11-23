@@ -1,6 +1,7 @@
-import React from 'react';
-import { Modal, ModalContent, ModalFooter, ModalHeader } from '../ui/Modal';
-import { Button } from '../ui/Button';
+
+import React, { useRef, useEffect } from 'react';
+import { Modal, ModalHeader, ModalContent, ModalFooter } from './Modal';
+import { Button } from './Button';
 import { useLanguage } from '../shared/LanguageContext';
 
 interface ConfirmationModalProps {
@@ -11,6 +12,7 @@ interface ConfirmationModalProps {
     message: string;
     confirmText?: string;
     cancelText?: string;
+    isLoading?: boolean;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -19,27 +21,26 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     onConfirm,
     title,
     message,
-    confirmText,
-    cancelText,
+    confirmText = 'Confirm',
+    cancelText = 'Cancel',
+    isLoading = false,
 }) => {
     const { t } = useLanguage();
-    const finalConfirmText = confirmText || t.adminShared.delete;
-    const finalCancelText = cancelText || t.adminShared.cancel;
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} aria-labelledby="confirmation-title">
-            <ModalHeader onClose={onClose} id="confirmation-title">
+            <ModalHeader id="confirmation-title" onClose={onClose}>
                 {title}
             </ModalHeader>
-            <ModalContent className="pt-2">
-                <p className="text-sm text-gray-600">{message}</p>
+            <ModalContent>
+                <p className="text-sm text-gray-500">{message}</p>
             </ModalContent>
-            <ModalFooter className="justify-end gap-3">
-                <Button variant="secondary" onClick={onClose}>
-                    {finalCancelText}
+            <ModalFooter>
+                <Button variant="secondary" onClick={onClose} disabled={isLoading}>
+                    {cancelText}
                 </Button>
-                <Button variant="danger" onClick={onConfirm}>
-                    {finalConfirmText}
+                <Button variant="danger" onClick={onConfirm} isLoading={isLoading}>
+                    {confirmText}
                 </Button>
             </ModalFooter>
         </Modal>

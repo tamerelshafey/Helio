@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Property } from '../../types';
@@ -7,14 +6,14 @@ import { Role } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { BuildingIcon } from '../ui/Icons';
 import { inputClasses } from '../ui/FormField';
-import UpgradePlanModal from '../UpgradePlanModal';
+import UpgradePlanModal from '../shared/UpgradePlanModal';
 import ExportDropdown from '../shared/ExportDropdown';
 import { deleteProperty as apiDeleteProperty } from '../../services/properties';
 import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
 import { Select } from '../ui/Select';
 import { Card, CardContent, CardFooter } from '../ui/Card';
-import ConfirmationModal from '../ui/ConfirmationModal';
+import ConfirmationModal from '../shared/ConfirmationModal';
 
 const DashboardPropertiesPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -143,7 +142,7 @@ const DashboardPropertiesPage: React.FC = () => {
                                         {prop.status[language]}
                                     </span>
                                 </div>
-                                <CardContent className="p-4 flex-grow">
+                                <CardContent className="p-4 flex flex-col flex-grow">
                                     <h3 className="font-bold text-gray-900 dark:text-white truncate" title={prop.title[language]}>
                                         {prop.title[language]}
                                     </h3>

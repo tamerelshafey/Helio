@@ -15,7 +15,7 @@ import { getAllPartnersForAdmin } from '../../services/partners';
 import { getAllPropertyTypes, getAllFinishingStatuses, getAllAmenities } from '../../services/filters';
 import { getPaginatedProperties } from '../../services/properties';
 import { usePropertyFilters } from '../../hooks/usePropertyFilters';
-import Pagination from '../ui/Pagination';
+import Pagination from '../shared/Pagination';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -24,13 +24,9 @@ const PropertiesPage: React.FC = () => {
     const t_page = t.propertiesPage;
     const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
     
-    // Use local state for view to prevent URL updates triggering refetches
-    const [view, setView] = useState<'grid' | 'list'>('grid');
-
-    // Use the hook to manage filter state via URL parameters
     const filterControls = usePropertyFilters();
     const { 
-        page, status, type, query, minPrice, maxPrice, project, 
+        page, view, status, type, query, minPrice, maxPrice, project, 
         finishing, installments, realEstateFinance, floor, compound, delivery, 
         amenities: amenitiesFilter, beds, baths, setFilter, setPage
     } = filterControls;
@@ -66,6 +62,7 @@ const PropertiesPage: React.FC = () => {
     });
     
     const isLoadingDependencies = pLoading || paLoading || ptLoading || fsLoading || amLoading;
+    const isLoadingAny = isLoadingDependencies || propsLoading;
     const properties = propertiesData?.properties || [];
     const totalProperties = propertiesData?.total || 0;
     const totalPages = Math.ceil(totalProperties / ITEMS_PER_PAGE);
@@ -75,31 +72,42 @@ const PropertiesPage: React.FC = () => {
         : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8';
 
     return (
-        <div className="bg-gray-50 min-h-screen flex flex-col">
+        <div className="bg-white dark:bg-gray-900 min-h-screen">
             <SEO title={`${t.nav.properties} | ONLY HELIO`} description={t_page.subtitle} />
             {isInquiryModalOpen && <PropertyInquiryModal onClose={() => setIsInquiryModalOpen(false)} />}
             
+            <div className="container mx-auto px-6 py-8">
+                <PropertyFilters
+                    filters={filterControls as any}
+                    projects={projects || []}
+                    partners={partners || []}
+                    propertyTypes={propertyTypes || []}
+                    finishingStatuses={finishingStatuses || []}
+                    amenities={amenities || []}
+                />
+            </div>
+            
             {/* Toolbar Section */}
-            <div className="bg-gray-100 border-b border-gray-200 py-4 sticky top-16 lg:top-20 z-40 shadow-sm">
+            <div className="bg-gray-50 dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700 py-4 sticky top-16 lg:top-20 z-30 shadow-sm">
                 <div className="container mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <p className="text-sm text-gray-600 font-medium">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
                         {t.propertiesPage.resultsFound.replace('{count}', String(totalProperties))}
                     </p>
 
-                    <div className="flex items-center gap-2 bg-white p-1 rounded-lg shadow-sm border border-gray-200">
+                    <div className="flex items-center gap-2 bg-white dark:bg-gray-700 p-1 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
                         <button
-                            onClick={() => setView('grid')}
-                            className={`p-2 rounded-md transition-all ${view === 'grid' ? 'bg-amber-500 text-white shadow' : 'text-gray-500 hover:bg-gray-100'}`}
+                            onClick={() => setFilter('view', 'grid')}
+                            className={`p-2 rounded-md transition-all ${view === 'grid' ? 'bg-amber-500 text-white shadow' : 'text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'}`}
                             aria-label="Grid View"
                             title={language === 'ar' ? 'عرض شبكي' : 'Grid View'}
                         >
                             <GridIcon className="w-5 h-5" />
                         </button>
                         <button
-                            onClick={() => setView('list')}
-                            className={`p-2 rounded-md transition-all ${view === 'list' ? 'bg-amber-500 text-white shadow' : 'text-gray-500 hover:text-gray-100'}`}
+                            onClick={() => setFilter('view', 'list')}
+                            className={`p-2 rounded-md transition-all ${view === 'list' ? 'bg-amber-500 text-white shadow' : 'text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'}`}
                             aria-label="List View"
-                             title={language === 'ar' ? 'عرض قائمة' : 'List View'}
+                            title={language === 'ar' ? 'عرض قائمة' : 'List View'}
                         >
                             <ListIcon className="w-5 h-5" />
                         </button>
@@ -107,57 +115,41 @@ const PropertiesPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Filters Section */}
-            <div className="bg-white border-b border-gray-200 shadow-sm relative z-30">
-                <div className="container mx-auto px-6 py-8">
-                    <PropertyFilters
-                        filters={filterControls as any}
-                        projects={projects || []}
-                        partners={partners || []}
-                        propertyTypes={propertyTypes || []}
-                        finishingStatuses={finishingStatuses || []}
-                        amenities={amenities || []}
-                    />
-                </div>
-            </div>
-
             {/* Main Content Area */}
-            <div className="flex-grow relative flex flex-col">
-                <div className="container mx-auto px-6 py-8 flex-grow">
-                        {isLoadingDependencies || propsLoading ? (
-                        <div className={`grid ${gridClasses}`}>
-                            {Array.from({ length: 6 }).map((_, i) => view === 'list' ? <PropertyListItemSkeleton key={i} /> : <PropertyCardSkeleton key={i} />)}
-                        </div>
-                    ) : (
-                        <>
-                            {properties.length > 0 ? (
-                                <div className={`grid ${gridClasses}`}>
-                                    {properties.map(prop => (
-                                        view === 'list' ? (
-                                            <PropertyListItem key={prop.id} {...prop} />
-                                        ) : (
-                                            <PropertyCard key={prop.id} {...prop} />
-                                        )
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="text-center py-16 bg-white rounded-lg shadow-sm border border-gray-200">
-                                    <p className="text-xl text-gray-500 mb-6">{t_page.noResults}</p>
-                                    <div className="text-center">
-                                        <h3 className="font-bold text-lg">{t_page.cantFindTitle}</h3>
-                                        <p className="text-sm text-gray-500 my-2">{t_page.cantFindSubtitle}</p>
-                                        <button onClick={() => setIsInquiryModalOpen(true)} className="mt-2 text-amber-500 font-semibold hover:underline">
-                                            {t_page.leaveRequestButton}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                            <div className="mt-12">
-                                <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+            <div className="container mx-auto px-6 py-12">
+                {isLoadingAny ? (
+                    <div className={`grid ${gridClasses}`}>
+                        {Array.from({ length: 6 }).map((_, i) => view === 'list' ? <PropertyListItemSkeleton key={i} /> : <PropertyCardSkeleton key={i} />)}
+                    </div>
+                ) : (
+                    <>
+                        {properties.length > 0 ? (
+                            <div className={`grid ${gridClasses}`}>
+                                {properties.map(prop => (
+                                    view === 'list' ? (
+                                        <PropertyListItem key={prop.id} {...prop} />
+                                    ) : (
+                                        <PropertyCard key={prop.id} {...prop} />
+                                    )
+                                ))}
                             </div>
-                        </>
-                    )}
-                </div>
+                        ) : (
+                            <div className="text-center py-16 bg-gray-50 dark:bg-gray-800/50 rounded-lg shadow-inner border-2 border-dashed border-gray-200 dark:border-gray-700">
+                                <p className="text-xl text-gray-500 dark:text-gray-400 mb-6">{t_page.noResults}</p>
+                                <div className="text-center">
+                                    <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200">{t_page.cantFindTitle}</h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 my-2">{t_page.cantFindSubtitle}</p>
+                                    <button onClick={() => setIsInquiryModalOpen(true)} className="mt-2 text-amber-500 font-semibold hover:underline">
+                                        {t_page.leaveRequestButton}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        <div className="mt-12">
+                            <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );
