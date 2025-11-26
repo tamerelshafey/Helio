@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { FileDownloadIcon } from '../ui/Icons';
 import { exportToCsv, exportToPdf } from '../../utils/exportUtils';
@@ -6,7 +7,8 @@ import { useLanguage } from './LanguageContext';
 
 interface ExportDropdownProps<T> {
   data: T[];
-  columns: Record<keyof T, string>;
+  // FIX: Changed type to Record<string, string> to allow dot-notation paths for keys.
+  columns: Record<string, string>;
   filename: string;
 }
 

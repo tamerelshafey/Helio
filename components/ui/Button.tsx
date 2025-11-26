@@ -34,7 +34,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant = 'primary', size = 'default', isLoading, children, ...props }, ref) => {
+    ({ className, variant = 'primary', size = 'default', isLoading, type = 'button', children, ...props }, ref) => {
         const classes = [
             buttonVariants.base,
             buttonVariants.variants.variant[variant],
@@ -43,7 +43,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ].join(' ');
 
         return (
-            <button className={classes} ref={ref} disabled={isLoading || props.disabled} {...props}>
+            <button type={type} className={classes} ref={ref} disabled={isLoading || props.disabled} {...props}>
                 {isLoading && <Spinner size="sm" className="mr-2" />}
                 {children}
             </button>

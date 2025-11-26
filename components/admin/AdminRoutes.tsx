@@ -2,7 +2,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-// --- Admin Dashboard Pages ---
+// ... (Previous imports)
+// Admin Dashboard Pages
 import AdminHomePage from './AdminHomePage';
 import AdminAnalyticsPage from './AdminAnalyticsPage';
 import AdminReportsPage from './AdminReportsPage';
@@ -15,30 +16,20 @@ import AdminSettingsPage from './AdminSettingsPage';
 import AdminProfilePage from './AdminProfilePage';
 import PropertyFormPage from '../forms/PropertyFormPage';
 import ProjectFormPage from '../forms/ProjectFormPage';
-
-// Admin - Platform Operations (New)
 import AdminPlatformPropertiesPage from './platform-ops/AdminPlatformPropertiesPage';
 import AdminPlatformFinishingPage from './platform-ops/AdminPlatformFinishingPage';
 import AdminPlatformDecorationsPage from './platform-ops/AdminPlatformDecorationsPage';
-
-// Admin - Requests (New Unified Structure)
 import AdminAllRequestsPage from './requests/AdminAllRequestsPage';
 import AdminRequestDetailsPage from './requests/AdminRequestDetailsPage';
-import AdminCreateRequestPage from './requests/AdminCreateRequestPage'; // Import New Page
-
-// Admin - Partners & Projects Management (New Structure)
+import AdminCreateRequestPage from './requests/AdminCreateRequestPage';
 import AdminPartnersLayout from './partners/AdminPartnersLayout';
 import AdminPartnersDashboard from './partners/AdminPartnersDashboard';
 import AdminPartnersPage from './partners/AdminPartnersPage';
 import AdminProjectsPage from './partners/AdminProjectsPage';
 import AdminInquiryManagementPage from './inquiryManagement/AdminInquiryManagementPage';
-
-// Admin - Properties (New Structure)
 import AdminPropertiesLayout from './properties/AdminPropertiesLayout';
 import AdminPropertiesDashboard from './properties/AdminPropertiesDashboard';
 import AdminPropertiesListPage from './properties/AdminPropertiesListPage';
-
-// Admin - Content Management
 import AdminContentLayout from './content/AdminContentLayout';
 import ContentHeroPage from './content/ContentHeroPage';
 import ContentWhyUsPage from './content/ContentWhyUsPage';
@@ -56,43 +47,33 @@ import ContentCTAPage from './content/ContentCTAPage';
 import ContentHomeListingsPage from './content/ContentHomeListingsPage';
 import ContentPrivacyPolicyPage from './content/ContentPrivacyPolicyPage';
 import ContentTermsOfUsePage from './content/ContentTermsOfUsePage';
-
-
-// Admin - Automation
 import RoutingRulesPage from './automation/RoutingRulesPage';
-
-// Shared
 import AllNotificationsPage from '../shared/AllNotificationsPage';
 import AdminAIEstimatorPage from './AdminAIEstimatorPage';
-
+import AdminFinancePage from './finance/AdminFinancePage'; // NEW IMPORT
 
 const AdminRoutes: React.FC = () => {
     return (
         <Routes>
             <Route index element={<AdminHomePage />} />
             <Route path="analytics" element={<AdminAnalyticsPage />} />
+            <Route path="finance" element={<AdminFinancePage />} /> {/* NEW ROUTE */}
             <Route path="reports" element={<AdminReportsPage />} />
             <Route path="automation" element={<RoutingRulesPage />} />
             <Route path="profile" element={<AdminProfilePage />} />
             <Route path="notifications" element={<AllNotificationsPage />} />
 
-            {/* ===== NEW UNIFIED REQUESTS ROUTE ===== */}
-            {/* Create must come before :requestId to match correctly */}
             <Route path="requests/new" element={<AdminCreateRequestPage />} /> 
             <Route path="requests" element={<AdminAllRequestsPage />} />
             <Route path="requests/:requestId" element={<AdminRequestDetailsPage />} />
 
-            {/* ===== NEW PLATFORM OPERATIONS ROUTES ===== */}
             <Route path="platform-properties" element={<AdminPlatformPropertiesPage />} />
             <Route path="platform-finishing/*" element={<AdminPlatformFinishingPage />} />
             <Route path="platform-decorations/*" element={<AdminPlatformDecorationsPage />} />
             
-            {/* Redirect old platform routes to the new management modules */}
             <Route path="decorations-management/*" element={<Navigate to="platform-decorations" replace />} />
             <Route path="finishing-management/*" element={<Navigate to="platform-finishing" replace />} />
 
-
-            {/* ===== DEPRECATED - Redirect old request URLs to the new triage center ===== */}
             <Route path="partner-requests" element={<Navigate to="/admin/requests?type=PARTNER_APPLICATION" replace />} />
             <Route path="partner-requests/:requestId" element={<Navigate to="/admin/requests/:requestId" replace />} />
             <Route path="contact-requests" element={<Navigate to="/admin/requests?type=CONTACT_MESSAGE" replace />} />
@@ -106,7 +87,6 @@ const AdminRoutes: React.FC = () => {
                 <Route path="plans" element={<AdminPlansPage availableCategories={['developer', 'agency', 'individual']} />} />
             </Route>
             
-            {/* Projects Top Level Route */}
             <Route path="projects" element={<AdminProjectsPage />} />
             <Route path="projects/edit/:projectId" element={<ProjectFormPage />} />
 

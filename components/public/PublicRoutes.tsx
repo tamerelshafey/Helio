@@ -1,4 +1,6 @@
 
+
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
@@ -21,6 +23,7 @@ import RegisterPage from '../auth/RegisterPage';
 import PrivacyPolicyPage from '../legal/PrivacyPolicyPage';
 import TermsOfUsePage from '../legal/TermsOfUsePage';
 import NotFoundPage from '../shared/NotFoundPage';
+import PaymentPage from '../finance/PaymentPage'; // NEW IMPORT
 
 const PublicRoutes: React.FC = () => {
     return (
@@ -42,6 +45,7 @@ const PublicRoutes: React.FC = () => {
                 <Route path="request-service" element={<ServiceRequestPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="register" element={<RegisterPage />} />
+                <Route path="payment" element={<PaymentPage />} /> {/* NEW ROUTE */}
                 <Route path="*" element={<NotFoundPage />} />
             </Route>
         </Routes>

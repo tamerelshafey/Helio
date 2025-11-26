@@ -1,4 +1,8 @@
 
+
+
+
+
 import type { SiteContent, Quote } from '../types';
 
 const quotesData: Quote[] = [
@@ -377,6 +381,23 @@ export let siteContentData: SiteContent = {
   contactConfiguration: {
     routing: 'internal',
     targetEmail: 'admin@onlyhelio.com',
+  },
+  paymentConfiguration: {
+      instapay: {
+          enabled: true,
+          number: '01012345678',
+          walletName: '', // Initialized empty
+          paymentLink: '', // Initialized empty
+          qrCodeUrl: '', // Initialized empty
+          instructions: {
+              ar: 'يرجى تحويل المبلغ على محفظة فودافون كاش الموضحة، ثم رفع صورة إيصال التحويل للتأكيد.',
+              en: 'Please transfer the amount to the shown Vodafone Cash wallet, then upload the receipt screenshot for confirmation.'
+          }
+      },
+      paymob: {
+          enabled: false, // Disabled by default for now
+          apiKey: 'mock-paymob-api-key'
+      }
   },
   hero: {
       // ... existing hero data ...

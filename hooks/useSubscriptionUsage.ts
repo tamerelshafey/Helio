@@ -3,6 +3,7 @@ import type { PartnerType, SubscriptionPlan, Property, Project, PortfolioItem } 
 import { useAuth } from '../components/auth/AuthContext';
 import { getPlanLimit } from '../utils/subscriptionUtils';
 import { useQuery } from '@tanstack/react-query';
+// FIX: Corrected import paths for services from the non-existent `api` directory to `services`.
 import { getAllProperties } from '../services/properties';
 import { getAllProjects } from '../services/projects';
 import { getAllPortfolioItems } from '../services/portfolio';
@@ -29,11 +30,14 @@ export const useSubscriptionUsage = (usageType: UsageType) => {
         switch (usageType) {
             case 'properties':
             case 'units': // units are properties for a developer
-                return (allProperties || []).filter(p => p.partnerId === currentUser.id);
+                // FIX: Explicitly type the parameter in the filter callback to resolve type inference issues.
+                return (allProperties || []).filter((p: Property) => p.partnerId === currentUser.id);
             case 'projects':
-                return (allProjects || []).filter(p => p.partnerId === currentUser.id);
+                // FIX: Explicitly type the parameter in the filter callback to resolve type inference issues.
+                return (allProjects || []).filter((p: Project) => p.partnerId === currentUser.id);
             case 'portfolio':
-                return (allPortfolioItems || []).filter(p => p.partnerId === currentUser.id);
+                // FIX: Explicitly type the parameter in the filter callback to resolve type inference issues.
+                return (allPortfolioItems || []).filter((p: PortfolioItem) => p.partnerId === currentUser.id);
             default:
                 return [];
         }

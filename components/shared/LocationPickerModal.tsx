@@ -1,10 +1,10 @@
 
 
-
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import type { Language } from '../../types';
 import { LocationMarkerIcon, CloseIcon } from '../ui/Icons';
 import { useQuery } from '@tanstack/react-query';
+// FIX: Corrected import path for content API.
 import { getContent } from '../../services/content';
 import { useLanguage } from './LanguageContext';
 

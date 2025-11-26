@@ -1,8 +1,10 @@
 
 
+
 import React, { useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import type { Language, PartnerRequest } from '../../../types';
+// FIX: Added 'PlanCategory' to the import to ensure correct type casting.
+import type { Language, PartnerRequest, PlanCategory } from '../../../types';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnerRequests, updatePartnerRequestStatus } from '../../../services/partnerRequests';
 import { addPartner } from '../../../services/partners';
@@ -46,7 +48,11 @@ const AdminPartnerRequestDetailsPage: React.FC = () => {
     if (isLoading) return <div>Loading...</div>;
     if (!request) return <div>Request not found.</div>;
     
-    const selectedPlanDetails = plans?.[request.companyType]?.[request.subscriptionPlan as keyof typeof plans[typeof request.companyType]]?.[language];
+    // FIX: Cast 'companyType' to 'PlanCategory' to ensure type-safe access to the 'plans' object.
+    // Partner applications should only come from 'developer', 'agency', or 'finishing'.
+    const companyTypeForPlan = request.companyType as PlanCategory;
+    const selectedPlanDetails = plans?.[companyTypeForPlan]?.[request.subscriptionPlan as keyof typeof plans[typeof companyTypeForPlan]]?.[language];
+
 
     return (
         <div className="max-w-4xl mx-auto">

@@ -164,6 +164,34 @@ export const updatePartnerAdmin = (id: string, updates: Partial<Pick<AdminPartne
     });
 };
 
+export const upgradePartnerPlan = (id: string, newPlan: SubscriptionPlan): Promise<boolean> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const partnerIndex = partnersData.findIndex(p => p.id === id);
+            if (partnerIndex > -1) {
+                partnersData[partnerIndex].subscriptionPlan = newPlan;
+                // Extend for 1 year from now for simplicity
+                const nextYear = new Date();
+                nextYear.setFullYear(nextYear.getFullYear() + 1);
+                partnersData[partnerIndex].subscriptionEndDate = nextYear.toISOString();
+                
+                addNotification({
+                    userId: id,
+                    message: {
+                        ar: `تهانينا! تم ترقية باقتك بنجاح إلى ${newPlan}.`,
+                        en: `Congratulations! Your plan has been upgraded to ${newPlan}.`
+                    },
+                    link: '/dashboard/subscription'
+                });
+
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        }, 300);
+    });
+};
+
 export const addPartner = (request: PartnerRequest): Promise<Partner> => {
     return new Promise((resolve, reject) => {
         setTimeout(async () => {

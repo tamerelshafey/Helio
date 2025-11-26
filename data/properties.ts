@@ -1,5 +1,6 @@
 
 
+
 import type { Property } from '../types';
 
 // Data is now mutable to simulate a database
@@ -92,6 +93,8 @@ export let propertiesData: Property[] = [
       location: { lat: 30.141, lng: 31.675 },
       listingStartDate: '2024-07-01',
       listingStatus: 'active',
+      installmentsAvailable: false,
+      realEstateFinanceAvailable: false,
     },
     {
       id: 'commercial-heliopolis-3',
@@ -172,6 +175,8 @@ export let propertiesData: Property[] = [
       ownerPhone: '01012345678',
       isInCompound: false,
       listingStatus: 'active',
+      installmentsAvailable: false,
+      realEstateFinanceAvailable: false,
     },
     {
         id: 'apartment-heliopolis-5',
@@ -260,6 +265,8 @@ export let propertiesData: Property[] = [
         location: { lat: 30.125, lng: 31.65 },
         listingStartDate: '2024-06-25',
         listingStatus: 'active',
+        installmentsAvailable: false,
+        realEstateFinanceAvailable: false,
     },
     {
       id: 'apartment-heliopolis-7',
@@ -466,6 +473,8 @@ export let propertiesData: Property[] = [
       contactMethod: 'direct',
       ownerPhone: '01123456789',
       listingStatus: 'active',
+      installmentsAvailable: false,
+      realEstateFinanceAvailable: false,
     },
     {
       id: 'clinic-sale-heliopolis-12',

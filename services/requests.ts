@@ -1,6 +1,11 @@
 
+
+
+
+
+
 import { requestsData } from '../data/requests';
-import { RequestType } from '../types';
+import { RequestType, Role } from '../types';
 import type { Request, RequestStatus, Lead, LeadMessage, LeadStatus } from '../types';
 import { addNotification } from './notifications';
 import { getAllRoutingRules } from './routingRules';
@@ -128,7 +133,11 @@ export const addRequest = async (type: RequestType, data: Omit<Request, 'id' | '
     // Notification Logic
     if (newRequest.assignedTo) {
          const assignee = await getPartnerById(newRequest.assignedTo);
-        const isAdminOrManager = assignee?.role.includes('_manager') || assignee?.role === 'admin';
+        
+        // Fix: Safely check if role exists and is a string before calling includes
+        // Ensure assignee exists first
+        const assigneeRole = assignee?.role as string | undefined;
+        const isAdminOrManager = (assigneeRole && (assigneeRole.includes('_manager') || assigneeRole === Role.SUPER_ADMIN));
         
         addNotification({
             userId: newRequest.assignedTo,

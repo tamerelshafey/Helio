@@ -9,6 +9,7 @@ import { getAllPortfolioItems } from '../../../services/portfolio';
 import { ArrowLeftIcon } from '../../ui/Icons';
 import ConversationThread from '../../shared/ConversationThread';
 import { useLanguage } from '../../shared/LanguageContext';
+import { useToast } from '../../shared/ToastContext';
 
 const statusColors: { [key in LeadStatus]: string } = {
     new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -23,6 +24,7 @@ const statusColors: { [key in LeadStatus]: string } = {
 const AdminDecorationRequestDetailsPage: React.FC = () => {
     const { requestId } = useParams<{ requestId: string }>();
     const { language, t: i18n } = useLanguage();
+    const { showToast } = useToast();
     const t = i18n.adminDashboard.decorationsManagement;
     const { data: allLeads, refetch: refetchLeads, isLoading: loadingLeads } = useQuery({ queryKey: ['allLeads'], queryFn: getAllLeads });
     const { data: portfolioItems, isLoading: loadingPortfolio } = useQuery({ queryKey: ['portfolio'], queryFn: getAllPortfolioItems });
@@ -46,7 +48,7 @@ const AdminDecorationRequestDetailsPage: React.FC = () => {
         if (lead) {
             await updateLead(lead.id, { status, assignedTo });
             refetchLeads();
-            alert("Updated!");
+            showToast('Request updated successfully', 'success');
         }
     };
 

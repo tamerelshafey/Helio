@@ -1,6 +1,5 @@
 
 
-
 import React, { useState, useMemo } from 'react';
 import type { Banner } from '../../types';
 // FIX: Corrected import path for AdminBannerFormModal. The component exists in the current directory, not in './content/'.
@@ -35,7 +34,8 @@ const AdminBannersPage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const sortedBanners = useMemo(() => {
-        let sortableItems = [...(banners || [])];
+        // FIX: Add type guard to ensure 'banners' is an array before spreading.
+        const sortableItems: Banner[] = Array.isArray(banners) ? [...banners] : [];
         if (sortConfig !== null) {
             sortableItems.sort((a, b) => {
                 let aValue: string | string[] = a[sortConfig.key];

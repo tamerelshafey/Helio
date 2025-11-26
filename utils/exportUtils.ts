@@ -1,3 +1,4 @@
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { amiriFont } from './amiriFont'; 
@@ -19,18 +20,19 @@ const getValue = (obj: any, key: string): string => {
 
 export const exportToCsv = <T extends Record<string, any>>(
     filename: string,
-    columns: Record<keyof T, string>,
+    // FIX: Relaxed type from Record<keyof T, string> to Record<string, string> to allow for dot-notation paths.
+    columns: Record<string, string>,
     data: T[]
 ) => {
-    const columnKeys = Object.keys(columns) as (keyof T)[];
-    const headers = columnKeys.map(key => columns[key]);
+    const columnKeys = Object.keys(columns);
+    const headers = Object.values(columns);
 
     const csvRows = [
         headers.join(','),
         ...data.map(row =>
             columnKeys
                 .map(key => {
-                    const value = getValue(row, key as string);
+                    const value = getValue(row, key);
                     const escaped = ('' + value).replace(/"/g, '""');
                     return `"${escaped}"`;
                 })
@@ -49,7 +51,8 @@ export const exportToCsv = <T extends Record<string, any>>(
 
 export const exportToPdf = <T extends Record<string, any>>(
     filename: string,
-    columns: Record<keyof T, string>,
+    // FIX: Relaxed type from Record<keyof T, string> to Record<string, string> to allow for dot-notation paths.
+    columns: Record<string, string>,
     data: T[],
     language: 'ar' | 'en'
 ) => {
@@ -59,8 +62,8 @@ export const exportToPdf = <T extends Record<string, any>>(
     doc.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
     doc.setFont('Amiri');
 
-    const columnKeys = Object.keys(columns) as (keyof T)[];
-    const headers = [columnKeys.map(key => columns[key])];
+    const columnKeys = Object.keys(columns);
+    const headers = [Object.values(columns)];
     
     if (language === 'ar') {
         headers[0].reverse();
@@ -68,7 +71,7 @@ export const exportToPdf = <T extends Record<string, any>>(
 
     const body = data.map(row =>
         columnKeys.map(key => {
-            return getValue(row, key as string);
+            return getValue(row, key);
         })
     );
 

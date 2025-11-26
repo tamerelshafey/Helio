@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { BedIcon, BathIcon, AreaIcon, HeartIcon, HeartIconSolid, FloorIcon, CompoundIcon, WalletIcon, BanknotesIcon } from '../ui/Icons';
-import type { Property, Language } from '../../types';
+import type { Property } from '../../types';
 import { useFavorites } from '../shared/FavoritesContext';
 import { isCommercial } from '../../utils/propertyUtils';
 import { useToast } from '../shared/ToastContext';
 import { useLanguage } from '../shared/LanguageContext';
-import { Card, CardContent, CardFooter } from '../ui/Card';
+import { Card, CardContent } from '../ui/Card';
 
 type PropertyCardProps = Property;
 
@@ -55,12 +55,9 @@ const PropertyCard: React.FC<PropertyCardProps> = React.memo((props) => {
   };
 
   const displayPricePerMeter = useMemo(() => {
-      // If price per meter is already provided, use it.
       if (pricePerMeter?.[language]) {
           return pricePerMeter[language];
       }
-
-      // Only calculate for properties that are for sale and have valid data.
       if (status?.en === 'For Sale' && priceNumeric && area && area > 0) {
           const perMeter = Math.round(priceNumeric / area);
           if (language === 'ar') {
@@ -68,16 +65,22 @@ const PropertyCard: React.FC<PropertyCardProps> = React.memo((props) => {
           }
           return `EGP ${perMeter.toLocaleString('en-US')}/m²`;
       }
-
-      // Otherwise, don't show anything.
       return null;
   }, [pricePerMeter, status, priceNumeric, area, language]);
 
 
   return (
-    <Link to={`/properties/${id}`} className="block h-full">
-      <Card className="transform hover:-translate-y-2 transition-transform duration-300 group h-full flex flex-col overflow-hidden p-0">
-        <div className="relative watermarked">
+    <Card className="relative transform hover:-translate-y-2 transition-transform duration-300 group h-full flex flex-col overflow-hidden p-0">
+        {/* Main Stretched Link for the entire card click */}
+        <Link 
+            to={`/properties/${id}`} 
+            className="absolute inset-0 z-0 focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-lg"
+            aria-label={`${title[language]} - ${t.propertyCard.viewProject}`}
+        >
+            <span className="sr-only">View details</span>
+        </Link>
+
+        <div className="relative watermarked z-0">
             <picture>
                 <source
                     type="image/webp"
@@ -93,18 +96,18 @@ const PropertyCard: React.FC<PropertyCardProps> = React.memo((props) => {
                     loading="lazy"
                 />
             </picture>
-          <span className={`absolute top-4 ${language === 'ar' ? 'right-4' : 'left-4'} text-white font-semibold px-3 py-1 rounded-md text-sm ${isForSale ? 'bg-green-600' : 'bg-sky-600'}`}>
+          <span className="absolute top-4 left-4 z-10 text-white font-semibold px-3 py-1 rounded-md text-sm shadow-sm bg-sky-600/90 backdrop-blur-sm" style={{ backgroundColor: isForSale ? '#16a34a' : '#0284c7' }}>
             {status[language]}
           </span>
            {isInCompound && (
-             <span className={`absolute top-4 ${language === 'ar' ? 'left-4' : 'right-4'} p-2 rounded-full bg-black/50`} title={t.propertiesPage.inCompound}>
+             <span className={`absolute top-4 ${language === 'ar' ? 'left-4' : 'right-4'} p-2 rounded-full bg-black/50 z-10`} title={t.propertiesPage.inCompound}>
                 <CompoundIcon className="w-5 h-5 text-white" />
              </span>
            )}
-          <div className={`absolute top-14 ${language === 'ar' ? 'right-4' : 'left-4'} flex flex-col gap-2 items-center`}>
+          <div className={`absolute top-14 ${language === 'ar' ? 'right-4' : 'left-4'} flex flex-col gap-2 items-center z-20`}>
             <button
               onClick={handleFavoriteClick}
-              className="p-2 rounded-full bg-black/50 hover:bg-black/75 transition-colors"
+              className="p-2 rounded-full bg-black/50 hover:bg-black/75 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400"
               aria-label={isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}
             >
               {isFav ? (
@@ -125,7 +128,7 @@ const PropertyCard: React.FC<PropertyCardProps> = React.memo((props) => {
             )}
           </div>
         </div>
-        <CardContent className="p-5 flex flex-col flex-grow">
+        <CardContent className="p-5 flex flex-col flex-grow relative z-10 pointer-events-none">
           <p className="text-2xl font-bold text-amber-500 mb-1">{price[language]}</p>
           {displayPricePerMeter && (
             <p className="text-sm text-gray-500 mb-2">{displayPricePerMeter}</p>
@@ -140,9 +143,9 @@ const PropertyCard: React.FC<PropertyCardProps> = React.memo((props) => {
           
           <div className="text-sm text-gray-500 mb-4 flex-grow">
             {partnerName && partnerId !== 'individual-listings' ? (
-                <p>
+                <p className="pointer-events-auto">
                     {t.propertyCard.by}{' '}
-                    <Link to={`/partners/${partnerId}`} onClick={(e) => e.stopPropagation()} className="font-semibold text-gray-700 hover:text-amber-500 hover:underline">
+                    <Link to={`/partners/${partnerId}`} className="font-semibold text-gray-700 hover:text-amber-500 hover:underline relative z-20">
                         {partnerName}
                     </Link>
                 </p>
@@ -151,9 +154,11 @@ const PropertyCard: React.FC<PropertyCardProps> = React.memo((props) => {
             ) : null}
 
             {projectName && projectId && (
-                <Link to={`/projects/${projectId}`} onClick={(e) => e.stopPropagation()} className="text-amber-600 hover:underline text-xs">
-                    {t.propertyCard.viewProject}
-                </Link>
+                <p className="pointer-events-auto">
+                    <Link to={`/projects/${projectId}`} className="text-amber-600 hover:underline text-xs relative z-20">
+                        {t.propertyCard.viewProject}
+                    </Link>
+                </p>
             )}
           </div>
 
@@ -182,8 +187,7 @@ const PropertyCard: React.FC<PropertyCardProps> = React.memo((props) => {
             )}
           </div>
         </CardContent>
-      </Card>
-    </Link>
+    </Card>
   );
 });
 

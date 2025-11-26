@@ -1,4 +1,6 @@
 
+
+
 import { Role, Permission, PartnerType } from '../types';
 
 export const rolePermissions: Map<Role, Permission[]> = new Map([
@@ -61,14 +63,15 @@ export const rolePermissions: Map<Role, Permission[]> = new Map([
     ],
   ],
 
-  // 3. Finishing Market Manager (Partners)
+  // 3. Finishing Market Manager (Partners & Projects)
   [
     Role.FINISHING_MARKET_MANAGER,
     [
       Permission.VIEW_ADMIN_DASHBOARD,
-      Permission.MANAGE_FINISHING_PARTNERS,
-      // They might need view access to leads assigned to partners, but usually they manage the partners themselves
-      Permission.MANAGE_ALL_PARTNERS, // Scoped in UI
+      Permission.MANAGE_ALL_PARTNERS,
+      Permission.MANAGE_ALL_PROJECTS,
+      Permission.MANAGE_ALL_PROPERTIES,
+      Permission.MANAGE_PARTNER_REQUESTS,
     ],
   ],
 
@@ -78,6 +81,7 @@ export const rolePermissions: Map<Role, Permission[]> = new Map([
     [
       Permission.VIEW_ADMIN_DASHBOARD,
       Permission.MANAGE_PLATFORM_PROPERTIES,
+      Permission.MANAGE_CONTACT_REQUESTS,
       Permission.MANAGE_PLATFORM_PROPERTY_LEADS,
     ],
   ],

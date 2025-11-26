@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -6,7 +5,8 @@ import {
     updatePropertyInquiryStatus,
     deletePropertyInquiry,
 } from '../../../services/propertyInquiries';
-import { useAdminTable } from '../../../hooks/useAdminTable';
+// FIX: Corrected import path for useAdminTable hook.
+import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 import Pagination from '../../shared/Pagination';

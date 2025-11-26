@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Language, PortfolioItem } from '../../types';
@@ -100,7 +101,7 @@ const AdminPortfolioItemFormModal: React.FC<AdminPortfolioItemFormModalProps> = 
         
         const selectedCategory = decorationCategories?.find(c => c.id === formData.categoryId);
         if (!selectedCategory) {
-            alert("Please select a valid category.");
+            showToast("Please select a valid category.", "error");
             return;
         }
 

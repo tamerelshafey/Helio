@@ -1,13 +1,19 @@
 
+
+
+
 import React, { useState, useMemo } from 'react';
 import type { Banner } from '../../types';
+// FIX: Corrected import path for AdminBannerFormModal. The component exists in the current directory, not in './content/'.
 import AdminBannerFormModal from './AdminBannerFormModal';
 import { PhotoIcon } from '../ui/Icons';
 import { getAllBanners, deleteBanner as apiDeleteBanner } from '../../services/banners';
 import { useQuery } from '@tanstack/react-query';
+// FIX: Corrected import path for Pagination from 'ui' to 'shared'.
 import Pagination from '../shared/Pagination';
 import { useLanguage } from '../shared/LanguageContext';
-import ConfirmationModal from '../shared/ConfirmationModal';
+// FIX: Corrected import path for ConfirmationModal from 'ui' to 'shared'.
+import ConfirmationModal from '../ui/ConfirmationModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
 import { Button } from '../ui/Button';
 import { ResponsiveList } from '../shared/ResponsiveList';
@@ -30,7 +36,8 @@ const AdminBannersPage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const sortedBanners = useMemo(() => {
-        let sortableItems = [...(banners || [])];
+        // FIX: Add type guard to ensure 'banners' is an array before spreading.
+        const sortableItems: Banner[] = Array.isArray(banners) ? [...banners] : [];
         if (sortConfig !== null) {
             sortableItems.sort((a, b) => {
                 let aValue: string | string[] = a[sortConfig.key];

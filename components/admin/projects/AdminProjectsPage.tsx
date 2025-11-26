@@ -1,16 +1,15 @@
 
-
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllProjects, deleteProject as apiDeleteProject } from '../../../services/projects';
 import { getAllPartnersForAdmin } from '../../../services/partners';
 import { getAllProperties } from '../../../services/properties';
-import { useAdminTable } from '../../../hooks/useAdminTable';
+// FIX: Corrected import path for useAdminTable. It should be two levels up.
+import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Project, AdminPartner } from '../../../types';
-import ConfirmationModal from '../../ui/ConfirmationModal';
+import ConfirmationModal from '../../shared/ConfirmationModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';

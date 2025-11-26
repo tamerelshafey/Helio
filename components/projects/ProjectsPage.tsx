@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Project, Partner } from '../../types';
@@ -27,7 +28,7 @@ const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, developer
     
     return (
         <Link to={`/projects/${project.id}`} className="block group h-full">
-            <Card className="transform hover:-translate-y-2 transition-transform duration-300 h-full flex flex-col overflow-hidden p-0">
+            <Card className="transform hover:-translate-y-2 transition-transform duration-300 h-full flex flex-col overflow-hidden p-0 card-glow">
                 <div className="relative">
                     <picture>
                         <source

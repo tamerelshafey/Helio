@@ -1,10 +1,9 @@
-
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getAllPartnerRequests } from '../../../services/partnerRequests';
-import { useAdminTable } from '../../../hooks/useAdminTable';
+// FIX: Corrected import path for useAdminTable hook.
+import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 // FIX: Corrected import path for Pagination from 'ui' to 'shared'.

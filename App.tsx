@@ -1,6 +1,7 @@
 
 
 
+
 import React, { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
@@ -45,6 +46,7 @@ const AddPropertyPage = React.lazy(() => import('./components/forms/AddPropertyP
 const ServiceRequestPage = React.lazy(() => import('./components/forms/ServiceRequestPage'));
 const LoginPage = React.lazy(() => import('./components/auth/LoginPage'));
 const RegisterPage = React.lazy(() => import('./components/auth/RegisterPage'));
+const PaymentPage = React.lazy(() => import('./components/finance/PaymentPage'));
 const PrivacyPolicyPage = React.lazy(() => import('./components/legal/PrivacyPolicyPage'));
 const TermsOfUsePage = React.lazy(() => import('./components/legal/TermsOfUsePage'));
 const NotFoundPage = React.lazy(() => import('./components/shared/NotFoundPage'));
@@ -107,6 +109,7 @@ const App: React.FC = () => {
                             <Route path="request-service" element={<ServiceRequestPage />} />
                             <Route path="login" element={<LoginPage />} />
                             <Route path="register" element={<RegisterPage />} />
+                            <Route path="payment" element={<PaymentPage />} />
                             <Route path="*" element={<NotFoundPage />} />
                         </Route>
                     </Routes>

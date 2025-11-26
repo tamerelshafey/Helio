@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface LogoProps {
@@ -30,11 +31,14 @@ export const HelioLogo: React.FC<LogoProps> = ({ className }) => {
                 stroke="currentColor"
                 strokeWidth="10"
                 fill="none"
-                strokeLineCap="round"
+                // FIX: Corrected SVG attribute 'strokeLineCap' to 'strokeLinecap'.
+                strokeLinecap="round"
             />
 
             {/* Base line */}
-            <line x1="10" y1="90" x2="90" y2="90" stroke="currentColor" strokeWidth="10" strokeLineCap="round" />
+            <line x1="10" y1="90" x2="90" y2="90" stroke="currentColor" strokeWidth="10" 
+                // FIX: Corrected SVG attribute 'strokeLineCap' to 'strokeLinecap'.
+                strokeLinecap="round" />
         </svg>
     );
 };

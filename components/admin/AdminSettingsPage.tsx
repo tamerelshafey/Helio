@@ -1,10 +1,14 @@
 
+
+
+
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, SiteContent } from '../../types';
 import { inputClasses, selectClasses } from '../ui/FormField';
 // FIX: Corrected import path for Icons
-import { CloseIcon, PhotoIcon, MegaphoneIcon } from '../ui/Icons';
+import { CloseIcon, PhotoIcon, MegaphoneIcon, CreditCardIcon, BanknotesIcon } from '../ui/Icons';
 import { getContent, updateContent as updateSiteContent } from '../../services/content';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../shared/ToastContext';
@@ -14,6 +18,7 @@ import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
 import { Checkbox } from '../ui/Checkbox';
 import { Select } from '../ui/Select';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -31,7 +36,7 @@ const AdminSettingsPage: React.FC = () => {
     
     const { register, handleSubmit, reset, watch, setValue, formState: { isSubmitting, isDirty } } = useForm<SiteContent>();
     
-    const [activeTab, setActiveTab] = useState<'general' | 'banner' | 'contact' | 'social'>('general');
+    const [activeTab, setActiveTab] = useState<'general' | 'banner' | 'contact' | 'social' | 'finance'>('general');
 
     useEffect(() => {
         if (siteContent) {
@@ -45,9 +50,17 @@ const AdminSettingsPage: React.FC = () => {
             setValue('logoUrl', base64, { shouldDirty: true });
         }
     };
+
+    const handleQrCodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const base64 = await fileToBase64(e.target.files[0]);
+            setValue('paymentConfiguration.instapay.qrCodeUrl', base64, { shouldDirty: true });
+        }
+    };
     
     const watchLogoUrl = watch('logoUrl');
     const watchRouting = watch('contactConfiguration.routing');
+    const watchQrCode = watch('paymentConfiguration.instapay.qrCodeUrl');
 
     const onSubmit = async (formData: SiteContent) => {
         // Exclude finishingServices from the update
@@ -61,7 +74,7 @@ const AdminSettingsPage: React.FC = () => {
         return <div>Loading settings...</div>;
     }
     
-    const TabButton: React.FC<{tabKey: 'general' | 'banner' | 'contact' | 'social', label: string}> = ({tabKey, label}) => (
+    const TabButton: React.FC<{tabKey: 'general' | 'banner' | 'contact' | 'social' | 'finance', label: string}> = ({tabKey, label}) => (
         <button
             type="button"
             onClick={() => setActiveTab(tabKey)}
@@ -83,6 +96,7 @@ const AdminSettingsPage: React.FC = () => {
                             <TabButton tabKey="general" label="General Settings" />
                             <TabButton tabKey="banner" label="Top Banner" />
                             <TabButton tabKey="contact" label="Contact Info" />
+                            <TabButton tabKey="finance" label="Finance & Payment" />
                             <TabButton tabKey="social" label="Social Media" />
                          </div>
                     </div>
@@ -129,6 +143,79 @@ const AdminSettingsPage: React.FC = () => {
                                     <label htmlFor="locationPickerMapUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location Picker Map Image URL</label>
                                     <Input id="locationPickerMapUrl" {...register('locationPickerMapUrl')} />
                                 </div>
+                             </div>
+                        )}
+
+                        {activeTab === 'finance' && (
+                             <div className="space-y-8 animate-fadeIn">
+                                <Card>
+                                    <CardHeader className="pb-4 border-b border-gray-100 dark:border-gray-800">
+                                        <CardTitle className="flex items-center gap-2 text-lg">
+                                            <BanknotesIcon className="w-6 h-6 text-amber-600" />
+                                            InstaPay Configuration
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4 pt-6">
+                                         <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-md border border-gray-200 dark:border-gray-700">
+                                            <Checkbox id="instapay-enabled" {...register('paymentConfiguration.instapay.enabled')} />
+                                            <label htmlFor="instapay-enabled" className="font-medium cursor-pointer">Enable InstaPay Method</label>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-sm font-medium mb-1">Wallet Number (Vodafone Cash/InstaPay)</label>
+                                                <Input {...register('paymentConfiguration.instapay.number')} placeholder="010xxxxxxxx" dir="ltr" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium mb-1">Wallet Name / Owner</label>
+                                                <Input {...register('paymentConfiguration.instapay.walletName')} placeholder="e.g. John Doe" />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Direct Payment Link (Optional)</label>
+                                            <Input {...register('paymentConfiguration.instapay.paymentLink')} placeholder="https://instapay.eg/..." dir="ltr" />
+                                            <p className="text-xs text-gray-500 mt-1">A direct link to open the app or a payment gateway.</p>
+                                        </div>
+
+                                         <div>
+                                            <label className="block text-sm font-medium mb-1">QR Code Image</label>
+                                            <div className="flex items-center gap-4">
+                                                 {watchQrCode ? <img src={watchQrCode} alt="QR Code" className="h-24 w-24 object-contain border rounded-md bg-white p-1" /> : <div className="h-24 w-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 text-xs">No QR</div>}
+                                                <Input type="file" accept="image/*" onChange={handleQrCodeChange} className="max-w-sm" />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                            <div>
+                                                 <label className="block text-sm font-medium mb-1">Instructions (AR)</label>
+                                                 <Textarea {...register('paymentConfiguration.instapay.instructions.ar')} rows={3} dir="rtl" />
+                                            </div>
+                                            <div>
+                                                 <label className="block text-sm font-medium mb-1">Instructions (EN)</label>
+                                                 <Textarea {...register('paymentConfiguration.instapay.instructions.en')} rows={3} dir="ltr" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card>
+                                    <CardHeader className="pb-4 border-b border-gray-100 dark:border-gray-800">
+                                        <CardTitle className="flex items-center gap-2 text-lg">
+                                            <CreditCardIcon className="w-6 h-6 text-blue-600" />
+                                            Paymob Configuration
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4 pt-6">
+                                         <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-md border border-gray-200 dark:border-gray-700">
+                                            <Checkbox id="paymob-enabled" {...register('paymentConfiguration.paymob.enabled')} />
+                                            <label htmlFor="paymob-enabled" className="font-medium cursor-pointer">Enable Paymob (Card) Method</label>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">API Key (Secret)</label>
+                                            <Input type="password" {...register('paymentConfiguration.paymob.apiKey')} placeholder="sk_live_..." />
+                                        </div>
+                                    </CardContent>
+                                </Card>
                              </div>
                         )}
 

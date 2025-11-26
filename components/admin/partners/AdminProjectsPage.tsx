@@ -1,25 +1,27 @@
 
 
 
-
-
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+// FIX: Corrected import paths for services.
 import { getAllProjects, deleteProject as apiDeleteProject } from '../../../services/projects';
 import { getAllPartnersForAdmin } from '../../../services/partners';
 import { getAllProperties } from '../../../services/properties';
-import { useAdminTable } from '../../../hooks/useAdminTable';
+// FIX: Corrected import path for useAdminTable hook. It should be two levels up.
+import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Project, AdminPartner } from '../../../types';
 // FIX: Corrected import path for ConfirmationModal from 'ui' to 'shared'.
-import ConfirmationModal from '../../ui/ConfirmationModal';
+import ConfirmationModal from '../../shared/ConfirmationModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 // FIX: Corrected import path for Pagination from 'ui' to 'shared'.
 import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
+import { ResponsiveList } from '../../shared/ResponsiveList';
+import { Card, CardContent } from '../../ui/Card';
+import { BuildingIcon } from '../../ui/Icons';
 
 const AdminProjectsPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -63,6 +65,63 @@ const AdminProjectsPage: React.FC = () => {
         filterFns: {},
     });
 
+    const renderTable = (items: typeof projectsWithDetails) => (
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
+             <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>{t_admin.projects.table.project}</TableHead>
+                        <TableHead>{t_admin.projects.table.partner}</TableHead>
+                        <TableHead>{t_admin.projects.table.units}</TableHead>
+                        <TableHead>{t_admin.projects.table.actions}</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                        {isLoading ? (
+                        <TableRow><TableCell colSpan={4} className="text-center p-8">Loading...</TableCell></TableRow>
+                    ) : items.map(p => (
+                        <TableRow key={p.id}>
+                            <TableCell>
+                                <div className="flex items-center gap-3">
+                                    <img src={p.imageUrl} alt={p.name[language]} className="w-16 h-12 object-cover rounded-md"/>
+                                    <div className="font-medium text-gray-900 dark:text-white">{p.name[language]}</div>
+                                </div>
+                            </TableCell>
+                            <TableCell>{p.partnerName}</TableCell>
+                            <TableCell>{p.unitsCount}</TableCell>
+                            <TableCell>
+                                <Link to={`/admin/projects/edit/${p.id}`}><Button variant="link">{t.adminShared.edit}</Button></Link>
+                                <Button variant="link" className="text-red-500" onClick={() => setProjectToDelete(p)}>{t.adminShared.delete}</Button>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    );
+
+    const renderCard = (p: typeof projectsWithDetails[0]) => (
+        <Card key={p.id} className="overflow-hidden">
+            <div className="relative h-32 bg-gray-200">
+                 <img src={p.imageUrl} alt={p.name[language]} className="w-full h-full object-cover" />
+            </div>
+            <CardContent className="p-4">
+                <h3 className="font-bold text-gray-900 dark:text-white mb-1">{p.name[language]}</h3>
+                <p className="text-xs text-gray-500 mb-3">{p.partnerName}</p>
+                
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-4">
+                    <BuildingIcon className="w-4 h-4" />
+                    <span>{p.unitsCount} Units</span>
+                </div>
+
+                <div className="flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700 pt-3">
+                     <Link to={`/admin/projects/edit/${p.id}`}><Button variant="ghost" size="sm">{t.adminShared.edit}</Button></Link>
+                     <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-50" onClick={() => setProjectToDelete(p)}>{t.adminShared.delete}</Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+
     return (
         <div>
             {projectToDelete && (
@@ -81,37 +140,14 @@ const AdminProjectsPage: React.FC = () => {
                  <Input placeholder={t_admin.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="max-w-sm"/>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>{t_admin.projects.table.project}</TableHead>
-                            <TableHead>{t_admin.projects.table.partner}</TableHead>
-                            <TableHead>{t_admin.projects.table.units}</TableHead>
-                            <TableHead>{t_admin.projects.table.actions}</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                         {isLoading ? (
-                            <TableRow><TableCell colSpan={4} className="text-center p-8">Loading...</TableCell></TableRow>
-                        ) : paginatedItems.map(p => (
-                            <TableRow key={p.id}>
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <img src={p.imageUrl} alt={p.name[language]} className="w-16 h-12 object-cover rounded-md"/>
-                                        <div className="font-medium text-gray-900 dark:text-white">{p.name[language]}</div>
-                                    </div>
-                                </TableCell>
-                                <TableCell>{p.partnerName}</TableCell>
-                                <TableCell>{p.unitsCount}</TableCell>
-                                <TableCell>
-                                    <Link to={`/admin/projects/edit/${p.id}`}><Button variant="link">{t.adminShared.edit}</Button></Link>
-                                    <Button variant="link" className="text-red-500" onClick={() => setProjectToDelete(p)}>{t.adminShared.delete}</Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+            <ResponsiveList 
+                items={paginatedItems}
+                renderTable={renderTable}
+                renderCard={renderCard}
+                emptyState={<div className="text-center py-8 text-gray-500">No projects found.</div>}
+            />
+
+            <div className="mt-4">
                 <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>

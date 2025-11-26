@@ -1,4 +1,6 @@
 
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { Language } from '../../types';
 import FormField, { inputClasses, selectClasses } from '../ui/FormField';
@@ -14,9 +16,10 @@ interface ServiceRequestModalProps {
     partnerId: string;
     serviceTitle: string;
     propertyId?: string;
+    onSubmitData?: (data: { customerName: string; customerPhone: string; contactTime: string; customerNotes: string }) => void;
 }
 
-const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClose, partnerId, serviceTitle, propertyId }) => {
+const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClose, partnerId, serviceTitle, propertyId, onSubmitData }) => {
     const { language, t } = useLanguage();
     const t_modal = t.serviceRequestModal;
     const queryClient = useQueryClient();
@@ -59,7 +62,12 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        mutation.mutate({ ...formData, partnerId, serviceTitle, propertyId, serviceType: 'property' });
+        
+        if (onSubmitData) {
+            onSubmitData(formData);
+        } else {
+            mutation.mutate({ ...formData, partnerId, serviceTitle, propertyId, serviceType: 'property' });
+        }
     };
 
     return (
@@ -89,7 +97,7 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
                     </FormField>
                     <div className="flex justify-end pt-4">
                         <button type="submit" disabled={mutation.isPending} className="bg-amber-500 text-gray-900 font-bold px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50">
-                            {mutation.isPending ? '...' : t_modal.submitButton}
+                            {mutation.isPending && !onSubmitData ? '...' : (onSubmitData ? (language === 'ar' ? 'متابعة للدفع' : 'Proceed to Payment') : t_modal.submitButton)}
                         </button>
                     </div>
                 </form>

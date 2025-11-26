@@ -1,10 +1,10 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin, updatePartnerStatus, deletePartner } from '../../../services/partners';
 import { getPlans } from '../../../services/plans';
-import { useAdminTable } from '../../../hooks/useAdminTable';
+// FIX: Corrected import path for useAdminTable hook.
+import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import type { AdminPartner, PartnerStatus } from '../../../types';
 import AdminPartnerEditModal from './AdminPartnerEditModal';
@@ -243,7 +243,7 @@ const AdminPartnersPage: React.FC = () => {
             {partnerToEdit && <AdminPartnerEditModal partner={partnerToEdit} onClose={() => { setPartnerToEdit(null); setSearchParams({}); }} />}
             {isAddModalOpen && <AdminPartnerFormModal onClose={() => setIsAddModalOpen(false)} />}
             
-            {actionToConfirm && (
+            {actionToConfirm && selectedPartners.length > 0 && (
                 <ConfirmationModal
                     isOpen={!!actionToConfirm}
                     onClose={() => setActionToConfirm(null)}

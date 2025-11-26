@@ -1,10 +1,8 @@
-
-
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin, deletePartner } from '../../../services/partners';
-import { useAdminTable } from '../../../hooks/useAdminTable';
+// FIX: Corrected import path for useAdminTable hook.
+import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { AdminPartner, PartnerStatus, PartnerType, Role } from '../../../types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
@@ -31,11 +29,16 @@ const AdminUsersPage: React.FC = () => {
 
     const internalUserRoles = [
         Role.SUPER_ADMIN,
+        Role.DECORATION_MANAGER,
+        Role.PLATFORM_FINISHING_MANAGER,
+        Role.FINISHING_MARKET_MANAGER,
+        Role.PLATFORM_REAL_ESTATE_MANAGER,
+        Role.REAL_ESTATE_MARKET_MANAGER,
+        Role.PARTNER_RELATIONS_MANAGER,
+        Role.CONTENT_MANAGER,
         Role.SERVICE_MANAGER,
         Role.CUSTOMER_RELATIONS_MANAGER,
         Role.LISTINGS_MANAGER,
-        Role.PARTNER_RELATIONS_MANAGER,
-        Role.CONTENT_MANAGER,
     ];
 
     const users = React.useMemo(() => (partners || []).filter(p => internalUserRoles.includes(p.role)), [partners]);

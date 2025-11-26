@@ -48,7 +48,7 @@ export const arTranslations = {
         "analytics": "التحليلات",
         "platformProperties": "عقارات المنصة",
         "platformDecorations": "خدمات الديكور",
-        "platformFinishing": "باقات التشطيب"
+        "platformFinishing": "إدارة تشطيبات المنصة"
     },
     "partnerInfo": {
         "united-development": { "name": "الشركة المتحدة للتطوير", "description": "شريكنا الاستراتيجي في تطوير المشاريع السكنية الفاخرة." },
@@ -68,7 +68,7 @@ export const arTranslations = {
         "admin-user": { "name": "المدير العام", "description": "يمتلك صلاحيات كاملة على المنصة." },
         "decoration-manager-1": { "name": "مدير قسم الديكور", "description": "مسؤول عن معرض الديكورات والطلبات الخاصة." },
         "platform-finishing-manager-1": { "name": "مدير تشطيبات المنصة", "description": "مسؤول عن باقات التشطيب الداخلية والتسعير." },
-        "finishing-market-manager-1": { "name": "مدير سوق التشطيبات", "description": "متابعة شركات ومقدمي خدمات التشطيب الخارجيين." },
+        "finishing-market-manager-1": { "name": "مدير الشركاء والمشاريع", "description": "إدارة الشركاء والمشاريع المعروضة على المنصة." },
         "platform-real-estate-manager-1": { "name": "مدير عقارات المنصة", "description": "إدارة العقارات المملوكة للمنصة وخدمات الوساطة." },
         "real-estate-market-manager-1": { "name": "مدير سوق العقارات", "description": "متابعة طلبات العرض والاستفسارات العامة." },
         "partner-relations-manager-1": { "name": "مدير علاقات الشركاء", "description": "مسؤول عن مراجعة طلبات الشركاء وإدارة حساباتهم." },
@@ -652,7 +652,7 @@ export const arTranslations = {
             "automationRules": "قواعد الأتمتة",
             "platformProperties": "عقارات المنصة",
             "platformDecorations": "خدمات الديكور",
-            "platformFinishing": "باقات التشطيب",
+            "platformFinishing": "إدارة تشطيبات المنصة",
              "aiEstimatorSettings": "إعدادات المقايسة الذكية"
         },
         "requestsTriage": {
@@ -898,6 +898,14 @@ export const arTranslations = {
                 "footer": "تذييل الصفحة"
             }
         },
+        "propertyTable": {
+            "image": "الصورة",
+            "title": "العنوان",
+            "partner": "الشريك",
+            "liveStatus": "حالة العرض",
+            "actions": "إجراءات",
+            "edit": "تعديل"
+        },
         "editPartnerTitle": "تعديل الشريك",
         "changePlan": "تغيير الباقة",
         "updateSubscription": "تحديث تاريخ انتهاء الاشتراك",
@@ -963,7 +971,7 @@ export const arTranslations = {
             "admin": "المشرف العام",
             "decoration_manager": "مدير قسم الديكور",
             "platform_finishing_manager": "مدير تشطيبات المنصة (داخلي)",
-            "finishing_market_manager": "مدير سوق التشطيبات (شركاء)",
+            "finishing_market_manager": "مدير الشركاء والمشاريع",
             "platform_real_estate_manager": "مدير عقارات المنصة (وساطة)",
             "real_estate_market_manager": "مدير سوق العقارات (عام)",
             "partner_relations_manager": "مدير علاقات الشركاء",
@@ -980,7 +988,7 @@ export const arTranslations = {
         "roleDescriptions": {
             "DECORATION_MANAGER": "إدارة محتوى وطلبات قسم الديكور.",
             "PLATFORM_FINISHING_MANAGER": "إدارة باقات وطلبات التشطيب الخاصة بالمنصة.",
-            "FINISHING_MARKET_MANAGER": "متابعة شركات ومقدمي خدمات التشطيب الخارجيين.",
+            "FINISHING_MARKET_MANAGER": "إدارة الشركاء والمشاريع المعروضة وعلاقات الشركاء.",
             "PLATFORM_REAL_ESTATE_MANAGER": "إدارة العقارات المعروضة مباشرة من المنصة (الوساطة).",
             "REAL_ESTATE_MARKET_MANAGER": "متابعة طلبات العرض والاستفسارات العقارية العامة.",
             "PARTNER_RELATIONS_MANAGER": "إدارة طلبات الشراكة وعلاقات الشركاء.",
@@ -1229,7 +1237,7 @@ export const enTranslations = {
         "analytics": "Analytics",
         "platformProperties": "Platform Properties",
         "platformDecorations": "Decor Services",
-        "platformFinishing": "Finishing Packages"
+        "platformFinishing": "Platform Finishing"
     },
     "partnerInfo": {
         "united-development": { "name": "United Development Co.", "description": "Our strategic partner in developing luxury residential projects." },
@@ -1249,7 +1257,7 @@ export const enTranslations = {
         "admin-user": { "name": "Super Admin", "description": "Has full access to the platform." },
         "decoration-manager-1": { "name": "Decorations Manager", "description": "Responsible for decorations portfolio and custom requests." },
         "platform-finishing-manager-1": { "name": "Platform Finishing Mgr", "description": "Responsible for internal finishing packages and pricing." },
-        "finishing-market-manager-1": { "name": "Finishing Market Mgr", "description": "Overseeing external finishing partners and providers." },
+        "finishing-market-manager-1": { "name": "Partners & Projects Mgr", "description": "Manages partners and projects on the platform." },
         "platform-real-estate-manager-1": { "name": "Platform Real Estate Mgr", "description": "Managing platform-owned listings and brokerage services." },
         "real-estate-market-manager-1": { "name": "Real Estate Market Mgr", "description": "Monitoring listing requests and general inquiries." },
         "partner-relations-manager-1": { "name": "Partner Relations Mgr", "description": "Responsible for reviewing partner applications and managing accounts." },
@@ -1749,7 +1757,13 @@ export const enTranslations = {
             "image": "Image", "title": "Title", "category": "Category", "actions": "Actions", "edit": "Edit", "delete": "Delete", "noWorks": "You haven't added any works yet."
         },
         "propertyForm": {
-            "addTitle": "Add New Property", "editTitle": "Edit Property", "propertyTitleAr": "Title (Arabic)", "propertyTitleEn": "Title (English)", "addressAr": "Address (Arabic)", "addressEn": "Address (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "mainImage": "Main Image", "galleryImages": "Gallery Images", "saveProperty": "Save Property", "addSuccess": "Property added successfully!", "updateSuccess": "Property updated successfully!", "isInCompound": "In Compound", "realEstateFinanceAvailable": "Mortgage Available", "deliveryInfo": "Delivery Info", "immediateDelivery": "Immediate", "futureDelivery": "Future", "deliveryDate": "Delivery Date (YYYY-MM)", "installmentsInfo": "Installments Info", "installmentsAvailable": "Installments Available", "downPayment": "Down Payment", "monthlyInstallment": "Monthly Installment", "years": "Years", "amenities": "Amenities", "amenitiesAr": "Amenities (Arabic)", "amenitiesEn": "Amenities (English)", "pricePerMeter": "Price/Meter (Calc)",
+            "addTitle": "Add New Property", "editTitle": "Edit Property", "propertyTitleAr": "Title (Arabic)", "propertyTitleEn": "Title (English)", "addressAr": "Address (Arabic)", "addressEn": "Address (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "mainImage": "Main Image", "galleryImages": "Gallery Images", "saveProperty": "Save Property", "addSuccess": "Property added successfully!", "updateSuccess": "Property updated successfully!", "isInCompound": "In Compound", "realEstateFinanceAvailable": "Mortgage Available", "deliveryInfo": "Delivery Info", "immediateDelivery": "Immediate", "futureDelivery": "Future", "deliveryDate": "Delivery Date (YYYY-MM)", "installmentsInfo": "Installments Info", "installmentsAvailable": "Installments Available", "downPayment": "Down Payment",
+            "monthlyInstallment": "Monthly Installment",
+            "years": "Years",
+            "amenities": "Amenities",
+            "amenitiesAr": "Amenities (Arabic)",
+            "amenitiesEn": "Amenities (English)",
+            "pricePerMeter": "Price/Meter (Calc)",
             "inquiryRouting": "Inquiry Routing",
             "useDefaultSettings": "Use Default Partner Settings",
             "customizeForProperty": "Customize Contact for Property",
@@ -1833,7 +1847,7 @@ export const enTranslations = {
             "automationRules": "Automation Rules",
             "platformProperties": "Platform Properties",
             "platformDecorations": "Decor Services",
-            "platformFinishing": "Finishing Packages",
+            "platformFinishing": "Platform Finishing",
              "aiEstimatorSettings": "AI Estimator Settings"
         },
         "requestsTriage": {
@@ -2152,7 +2166,7 @@ export const enTranslations = {
             "admin": "Super Admin",
             "decoration_manager": "Decorations Manager",
             "platform_finishing_manager": "Platform Finishing Mgr (Internal)",
-            "finishing_market_manager": "Finishing Market Mgr (Partners)",
+            "finishing_market_manager": "Partners & Projects Mgr",
             "platform_real_estate_manager": "Platform Real Estate Mgr (Brokerage)",
             "real_estate_market_manager": "Real Estate Market Mgr (General)",
             "partner_relations_manager": "Partner Relations Manager",
@@ -2169,7 +2183,7 @@ export const enTranslations = {
         "roleDescriptions": {
             "DECORATION_MANAGER": "Manages decoration content and requests.",
             "PLATFORM_FINISHING_MANAGER": "Manages platform finishing packages and requests.",
-            "FINISHING_MARKET_MANAGER": "Oversees external finishing partners and providers.",
+            "FINISHING_MARKET_MANAGER": "Manages listed partners, projects, and partner relations.",
             "PLATFORM_REAL_ESTATE_MANAGER": "Manages properties listed directly by the platform (Brokerage).",
             "REAL_ESTATE_MARKET_MANAGER": "Oversees listing requests and general real estate inquiries.",
             "PARTNER_RELATIONS_MANAGER": "Manages partner applications and relationships.",
@@ -2260,8 +2274,8 @@ export const enTranslations = {
         "startDate": "From Date",
         "endDate": "To Date",
         "step4": "Step 4: Export",
-        "exportCSV": "Export CSV",
-        "exportPDF": "Export PDF",
+        "exportCSV": "Export as CSV",
+        "exportPDF": "Export as PDF",
         "noColumnsSelected": "Please select at least one column."
     },
     "privacyPolicyPage": {

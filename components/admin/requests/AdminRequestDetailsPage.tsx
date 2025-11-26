@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -299,7 +300,7 @@ const AdminRequestDetailsPage: React.FC = () => {
                              <ConversationThread 
                                 lead={request.type === RequestType.LEAD ? (request.payload as any) : { messages: (request.payload as any).messages || [] } } 
                                 requestId={request.id} 
-                                onMessageSent={() => queryClient.invalidateQueries({ queryKey: ['request', requestId] })}
+                                onMessageSent={() => queryClient.invalidateQueries({ queryKey: ['request', requestId] })} 
                             />
                         </CardContent>
                     </Card>

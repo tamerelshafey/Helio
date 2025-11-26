@@ -1,6 +1,9 @@
+
+
+
 import React from 'react';
 import { useSiteContent } from '../../hooks/useSiteContent';
-import { HelioLogo } from '../ui/Icons';
+import { HelioLogo } from '../ui/HelioLogo';
 
 interface SiteLogoProps {
     className?: string;

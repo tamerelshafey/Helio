@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+
+import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import type { Language, PortfolioItem, AdminPartner } from '../../types';
+import type { Language, AdminPartner } from '../../types';
 import BannerDisplay from '../shared/BannerDisplay';
 import SEO from '../shared/SEO';
 import { usePartners } from '../../hooks/usePartners';
@@ -8,18 +9,22 @@ import { useSiteContent } from '../../hooks/useSiteContent';
 import { useLanguage } from '../shared/LanguageContext';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
-import CTA from '../home/CTA';
 import { useFavorites } from '../shared/FavoritesContext';
 import { useToast } from '../shared/ToastContext';
 import { HeartIcon, HeartIconSolid, ShareIcon } from '../ui/Icons';
 
+interface PricingTier {
+    unitType: { ar: string; en: string };
+    areaRange: { ar: string; en: string };
+    price: number;
+}
+
 const ServicePackageCard: React.FC<{
-    service: any; // Type from siteContent is complex
-    onRequest: (title: string) => void;
+    service: any;
+    onBookTier: (serviceTitle: string, tier: PricingTier) => void;
     language: Language;
     t: any;
-    buttonText: string;
-}> = ({ service, onRequest, language, t, buttonText }) => {
+}> = ({ service, onBookTier, language, t }) => {
     const { isFavorite, toggleFavorite } = useFavorites();
     const { showToast } = useToast();
     const serviceId = service.title.en;
@@ -33,31 +38,36 @@ const ServicePackageCard: React.FC<{
     };
 
     return (
-        <Card className="flex flex-col h-full p-0">
+        <Card className="flex flex-col h-full p-0 border-2 border-transparent hover:border-amber-500/30 transition-all duration-300">
             <CardContent className="p-8 flex flex-col flex-grow relative">
                  <button onClick={handleFavoriteClick} className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors z-10" aria-label={isFav ? t.favoritesPage.removeFromFavorites : t.favoritesPage.addToFavorites}>
                     {isFav ? <HeartIconSolid className="w-6 h-6 text-red-500" /> : <HeartIcon className="w-6 h-6 text-gray-500" />}
                 </button>
                 <h3 className="text-2xl font-bold text-amber-600 dark:text-amber-400 mb-4">{service.title[language]}</h3>
-                <p className="text-gray-600 dark:text-gray-400 flex-grow mb-6">{service.description[language]}</p>
+                <p className="text-gray-600 dark:text-gray-400 flex-grow mb-8 leading-relaxed">{service.description[language]}</p>
 
-                <div className="space-y-3 mb-6">
-                    {(service.pricingTiers || []).map((tier: any, index: number) => (
-                        <div key={index} className="flex justify-between items-baseline p-3 bg-gray-50 dark:bg-gray-800/50 rounded-md">
+                <div className="space-y-4">
+                    {(service.pricingTiers || []).map((tier: PricingTier, index: number) => (
+                        <div key={index} className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700 gap-4">
                             <div>
-                                <p className="font-semibold text-gray-800 dark:text-gray-200">{tier.unitType[language]}</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">{tier.areaRange[language]}</p>
+                                <p className="font-bold text-gray-800 dark:text-gray-200">{tier.unitType[language]}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{tier.areaRange[language]}</p>
                             </div>
-                            <p className="font-bold text-gray-900 dark:text-white">
-                                {tier.price.toLocaleString(language)} EGP
-                            </p>
+                            <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
+                                <p className="font-bold text-lg text-gray-900 dark:text-white whitespace-nowrap">
+                                    {tier.price.toLocaleString(language)} EGP
+                                </p>
+                                <Button 
+                                    size="sm" 
+                                    onClick={() => onBookTier(service.title[language], tier)}
+                                    className="whitespace-nowrap bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold"
+                                >
+                                    {language === 'ar' ? 'حجز الآن' : 'Book Now'}
+                                </Button>
+                            </div>
                         </div>
                     ))}
                 </div>
-
-                <Button onClick={() => onRequest(service.title[language])} className="w-full mt-auto">
-                    {buttonText}
-                </Button>
             </CardContent>
         </Card>
     );
@@ -101,7 +111,6 @@ const PartnerCompanyCard: React.FC<{ partner: AdminPartner; t: any }> = ({ partn
 };
 
 const ServiceProviderCard: React.FC<{ partner: AdminPartner; onRequest: (title: string, partnerId: string) => void; t: any; buttonText: string }> = ({ partner, onRequest, t, buttonText }) => {
-    const { language } = useLanguage();
     const localizedPartner = t.partnerInfo[partner.id];
 
     if (!localizedPartner) return null;
@@ -127,12 +136,13 @@ const FinishingPage: React.FC = () => {
     const { language, t } = useLanguage();
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const [activeServiceIndex, setActiveServiceIndex] = useState(0);
 
     const { data: partners, isLoading: isLoadingPartners } = usePartners();
     const { data: siteContent, isLoading: isLoadingContent } = useSiteContent();
 
     const isLoading = isLoadingPartners || isLoadingContent;
-
+    
     // Use dynamic content if available, fallback to translation file
     const content = siteContent?.finishingPage?.[language] || t.finishingPage;
 
@@ -142,6 +152,19 @@ const FinishingPage: React.FC = () => {
                 serviceTitle,
                 partnerId: partnerId,
                 serviceType: 'finishing',
+            },
+        });
+    };
+    
+    const handleBookTier = (serviceTitle: string, tier: PricingTier) => {
+        // Redirect to Service Request Page directly with tier info
+        navigate('/request-service', {
+            state: {
+                serviceTitle,
+                partnerId: 'admin-user',
+                serviceType: 'finishing',
+                tier: tier, // Pass the tier details
+                isBooking: true
             },
         });
     };
@@ -193,6 +216,7 @@ const FinishingPage: React.FC = () => {
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
             <SEO title={`${t.nav.finishing} | ONLY HELIO`} description={content.heroSubtitle} />
+            
             {/* Hero Section */}
             <section
                 className="relative h-[50vh] flex items-center justify-center text-center bg-cover bg-center"
@@ -222,7 +246,7 @@ const FinishingPage: React.FC = () => {
 
             <BannerDisplay location="finishing" />
 
-            {/* Services Packages Section */}
+            {/* Services Packages Section (Tabbed) */}
             <section className="py-20">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-12 max-w-3xl mx-auto">
@@ -230,17 +254,38 @@ const FinishingPage: React.FC = () => {
                         <p className="text-lg text-gray-500 dark:text-gray-400 mt-4">{content.servicesSubtitle}</p>
                          <p className="text-md text-gray-600 dark:text-gray-300 mt-2">{content.servicesIntro}</p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+
+                    {/* Service Tabs */}
+                    <div className="flex flex-wrap justify-center gap-4 mb-12" role="tablist">
                         {services.map((service, index) => (
-                            <ServicePackageCard
+                            <button
                                 key={index}
-                                service={service}
-                                onRequest={handleRequestService}
-                                language={language}
-                                t={t}
-                                buttonText={t.finishingPage.requestButton}
-                            />
+                                role="tab"
+                                aria-selected={activeServiceIndex === index}
+                                onClick={() => setActiveServiceIndex(index)}
+                                className={`px-6 py-3 rounded-full font-bold text-sm md:text-base transition-all duration-200 outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 ${
+                                    activeServiceIndex === index
+                                        ? 'bg-amber-500 text-white shadow-lg transform -translate-y-1'
+                                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                }`}
+                            >
+                                {service.title[language]}
+                            </button>
                         ))}
+                    </div>
+
+                    {/* Active Service Card */}
+                    <div className="max-w-5xl mx-auto min-h-[400px]">
+                        {services[activeServiceIndex] && (
+                             <div key={activeServiceIndex} className="animate-fadeIn">
+                                <ServicePackageCard
+                                    service={services[activeServiceIndex]}
+                                    onBookTier={handleBookTier}
+                                    language={language}
+                                    t={t}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>

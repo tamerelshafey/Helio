@@ -8,6 +8,7 @@ import { getAllPartnersForAdmin } from '../../services/partners';
 import { exportToCsv, exportToPdf } from '../../utils/exportUtils';
 import { inputClasses, selectClasses } from '../ui/FormField';
 import { useLanguage } from '../shared/LanguageContext';
+import { useToast } from '../shared/ToastContext';
 import { Checkbox } from '../ui/Checkbox';
 import { Button } from '../ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
@@ -32,6 +33,7 @@ interface FormData {
 
 const AdminReportsPage: React.FC = () => {
     const { language, t } = useLanguage();
+    const { showToast } = useToast();
     const t_reports = t.adminReports;
     
     const { register, watch, setValue } = useForm<FormData>({
@@ -177,7 +179,7 @@ const AdminReportsPage: React.FC = () => {
 
     const handleExport = (type: 'csv' | 'pdf') => {
         if (selectedColumns.length === 0) {
-            alert(t_reports.noColumnsSelected);
+            showToast(t_reports.noColumnsSelected, 'error');
             return;
         }
         

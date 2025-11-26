@@ -1,3 +1,6 @@
+
+
+
 import React, { useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -110,7 +113,8 @@ const PropertyDetailsPage: React.FC = () => {
     
     const pageTitle = `${property.title[language]} | ONLY HELIO`;
     const pageDescription = property.description[language].substring(0, 160);
-    const amenityKeys = property.amenities[language] as (keyof typeof t_page.amenitiesIncluded)[];
+    // FIX: Removed the incorrect type assertion which caused a type error. The original `string[]` type is correct.
+    const amenityKeys = property.amenities[language];
     const allImages = [property.imageUrl, ...property.gallery].filter(Boolean);
 
 

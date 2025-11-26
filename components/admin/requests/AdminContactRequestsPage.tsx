@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -6,7 +5,8 @@ import {
     updateContactRequestStatus,
     deleteContactRequest,
 } from '../../../services/contactRequests';
-import { useAdminTable } from '../../../hooks/useAdminTable';
+// FIX: Corrected import path for useAdminTable hook.
+import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 import Pagination from '../../shared/Pagination';
@@ -58,7 +58,7 @@ const AdminContactRequestsPage: React.FC = () => {
         data: requests,
         itemsPerPage: 10,
         initialSort: { key: 'createdAt', direction: 'descending' },
-        searchFn: (item: ContactRequest, term) => item.name.toLowerCase().includes(term) || item.phone.includes(term),
+        searchFn: (item: ContactRequest, term: string) => item.name.toLowerCase().includes(term) || item.phone.includes(term),
         filterFns: {},
     });
 

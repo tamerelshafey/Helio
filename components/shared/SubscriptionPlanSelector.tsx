@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../../types';
 import { CheckCircleIcon } from '../ui/Icons';
@@ -26,7 +27,8 @@ const SubscriptionPlanSelector: React.FC<SubscriptionPlanSelectorProps> = ({ sel
         <div>
             <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-10">{t_plans.title}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {(Object.keys(plansForType) as (keyof typeof plansForType)[]).map(planKey => {
+                {/* FIX: Removed invalid type assertion `as (keyof typeof plansForType)[]` from Object.keys. */}
+                {Object.keys(plansForType).map(planKey => {
                     const plan = (plansForType as any)[planKey][language];
                     if (!plan) return null; // Defensive check
                     const isSelected = selectedPlan === planKey;

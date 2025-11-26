@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus } from '../../../types';
@@ -10,7 +9,8 @@ import { updateLead, deleteLead as apiDeleteLead, getAllLeads } from '../../../s
 import { useQuery } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../../../services/partners';
 import Pagination from '../../shared/Pagination';
-import { useAdminTable } from '../../../hooks/useAdminTable';
+// FIX: Corrected import path for useAdminTable hook.
+import { useAdminTable } from '../../hooks/useAdminTable';
 import ConversationThread from '../../shared/ConversationThread';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';

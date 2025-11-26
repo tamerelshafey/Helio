@@ -107,7 +107,7 @@ const AdminRolesPage: React.FC = () => {
                                                 htmlFor={`${role}-${permission}`}
                                                 className="text-sm font-medium leading-none cursor-pointer"
                                             >
-                                                {permission.replace(/_/g, ' ').toLowerCase()}
+                                                {(permission as string).replace(/_/g, ' ').toLowerCase()}
                                             </label>
                                         </div>
                                     ))}

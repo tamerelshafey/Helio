@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus } from '../../../types';
@@ -9,7 +7,8 @@ import { inputClasses } from '../../ui/FormField';
 // FIX: Corrected import path for Pagination from 'ui' to 'shared'.
 import Pagination from '../../shared/Pagination';
 import { useLanguage } from '../../shared/LanguageContext';
-import { useAdminTable } from '../../../hooks/useAdminTable';
+// FIX: Corrected import path for useAdminTable hook.
+import { useAdminTable } from '../../hooks/useAdminTable';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import { Card, CardContent, CardFooter } from '../../ui/Card';

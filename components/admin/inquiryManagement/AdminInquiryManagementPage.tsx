@@ -1,11 +1,13 @@
 
-import React, { useState, useMemo } from 'react';
+
+import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin, updatePartnerAdmin } from '../../../services/partners';
-import { useAdminTable } from '../../../hooks/useAdminTable';
+// FIX: Corrected import path for `useAdminTable` hook.
+import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { useToast } from '../../shared/ToastContext';
-import { AdminPartner } from '../../../types';
+import { AdminPartner, PartnerType } from '../../../types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';

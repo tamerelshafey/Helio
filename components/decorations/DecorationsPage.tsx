@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Language, PortfolioItem } from '../../types';
@@ -8,7 +9,7 @@ import { useDecorationCategories } from '../../hooks/useDecorationCategories';
 import { useLanguage } from '../shared/LanguageContext';
 import { useFavorites } from '../shared/FavoritesContext';
 import { useToast } from '../shared/ToastContext';
-import { HeartIcon, HeartIconSolid, ShareIcon, WhatsAppIcon } from '../ui/Icons';
+import { HeartIcon, HeartIconSolid, ShareIcon, WhatsAppIcon, ShoppingCartIcon } from '../ui/Icons';
 import { Button } from '../ui/Button';
 import { useSiteContent } from '../../hooks/useSiteContent';
 
@@ -61,13 +62,18 @@ const DecorationsPage: React.FC = () => {
     }, [allWorks, activeTab, language]);
 
     const openRequestPage = (work: PortfolioItem) => {
-        const serviceTitle = `${t_decor_modal.reference} ${work.title[language]}`;
+        const isBuyNow = work.availability === 'In Stock' && work.price;
+        const serviceTitle = isBuyNow 
+            ? `${language === 'ar' ? 'شراء:' : 'Purchase:'} ${work.title[language]}`
+            : `${t_decor_modal.reference} ${work.title[language]}`;
+            
         navigate('/request-service', {
             state: {
                 serviceTitle,
                 partnerId: 'admin-user',
                 workItem: work,
-                serviceType: 'decorations'
+                serviceType: 'decorations',
+                isPurchase: isBuyNow
             }
         });
     };
@@ -188,12 +194,15 @@ const DecorationsPage: React.FC = () => {
                            ))
                        ) : filteredWorks.map((work, index) => {
                             const isFav = isFavorite(work.id, 'portfolio');
+                            const isBuyNow = work.availability === 'In Stock' && work.price;
+                            
                             const handleFavoriteClick = (e: React.MouseEvent) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 toggleFavorite(work.id, 'portfolio');
                                 showToast(isFav ? t.favoritesPage.removedFromFavorites : t.favoritesPage.addedToFavorites, 'success');
                             };
+                            
                            return (
                                <div key={`${work.imageUrl}-${index}`} className="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden flex flex-col transform hover:-translate-y-2 transition-transform duration-300">
                                    <div className="relative">
@@ -220,9 +229,10 @@ const DecorationsPage: React.FC = () => {
                                        </div>
                                        <button 
                                            onClick={() => openRequestPage(work)}
-                                           className="w-full mt-auto bg-amber-500 text-gray-900 font-bold px-4 py-3 rounded-lg hover:bg-amber-600 transition-colors"
+                                           className={`w-full mt-auto font-bold px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 ${isBuyNow ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-amber-500 hover:bg-amber-600 text-gray-900'}`}
                                        >
-                                           {t_decor_page.inquireNow}
+                                           {isBuyNow && <ShoppingCartIcon className="w-4 h-4" />}
+                                           {isBuyNow ? (language === 'ar' ? 'شراء الآن' : 'Buy Now') : t_decor_page.inquireNow}
                                        </button>
                                    </div>
                                </div>

@@ -1,8 +1,10 @@
 
+
+
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
-import type { Language, ManagementContact, OfficialDocument, PartnerRequest, SubscriptionPlan, PartnerType } from '../../types';
+import type { PartnerRequest, PartnerType, SubscriptionPlan } from '../../types';
 import FormField from '../ui/FormField';
 import { CheckCircleIcon, CloseIcon, ClipboardDocumentListIcon } from '../ui/Icons';
 import { SiteLogo } from '../shared/SiteLogo';
@@ -56,17 +58,25 @@ const Stepper: React.FC<{ steps: string[], currentStep: number }> = ({ steps, cu
     );
 };
 
+// Hardcoded prices for demo purposes
+const PLAN_PRICES: Record<string, Record<string, number>> = {
+    developer: { basic: 0, professional: 5000, elite: 15000 },
+    agency: { basic: 0, professional: 2000, elite: 5000 },
+    finishing: { commission: 0, professional: 3000, elite: 8000 },
+};
+
 const RegisterPage: React.FC = () => {
     const { language, t } = useLanguage();
     const t_page = t.partnerRequestForm;
     const { showToast } = useToast();
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { data: plans, isLoading: isLoadingPlans } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
 
     const [currentStep, setCurrentStep] = useState(1);
     const [formSubmitted, setFormSubmitted] = useState(false);
     
-    const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<PartnerRequest>({
+    const { register, handleSubmit, control, watch, setValue, getValues, formState: { errors } } = useForm<PartnerRequest>({
         defaultValues: {
             companyType: '' as any // Ensure no default selection
         }
@@ -78,6 +88,7 @@ const RegisterPage: React.FC = () => {
         mutationFn: (data: any) => addRequest(RequestType.PARTNER_APPLICATION, data),
         onSuccess: () => {
             setFormSubmitted(true);
+            window.scrollTo(0, 0);
         },
         onError: (error) => {
             console.error("Submission failed:", error);
@@ -109,10 +120,30 @@ const RegisterPage: React.FC = () => {
     const prevStep = () => setCurrentStep(prev => prev - 1);
 
     const onSubmit = (data: PartnerRequest) => {
-        mutation.mutate({
-            requesterInfo: { name: data.contactName, phone: data.contactPhone, email: data.contactEmail },
-            payload: data,
-        });
+        // Check if payment is needed
+        const typeKey = data.companyType as string;
+        const planKey = data.subscriptionPlan as string;
+        const price = PLAN_PRICES[typeKey]?.[planKey] || 0;
+
+        if (price > 0) {
+            // Paid Plan: Redirect to Payment Page with data
+            navigate('/payment', { 
+                state: { 
+                    amount: price,
+                    description: `Partner Subscription: ${data.companyType} (${data.subscriptionPlan})`,
+                    type: 'subscription_fee',
+                    userId: data.contactEmail, // Temp ID
+                    userName: data.companyName,
+                    data: data // Pass full form data to be processed after payment
+                } 
+            });
+        } else {
+            // Free plan, proceed directly
+            mutation.mutate({
+                requesterInfo: { name: data.contactName, phone: data.contactPhone, email: data.contactEmail },
+                payload: data,
+            });
+        }
     };
     
     if (formSubmitted) {
@@ -236,13 +267,27 @@ const RegisterPage: React.FC = () => {
                                         <Input type="file" multiple onChange={(e) => handleFileChange(e, 'documents')} />
                                     </div>
                                 </FormField>
+
+                                {selectedPlan && companyType && PLAN_PRICES[companyType]?.[selectedPlan] > 0 && (
+                                    <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 mt-6">
+                                        <p className="font-semibold text-amber-800">Payment Required</p>
+                                        <p className="text-sm text-amber-700">
+                                            You have selected the <strong>{selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)}</strong> plan. 
+                                            A payment of <strong>{PLAN_PRICES[companyType][selectedPlan].toLocaleString()} EGP</strong> will be required upon submission.
+                                        </p>
+                                    </div>
+                                )}
                             </section>
                         )}
 
                         <div className="mt-12 flex justify-between">
                             {currentStep > 1 && <Button type="button" variant="secondary" onClick={prevStep}>{t_page.back}</Button>}
                             {currentStep < steps.length && <Button type="button" onClick={nextStep} disabled={!companyType || !selectedPlan}>{t_page.next}</Button>}
-                            {currentStep === steps.length && <Button type="submit" isLoading={mutation.isPending}>{t_page.submitRequest}</Button>}
+                            {currentStep === steps.length && <Button type="submit" isLoading={mutation.isPending}>
+                                {selectedPlan && companyType && PLAN_PRICES[companyType]?.[selectedPlan] > 0 
+                                    ? (language === 'ar' ? 'متابعة للدفع' : 'Proceed to Payment') 
+                                    : t_page.submitRequest}
+                            </Button>}
                         </div>
                     </form>
                  </div>

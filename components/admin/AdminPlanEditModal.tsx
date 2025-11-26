@@ -1,6 +1,8 @@
 
 
-import React, { useState, useEffect, useRef } from 'react';
+
+
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { SubscriptionPlan, PlanCategory, SubscriptionPlanDetails } from '../../types';
 import FormField, { inputClasses } from '../ui/FormField';
 import { CloseIcon } from '../ui/Icons';
@@ -11,11 +13,13 @@ import { useLanguage } from '../shared/LanguageContext';
 interface AdminPlanEditModalProps {
     planType: PlanCategory;
     planKey: SubscriptionPlan;
+    // FIX: Added optional subCategory to props to handle 'individual' plan types ('sale' or 'rent').
+    subCategory?: 'sale' | 'rent';
     onClose: () => void;
     onSave: () => void;
 }
 
-const AdminPlanEditModal: React.FC<AdminPlanEditModalProps> = ({ planType, planKey, onClose, onSave }) => {
+const AdminPlanEditModal: React.FC<AdminPlanEditModalProps> = ({ planType, planKey, subCategory, onClose, onSave }) => {
     const { language, t } = useLanguage();
     const { data: plans } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
     const t_page = t.adminDashboard.plans;
@@ -28,7 +32,9 @@ const AdminPlanEditModal: React.FC<AdminPlanEditModalProps> = ({ planType, planK
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const plan = plans?.[planType]?.[planKey as keyof typeof plans[typeof planType]];
+        const planSource = subCategory ? (plans as any)?.[planType]?.[subCategory] : plans?.[planType];
+        const plan = planSource?.[planKey as keyof typeof planSource];
+
         if (plan) {
             const typedPlan = plan as { ar: SubscriptionPlanDetails, en: SubscriptionPlanDetails };
             setArData({
@@ -43,7 +49,7 @@ const AdminPlanEditModal: React.FC<AdminPlanEditModalProps> = ({ planType, planK
             });
             setCommissionRate(String(typedPlan.en.commissionRate || ''));
         }
-    }, [planType, planKey, plans]);
+    }, [planType, planKey, subCategory, plans]);
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -62,17 +68,22 @@ const AdminPlanEditModal: React.FC<AdminPlanEditModalProps> = ({ planType, planK
                 features: enData.features.split('\n').filter(f => f.trim() !== ''),
                 commissionRate: rate,
             }
-        });
+        }, subCategory);
         setLoading(false);
         onSave();
     };
+    
+    const planName = useMemo(() => {
+        const planSource = subCategory ? (plans as any)?.[planType]?.[subCategory] : plans?.[planType];
+        return planSource?.[planKey as keyof typeof planSource]?.en.name;
+    }, [planType, planKey, subCategory, plans]);
 
     return (
         <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4 animate-fadeIn" onClick={onClose}>
             <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
                 <form onSubmit={handleSave} className="flex-grow contents">
                     <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                        <h3 className="text-xl font-bold text-amber-500">{t_page.editPlanTitle}: {plans?.[planType]?.[planKey as keyof typeof plans[typeof planType]]?.en.name}</h3>
+                        <h3 className="text-xl font-bold text-amber-500">{t_page.editPlanTitle}: {planName}</h3>
                         <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><CloseIcon className="w-6 h-6" /></button>
                     </div>
                     <div className="flex-grow overflow-y-auto p-6">

@@ -1,11 +1,30 @@
 
 
+
 import React from 'react';
 
 const cn = (...classes: (string | undefined | false)[]) => classes.filter(Boolean).join(' ');
 
-const Checkbox = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-    ({ className, ...props }, ref) => {
+// FIX: Added onCheckedChange to the props interface for compatibility with components expecting it (e.g., from Radix UI patterns).
+export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+    onCheckedChange?: (checked: boolean) => void;
+    onChange?: React.ChangeEventHandler<HTMLInputElement>;
+}
+
+
+const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
+    ({ className, onCheckedChange, onChange, ...props }, ref) => {
+        // FIX: Created a new handleChange function to handle both onCheckedChange and the native onChange.
+        // This allows components to use the more modern onCheckedChange pattern while still supporting standard forms.
+        const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            if (onCheckedChange) {
+                onCheckedChange(event.target.checked);
+            }
+            if (onChange) {
+                onChange(event);
+            }
+        };
+        
         return (
             <input
                 type="checkbox"
@@ -14,6 +33,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HT
                     'h-4 w-4 shrink-0 rounded border-gray-300 text-amber-600 focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-50',
                     className,
                 )}
+                onChange={handleChange}
                 {...props}
             />
         );

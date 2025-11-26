@@ -6,7 +6,7 @@ import { getAllPartnersForAdmin } from '../../services/partners';
 import { getAllProperties } from '../../services/properties';
 import { getAllProjects } from '../../services/projects';
 import { SearchIcon, CloseIcon } from '../ui/Icons';
-import { useDebounce } from '../../hooks/useDebounce';
+import { useDebounce } from '../hooks/useDebounce';
 import { useLanguage } from '../shared/LanguageContext';
 
 const GlobalSearch: React.FC = () => {

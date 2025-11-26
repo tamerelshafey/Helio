@@ -11,6 +11,7 @@ import DashboardProjectsPage from './DashboardProjectsPage';
 import DashboardProjectDetailsPage from './DashboardProjectDetailsPage';
 import DashboardLeadsPage from './DashboardLeadsPage';
 import DashboardSubscriptionPage from './DashboardSubscriptionPage';
+import DashboardFinancePage from './DashboardFinancePage';
 import DashboardAnalyticsPage from './DashboardAnalyticsPage';
 import PropertyFormPage from '../forms/PropertyFormPage';
 import ProjectFormPage from '../forms/ProjectFormPage';
@@ -33,6 +34,7 @@ const PartnerRoutes: React.FC = () => {
             <Route path="leads" element={<DashboardLeadsPage />} />
             <Route path="leads/:leadId" element={<PartnerLeadDetailsPage />} />
             <Route path="subscription" element={<DashboardSubscriptionPage />} />
+            <Route path="finance" element={<DashboardFinancePage />} />
             <Route path="analytics" element={<DashboardAnalyticsPage />} />
             <Route path="notifications" element={<AllNotificationsPage />} />
         </Routes>

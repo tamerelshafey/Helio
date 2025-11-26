@@ -10,6 +10,7 @@ import { useToast } from '../shared/ToastContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin } from '../../services/partners';
 import { useLanguage } from '../shared/LanguageContext';
+import { BanknotesIcon } from '../ui/Icons';
 
 const ServiceRequestPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -21,7 +22,7 @@ const ServiceRequestPage: React.FC = () => {
     const t_decor = t.decorationsPage;
     const queryClient = useQueryClient();
 
-    const { serviceTitle, partnerId, propertyId, workItem, isCustom, serviceType } = location.state || {};
+    const { serviceTitle, partnerId, propertyId, workItem, isCustom, serviceType, tier, isBooking, isPurchase } = location.state || {};
     const { data: allPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
     const { showToast } = useToast();
     
@@ -84,20 +85,68 @@ const ServiceRequestPage: React.FC = () => {
                 managerId = manager.id;
             }
         }
-        
-        mutation.mutate({
-            requesterInfo: { name: formData.customerName, phone: formData.customerPhone },
-            payload: {
-                contactTime: formData.contactTime,
-                customerNotes: finalNotes,
-                partnerId: partnerId,
-                serviceTitle: serviceTitle,
-                managerId: managerId,
-                propertyId: propertyId,
-                serviceType: serviceType
-            }
-        });
+
+        if (isBooking && tier) {
+            // Redirect to Payment Page for Service Booking
+            const bookingTitle = `${serviceTitle} - ${tier.unitType[language]} (${tier.areaRange[language]})`;
+            navigate('/payment', {
+                state: {
+                    amount: tier.price,
+                    description: `Finishing Service: ${bookingTitle}`,
+                    type: 'service_payment',
+                    userId: formData.customerPhone, // Temp ID
+                    userName: formData.customerName,
+                    data: {
+                        ...formData,
+                        customerNotes: finalNotes,
+                        serviceType: serviceType,
+                        serviceTitle: bookingTitle,
+                        partnerId: partnerId,
+                        managerId: 'platform-finishing-manager-1',
+                        tierDetails: tier,
+                        status: 'new'
+                    }
+                }
+            });
+        } else if (isPurchase && workItem) {
+            // Redirect to Payment Page for Product Purchase
+            navigate('/payment', {
+                state: {
+                    amount: workItem.price,
+                    description: `Product Purchase: ${workItem.title.en}`,
+                    type: 'product_purchase',
+                    userId: formData.customerPhone, // Temp ID
+                    userName: formData.customerName,
+                    data: {
+                        ...formData,
+                        customerNotes: finalNotes,
+                        serviceType: serviceType,
+                        serviceTitle: `Order: ${workItem.title[language]}`,
+                        partnerId: partnerId,
+                        managerId: 'decoration-manager-1', // Internal routing for decor
+                        workItem: workItem,
+                        status: 'new'
+                    }
+                }
+            });
+        } else {
+            // Standard Lead Submission
+            mutation.mutate({
+                requesterInfo: { name: formData.customerName, phone: formData.customerPhone },
+                payload: {
+                    contactTime: formData.contactTime,
+                    customerNotes: finalNotes,
+                    partnerId: partnerId,
+                    serviceTitle: serviceTitle,
+                    managerId: managerId,
+                    propertyId: propertyId,
+                    serviceType: serviceType
+                }
+            });
+        }
     };
+
+    const isPaymentFlow = isBooking || isPurchase;
 
     return (
         <div className="py-20 bg-gray-50">
@@ -112,21 +161,45 @@ const ServiceRequestPage: React.FC = () => {
                     
                     <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
                         <h2 className="text-3xl font-bold text-amber-500 mb-2 text-center">
-                            {workItem ? t_decor_modal.title : isCustom ? t_custom_decor_modal.title : t_modal.title}
+                            {isPurchase ? (language === 'ar' ? 'إتمام الشراء' : 'Complete Purchase') : 
+                             isBooking ? (language === 'ar' ? 'تأكيد الحجز' : 'Confirm Booking') :
+                             isCustom ? t_custom_decor_modal.title : 
+                             t_modal.title}
                         </h2>
                         <p className="text-gray-500 text-center mb-8">({serviceTitle})</p>
                         
                         {workItem && (
                             <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                <p className="text-sm text-gray-600 mb-2">{t_decor_modal.reference}</p>
+                                <p className="text-sm text-gray-600 mb-2">{isPurchase ? (language === 'ar' ? 'المنتج' : 'Product') : t_decor_modal.reference}</p>
                                 <div className="flex gap-4 items-start">
                                     <img src={workItem.imageUrl} alt={workItem.alt} className="w-24 h-24 object-cover rounded-lg flex-shrink-0 shadow-md" />
-                                    <div className="space-y-1 text-sm">
+                                    <div className="space-y-1 text-sm flex-grow">
                                         <h3 className="font-bold text-gray-900 text-base">{workItem.title[language]}</h3>
-                                        {workItem.price != null && <p className="font-semibold text-amber-500">{new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', { style: 'currency', currency: 'EGP', minimumFractionDigits: 0 }).format(workItem.price)}</p>}
                                         {workItem.dimensions && <p className="text-gray-500">{t_decor.dimensions}: {workItem.dimensions}</p>}
                                         {workItem.availability && <p className="text-gray-500">{t_decor.availability}: {workItem.availability === 'In Stock' ? t_decor.inStock : t_decor.madeToOrder}</p>}
                                     </div>
+                                    {isPurchase && workItem.price && (
+                                        <div className="text-right">
+                                            <p className="text-xs text-gray-500">{language === 'ar' ? 'السعر' : 'Price'}</p>
+                                            <p className="text-xl font-bold text-amber-600">{workItem.price.toLocaleString(language)} <span className="text-sm text-gray-500">EGP</span></p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {isBooking && tier && (
+                            <div className="mb-6 p-5 bg-amber-50 rounded-lg border border-amber-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                <div>
+                                    <p className="text-sm text-amber-800 font-semibold uppercase tracking-wider mb-1">{language === 'ar' ? 'تفاصيل الباقة' : 'Package Details'}</p>
+                                    <h3 className="text-xl font-bold text-gray-900">{tier.unitType[language]}</h3>
+                                    <p className="text-gray-600">{tier.areaRange[language]}</p>
+                                </div>
+                                <div className="text-center sm:text-right bg-white p-3 rounded-lg border border-amber-100 shadow-sm">
+                                    <p className="text-xs text-gray-500 mb-1">{language === 'ar' ? 'السعر' : 'Price'}</p>
+                                    <p className="text-2xl font-bold text-amber-600 flex items-center gap-1 justify-end">
+                                        {tier.price.toLocaleString(language)} <span className="text-sm font-normal text-gray-500">EGP</span>
+                                    </p>
                                 </div>
                             </div>
                         )}
@@ -177,8 +250,15 @@ const ServiceRequestPage: React.FC = () => {
                             )}
                             
                             <div className="pt-4 flex justify-end">
-                                <button type="submit" disabled={mutation.isPending} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50">
-                                    {mutation.isPending ? '...' : (isCustom ? t_custom_decor_modal.submitButton : t_modal.submitButton)}
+                                <button type="submit" disabled={mutation.isPending} className="bg-amber-500 text-gray-900 font-bold px-8 py-3 rounded-lg hover:bg-amber-600 transition-colors duration-200 disabled:opacity-50 flex items-center gap-2">
+                                    {mutation.isPending 
+                                        ? '...' 
+                                        : (isPaymentFlow
+                                            ? (language === 'ar' ? 'متابعة للدفع' : 'Proceed to Payment') 
+                                            : (isCustom ? t_custom_decor_modal.submitButton : t_modal.submitButton)
+                                        )
+                                    }
+                                    {isPaymentFlow && !mutation.isPending && <BanknotesIcon className="w-5 h-5" />}
                                 </button>
                             </div>
                         </form>

@@ -1,5 +1,6 @@
 
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Language, SubscriptionPlan, SubscriptionPlanDetails } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { CheckCircleIcon } from '../ui/Icons';
@@ -13,13 +14,10 @@ const PlanCard: React.FC<{
     isCurrent: boolean,
     isUpgradeOption: boolean,
     language: Language,
-    t: any
-}> = ({ planKey, plan, isCurrent, isUpgradeOption, language, t }) => {
+    t: any,
+    onUpgrade: (planKey: SubscriptionPlan, priceString: string) => void
+}> = ({ planKey, plan, isCurrent, isUpgradeOption, language, t, onUpgrade }) => {
     const t_sub = t.dashboardSubscription;
-
-    const handleUpgrade = () => {
-        alert('Upgrade functionality is coming soon!');
-    };
 
     return (
         <div className={`border-2 rounded-lg p-6 h-full flex flex-col ${
@@ -43,7 +41,7 @@ const PlanCard: React.FC<{
 
             {isUpgradeOption && (
                  <button
-                    onClick={handleUpgrade}
+                    onClick={() => onUpgrade(planKey, plan.price)}
                     className="w-full font-bold py-3 rounded-lg mt-auto bg-amber-500 text-gray-900 hover:bg-amber-600 transition-colors"
                 >
                     {t.dashboard.upgradePlan}
@@ -57,6 +55,7 @@ const DashboardSubscriptionPage: React.FC = () => {
     const { language, t } = useLanguage();
     const t_sub = t.dashboardSubscription;
     const { currentUser } = useAuth();
+    const navigate = useNavigate();
     
     const usageType = useMemo(() => {
         if (!currentUser || !('type' in currentUser)) return 'properties';
@@ -80,6 +79,28 @@ const DashboardSubscriptionPage: React.FC = () => {
             default: return t_sub.propertiesListed;
         }
     }, [currentUser, language, t_sub.propertiesListed, t.dashboardHome]);
+
+    const handleUpgrade = (planKey: SubscriptionPlan, priceString: string) => {
+        if (!currentUser) return;
+        
+        // Extract numeric price
+        const amount = parseInt(priceString.replace(/[^0-9]/g, '')) || 0;
+        
+        navigate('/payment', {
+            state: {
+                amount,
+                description: `Upgrade Plan to ${planKey.charAt(0).toUpperCase() + planKey.slice(1)}`,
+                type: 'subscription_fee',
+                userId: currentUser.id,
+                userName: currentUser.name,
+                data: {
+                    isUpgrade: true,
+                    newPlan: planKey,
+                    partnerId: currentUser.id
+                }
+            }
+        });
+    };
 
     if (!currentUser || isLoading || !('type' in currentUser)) {
         return <div>Loading...</div>;
@@ -121,6 +142,7 @@ const DashboardSubscriptionPage: React.FC = () => {
                             isUpgradeOption={false}
                             language={language}
                             t={t}
+                            onUpgrade={handleUpgrade}
                         />
                     ) : (
                         <div className="border-2 border-red-500 bg-red-50/50 dark:bg-red-900/20 p-6 rounded-lg text-center">
@@ -161,6 +183,7 @@ const DashboardSubscriptionPage: React.FC = () => {
                                         isUpgradeOption={true}
                                         language={language}
                                         t={t}
+                                        onUpgrade={handleUpgrade}
                                     />
                                 ))}
                             </div>
