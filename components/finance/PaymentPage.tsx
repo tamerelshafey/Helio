@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -42,6 +40,7 @@ const PaymentPage: React.FC = () => {
     const [userId, setUserId] = useState<string>('');
     const [userName, setUserName] = useState<string>('');
     const [contextData, setContextData] = useState<any>(null); 
+    const [isValidSession, setIsValidSession] = useState(false);
 
     const [method, setMethod] = useState<PaymentMethod | null>(null);
     const [receiptFile, setReceiptFile] = useState<File | null>(null);
@@ -51,14 +50,16 @@ const PaymentPage: React.FC = () => {
     useEffect(() => {
         if (location.state) {
             const { amount, description, type, userId, userName, data } = location.state;
-            if (amount) setAmount(amount);
-            if (description) setDescription(description);
-            if (type) setType(type);
-            if (userId) setUserId(userId);
-            if (userName) setUserName(userName);
-            if (data) setContextData(data); 
+            setAmount(amount || 0);
+            setDescription(description || '');
+            setType(type || 'subscription_fee');
+            setUserId(userId || '');
+            setUserName(userName || '');
+            setContextData(data || null);
+            setIsValidSession(true);
         } else {
-            navigate('/'); 
+            // Redirect immediately if no state is present to avoid flashing empty page
+            navigate('/', { replace: true });
         }
     }, [location, navigate]);
 
@@ -144,7 +145,9 @@ const PaymentPage: React.FC = () => {
         });
     };
 
-    if (isLoadingContent) return <div className="p-10 text-center">Loading payment options...</div>;
+    // Don't render anything until we verify the session or redirect
+    if (!isValidSession) return null;
+    if (isLoadingContent) return <div className="p-10 text-center flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div></div>;
     
     const config = siteContent?.paymentConfiguration;
 

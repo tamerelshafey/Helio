@@ -3,6 +3,8 @@
 
 
 
+
+
 import type { SiteContent, Quote } from '../types';
 
 const quotesData: Quote[] = [
@@ -374,8 +376,8 @@ export let siteContentData: SiteContent = {
   topBanner: {
     enabled: true,
     content: {
-        ar: 'تنويه: الموقع حالياً في مرحلة الانطلاق التجريبي (Beta). نسعد بملاحظاتكم لتحسين التجربة.',
-        en: 'Notice: This website is currently in Beta Launch phase. We welcome your feedback to improve the experience.'
+        ar: 'نسخة تجريبية (Beta) - مخصصة للمراجعة الداخلية لفريق العمل.',
+        en: 'Beta Version - Internal Team Review / Testing Environment.'
     }
   },
   contactConfiguration: {
