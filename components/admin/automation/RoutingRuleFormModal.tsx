@@ -12,6 +12,7 @@ import { Button } from '../../ui/Button';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { TrashIcon, CheckCircleIcon } from '../../ui/Icons';
+import { Role } from '../../../types';
 
 interface RoutingRuleFormModalProps {
     ruleToEdit?: RoutingRule;
@@ -68,7 +69,7 @@ const RoutingRuleFormModal: React.FC<RoutingRuleFormModalProps> = ({ ruleToEdit,
     ];
 
     const operators = ['equals', 'not_equals', 'contains', 'greater_than', 'less_than'];
-    const managers = (partners || []).filter(p => p.role.includes('_manager') || p.role === 'admin');
+    const managers = (partners || []).filter(p => p.role.includes('_manager') || p.role === Role.SUPER_ADMIN);
 
     return (
         <Modal isOpen={true} onClose={onClose} aria-labelledby="rule-form-title" className="max-w-3xl">

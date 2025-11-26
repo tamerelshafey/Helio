@@ -1,5 +1,4 @@
 
-
 import { PrismaClient } from '@prisma/client';
 import { propertiesData } from '../data/properties';
 import { partnersData } from '../data/partners';
@@ -80,22 +79,26 @@ async function main() {
 
   console.log('Seeding partners...');
   await prisma.partner.createMany({
-    data: partnersData.map((p) => ({
-      id: p.id,
-      email: p.email,
-      password: p.password!,
-      imageUrl: p.imageUrl,
-      type: p.type,
-      status: p.status,
-      subscriptionPlan: p.subscriptionPlan,
-      subscriptionEndDate: p.subscriptionEndDate ? new Date(p.subscriptionEndDate) : null,
-      displayType: p.displayType,
-      name_en: enTranslations.partnerInfo[p.id]?.name || p.id,
-      name_ar: arTranslations.partnerInfo[p.id]?.name || p.id,
-      description_en: enTranslations.partnerInfo[p.id]?.description || '',
-      description_ar: arTranslations.partnerInfo[p.id]?.description || '',
-      contactMethods: p.contactMethods ? JSON.stringify(p.contactMethods) : '{}',
-    })),
+    data: partnersData.map((p) => {
+      const enInfo = (enTranslations.partnerInfo as any)[p.id];
+      const arInfo = (arTranslations.partnerInfo as any)[p.id];
+      return {
+        id: p.id,
+        email: p.email,
+        password: p.password!,
+        imageUrl: p.imageUrl,
+        type: p.type,
+        status: p.status,
+        subscriptionPlan: p.subscriptionPlan,
+        subscriptionEndDate: p.subscriptionEndDate ? new Date(p.subscriptionEndDate) : null,
+        displayType: p.displayType,
+        name_en: enInfo?.name || p.id,
+        name_ar: arInfo?.name || p.id,
+        description_en: enInfo?.description || '',
+        description_ar: arInfo?.description || '',
+        contactMethods: p.contactMethods ? JSON.stringify(p.contactMethods) : '{}',
+      };
+    }),
   });
   
   console.log('Seeding projects...');
@@ -274,8 +277,6 @@ async function main() {
 main()
   .catch((e) => {
     console.error(e);
-    // FIX: Cast process to any to resolve TypeScript error in non-Node.js environments
-    // where the full 'process' object type might not be available.
     (process as any).exit(1);
   })
   .finally(async () => {

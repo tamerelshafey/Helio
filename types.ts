@@ -44,6 +44,7 @@ export enum Permission {
     MANAGE_SITE_CONTENT = 'manage_site_content',
     MANAGE_FILTERS = 'manage_filters',
     MANAGE_SETTINGS = 'manage_settings',
+    MANAGE_INQUIRIES_ROUTING = 'manage_inquiry_routing',
     MANAGE_INQUIRY_ROUTING = 'manage_inquiry_routing',
     MANAGE_PLANS = 'manage_plans',
     MANAGE_AUTOMATION = 'manage_automation',
@@ -53,7 +54,7 @@ export enum Permission {
     MANAGE_OWN_PORTFOLIO = 'manage_own_portfolio',
     VIEW_OWN_LEADS = 'view_own_leads',
     MANAGE_OWN_SUBSCRIPTION = 'manage_own_subscription',
-    MANAGE_PLATFORM_PROPERTY_LEADS = 'manage_platform_property_leads' // Added missing permission
+    MANAGE_PLATFORM_PROPERTY_LEADS = 'manage_platform_property_leads' 
 }
 
 export type PartnerType = 
@@ -258,6 +259,7 @@ export interface PartnerRequest {
     contactPhone: string;
     description?: string;
     website?: string;
+    companyAddress?: string; // Added missing property
     managementContacts?: ManagementContact[];
     logo?: string;
     documents?: OfficialDocument[];

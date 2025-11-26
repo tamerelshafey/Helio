@@ -1,6 +1,4 @@
 
-
-
 import React from 'react';
 import { BuildingIcon, CheckCircleIcon, PriceIcon, LocationMarkerIcon } from '../ui/Icons';
 import { useSiteContent } from '../../hooks/useSiteContent';
@@ -50,7 +48,7 @@ const Integrations: React.FC = () => {
                     <p className="text-lg text-gray-500 mt-4 max-w-3xl mx-auto">{t.description}</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {t.features.map((feature, index) => (
+                    {t.features.map((feature: any, index: number) => (
                         <FeatureCard key={feature.title} {...feature} icon={icons[index]} />
                     ))}
                 </div>

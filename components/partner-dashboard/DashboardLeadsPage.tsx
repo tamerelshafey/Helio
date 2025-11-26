@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus } from '../../types';
@@ -88,8 +87,8 @@ const DashboardLeadsPage: React.FC = () => {
 
         if (sortConfig !== null) {
             filteredLeads.sort((a, b) => {
-                const aValue = a[sortConfig.key];
-                const bValue = b[sortConfig.key];
+                const aValue = a[sortConfig.key] || ''; // Provide fallback
+                const bValue = b[sortConfig.key] || ''; // Provide fallback
                 if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
                 if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
                 return 0;

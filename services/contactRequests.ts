@@ -1,3 +1,4 @@
+
 import { contactRequestsData as initialContactRequestsData } from '../data/contactRequests';
 import type { ContactRequest, RequestStatus } from '../types';
 import { addNotification } from './notifications';
@@ -28,7 +29,7 @@ export const addContactRequest = (data: Omit<ContactRequest, 'id' | 'status' | '
       contactRequestsData.unshift(newRequest);
 
       addNotification({
-        userId: newRequest.managerId,
+        userId: newRequest.managerId || 'admin-user', // Fallback if managerId is undefined
         message: {
           ar: `رسالة تواصل جديدة من "${newRequest.name}".`,
           en: `New contact message from "${newRequest.name}".`,

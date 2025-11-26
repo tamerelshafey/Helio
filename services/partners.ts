@@ -1,3 +1,4 @@
+
 // Note: This is a mock API. In a real application, these functions would make network requests
 // to a backend service. The data is modified in-memory for simulation purposes.
 
@@ -202,7 +203,7 @@ export const addPartner = (request: PartnerRequest): Promise<Partner> => {
 
             const newPartnerBaseData: Omit<Partner, 'name' | 'description' | 'role'> = {
                 id: newPartnerId,
-                imageUrl: logo,
+                imageUrl: logo || 'https://via.placeholder.com/150', // Provide default if undefined
                 email: contactEmail,
                 password: 'password123', 
                 type: companyType,

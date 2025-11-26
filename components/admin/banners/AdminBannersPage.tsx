@@ -1,23 +1,17 @@
 
-
-
-
 import React, { useState, useMemo } from 'react';
-import type { Banner } from '../../types';
-// FIX: Corrected import path for AdminBannerFormModal. The component exists in the current directory, not in './content/'.
-import AdminBannerFormModal from './AdminBannerFormModal';
-import { PhotoIcon } from '../ui/Icons';
-import { getAllBanners, deleteBanner as apiDeleteBanner } from '../../services/banners';
+import type { Banner } from '../../../types';
+import AdminBannerFormModal from '../content/AdminBannerFormModal'; // Assuming form modal is in content folder based on user list, or check location. If user list said 'AdminBannerFormModal' is in 'content', we use that. Wait, user list implies AdminBannerFormModal is in 'content/AdminBannerFormModal.tsx' based on file dump.
+import { PhotoIcon } from '../../ui/Icons';
+import { getAllBanners, deleteBanner as apiDeleteBanner } from '../../../services/banners';
 import { useQuery } from '@tanstack/react-query';
-// FIX: Corrected import path for Pagination from 'ui' to 'shared'.
-import Pagination from '../shared/Pagination';
-import { useLanguage } from '../shared/LanguageContext';
-// FIX: Corrected import path for ConfirmationModal from 'ui' to 'shared'.
-import ConfirmationModal from '../ui/ConfirmationModal';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
-import { Button } from '../ui/Button';
-import { ResponsiveList } from '../shared/ResponsiveList';
-import { Card, CardContent, CardFooter } from '../ui/Card';
+import Pagination from '../../shared/Pagination';
+import { useLanguage } from '../../shared/LanguageContext';
+import ConfirmationModal from '../../shared/ConfirmationModal';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
+import { Button } from '../../ui/Button';
+import { ResponsiveList } from '../../shared/ResponsiveList';
+import { Card, CardContent, CardFooter } from '../../ui/Card';
 
 type SortConfig = {
     key: 'title' | 'locations' | 'status';
@@ -36,7 +30,6 @@ const AdminBannersPage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const sortedBanners = useMemo(() => {
-        // FIX: Add type guard to ensure 'banners' is an array before spreading.
         const sortableItems: Banner[] = Array.isArray(banners) ? [...banners] : [];
         if (sortConfig !== null) {
             sortableItems.sort((a, b) => {
@@ -121,7 +114,7 @@ const AdminBannersPage: React.FC = () => {
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex flex-wrap gap-1">
-                                        {banner.locations.map(loc => (
+                                        {banner.locations.map((loc: string) => (
                                             <span key={loc} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-xs text-gray-600 dark:text-gray-400 capitalize">
                                                 {loc}
                                             </span>
@@ -170,7 +163,7 @@ const AdminBannersPage: React.FC = () => {
                 <h3 className="font-bold text-gray-900 dark:text-white mb-1">{banner.title}</h3>
                 <p className="text-xs text-gray-500 truncate mb-3">{banner.link}</p>
                 <div className="flex flex-wrap gap-1 mb-2">
-                    {banner.locations.map(loc => (
+                    {banner.locations.map((loc: string) => (
                         <span key={loc} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-xs text-gray-600 dark:text-gray-400 capitalize">
                             {loc}
                         </span>

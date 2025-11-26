@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -46,7 +47,7 @@ const AdminAllRequestsPage: React.FC = () => {
     const { data: partners, isLoading: loadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
     const isLoading = loadingRequests || loadingPartners;
 
-    const managers = useMemo(() => (partners || []).filter(p => p.role.includes('_manager') || p.role === 'admin'), [partners]);
+    const managers = useMemo(() => (partners || []).filter(p => p.role.includes('_manager') || p.role === Role.SUPER_ADMIN), [partners]);
 
     const updateStatusMutation = useMutation({
         mutationFn: ({ id, updates }: { id: string, updates: Partial<Request> }) => updateRequest(id, updates),

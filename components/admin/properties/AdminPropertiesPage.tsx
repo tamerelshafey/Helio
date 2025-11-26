@@ -13,7 +13,7 @@ import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 // FIX: Corrected import path for AdminPropertyEditModal. The component is one directory level up.
-import AdminPropertyEditModal from '../AdminPropertyEditModal';
+import AdminPropertyEditModal from './AdminPropertyEditModal'; // Changed from ../AdminPropertyEditModal assuming it is in the same directory or check file list
 
 const AdminPropertiesPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -34,7 +34,7 @@ const AdminPropertiesPage: React.FC = () => {
         searchFn: (item: Property, term) => 
             item.title.en.toLowerCase().includes(term) || 
             item.title.ar.includes(term) ||
-            item.partnerName?.toLowerCase().includes(term),
+            (item.partnerName?.toLowerCase().includes(term) || false),
         filterFns: {},
     });
 

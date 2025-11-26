@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BuildingIcon, DecorationIcon, FinishingIcon, SparklesIcon } from '../ui/Icons';
@@ -51,7 +52,7 @@ const Services: React.FC = () => {
                     <p className="text-lg text-gray-500 mt-4 max-w-3xl mx-auto">{t.description}</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {t.features.map((feature) => {
+                    {t.features.map((feature: any) => {
                         const IconComponent = iconMap[feature.icon] || BuildingIcon;
                         return <ServiceCard key={feature.title} {...feature} icon={<IconComponent className="w-8 h-8" />} />;
                     })}

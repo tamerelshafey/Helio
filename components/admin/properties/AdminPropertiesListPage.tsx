@@ -61,7 +61,7 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
         searchFn: (item: Property, term) => 
             item.title.en.toLowerCase().includes(term) || 
             item.title.ar.includes(term) ||
-            item.partnerName?.toLowerCase().includes(term),
+            (item.partnerName?.toLowerCase().includes(term) || false),
         filterFns: {},
     });
 
@@ -188,7 +188,6 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
     );
     const emptyState = <div className="text-center py-8 text-gray-500">No properties found.</div>;
 
-    // FIX: Added missing return statement for the component's JSX.
     return (
         <div>
             {actionToConfirm && selectedProperties.length > 0 && (

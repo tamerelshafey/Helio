@@ -1,3 +1,4 @@
+
 import React from 'react';
 import FormField from '../../ui/FormField';
 import { CloseIcon, LocationMarkerIcon } from '../../ui/Icons';
@@ -45,7 +46,7 @@ export const Step3FormFields: React.FC<Step3FormFieldsProps> = (props) => {
                     </RadioGroup>
                     {watchContactMethod === 'direct' && (
                         <div className="pt-2 animate-fadeIn">
-                            <FormField label={`${t_page.phone} (For Public Inquiries)`} id="ownerPhone" error={errors.ownerPhone?.message}>
+                            <FormField label={`${t_page.phone} (For Public Inquiries)`} id="ownerPhone" error={errors.ownerPhone?.message as string | undefined}>
                                 <Input type="tel" {...register("ownerPhone", { required: watchContactMethod === 'direct' ? t_page.errors.required : false, pattern: { value: /^\+?[0-9\s-]{10,}$/, message: t_page.errors.invalidPhone } })} dir="ltr" />
                             </FormField>
                         </div>
@@ -56,14 +57,14 @@ export const Step3FormFields: React.FC<Step3FormFieldsProps> = (props) => {
             <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                 <legend className="text-lg font-semibold text-amber-500 mb-2">{t_page.ownerInfo}</legend>
                 <div className="grid sm:grid-cols-2 gap-4">
-                    <FormField label={t_page.fullName} id="customerName" error={errors.customerName?.message}>
+                    <FormField label={t_page.fullName} id="customerName" error={errors.customerName?.message as string | undefined}>
                         <Input type="text" {...register("customerName", { required: t_page.errors.required })} />
                     </FormField>
-                    <FormField label={`${t_page.phone} (For Verification)`} id="customerPhone" error={errors.customerPhone?.message}>
+                    <FormField label={`${t_page.phone} (For Verification)`} id="customerPhone" error={errors.customerPhone?.message as string | undefined}>
                         <Input type="tel" {...register("customerPhone", { required: t_page.errors.required, pattern: { value: /^\+?[0-9\s-]{10,}$/, message: t_page.errors.invalidPhone } })} dir="ltr" />
                     </FormField>
                 </div>
-                <FormField label={t_page.contactTime} id="contactTime" error={errors.contactTime?.message}>
+                <FormField label={t_page.contactTime} id="contactTime" error={errors.contactTime?.message as string | undefined}>
                     <Select {...register("contactTime", { required: t_page.errors.required })} className={!watch("contactTime") ? 'text-gray-500' : ''} >
                         <option value="" disabled>{t_page.selectTime}</option>
                         <option value="morning" className="text-gray-900">{t_page.morning}</option>
@@ -80,12 +81,12 @@ export const Step3FormFields: React.FC<Step3FormFieldsProps> = (props) => {
                     <FormField label={t.dashboard.propertyForm.propertyTitleAr} id="title.ar"><Input {...register("title.ar", { required: true })} /></FormField>
                     <FormField label={t.dashboard.propertyForm.propertyTitleEn} id="title.en"><Input {...register("title.en", { required: true })} /></FormField>
                 </div>
-                <FormField label={t_page.address} id="address" error={errors.address?.message}><Input type="text" {...register("address", { required: t_page.errors.required })} /></FormField>
+                <FormField label={t_page.address} id="address" error={errors.address?.message as string | undefined}><Input type="text" {...register("address", { required: t_page.errors.required })} /></FormField>
                 
                 <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
                     <FormField label={t_page.propertyType} id="propertyType"><Select {...register("propertyType", { required: true })}><option value="" disabled>{t_page.selectType}</option>{(props.propertyTypes || []).map((o: any) => <option key={o.id} value={o.en}>{o[language]}</option>)}</Select></FormField>
-                    <FormField label={t_page.area} id="area" error={errors.area?.message}><Input type="number" {...register("area", { required: t_page.errors.required, min: 1 })} min="1" /></FormField>
-                    <FormField label={t_page.price} id="price" error={errors.price?.message}><Input type="number" {...register("price", { required: t_page.errors.required, min: 1 })} min="1"/></FormField>
+                    <FormField label={t_page.area} id="area" error={errors.area?.message as string | undefined}><Input type="number" {...register("area", { required: t_page.errors.required, min: 1 })} min="1" /></FormField>
+                    <FormField label={t_page.price} id="price" error={errors.price?.message as string | undefined}><Input type="number" {...register("price", { required: t_page.errors.required, min: 1 })} min="1"/></FormField>
                 </div>
                 
                     <FormField label={t.propertiesPage.amenities} id="amenities">
@@ -146,7 +147,7 @@ export const Step3FormFields: React.FC<Step3FormFieldsProps> = (props) => {
                     <Checkbox id="isOwner" {...register("isOwner", { required: t_page.errors.mustBeOwner })} className="mt-1" />
                     <label htmlFor="isOwner" className={`text-sm text-gray-600 ${language === 'ar' ? 'mr-3' : 'ml-3'}`}>{t_page.confirmationLabel}</label>
                 </div>
-                {errors.isOwner && <p className="text-red-500 text-sm">{errors.isOwner.message}</p>}
+                {errors.isOwner && <p className="text-red-500 text-sm">{errors.isOwner.message as string}</p>}
                 <div className="flex justify-between items-center">
                     <Button type="button" variant="secondary" onClick={prevStep}>{t_page.back}</Button>
                     <Button type="submit" disabled={isSubmitting} isLoading={isSubmitting}>

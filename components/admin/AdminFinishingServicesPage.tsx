@@ -50,7 +50,7 @@ const AdminFinishingServicesPage: React.FC = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
                     <div className="space-y-8">
-                        {(watchFinishingServices || []).map((service, serviceIndex) => (
+                        {(watchFinishingServices || []).map((service: any, serviceIndex: number) => (
                             <div key={serviceIndex} className="p-6 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50">
                                 <h4 className="font-bold text-amber-600 dark:text-amber-500 text-lg mb-4 border-b border-gray-200 dark:border-gray-700 pb-2 flex justify-between">
                                     <span>Package {serviceIndex + 1}</span>
@@ -85,7 +85,7 @@ const AdminFinishingServicesPage: React.FC = () => {
                                             <span>Pricing Tiers (Sub-options)</span>
                                             <button type="button" onClick={() => handleAddTier(serviceIndex)} className="text-sm text-white bg-amber-500 hover:bg-amber-600 px-3 py-1 rounded-md font-bold shadow-sm transition-colors">+ Add Tier</button>
                                         </h5>
-                                        {service.pricingTiers.map((tier, tierIndex) => (
+                                        {service.pricingTiers.map((tier: any, tierIndex: number) => (
                                             <div key={tierIndex} className="p-4 bg-white dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600 relative shadow-sm group">
                                                 <button type="button" onClick={() => handleRemoveTier(serviceIndex, tierIndex)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1 rounded-full transition-colors"><TrashIcon className="w-4 h-4" /></button>
                                                 <div className="space-y-4">

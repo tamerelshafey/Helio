@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Language, Lead, LeadStatus } from '../../../types';
@@ -60,7 +61,7 @@ const AdminFinishingRequestsPage: React.FC = () => {
         initialSort: { key: 'createdAt', direction: 'descending' },
         searchFn: (lead: Lead, term: string) => 
             lead.customerName.toLowerCase().includes(term) ||
-            (lead.partnerName && lead.partnerName.toLowerCase().includes(term)),
+            (lead.partnerName?.toLowerCase().includes(term) || false),
         filterFns: {
             startDate: (l: Lead, v: string) => new Date(l.createdAt) >= new Date(v),
             endDate: (l: Lead, v: string) => new Date(l.createdAt) <= new Date(v),

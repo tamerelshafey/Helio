@@ -91,7 +91,7 @@ const SidebarContent: React.FC<Omit<DashboardSidebarProps, 'isOpen' | 'setIsOpen
                              <img src={user.imageUrl} alt={partnerName} className={`mx-auto border-2 border-amber-500 object-cover rounded-full transition-all duration-300 ${isCollapsed ? 'w-10 h-10' : 'w-16 h-16'}`} />
                             <div className={`transition-all duration-200 ${isCollapsed ? 'opacity-0 h-0 overflow-hidden pointer-events-none' : 'opacity-100'}`}>
                                  <h2 className="text-sm font-bold text-gray-900 truncate" title={partnerName}>{partnerName}</h2>
-                                 <p className="text-xs text-amber-500 capitalize truncate">{user.role === 'admin' ? 'Super Admin' : t.adminDashboard.partnerTypes[user.type as keyof typeof t.adminDashboard.partnerTypes]}</p>
+                                 <p className="text-xs text-amber-500 capitalize truncate">{user.role === Role.SUPER_ADMIN ? 'Super Admin' : t.adminDashboard.partnerTypes[user.type as keyof typeof t.adminDashboard.partnerTypes]}</p>
                             </div>
                         </div>
                     </li>

@@ -1,3 +1,4 @@
+
 import { propertyRequestsData as initialPropertyRequestsData } from '../data/propertyRequests';
 import type { AddPropertyRequest, RequestStatus } from '../types';
 import { addNotification } from './notifications';
@@ -28,7 +29,7 @@ export const addPropertyRequest = (data: Omit<AddPropertyRequest, 'id' | 'status
       propertyRequestsData.unshift(newRequest);
       
       addNotification({
-        userId: newRequest.managerId,
+        userId: newRequest.managerId || 'admin-user', // Fallback
         message: {
           ar: `طلب عرض عقار جديد من "${newRequest.customerName}".`,
           en: `New property listing request from "${newRequest.customerName}".`,

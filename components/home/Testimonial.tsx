@@ -1,7 +1,4 @@
 
-
-
-
 import React from 'react';
 import { useLanguage } from '../shared/LanguageContext';
 import { QuoteIcon } from '../ui/Icons';
@@ -32,7 +29,7 @@ const Testimonial: React.FC = () => {
                     <p className="text-lg text-gray-500 mt-4 max-w-3xl mx-auto">{sectionSubtitle}</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    {testimonialItems.map((testimonial, index) => (
+                    {testimonialItems.map((testimonial: any, index: number) => (
                         <div key={index} className="bg-gray-50 p-8 rounded-lg shadow-md border border-gray-200">
                             <QuoteIcon className="w-12 h-12 text-amber-400 mb-4" />
                             <blockquote className="text-lg text-gray-700 italic mb-6">

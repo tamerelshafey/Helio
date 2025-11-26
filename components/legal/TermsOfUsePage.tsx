@@ -31,7 +31,7 @@ const TermsOfUsePage: React.FC = () => {
           <p className="mt-4 text-sm text-gray-500">{content.lastUpdated}</p>
         </div>
         <div className="prose prose-lg max-w-none mx-auto space-y-8">
-          {content.sections.map((section, index) => (
+          {content.sections.map((section: any, index: number) => (
             <div key={index}>
               <h2 className="!text-amber-500 !font-bold text-xl mb-4">{section.title}</h2>
               <p className="whitespace-pre-line text-gray-700 leading-relaxed">{section.content}</p>

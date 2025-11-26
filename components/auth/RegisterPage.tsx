@@ -1,10 +1,8 @@
 
-
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
-import type { PartnerRequest, PartnerType, SubscriptionPlan } from '../../types';
+import type { PartnerRequest, PartnerType, SubscriptionPlan, PlanCategory } from '../../types';
 import FormField from '../ui/FormField';
 import { CheckCircleIcon, CloseIcon, ClipboardDocumentListIcon } from '../ui/Icons';
 import { SiteLogo } from '../shared/SiteLogo';
@@ -196,7 +194,7 @@ const RegisterPage: React.FC = () => {
                                 {companyType && (
                                     <div className="mt-8">
                                         <SubscriptionPlanSelector 
-                                            partnerType={companyType}
+                                            partnerType={companyType as PlanCategory}
                                             selectedPlan={selectedPlan}
                                             onSelectPlan={(plan) => setValue('subscriptionPlan', plan, { shouldValidate: true })}
                                         />
