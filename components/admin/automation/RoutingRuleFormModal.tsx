@@ -69,7 +69,7 @@ const RoutingRuleFormModal: React.FC<RoutingRuleFormModalProps> = ({ ruleToEdit,
     ];
 
     const operators = ['equals', 'not_equals', 'contains', 'greater_than', 'less_than'];
-    const managers = (partners || []).filter(p => p.role.includes('_manager') || p.role === Role.SUPER_ADMIN);
+    const managers = (partners || []).filter(p => (p.role as string).includes('_manager') || p.role === Role.SUPER_ADMIN);
 
     return (
         <Modal isOpen={true} onClose={onClose} aria-labelledby="rule-form-title" className="max-w-3xl">

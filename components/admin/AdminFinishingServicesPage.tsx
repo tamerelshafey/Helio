@@ -32,7 +32,7 @@ const AdminFinishingServicesPage: React.FC = () => {
 
     const handleRemoveTier = (serviceIndex: number, tierIndex: number) => {
         const currentTiers = watchFinishingServices?.[serviceIndex]?.pricingTiers || [];
-        setValue(`finishingServices.${serviceIndex}.pricingTiers`, currentTiers.filter((_, i) => i !== tierIndex), { shouldDirty: true });
+        setValue(`finishingServices.${serviceIndex}.pricingTiers`, currentTiers.filter((_: any, i: number) => i !== tierIndex), { shouldDirty: true });
     };
 
     const onSubmit = async (formData: { finishingServices: SiteContent['finishingServices'] }) => {

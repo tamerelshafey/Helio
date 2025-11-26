@@ -97,7 +97,7 @@ const GlobalSearch: React.FC = () => {
                     {isLoading && <div className="p-4 text-sm text-gray-500">Loading...</div>}
                     {!isLoading && !searchResults && <div className="p-4 text-sm text-gray-500">{language === 'ar' ? 'لا توجد نتائج' : 'No results found.'}</div>}
                     
-                    {searchResults && searchResults.partners.length > 0 && (
+                    {searchResults?.partners && searchResults.partners.length > 0 && (
                         <div className="border-b border-gray-200 dark:border-gray-700">
                             <h3 className="p-3 text-xs font-bold text-gray-400 uppercase">Partners</h3>
                             <ul>
@@ -116,7 +116,7 @@ const GlobalSearch: React.FC = () => {
                         </div>
                     )}
 
-                    {searchResults && searchResults.properties.length > 0 && (
+                    {searchResults?.properties && searchResults.properties.length > 0 && (
                         <div className="border-b border-gray-200 dark:border-gray-700">
                             <h3 className="p-3 text-xs font-bold text-gray-400 uppercase">Properties</h3>
                              <ul>
@@ -134,7 +134,7 @@ const GlobalSearch: React.FC = () => {
                         </div>
                     )}
 
-                    {searchResults && searchResults.projects.length > 0 && (
+                    {searchResults?.projects && searchResults.projects.length > 0 && (
                         <div>
                              <h3 className="p-3 text-xs font-bold text-gray-400 uppercase">Projects</h3>
                              <ul>
