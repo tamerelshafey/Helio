@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { addRequest } from '../../services/requests';
 import { addLead } from '../../services/leads';
@@ -36,7 +36,13 @@ const ServiceRequestPage: React.FC = () => {
     }
 
     const isPaymentFlow = isBooking || isPurchase;
-    const formSlug = "service-request-full";
+    
+    const formSlug = useMemo(() => {
+        if (isCustom && serviceType === 'decorations') return 'decoration-request';
+        if (serviceType === 'finishing' && !isBooking) return 'finishing-request';
+        if (serviceType === 'decorations' && !isPurchase) return 'decoration-request';
+        return 'service-request'; // Fallback for simple/payment requests
+    }, [serviceType, isCustom, isBooking, isPurchase]);
 
     // Determine dynamic titles
     const pageTitle = isPurchase 
@@ -52,13 +58,32 @@ const ServiceRequestPage: React.FC = () => {
         : (isCustom ? t_custom_decor_modal.submitButton : t_modal.submitButton);
 
     const handleCustomSubmit = (formData: any) => {
-        // Prepare data
+        // Extract special fields from specific forms and append to notes
+        // This ensures all data is captured in the lead's notes field since the Lead model is simple
         let finalNotes = formData.customerNotes || '';
-        // Note: referenceImage is already Base64 in formData if DynamicForm processed it
-        if (isCustom && formData.referenceImage) {
-             // Since it's base64 string now, we can't easily get the original filename unless we changed DynamicForm to return object {name, content}. 
-             // For now, we just note it exists.
-            finalNotes += `\n\n(Reference Image Uploaded)`;
+        
+        const extendedFieldsMap: Record<string, string> = {
+            unitType: language === 'ar' ? 'نوع الوحدة' : 'Unit Type',
+            unitArea: language === 'ar' ? 'المساحة' : 'Area',
+            currentStatus: language === 'ar' ? 'الحالة الحالية' : 'Current Status',
+            finishingLevel: language === 'ar' ? 'مستوى التشطيب' : 'Finishing Level',
+            itemCategory: language === 'ar' ? 'نوع العمل' : 'Category',
+            dimensions: language === 'ar' ? 'الأبعاد' : 'Dimensions',
+        };
+
+        const extraDetails: string[] = [];
+        Object.keys(extendedFieldsMap).forEach(key => {
+            if (formData[key]) {
+                extraDetails.push(`${extendedFieldsMap[key]}: ${formData[key]}`);
+            }
+        });
+
+        if (extraDetails.length > 0) {
+            finalNotes = `${extraDetails.join('\n')}\n\n--- Notes ---\n${finalNotes}`;
+        }
+
+        if (formData.referenceImage) {
+            finalNotes += `\n\n[Attached: Reference Image]`;
         }
         
         let managerId: string | undefined = undefined;
@@ -68,6 +93,11 @@ const ServiceRequestPage: React.FC = () => {
                 managerId = manager.id;
             }
         }
+
+        const submissionData = {
+            ...formData,
+            customerNotes: finalNotes
+        };
 
         if (isBooking && tier) {
             // Redirect to Payment Page
@@ -80,8 +110,7 @@ const ServiceRequestPage: React.FC = () => {
                     userId: formData.customerPhone, // Temp ID
                     userName: formData.customerName,
                     data: {
-                        ...formData,
-                        customerNotes: finalNotes,
+                        ...submissionData,
                         serviceType: serviceType,
                         serviceTitle: bookingTitle,
                         partnerId: partnerId,
@@ -101,8 +130,7 @@ const ServiceRequestPage: React.FC = () => {
                     userId: formData.customerPhone, // Temp ID
                     userName: formData.customerName,
                     data: {
-                        ...formData,
-                        customerNotes: finalNotes,
+                        ...submissionData,
                         serviceType: serviceType,
                         serviceTitle: `Order: ${workItem.title[language]}`,
                         partnerId: partnerId,
@@ -113,11 +141,7 @@ const ServiceRequestPage: React.FC = () => {
                 }
             });
         } else {
-            // Standard Lead Submission via API directly here to bypass DynamicForm default if needed, 
-            // OR since DynamicForm supports customSubmit, we do the mutation here.
-            // We'll use addLead directly to ensure correct type mapping (RequestType.LEAD wrapper in addRequest is also fine but addLead is more specific).
-            
-            // Actually, let's use addRequest consistent with DynamicForm's default but we need to construct the payload manually
+            // Standard Lead Submission
             addRequest(RequestType.LEAD, {
                 requesterInfo: { name: formData.customerName, phone: formData.customerPhone },
                 payload: {
@@ -128,7 +152,6 @@ const ServiceRequestPage: React.FC = () => {
                     managerId: managerId,
                     propertyId: propertyId,
                     serviceType: serviceType,
-                    // If reference image exists in payload, pass it
                     referenceImage: formData.referenceImage
                 }
             }).then(() => {
@@ -161,7 +184,7 @@ const ServiceRequestPage: React.FC = () => {
                             submitButtonText={submitButtonText}
                             submitButtonIcon={isPaymentFlow ? <BanknotesIcon className="w-5 h-5" /> : undefined}
                             defaultValues={{
-                                customerNotes: isCustom ? '' : '' // Can prepopulate if needed
+                                customerNotes: isCustom ? '' : ''
                             }}
                         >
                              {/* Injected UI Elements */}
