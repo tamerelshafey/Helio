@@ -6,13 +6,13 @@ export interface IconProps {
 }
 
 // Common props for SVGs to ensure consistency
-const defaultSvgProps = {
+const defaultSvgProps: React.SVGProps<SVGSVGElement> = {
     xmlns: "http://www.w3.org/2000/svg",
     fill: "none",
     viewBox: "0 0 24 24",
     strokeWidth: 1.5,
     stroke: "currentColor",
-    "aria-hidden": "true"
+    "aria-hidden": true
 };
 
 export const HomeIcon: React.FC<IconProps> = ({ className }) => (

@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useMemo } from 'react';
 // FIX: Imported 'keepPreviousData' for use with TanStack Query v5's placeholderData option.
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
@@ -43,10 +41,12 @@ const PropertiesPage: React.FC = () => {
     
     // Memoize filters to prevent unnecessary query refetches
     const queryFilters = useMemo(() => ({
+        view,
         status, type, query, minPrice, maxPrice, project, finishing, 
         installments, realEstateFinance, floor, compound, delivery, 
         amenities: amenitiesFilter, beds, baths
     }), [
+        view,
         status, type, query, minPrice, maxPrice, project, finishing, 
         installments, realEstateFinance, floor, compound, delivery, 
         amenitiesFilter, beds, baths

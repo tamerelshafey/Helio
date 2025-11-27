@@ -13,7 +13,7 @@ import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
 import { ToggleSwitch } from '../../ui/ToggleSwitch';
 import { WhatsAppIcon, PhoneIcon, ClipboardDocumentListIcon } from '../../ui/Icons';
-import EditContactMethodsModal from '../partners/EditContactMethodsModal'; // Assuming this is the correct shared component location
+import EditContactMethodsModal from './EditContactMethodsModal';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import { Card, CardContent, CardFooter } from '../../ui/Card';
 
@@ -54,7 +54,7 @@ const AdminInquiryManagementPage: React.FC = () => {
         data: businessPartners,
         itemsPerPage: 10,
         initialSort: { key: 'name', direction: 'ascending' },
-        searchFn: (p: AdminPartner, term: string) => p.name.toLowerCase().includes(term) || ((p.nameAr && p.nameAr.toLowerCase().includes(term)) || false),
+        searchFn: (p: AdminPartner, term: string) => p.name.toLowerCase().includes(term) || (p.nameAr?.toLowerCase().includes(term) ?? false),
         filterFns: {
             type: (p: AdminPartner, v) => p.type === v,
         }

@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -66,7 +64,7 @@ export const useAddPropertyForm = () => {
             isOwner: false,
             contactMethod: 'platform' as 'platform' | 'direct',
             ownerPhone: '',
-            amenities: { en: [], ar: [] },
+            amenities: { en: [] as string[], ar: [] as string[] },
         }
     });
     
