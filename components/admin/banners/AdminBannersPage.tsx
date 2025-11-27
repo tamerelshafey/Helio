@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import type { Banner } from '../../../types';
-import AdminBannerFormModal from '../content/AdminBannerFormModal'; // Assuming form modal is in content folder based on user list, or check location. If user list said 'AdminBannerFormModal' is in 'content', we use that. Wait, user list implies AdminBannerFormModal is in 'content/AdminBannerFormModal.tsx' based on file dump.
+import AdminBannerFormModal from '../content/AdminBannerFormModal'; // FIXED PATH
 import { PhotoIcon } from '../../ui/Icons';
 import { getAllBanners, deleteBanner as apiDeleteBanner } from '../../../services/banners';
 import { useQuery } from '@tanstack/react-query';

@@ -11,7 +11,7 @@ import AdminUsersPage from './users/AdminUsersPage';
 import AdminRolesPage from './users/AdminRolesPage';
 import AdminPlansPage from './AdminPlansPage';
 import AdminFilterManagementPage from './AdminFilterManagementPage';
-import AdminBannersPage from './AdminBannersPage';
+import AdminBannersPage from './banners/AdminBannersPage'; // FIXED PATH
 import AdminSettingsPage from './AdminSettingsPage';
 import AdminProfilePage from './AdminProfilePage';
 import PropertyFormPage from '../forms/PropertyFormPage';
