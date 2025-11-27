@@ -1,4 +1,6 @@
 
+// ... (Keep existing types)
+
 export type Language = 'ar' | 'en';
 
 export type Theme = 'light' | 'dark';
@@ -48,6 +50,7 @@ export enum Permission {
     MANAGE_INQUIRY_ROUTING = 'manage_inquiry_routing',
     MANAGE_PLANS = 'manage_plans',
     MANAGE_AUTOMATION = 'manage_automation',
+    MANAGE_FORMS = 'manage_forms', // New Permission
     MANAGE_OWN_PROFILE = 'manage_own_profile',
     MANAGE_OWN_PROPERTIES = 'manage_own_properties',
     MANAGE_OWN_PROJECTS = 'manage_own_projects',
@@ -481,4 +484,34 @@ export interface FinanceStats {
     pendingAmount: number;
     successfulTransactions: number;
     pendingReviews: number;
+}
+
+// --- DYNAMIC FORMS TYPES ---
+export type FormFieldType = 'text' | 'textarea' | 'number' | 'email' | 'tel' | 'select' | 'checkbox' | 'date' | 'file' | 'radio';
+export type FormCategory = 'public' | 'lead_gen' | 'partner_app' | 'admin_internal';
+export type SubmissionDestination = 'email' | 'crm_leads' | 'crm_messages' | 'crm_partners';
+
+export interface FormFieldDefinition {
+    id: string;
+    type: FormFieldType;
+    label: { ar: string; en: string };
+    key: string; // The key used in JSON payload
+    required: boolean;
+    options?: string[] | string; // For select/radio: comma separated or simple array
+    placeholder?: { ar: string; en: string };
+    width?: 'full' | 'half' | 'third'; // Layout hint
+}
+
+export interface FormDefinition {
+    id: string;
+    slug: string; // e.g. 'contact-us', 'service-request'
+    title: { ar: string; en: string };
+    description?: { ar: string; en: string };
+    category: FormCategory; // NEW: To filter in admin
+    destination: SubmissionDestination; // NEW: To know where to route data
+    fields: FormFieldDefinition[];
+    submitButtonLabel?: { ar: string; en: string };
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
 }

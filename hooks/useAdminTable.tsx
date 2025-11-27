@@ -1,4 +1,6 @@
+
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ArrowUpIcon, ArrowDownIcon } from '../components/ui/Icons';
 import { useDebounce } from './useDebounce';
 

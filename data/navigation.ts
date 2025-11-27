@@ -5,7 +5,7 @@ import {
   HomeIcon, ChartBarIcon, UserPlusIcon, ClipboardDocumentListIcon, SearchIcon,
   InboxIcon, WrenchScrewdriverIcon, UsersIcon, CubeIcon, BuildingIcon, QuoteIcon,
   CogIcon, PhotoIcon, SparklesIcon, ShieldCheckIcon, FileDownloadIcon, PhoneIcon,
-  AdjustmentsHorizontalIcon, BellIcon, BanknotesIcon
+  AdjustmentsHorizontalIcon, BellIcon, BanknotesIcon, ListIcon
 } from '../components/ui/Icons';
 
 export interface NavLinkItem {
@@ -40,6 +40,9 @@ export const adminNavLinks: NavLinkItem[] = [
   { name: t => t.adminDashboard.nav.projects, href: '/admin/projects', icon: CubeIcon, permission: Permission.MANAGE_ALL_PROJECTS, group: 'Content & Listings' },
   { name: t => t.adminDashboard.nav.banners, href: '/admin/banners', icon: PhotoIcon, permission: Permission.MANAGE_BANNERS, group: 'Content & Listings' },
   { name: t => t.adminDashboard.nav.siteContent, href: '/admin/content', icon: ClipboardDocumentListIcon, permission: Permission.MANAGE_SITE_CONTENT, group: 'Content & Listings' },
+  
+  // System Group
+  { name: t => 'Form Management', href: '/admin/forms', icon: ListIcon, permission: Permission.MANAGE_FORMS, group: 'System' }, // NEW
   { name: t => t.adminDashboard.nav.users, href: '/admin/users', icon: UsersIcon, permission: Permission.MANAGE_USERS, group: 'System' },
   { name: t => t.adminDashboard.nav.automationRules, href: '/admin/automation', icon: AdjustmentsHorizontalIcon, permission: Permission.MANAGE_AUTOMATION, group: 'System' },
   { name: t => t.adminDashboard.nav.rolesAndPermissions, href: '/admin/roles', icon: ShieldCheckIcon, permission: Permission.MANAGE_ROLES_PERMISSIONS, group: 'System' },

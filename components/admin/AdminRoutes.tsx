@@ -26,7 +26,6 @@ import AdminPartnersLayout from './partners/AdminPartnersLayout';
 import AdminPartnersDashboard from './partners/AdminPartnersDashboard';
 import AdminPartnersPage from './partners/AdminPartnersPage';
 import AdminProjectsPage from './partners/AdminProjectsPage';
-// FIX: Import from the correct directory to avoid duplicates
 import AdminInquiryManagementPage from './inquiryManagement/AdminInquiryManagementPage';
 import AdminPropertiesLayout from './properties/AdminPropertiesLayout';
 import AdminPropertiesDashboard from './properties/AdminPropertiesDashboard';
@@ -52,6 +51,7 @@ import RoutingRulesPage from './automation/RoutingRulesPage';
 import AllNotificationsPage from '../shared/AllNotificationsPage';
 import AdminAIEstimatorPage from './AdminAIEstimatorPage';
 import AdminFinancePage from './finance/AdminFinancePage';
+import AdminFormsPage from './forms/AdminFormsPage'; // NEW IMPORT
 
 const AdminRoutes: React.FC = () => {
     return (
@@ -63,6 +63,8 @@ const AdminRoutes: React.FC = () => {
             <Route path="automation" element={<RoutingRulesPage />} />
             <Route path="profile" element={<AdminProfilePage />} />
             <Route path="notifications" element={<AllNotificationsPage />} />
+            
+            <Route path="forms" element={<AdminFormsPage />} /> {/* NEW ROUTE */}
 
             <Route path="requests/new" element={<AdminCreateRequestPage />} /> 
             <Route path="requests" element={<AdminAllRequestsPage />} />

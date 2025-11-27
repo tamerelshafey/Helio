@@ -1,6 +1,4 @@
 
-
-
 import { Role, Permission, PartnerType } from '../types';
 
 export const rolePermissions: Map<Role, Permission[]> = new Map([
@@ -122,6 +120,7 @@ export const rolePermissions: Map<Role, Permission[]> = new Map([
       Permission.MANAGE_SITE_CONTENT,
       Permission.MANAGE_FILTERS,
       Permission.MANAGE_SETTINGS,
+      Permission.MANAGE_FORMS, // Added capability
     ],
   ],
 

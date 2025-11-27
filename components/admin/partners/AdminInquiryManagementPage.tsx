@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
@@ -9,7 +10,7 @@ import { Navigate } from 'react-router-dom';
  * but it simply redirects to the parent route.
  */
 const AdminInquiryManagementPage: React.FC = () => {
-    return <Navigate to="/admin/partners" replace />;
+    return <Navigate to="/admin/partners/inquiry-routing" replace />;
 };
 
 export default AdminInquiryManagementPage;

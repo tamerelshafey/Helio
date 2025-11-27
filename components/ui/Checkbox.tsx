@@ -1,11 +1,8 @@
 
-
-
 import React from 'react';
 
 const cn = (...classes: (string | undefined | false)[]) => classes.filter(Boolean).join(' ');
 
-// FIX: Added onCheckedChange to the props interface for compatibility with components expecting it (e.g., from Radix UI patterns).
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
     onCheckedChange?: (checked: boolean) => void;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
@@ -14,8 +11,6 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
 
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     ({ className, onCheckedChange, onChange, ...props }, ref) => {
-        // FIX: Created a new handleChange function to handle both onCheckedChange and the native onChange.
-        // This allows components to use the more modern onCheckedChange pattern while still supporting standard forms.
         const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             if (onCheckedChange) {
                 onCheckedChange(event.target.checked);

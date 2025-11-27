@@ -41,7 +41,7 @@ const PropertiesPage: React.FC = () => {
     
     // Memoize filters to prevent unnecessary query refetches
     const queryFilters = useMemo(() => ({
-        view,
+        view, // Include view property
         status, type, query, minPrice, maxPrice, project, finishing, 
         installments, realEstateFinance, floor, compound, delivery, 
         amenities: amenitiesFilter, beds, baths

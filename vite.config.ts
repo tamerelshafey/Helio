@@ -1,4 +1,3 @@
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -6,9 +5,16 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
     plugins: [react()],
     build: {
-        // Bundling configuration:
-        // We have removed 'rollupOptions.external' to ensure all dependencies (React, etc.)
-        // are bundled into the build artifacts. This makes the app self-contained
-        // and suitable for production deployment on platforms like Vercel.
+        chunkSizeWarningLimit: 1000,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['react', 'react-dom', 'react-router-dom'],
+                    utils: ['react-hook-form', '@tanstack/react-query'],
+                    charts: ['chart.js', 'react-chartjs-2'],
+                    pdf: ['jspdf', 'jspdf-autotable'],
+                },
+            },
+        },
     },
 });
