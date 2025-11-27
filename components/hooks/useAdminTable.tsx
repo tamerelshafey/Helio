@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ArrowUpIcon, ArrowDownIcon } from '../ui/Icons';
-import { useDebounce } from './useDebounce';
+import { useDebounce } from '../../hooks/useDebounce';
 
 type SortDirection = 'ascending' | 'descending';
 

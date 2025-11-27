@@ -11,7 +11,7 @@ import AdminUsersPage from './users/AdminUsersPage';
 import AdminRolesPage from './users/AdminRolesPage';
 import AdminPlansPage from './AdminPlansPage';
 import AdminFilterManagementPage from './AdminFilterManagementPage';
-import AdminBannersPage from './banners/AdminBannersPage'; // FIXED PATH
+import AdminBannersPage from './banners/AdminBannersPage';
 import AdminSettingsPage from './AdminSettingsPage';
 import AdminProfilePage from './AdminProfilePage';
 import PropertyFormPage from '../forms/PropertyFormPage';
@@ -26,6 +26,7 @@ import AdminPartnersLayout from './partners/AdminPartnersLayout';
 import AdminPartnersDashboard from './partners/AdminPartnersDashboard';
 import AdminPartnersPage from './partners/AdminPartnersPage';
 import AdminProjectsPage from './partners/AdminProjectsPage';
+// FIX: Import from the correct directory to avoid duplicates
 import AdminInquiryManagementPage from './inquiryManagement/AdminInquiryManagementPage';
 import AdminPropertiesLayout from './properties/AdminPropertiesLayout';
 import AdminPropertiesDashboard from './properties/AdminPropertiesDashboard';
@@ -50,14 +51,14 @@ import ContentTermsOfUsePage from './content/ContentTermsOfUsePage';
 import RoutingRulesPage from './automation/RoutingRulesPage';
 import AllNotificationsPage from '../shared/AllNotificationsPage';
 import AdminAIEstimatorPage from './AdminAIEstimatorPage';
-import AdminFinancePage from './finance/AdminFinancePage'; // NEW IMPORT
+import AdminFinancePage from './finance/AdminFinancePage';
 
 const AdminRoutes: React.FC = () => {
     return (
         <Routes>
             <Route index element={<AdminHomePage />} />
             <Route path="analytics" element={<AdminAnalyticsPage />} />
-            <Route path="finance" element={<AdminFinancePage />} /> {/* NEW ROUTE */}
+            <Route path="finance" element={<AdminFinancePage />} />
             <Route path="reports" element={<AdminReportsPage />} />
             <Route path="automation" element={<RoutingRulesPage />} />
             <Route path="profile" element={<AdminProfilePage />} />
