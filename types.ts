@@ -346,7 +346,9 @@ export interface PaymentConfiguration {
     };
     paymob: {
         enabled: boolean;
-        apiKey?: string; // Mock placeholder
+        apiKey?: string;
+        secretKey?: string;
+        publicKey?: string;
     };
 }
 

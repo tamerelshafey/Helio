@@ -5,6 +5,8 @@
 
 
 
+
+
 import type { SiteContent, Quote } from '../types';
 
 const quotesData: Quote[] = [
@@ -398,7 +400,9 @@ export let siteContentData: SiteContent = {
       },
       paymob: {
           enabled: false, // Disabled by default for now
-          apiKey: 'mock-paymob-api-key'
+          apiKey: '',
+          secretKey: '',
+          publicKey: ''
       }
   },
   hero: {

@@ -3,6 +3,8 @@
 
 
 
+
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import type { Language, SiteContent } from '../../types';
@@ -211,8 +213,16 @@ const AdminSettingsPage: React.FC = () => {
                                             <label htmlFor="paymob-enabled" className="font-medium cursor-pointer">Enable Paymob (Card) Method</label>
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium mb-1">API Key (Secret)</label>
-                                            <Input type="password" {...register('paymentConfiguration.paymob.apiKey')} placeholder="sk_live_..." />
+                                            <label className="block text-sm font-medium mb-1">Paymob API Key</label>
+                                            <Input type="password" {...register('paymentConfiguration.paymob.apiKey')} placeholder="Enter API Key" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Paymob Live Secret Key</label>
+                                            <Input type="password" {...register('paymentConfiguration.paymob.secretKey')} placeholder="Enter Live Secret Key" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Paymob Live Public Key</label>
+                                            <Input type="text" {...register('paymentConfiguration.paymob.publicKey')} placeholder="Enter Live Public Key" />
                                         </div>
                                     </CardContent>
                                 </Card>
