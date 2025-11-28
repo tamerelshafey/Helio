@@ -1,4 +1,6 @@
 
+
+
 // ... (Keep existing types)
 
 export type Language = 'ar' | 'en';
@@ -101,6 +103,7 @@ export interface Partner {
         phone: { enabled: boolean; number: string; };
         form: { enabled: boolean; };
     };
+    createdAt?: string;
 }
 
 export interface AdminPartner extends Partner {

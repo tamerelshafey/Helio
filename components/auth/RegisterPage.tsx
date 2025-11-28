@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { PartnerType, SubscriptionPlan, PlanCategory } from '../../types';
+import type { PartnerType, SubscriptionPlan, PlanCategory, OfficialDocument } from '../../types';
 import FormField from '../ui/FormField';
 import { CheckCircleIcon, ClipboardDocumentListIcon } from '../ui/Icons';
 import { SiteLogo } from '../shared/SiteLogo';
@@ -114,7 +114,7 @@ const RegisterPage: React.FC = () => {
         }
         
         const logoBase64 = await fileToBase64(logoFile);
-        let docsBase64 = [];
+        let docsBase64: OfficialDocument[] = [];
         if (docFiles) {
              const filesArray = Array.from(docFiles);
              const filePromises = filesArray.map(async (file: File) => ({
