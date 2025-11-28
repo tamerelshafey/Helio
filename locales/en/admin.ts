@@ -35,7 +35,52 @@ export const admin = {
             "platformProperties": "Platform Properties",
             "platformDecorations": "Decor Services",
             "platformFinishing": "Platform Finishing",
-             "aiEstimatorSettings": "AI Estimator Settings"
+            "aiEstimatorSettings": "AI Estimator Settings",
+            "finance": "Finance Center",
+            "forms": "Form Management"
+        },
+        "finance": {
+            "title": "Financial Center",
+            "subtitle": "Overview of all revenue and pending transactions.",
+            "totalRevenue": "Total Revenue",
+            "pendingAmount": "Pending Amount",
+            "successfulTxns": "Successful Txns",
+            "needsAction": "Needs Action",
+            "recentTransactions": "Recent Transactions",
+            "table": {
+                "user": "User",
+                "description": "Description",
+                "amount": "Amount",
+                "method": "Method",
+                "date": "Date",
+                "status": "Status",
+                "action": "Action"
+            },
+            "transactionDetails": "Transaction Details",
+            "receipt": "Receipt Image",
+            "approve": "Approve",
+            "reject": "Reject"
+        },
+        "formManagement": {
+            "title": "Form Management",
+            "subtitle": "Create and manage dynamic forms for different sections.",
+            "createForm": "Create Form",
+            "editForm": "Edit Form",
+            "formTitle": "Form Title",
+            "slug": "Slug (ID)",
+            "category": "Category",
+            "fieldsCount": "Fields",
+            "status": "Status",
+            "builder": {
+                "settings": "Form Settings",
+                "fields": "Form Fields",
+                "addField": "Add Field",
+                "fieldName": "Label",
+                "fieldType": "Type",
+                "required": "Required",
+                "options": "Options",
+                "width": "Width"
+            }
         },
         "requestsTriage": {
             "title": "Requests Triage Center",

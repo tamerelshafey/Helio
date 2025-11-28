@@ -8,47 +8,62 @@ import { ToastProvider } from './components/shared/ToastContext';
 import { LanguageProvider } from './components/shared/LanguageContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import ErrorBoundary from './components/shared/ErrorBoundary';
+import { ThemeProvider } from './components/shared/ThemeContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
     throw new Error('Could not find root element to mount to');
 }
 
-const queryClient = new QueryClient();
+// Robust Query Client Configuration
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: 1, // Retry failed requests once
+            refetchOnWindowFocus: false, // Prevent refetching when tab is switched (better UX for forms)
+            staleTime: 1000 * 60 * 5, // Data is fresh for 5 minutes
+            throwOnError: false, // Don't crash the app on query errors, let components handle isError state
+        },
+        mutations: {
+            retry: 0, // Don't retry mutations (like form submissions) automatically to prevent duplication
+        }
+    }
+});
 
 // Smart Router Selection
-// Determine if we are in a preview environment that requires HashRouter.
 const hostname = window.location.hostname;
 const href = window.location.href;
 
 const isPreviewEnv = 
     hostname.includes('googleusercontent.com') || 
     hostname.includes('usercontent.goog') || 
-    href.includes('usercontent.goog') || // Check full URL to catch all IDX/Cloud Shell variations
+    href.includes('usercontent.goog') || 
     hostname.includes('webcontainer.io') ||
     hostname.includes('stackblitz.io') ||
     hostname.includes('codesandbox.io') ||
-    // Fallback: if the hostname contains '.goog' but isn't the main google site, assume preview
     (hostname.includes('.goog') && !hostname.includes('www.google.com'));
 
-// Use HashRouter for preview environments to avoid "No routes matched" errors on subpaths.
-// Use BrowserRouter for production (Clean URLs).
 const Router = isPreviewEnv ? HashRouter : BrowserRouter;
 
 const root = createRoot(rootElement);
 root.render(
     <React.StrictMode>
-        <Router>
-            <QueryClientProvider client={queryClient}>
-                <ToastProvider>
-                    <AuthProvider>
-                        <LanguageProvider>
-                            <App />
-                        </LanguageProvider>
-                    </AuthProvider>
-                </ToastProvider>
-                <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
-        </Router>
+        <ErrorBoundary>
+            <Router>
+                <QueryClientProvider client={queryClient}>
+                    <ThemeProvider>
+                        <ToastProvider>
+                            <AuthProvider>
+                                <LanguageProvider>
+                                    <App />
+                                </LanguageProvider>
+                            </AuthProvider>
+                        </ToastProvider>
+                    </ThemeProvider>
+                    <ReactQueryDevtools initialIsOpen={false} />
+                </QueryClientProvider>
+            </Router>
+        </ErrorBoundary>
     </React.StrictMode>,
 );

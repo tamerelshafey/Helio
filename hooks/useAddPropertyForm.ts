@@ -47,7 +47,7 @@ export const useAddPropertyForm = () => {
     const isLoadingContext = isLoadingPropTypes || isLoadingFinishing || isLoadingPlans || isLoadingAmenities;
 
     // React Hook Form
-    const { register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm({
+    const { register, handleSubmit, watch, setValue, formState: { errors }, reset, getValues } = useForm({
         defaultValues: {
             customerName: '', customerPhone: '', contactTime: '',
             title: { ar: '', en: '' }, description: { ar: '', en: '' },
@@ -163,16 +163,32 @@ export const useAddPropertyForm = () => {
     
     // Form submission
     const onSubmit = async (formData: any) => {
+        // Check ownership confirmation from hook state if not passed in formData
+        const isOwner = formData.isOwner || getValues('isOwner');
+        if (!isOwner) {
+            showToast(t_page.errors.mustBeOwner, 'error');
+            return;
+        }
+
         if (!cooperationType || !purpose) {
             showToast(t_page.errors.cooperationType, 'error');
             return;
         }
+
+        // Merge data from DynamicForm (formData) with hook state (images, location, etc)
+        // Note: DynamicForm fields use 'key', so ensure keys match.
+        // We fallback to hook state if DynamicForm data is missing specific fields (e.g. if they are custom inputs)
+
         const imageBase64Strings = await Promise.all(images.map(file => fileToBase64(file)));
+        
+        // Ensure lat/lng are present
+        const lat = formData.latitude || getValues('latitude');
+        const lng = formData.longitude || getValues('longitude');
         
         const propertyDetails = {
             purpose: purposeOptions.find(o => o.en === purpose)!,
-            title: formData.title,
-            description: formData.description,
+            title: formData.title || { ar: formData['title.ar'], en: formData['title.en'] },
+            description: formData.description || { ar: formData['description.ar'], en: formData['description.en'] },
             propertyType: (propertyTypes || []).find(o => o.en === formData.propertyType)!,
             finishingStatus: (finishingStatuses || []).find(o => o.en === formData.finishingStatus)!,
             area: parseInt(formData.area),
@@ -181,8 +197,8 @@ export const useAddPropertyForm = () => {
             bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : undefined,
             floor: formData.floor ? parseInt(formData.floor) : undefined,
             address: formData.address,
-            amenities: formData.amenities,
-            location: { lat: parseFloat(formData.latitude), lng: parseFloat(formData.longitude) },
+            amenities: formData.amenities || getValues('amenities'), // Amenities might be handled by custom UI
+            location: { lat: parseFloat(lat), lng: parseFloat(lng) },
             isInCompound: formData.isInCompound === 'yes',
             deliveryType: formData.deliveryType,
             deliveryMonth: formData.deliveryMonth,
@@ -194,23 +210,21 @@ export const useAddPropertyForm = () => {
             years: formData.years ? parseInt(formData.years) : undefined,
             listingStartDate: formData.listingStartDate,
             listingEndDate: formData.listingEndDate,
-            contactMethod: cooperationType === 'commission' ? 'platform' : formData.contactMethod,
-            ownerPhone: formData.ownerPhone,
+            contactMethod: cooperationType === 'commission' ? 'platform' : (formData.contactMethod || getValues('contactMethod')),
+            ownerPhone: formData.ownerPhone || getValues('ownerPhone'),
         };
         
         if (cooperationType === 'paid_listing') {
-            // Fix: correctly access nested language object for price
             const planDetails = plansForPurpose['paid_listing'];
             const planPriceString = planDetails?.[language]?.price || "0";
             const priceNumeric = parseInt(planPriceString.replace(/[^0-9]/g, '')) || 0;
 
-            // Redirect to payment page
             navigate('/payment', { 
                 state: { 
                     amount: priceNumeric,
-                    description: `Property Listing Fee: ${formData.title.en || 'New Property'}`,
+                    description: `Property Listing Fee: ${propertyDetails.title.en || 'New Property'}`,
                     type: 'listing_fee',
-                    userId: formData.customerPhone, // Use phone as temp ID for guest users
+                    userId: formData.customerPhone, 
                     userName: formData.customerName,
                     data: {
                         requesterInfo: { name: formData.customerName, phone: formData.customerPhone },
@@ -224,7 +238,6 @@ export const useAddPropertyForm = () => {
                 } 
             });
         } else {
-            // Submit directly for commission based listings
             mutation.mutate({
                 requesterInfo: { name: formData.customerName, phone: formData.customerPhone },
                 payload: {
@@ -266,6 +279,9 @@ export const useAddPropertyForm = () => {
         setValue,
         errors,
         
+        // Exposed raw submit for external callers (DynamicForm)
+        onSubmit,
+
         // Watchers
         watchPropertyType,
         watchAmenities,

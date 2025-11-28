@@ -2,7 +2,6 @@
 import React, { useMemo } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { addRequest } from '../../services/requests';
-import { addLead } from '../../services/leads';
 import { RequestType } from '../../types';
 import { SiteLogo } from '../shared/SiteLogo';
 import { useToast } from '../shared/ToastContext';
@@ -21,7 +20,7 @@ const ServiceRequestPage: React.FC = () => {
     const t_custom_decor_modal = t.customDecorationRequestModal;
     const t_decor = t.decorationsPage;
     
-    const { serviceTitle, partnerId, propertyId, workItem, isCustom, serviceType, tier, isBooking, isPurchase } = location.state || {};
+    const { serviceTitle, partnerId, propertyId, workItem, isCustom, serviceType, tier, isBooking, isPurchase, categoryName } = location.state || {};
     const { data: allPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
     const { showToast } = useToast();
     
@@ -163,6 +162,73 @@ const ServiceRequestPage: React.FC = () => {
         }
     };
 
+    const headerContent = (
+        <>
+             {workItem && (
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-sm text-gray-600 mb-2">{isPurchase ? (language === 'ar' ? 'المنتج' : 'Product') : t_decor_modal.reference}</p>
+                    <div className="flex gap-4 items-start">
+                        <img src={workItem.imageUrl} alt={workItem.alt} className="w-24 h-24 object-cover rounded-lg flex-shrink-0 shadow-md" />
+                        <div className="space-y-1 text-sm flex-grow">
+                            <h3 className="font-bold text-gray-900 text-base">{workItem.title[language]}</h3>
+                            {workItem.dimensions && <p className="text-gray-500">{t_decor.dimensions}: {workItem.dimensions}</p>}
+                            {workItem.availability && <p className="text-gray-500">{t_decor.availability}: {workItem.availability === 'In Stock' ? t_decor.inStock : t_decor.madeToOrder}</p>}
+                        </div>
+                        {isPurchase && workItem.price && (
+                            <div className="text-right">
+                                <p className="text-xs text-gray-500">{language === 'ar' ? 'السعر' : 'Price'}</p>
+                                <p className="text-xl font-bold text-amber-600">{workItem.price.toLocaleString(language)} <span className="text-sm text-gray-500">EGP</span></p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {isBooking && tier && (
+                <div className="mb-6 p-5 bg-amber-50 rounded-lg border border-amber-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div>
+                        <p className="text-sm text-amber-800 font-semibold uppercase tracking-wider mb-1">{language === 'ar' ? 'تفاصيل الباقة' : 'Package Details'}</p>
+                        <h3 className="text-xl font-bold text-gray-900">{tier.unitType[language]}</h3>
+                        <p className="text-gray-600">{tier.areaRange[language]}</p>
+                    </div>
+                    <div className="text-center sm:text-right bg-white p-3 rounded-lg border border-amber-100 shadow-sm">
+                        <p className="text-xs text-gray-500 mb-1">{language === 'ar' ? 'السعر' : 'Price'}</p>
+                        <p className="text-2xl font-bold text-amber-600 flex items-center gap-1 justify-end">
+                            {tier.price.toLocaleString(language)} <span className="text-sm font-normal text-gray-500">EGP</span>
+                        </p>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+    
+    const defaultValues = useMemo(() => {
+        const vals: any = { customerNotes: '' };
+        
+        const mapCategoryToKey = (catName: string | undefined) => {
+             if (!catName) return '';
+             const lower = catName.toLowerCase();
+             if (lower.includes('sculpture') || lower.includes('منحوتات')) return 'wall_sculpture';
+             if (lower.includes('painting') || lower.includes('canvas') || lower.includes('لوحات')) return 'canvas_painting';
+             if (lower.includes('antique') || lower.includes('decor') || lower.includes('تحف')) return 'antique_decor';
+             if (lower.includes('furniture') || lower.includes('أثاث')) return 'custom_furniture';
+             return '';
+        };
+
+        if (workItem) {
+             vals.itemCategory = mapCategoryToKey(workItem.category?.en) || mapCategoryToKey(workItem.category?.ar);
+        } else if (isCustom && categoryName) {
+             vals.itemCategory = mapCategoryToKey(categoryName);
+        }
+        return vals;
+    }, [isCustom, categoryName, workItem]);
+    
+    const hiddenFields = useMemo(() => {
+         // If category is pre-selected (custom design from category page OR specific work item), hide the category selector
+         if ((isCustom && categoryName) || workItem) return ['itemCategory'];
+         return [];
+    }, [isCustom, categoryName, workItem]);
+
     return (
         <div className="py-20 bg-gray-50">
             <div className="container mx-auto px-6">
@@ -183,47 +249,10 @@ const ServiceRequestPage: React.FC = () => {
                             customSubmit={handleCustomSubmit}
                             submitButtonText={submitButtonText}
                             submitButtonIcon={isPaymentFlow ? <BanknotesIcon className="w-5 h-5" /> : undefined}
-                            defaultValues={{
-                                customerNotes: isCustom ? '' : ''
-                            }}
-                        >
-                             {/* Injected UI Elements */}
-                            {workItem && (
-                                <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                    <p className="text-sm text-gray-600 mb-2">{isPurchase ? (language === 'ar' ? 'المنتج' : 'Product') : t_decor_modal.reference}</p>
-                                    <div className="flex gap-4 items-start">
-                                        <img src={workItem.imageUrl} alt={workItem.alt} className="w-24 h-24 object-cover rounded-lg flex-shrink-0 shadow-md" />
-                                        <div className="space-y-1 text-sm flex-grow">
-                                            <h3 className="font-bold text-gray-900 text-base">{workItem.title[language]}</h3>
-                                            {workItem.dimensions && <p className="text-gray-500">{t_decor.dimensions}: {workItem.dimensions}</p>}
-                                            {workItem.availability && <p className="text-gray-500">{t_decor.availability}: {workItem.availability === 'In Stock' ? t_decor.inStock : t_decor.madeToOrder}</p>}
-                                        </div>
-                                        {isPurchase && workItem.price && (
-                                            <div className="text-right">
-                                                <p className="text-xs text-gray-500">{language === 'ar' ? 'السعر' : 'Price'}</p>
-                                                <p className="text-xl font-bold text-amber-600">{workItem.price.toLocaleString(language)} <span className="text-sm text-gray-500">EGP</span></p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {isBooking && tier && (
-                                <div className="mb-6 p-5 bg-amber-50 rounded-lg border border-amber-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-                                    <div>
-                                        <p className="text-sm text-amber-800 font-semibold uppercase tracking-wider mb-1">{language === 'ar' ? 'تفاصيل الباقة' : 'Package Details'}</p>
-                                        <h3 className="text-xl font-bold text-gray-900">{tier.unitType[language]}</h3>
-                                        <p className="text-gray-600">{tier.areaRange[language]}</p>
-                                    </div>
-                                    <div className="text-center sm:text-right bg-white p-3 rounded-lg border border-amber-100 shadow-sm">
-                                        <p className="text-xs text-gray-500 mb-1">{language === 'ar' ? 'السعر' : 'Price'}</p>
-                                        <p className="text-2xl font-bold text-amber-600 flex items-center gap-1 justify-end">
-                                            {tier.price.toLocaleString(language)} <span className="text-sm font-normal text-gray-500">EGP</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                        </DynamicForm>
+                            defaultValues={defaultValues}
+                            hiddenFields={hiddenFields}
+                            headerContent={headerContent}
+                        />
                     </div>
                 </div>
             </div>

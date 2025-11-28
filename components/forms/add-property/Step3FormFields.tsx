@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useFormContext } from 'react-hook-form';
 import FormField from '../../ui/FormField';
 import { CloseIcon, LocationMarkerIcon } from '../../ui/Icons';
 import { useLanguage } from '../../shared/LanguageContext';
@@ -10,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from '../../ui/RadioGroup';
 import { Checkbox } from '../../ui/Checkbox';
 import { Button } from '../../ui/Button';
 import { useAddPropertyForm } from '../../../hooks/useAddPropertyForm';
+import DynamicForm from '../../shared/DynamicForm';
 
 // Derive props type from the return type of the hook
 type Step3FormFieldsProps = ReturnType<typeof useAddPropertyForm>;
@@ -18,83 +20,63 @@ export const Step3FormFields: React.FC<Step3FormFieldsProps> = (props) => {
     const { language, t } = useLanguage();
     const t_page = t.addPropertyPage;
     const {
-        handleSubmit, register, watch, errors, prevStep,
+        register: registerManual,
+        watch: watchManual,
+        prevStep,
         imagePreviews, handleImageChange, removeImage,
         setIsLocationModalOpen, availableAmenities,
-        handleAmenityChange, isSubmitting, watchAmenities,
-        cooperationType
+        handleAmenityChange, isSubmitting, 
+        cooperationType,
+        errors
     } = props;
     
-    const watchContactMethod = watch("contactMethod");
+    const handleDynamicSubmit = (data: any) => {
+        // @ts-ignore
+        props.onSubmit(data);
+    };
+
+    const watchContactMethod = watchManual("contactMethod");
+
+    // Header Content: Location Map (Appears ABOVE the dynamic form fields)
+    const locationHeader = (
+        <div className="col-span-full mb-6 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location Coordinates</label>
+             <div className="flex flex-wrap items-center gap-4">
+                <Button type="button" variant="outline" onClick={() => setIsLocationModalOpen(true)} className="flex items-center gap-2">
+                    <LocationMarkerIcon className="w-5 h-5"/> Select on Map
+                </Button>
+                {(props.watchLatitude && props.watchLongitude) ? (
+                    <div className="text-sm font-mono text-gray-600 bg-green-50 border border-green-200 px-3 py-1 rounded flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                        {parseFloat(props.watchLatitude).toFixed(4)}, {parseFloat(props.watchLongitude).toFixed(4)}
+                    </div>
+                ) : (
+                    <span className="text-xs text-gray-400 italic">No location selected</span>
+                )}
+            </div>
+        </div>
+    );
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 animate-fadeIn">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t_page.formTitle}</h2>
+        <div className="animate-fadeIn">
+             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t_page.formTitle}</h2>
 
-            {cooperationType === 'paid_listing' && (
-                <fieldset className="space-y-2">
-                    <legend className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t_page.contactPreference.title}:</legend>
-                    <RadioGroup className="flex gap-4 pt-2">
-                        <label className="flex items-center gap-2">
-                            <RadioGroupItem {...register("contactMethod")} value="platform" id="contact-platform" />
-                            <span>{t_page.contactPreference.platform}</span>
-                        </label>
-                        <label className="flex items-center gap-2">
-                            <RadioGroupItem {...register("contactMethod")} value="direct" id="contact-direct" />
-                            <span>{t_page.contactPreference.direct}</span>
-                        </label>
-                    </RadioGroup>
-                    {watchContactMethod === 'direct' && (
-                        <div className="pt-2 animate-fadeIn">
-                            <FormField label={`${t_page.phone} (For Public Inquiries)`} id="ownerPhone" error={errors.ownerPhone?.message as string | undefined}>
-                                <Input type="tel" {...register("ownerPhone", { required: watchContactMethod === 'direct' ? t_page.errors.required : false, pattern: { value: /^\+?[0-9\s-]{10,}$/, message: t_page.errors.invalidPhone } })} dir="ltr" />
-                            </FormField>
-                        </div>
-                    )}
-                </fieldset>
-            )}
-
-            <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
-                <legend className="text-lg font-semibold text-amber-500 mb-2">{t_page.ownerInfo}</legend>
-                <div className="grid sm:grid-cols-2 gap-4">
-                    <FormField label={t_page.fullName} id="customerName" error={errors.customerName?.message as string | undefined}>
-                        <Input type="text" {...register("customerName", { required: t_page.errors.required })} />
-                    </FormField>
-                    <FormField label={`${t_page.phone} (For Verification)`} id="customerPhone" error={errors.customerPhone?.message as string | undefined}>
-                        <Input type="tel" {...register("customerPhone", { required: t_page.errors.required, pattern: { value: /^\+?[0-9\s-]{10,}$/, message: t_page.errors.invalidPhone } })} dir="ltr" />
-                    </FormField>
-                </div>
-                <FormField label={t_page.contactTime} id="contactTime" error={errors.contactTime?.message as string | undefined}>
-                    <Select {...register("contactTime", { required: t_page.errors.required })} className={!watch("contactTime") ? 'text-gray-500' : ''} >
-                        <option value="" disabled>{t_page.selectTime}</option>
-                        <option value="morning" className="text-gray-900">{t_page.morning}</option>
-                        <option value="afternoon" className="text-gray-900">{t_page.afternoon}</option>
-                        <option value="evening" className="text-gray-900">{t_page.evening}</option>
-                    </Select>
-                </FormField>
-            </fieldset>
-            
-            <fieldset className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
-                <legend className="text-lg font-semibold text-amber-500 mb-2">{t_page.propertyInfo}</legend>
+             <DynamicForm
+                slug="add-property"
+                customSubmit={handleDynamicSubmit}
+                submitButtonText={t_page.submitButton}
+                headerContent={locationHeader} // Passed to appear at the TOP
+             >
+                {/* Children (Injected BELOW the dynamic form fields) */}
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField label={t.dashboard.propertyForm.propertyTitleAr} id="title.ar"><Input {...register("title.ar", { required: true })} /></FormField>
-                    <FormField label={t.dashboard.propertyForm.propertyTitleEn} id="title.en"><Input {...register("title.en", { required: true })} /></FormField>
-                </div>
-                <FormField label={t_page.address} id="address" error={errors.address?.message as string | undefined}><Input type="text" {...register("address", { required: t_page.errors.required })} /></FormField>
-                
-                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    <FormField label={t_page.propertyType} id="propertyType"><Select {...register("propertyType", { required: true })}><option value="" disabled>{t_page.selectType}</option>{(props.propertyTypes || []).map((o: any) => <option key={o.id} value={o.en}>{o[language]}</option>)}</Select></FormField>
-                    <FormField label={t_page.area} id="area" error={errors.area?.message as string | undefined}><Input type="number" {...register("area", { required: t_page.errors.required, min: 1 })} min="1" /></FormField>
-                    <FormField label={t_page.price} id="price" error={errors.price?.message as string | undefined}><Input type="number" {...register("price", { required: t_page.errors.required, min: 1 })} min="1"/></FormField>
-                </div>
-                
-                    <FormField label={t.propertiesPage.amenities} id="amenities">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-md max-h-60 overflow-y-auto">
+                {/* Amenities */}
+                <div className="col-span-full">
+                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.propertiesPage.amenities}</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-md max-h-60 overflow-y-auto bg-white dark:bg-gray-800">
                         {(availableAmenities || []).map((amenity: any) => (
-                            <label key={amenity.id} className="flex items-center gap-2">
+                            <label key={amenity.id} className="flex items-center gap-2 cursor-pointer">
                                 <Checkbox
-                                    checked={(watchAmenities?.en || []).includes(amenity.en)}
+                                    checked={(props.watchAmenities?.en || []).includes(amenity.en)}
                                     onCheckedChange={() => handleAmenityChange(amenity.en)}
                                     id={`amenity-${amenity.id}`}
                                 />
@@ -102,59 +84,76 @@ export const Step3FormFields: React.FC<Step3FormFieldsProps> = (props) => {
                             </label>
                         ))}
                     </div>
-                </FormField>
+                </div>
 
-                <FormField label={t_page.description} id="description.ar">
-                    <Textarea {...register("description.ar")} rows={3} placeholder={t_page.descriptionPlaceholder + ' (بالعربية)'} />
-                </FormField>
-                <FormField label="" id="description.en">
-                    <Textarea {...register("description.en")} rows={3} placeholder={t_page.descriptionPlaceholder + ' (in English)'} />
-                </FormField>
-
-                <FormField label="Location" id="location">
-                    <div className="flex items-center gap-4">
-                        <Button type="button" variant="outline" onClick={() => setIsLocationModalOpen(true)} className="flex items-center gap-2">
-                            <LocationMarkerIcon className="w-5 h-5"/> Select on Map
-                        </Button>
-                        {(props.watchLatitude && props.watchLongitude) && (
-                            <div className="text-sm font-mono text-gray-600 bg-gray-100 px-3 py-1 rounded">
-                                {parseFloat(props.watchLatitude).toFixed(4)}, {parseFloat(props.watchLongitude).toFixed(4)}
-                            </div>
-                        )}
-                    </div>
-                </FormField>
-
-                <FormField label={t_page.images} id="images">
-                    <div>
-                        <Input type="file" id="images" multiple accept="image/*" onChange={handleImageChange} className="p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100" />
-                        <p className="text-xs text-gray-500 mt-1">{t_page.imagesHelpText}</p>
+                {/* Image Upload */}
+                <div className="col-span-full">
+                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t_page.images}</label>
+                    <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${imagePreviews.length === 0 ? 'border-gray-300 hover:border-amber-400' : 'border-amber-200 bg-amber-50/30'}`}>
+                        <input type="file" id="images" multiple accept="image/*" onChange={handleImageChange} className="hidden" />
+                        <label htmlFor="images" className="cursor-pointer flex flex-col items-center justify-center">
+                             {imagePreviews.length === 0 && (
+                                 <div className="mb-3 p-3 bg-gray-100 rounded-full">
+                                     <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                 </div>
+                             )}
+                             <span className="text-amber-600 font-semibold hover:underline">Click to upload</span> 
+                             <span className="text-gray-500 text-sm mt-1">{t_page.imagesHelpText}</span>
+                        </label>
+                        
                         {imagePreviews.length > 0 && (
-                            <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                            <div className="mt-6 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                                 {imagePreviews.map((preview: string, index: number) => (
-                                    <div key={index} className="relative">
-                                        <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-24 object-cover rounded-md" />
-                                        <button type="button" onClick={() => removeImage(index)} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 leading-none"><CloseIcon className="w-4 h-4" /></button>
+                                    <div key={index} className="relative group">
+                                        <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-24 object-cover rounded-lg border border-gray-200" />
+                                        <button type="button" onClick={() => removeImage(index)} className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1 shadow-md border border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"><CloseIcon className="w-4 h-4" /></button>
                                     </div>
                                 ))}
+                                <label htmlFor="images" className="flex items-center justify-center h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-amber-400 hover:bg-white transition-colors">
+                                    <span className="text-2xl text-gray-400">+</span>
+                                </label>
                             </div>
                         )}
                     </div>
-                </FormField>
-            </fieldset>
+                </div>
+                
+                 {cooperationType === 'paid_listing' && (
+                    <div className="col-span-full space-y-2 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-800">
+                        <label className="block text-sm font-bold text-blue-800 dark:text-blue-300 mb-2">{t_page.contactPreference.title}:</label>
+                        <RadioGroup className="flex gap-4 pt-1">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <RadioGroupItem {...registerManual("contactMethod")} value="platform" id="contact-platform" />
+                                <span className="text-sm text-gray-700 dark:text-gray-300">{t_page.contactPreference.platform}</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <RadioGroupItem {...registerManual("contactMethod")} value="direct" id="contact-direct" />
+                                <span className="text-sm text-gray-700 dark:text-gray-300">{t_page.contactPreference.direct}</span>
+                            </label>
+                        </RadioGroup>
+                        {watchContactMethod === 'direct' && (
+                            <div className="pt-2 animate-fadeIn">
+                                <FormField label={`${t_page.phone} (For Public Inquiries)`} id="ownerPhone">
+                                    <Input type="tel" {...registerManual("ownerPhone")} dir="ltr" className="bg-white" />
+                                </FormField>
+                            </div>
+                        )}
+                    </div>
+                )}
 
-            <div className="space-y-4 border-t border-gray-200 pt-4">
-                <div className="flex items-start">
-                    <Checkbox id="isOwner" {...register("isOwner", { required: t_page.errors.mustBeOwner })} className="mt-1" />
-                    <label htmlFor="isOwner" className={`text-sm text-gray-600 ${language === 'ar' ? 'mr-3' : 'ml-3'}`}>{t_page.confirmationLabel}</label>
+                 <div className="col-span-full pt-6 border-t">
+                    <div className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <Checkbox id="isOwner" {...registerManual("isOwner", { required: true })} className="mt-1" />
+                        <label htmlFor="isOwner" className={`text-sm font-medium text-gray-700 cursor-pointer leading-relaxed ${language === 'ar' ? 'mr-3' : 'ml-3'}`}>{t_page.confirmationLabel}</label>
+                    </div>
+                    {/* @ts-ignore */}
+                    {errors.isOwner && <p className="text-red-500 text-sm mt-2">{t_page.errors.mustBeOwner}</p>}
                 </div>
-                {errors.isOwner && <p className="text-red-500 text-sm">{errors.isOwner.message as string}</p>}
-                <div className="flex justify-between items-center">
-                    <Button type="button" variant="secondary" onClick={prevStep}>{t_page.back}</Button>
-                    <Button type="submit" disabled={isSubmitting} isLoading={isSubmitting}>
-                        {t_page.submitButton}
-                    </Button>
+
+                 <div className="col-span-full flex justify-start -mb-16 relative z-10 pointer-events-none">
+                    <Button type="button" variant="secondary" onClick={prevStep} className="pointer-events-auto">{t_page.back}</Button>
                 </div>
-            </div>
-        </form>
+
+             </DynamicForm>
+        </div>
     );
 };

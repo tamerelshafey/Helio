@@ -35,7 +35,52 @@ export const admin = {
             "platformProperties": "عقارات المنصة",
             "platformDecorations": "خدمات الديكور",
             "platformFinishing": "إدارة تشطيبات المنصة",
-             "aiEstimatorSettings": "إعدادات المقايسة الذكية"
+            "aiEstimatorSettings": "إعدادات المقايسة الذكية",
+            "finance": "المركز المالي",
+            "forms": "إدارة النماذج"
+        },
+        "finance": {
+            "title": "المركز المالي",
+            "subtitle": "نظرة عامة على الإيرادات والمعاملات المعلقة.",
+            "totalRevenue": "إجمالي الإيرادات",
+            "pendingAmount": "مبالغ معلقة",
+            "successfulTxns": "عمليات ناجحة",
+            "needsAction": "يحتاج مراجعة",
+            "recentTransactions": "أحدث المعاملات",
+            "table": {
+                "user": "المستخدم",
+                "description": "الوصف",
+                "amount": "المبلغ",
+                "method": "الطريقة",
+                "date": "التاريخ",
+                "status": "الحالة",
+                "action": "الإجراء"
+            },
+            "transactionDetails": "تفاصيل المعاملة",
+            "receipt": "صورة الإيصال",
+            "approve": "قبول",
+            "reject": "رفض"
+        },
+        "formManagement": {
+            "title": "إدارة النماذج",
+            "subtitle": "إنشاء وإدارة النماذج الديناميكية للأقسام المختلفة.",
+            "createForm": "إنشاء نموذج",
+            "editForm": "تعديل نموذج",
+            "formTitle": "عنوان النموذج",
+            "slug": "المعرف (Slug)",
+            "category": "التصنيف",
+            "fieldsCount": "عدد الحقول",
+            "status": "الحالة",
+            "builder": {
+                "settings": "إعدادات النموذج",
+                "fields": "حقول النموذج",
+                "addField": "إضافة حقل",
+                "fieldName": "اسم الحقل (Label)",
+                "fieldType": "نوع الحقل",
+                "required": "مطلوب",
+                "options": "الخيارات (مفصولة بفاصلة)",
+                "width": "العرض"
+            }
         },
         "requestsTriage": {
             "title": "مركز إدارة الطلبات",

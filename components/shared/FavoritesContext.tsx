@@ -1,4 +1,5 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+
+import React, { createContext, useState, useEffect, useContext, ReactNode, useMemo, useCallback } from 'react';
 import { FavoriteItem } from '../../types';
 
 interface FavoritesContextType {
@@ -28,7 +29,7 @@ export const FavoritesProvider: React.FC<{ children: ReactNode }> = ({ children 
         }
     }, [favorites]);
 
-    const toggleFavorite = (id: string, type: 'property' | 'service' | 'portfolio') => {
+    const toggleFavorite = useCallback((id: string, type: 'property' | 'service' | 'portfolio') => {
         setFavorites(prevFavorites => {
             const existingIndex = prevFavorites.findIndex(fav => fav.id === id && fav.type === type);
             if (existingIndex > -1) {
@@ -37,14 +38,16 @@ export const FavoritesProvider: React.FC<{ children: ReactNode }> = ({ children 
                 return [...prevFavorites, { id, type }];
             }
         });
-    };
+    }, []);
 
-    const isFavorite = (id: string, type: 'property' | 'service' | 'portfolio') => {
+    const isFavorite = useCallback((id: string, type: 'property' | 'service' | 'portfolio') => {
         return favorites.some(fav => fav.id === id && fav.type === type);
-    };
+    }, [favorites]);
+
+    const value = useMemo(() => ({ favorites, isFavorite, toggleFavorite }), [favorites, isFavorite, toggleFavorite]);
 
     return (
-        <FavoritesContext.Provider value={{ favorites, isFavorite, toggleFavorite }}>
+        <FavoritesContext.Provider value={value}>
             {children}
         </FavoritesContext.Provider>
     );

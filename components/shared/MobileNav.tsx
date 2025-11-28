@@ -1,7 +1,8 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { 
-  QuoteIcon, HeartIcon, HomeIcon, BuildingIcon, 
+  LightBulbIcon, HeartIcon, HomeIcon, BuildingIcon, 
   CubeIcon, WrenchScrewdriverIcon, SparklesIcon, PhoneIcon, CloseIcon, CogIcon
 } from '../ui/Icons';
 import { SiteLogo } from './SiteLogo';
@@ -107,7 +108,7 @@ const MobileNav: React.FC<MobileNavProps> = React.memo(({ isOpen, onClose, ...pr
                        <NavItem to="/favorites" icon={HeartIcon} label={t.nav.favorites} onClick={onClose} />
                        <li>
                            <button onClick={() => { onToggleQuietZone(); onClose(); }} className="flex items-center w-full p-3 rounded-lg transition-colors duration-200 text-lg text-gray-600 hover:bg-gray-100">
-                               <QuoteIcon className="w-6 h-6"/>
+                               <LightBulbIcon className="w-6 h-6"/>
                                <span className="mx-4">{t.wisdomQuotes.title}</span>
                            </button>
                        </li>

@@ -1,22 +1,23 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useForm, useFieldArray } from 'react-hook-form';
-import type { PartnerRequest, PartnerType, SubscriptionPlan, PlanCategory } from '../../types';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import type { PartnerType, SubscriptionPlan, PlanCategory } from '../../types';
 import FormField from '../ui/FormField';
-import { CheckCircleIcon, CloseIcon, ClipboardDocumentListIcon } from '../ui/Icons';
+import { CheckCircleIcon, ClipboardDocumentListIcon } from '../ui/Icons';
 import { SiteLogo } from '../shared/SiteLogo';
 import { addRequest } from '../../services/requests';
 import { RequestType } from '../../types';
 import SubscriptionPlanSelector from '../shared/SubscriptionPlanSelector';
 import { useLanguage } from '../shared/LanguageContext';
 import { useToast } from '../shared/ToastContext';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getPlans } from '../../services/plans';
+import { useMutation } from '@tanstack/react-query';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
-import { Textarea } from '../ui/Textarea';
+import { commonSchemas, MESSAGES, PATTERNS } from '../../utils/validation';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -27,28 +28,35 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
+// Validation Schema
+const registerSchema = z.object({
+    companyName: commonSchemas.name,
+    contactName: commonSchemas.name,
+    contactEmail: commonSchemas.email,
+    contactPhone: commonSchemas.phoneEG,
+    companyAddress: z.string().min(5, "Address is too short"),
+    website: z.string().url("Invalid URL").optional().or(z.literal("")),
+    description: z.string().min(20, "Description must be at least 20 characters"),
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
+
+const PLAN_PRICES: Record<string, Record<string, number>> = {
+    developer: { basic: 0, professional: 5000, elite: 15000 },
+    agency: { basic: 0, professional: 2000, elite: 5000 },
+    finishing: { commission: 0, professional: 3000, elite: 8000 },
+};
+
 const Stepper: React.FC<{ steps: string[], currentStep: number }> = ({ steps, currentStep }) => {
     return (
         <nav aria-label="Progress">
             <ol role="list" className="space-y-4 md:flex md:space-x-8 md:space-y-0">
                 {steps.map((stepName, stepIdx) => (
                     <li key={stepName} className="md:flex-1">
-                        {currentStep > stepIdx + 1 ? (
-                            <div className="group flex w-full flex-col border-l-4 border-amber-600 py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
-                                <span className="text-sm font-medium text-amber-600 transition-colors">{`Step ${stepIdx + 1}`}</span>
-                                <span className="text-sm font-medium">{stepName}</span>
-                            </div>
-                        ) : currentStep === stepIdx + 1 ? (
-                            <div className="flex w-full flex-col border-l-4 border-amber-600 py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4" aria-current="step">
-                                <span className="text-sm font-medium text-amber-600">{`Step ${stepIdx + 1}`}</span>
-                                <span className="text-sm font-medium">{stepName}</span>
-                            </div>
-                        ) : (
-                            <div className="group flex w-full flex-col border-l-4 border-gray-200 py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
-                                <span className="text-sm font-medium text-gray-500 transition-colors">{`Step ${stepIdx + 1}`}</span>
-                                <span className="text-sm font-medium">{stepName}</span>
-                            </div>
-                        )}
+                         <div className={`group flex w-full flex-col border-l-4 py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4 transition-colors ${currentStep > stepIdx ? 'border-amber-600 text-amber-600' : currentStep === stepIdx + 1 ? 'border-amber-600 text-amber-600' : 'border-gray-200 text-gray-500'}`}>
+                            <span className="text-sm font-medium">{`Step ${stepIdx + 1}`}</span>
+                            <span className="text-sm font-medium">{stepName}</span>
+                        </div>
                     </li>
                 ))}
             </ol>
@@ -56,31 +64,25 @@ const Stepper: React.FC<{ steps: string[], currentStep: number }> = ({ steps, cu
     );
 };
 
-// Hardcoded prices for demo purposes
-const PLAN_PRICES: Record<string, Record<string, number>> = {
-    developer: { basic: 0, professional: 5000, elite: 15000 },
-    agency: { basic: 0, professional: 2000, elite: 5000 },
-    finishing: { commission: 0, professional: 3000, elite: 8000 },
-};
-
 const RegisterPage: React.FC = () => {
     const { language, t } = useLanguage();
     const t_page = t.partnerRequestForm;
     const { showToast } = useToast();
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
-    const { data: plans, isLoading: isLoadingPlans } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
-
+    
     const [currentStep, setCurrentStep] = useState(1);
     const [formSubmitted, setFormSubmitted] = useState(false);
     
-    const { register, handleSubmit, control, watch, setValue, getValues, formState: { errors } } = useForm<PartnerRequest>({
-        defaultValues: {
-            companyType: '' as any // Ensure no default selection
-        }
+    const [companyType, setCompanyType] = useState<PartnerType | ''>('');
+    const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | ''>('');
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [docFiles, setDocFiles] = useState<FileList | null>(null);
+
+    // Initialize Hook Form with Zod Resolver
+    const { register, handleSubmit, formState: { errors, isValid }, trigger } = useForm<RegisterFormData>({
+        resolver: zodResolver(registerSchema),
+        mode: 'onBlur'
     });
-    
-    const { fields, append, remove } = useFieldArray({ control, name: "managementContacts" });
 
     const mutation = useMutation({
         mutationFn: (data: any) => addRequest(RequestType.PARTNER_APPLICATION, data),
@@ -94,52 +96,62 @@ const RegisterPage: React.FC = () => {
         }
     });
 
-    const companyType = watch('companyType');
-    const selectedPlan = watch('subscriptionPlan');
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'logo' | 'documents') => {
-        if (e.target.files) {
-            if (fieldName === 'logo') {
-                const base64 = await fileToBase64(e.target.files[0]);
-                setValue('logo', base64, { shouldValidate: true });
-            } else {
-                const filesArray = Array.from(e.target.files);
-                const filePromises = filesArray.map(async (file: File) => ({
-                    fileName: file.name,
-                    fileContent: await fileToBase64(file)
-                }));
-                const newDocs = await Promise.all(filePromises);
-                setValue('documents', newDocs, { shouldValidate: true });
-            }
+    const nextStep = async () => {
+        if (currentStep === 1) {
+            if (companyType && selectedPlan) setCurrentStep(2);
+        } else if (currentStep === 2) {
+            const isStepValid = await trigger(); // Validate Step 2 fields
+            if (isStepValid) setCurrentStep(3);
         }
     };
-
-    const nextStep = () => setCurrentStep(prev => prev + 1);
+    
     const prevStep = () => setCurrentStep(prev => prev - 1);
 
-    const onSubmit = (data: PartnerRequest) => {
-        // Check if payment is needed
-        const typeKey = data.companyType as string;
-        const planKey = data.subscriptionPlan as string;
+    const handleFinalSubmit = async (data: RegisterFormData) => {
+        if (!logoFile) {
+            showToast("Please upload a company logo.", "error");
+            return;
+        }
+        
+        const logoBase64 = await fileToBase64(logoFile);
+        let docsBase64 = [];
+        if (docFiles) {
+             const filesArray = Array.from(docFiles);
+             const filePromises = filesArray.map(async (file: File) => ({
+                fileName: file.name,
+                fileContent: await fileToBase64(file)
+            }));
+            docsBase64 = await Promise.all(filePromises);
+        }
+        
+        const finalData = {
+            companyType,
+            subscriptionPlan: selectedPlan,
+            ...data,
+            logo: logoBase64,
+            documents: docsBase64,
+            managementContacts: [] 
+        };
+
+        const typeKey = companyType as string;
+        const planKey = selectedPlan as string;
         const price = PLAN_PRICES[typeKey]?.[planKey] || 0;
 
         if (price > 0) {
-            // Paid Plan: Redirect to Payment Page with data
-            navigate('/payment', { 
+             navigate('/payment', { 
                 state: { 
                     amount: price,
-                    description: `Partner Subscription: ${data.companyType} (${data.subscriptionPlan})`,
+                    description: `Partner Subscription: ${companyType} (${selectedPlan})`,
                     type: 'subscription_fee',
-                    userId: data.contactEmail, // Temp ID
+                    userId: data.contactEmail, 
                     userName: data.companyName,
-                    data: data // Pass full form data to be processed after payment
+                    data: finalData
                 } 
             });
         } else {
-            // Free plan, proceed directly
             mutation.mutate({
                 requesterInfo: { name: data.contactName, phone: data.contactPhone, email: data.contactEmail },
-                payload: data,
+                payload: finalData,
             });
         }
     };
@@ -178,91 +190,93 @@ const RegisterPage: React.FC = () => {
                         <Stepper steps={steps} currentStep={currentStep} />
                     </div>
 
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        {currentStep === 1 && (
-                            <section className="animate-fadeIn">
-                                <h2 className="text-2xl font-bold mb-2">{t_page.step1_title}</h2>
-                                <p className="text-gray-500 mb-6">{t_page.step1_subtitle}</p>
-                                <FormField label={t_page.companyType} id="companyType" error={errors.companyType?.message}>
-                                    <Select {...register("companyType", { required: true })} className={!companyType ? 'text-gray-500' : ''}>
-                                        <option value="" disabled>{t_page.selectType}</option>
-                                        <option value="developer">{t_page.developer}</option>
-                                        <option value="finishing">{t_page.finishing}</option>
-                                        <option value="agency">{t_page.agency}</option>
-                                    </Select>
+                    {currentStep === 1 && (
+                        <section className="animate-fadeIn">
+                            <h2 className="text-2xl font-bold mb-2">{t_page.step1_title}</h2>
+                            <p className="text-gray-500 mb-6">{t_page.step1_subtitle}</p>
+                            
+                            <FormField label={t_page.companyType} id="companyType">
+                                <Select 
+                                    value={companyType} 
+                                    onChange={(e) => { setCompanyType(e.target.value as PartnerType); setSelectedPlan(''); }}
+                                >
+                                    <option value="" disabled>{t_page.selectType}</option>
+                                    <option value="developer">{t_page.developer}</option>
+                                    <option value="finishing">{t_page.finishing}</option>
+                                    <option value="agency">{t_page.agency}</option>
+                                </Select>
+                            </FormField>
+                            
+                            {companyType && (
+                                <div className="mt-8">
+                                    <SubscriptionPlanSelector 
+                                        partnerType={companyType as PlanCategory}
+                                        selectedPlan={selectedPlan}
+                                        onSelectPlan={(plan) => setSelectedPlan(plan)}
+                                    />
+                                </div>
+                            )}
+                            
+                            <div className="mt-8 flex justify-end">
+                                <Button onClick={nextStep} disabled={!companyType || !selectedPlan}>
+                                    {t_page.next}
+                                </Button>
+                            </div>
+                        </section>
+                    )}
+                    
+                    {currentStep === 2 && (
+                        <section className="animate-fadeIn">
+                            <h2 className="text-2xl font-bold mb-2">{t_page.step2_title}</h2>
+                            <p className="text-gray-500 mb-6">{t_page.step2_subtitle}</p>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField label={t_page.companyName} id="companyName" error={errors.companyName?.message}>
+                                    <Input {...register('companyName')} />
                                 </FormField>
-                                {companyType && (
-                                    <div className="mt-8">
-                                        <SubscriptionPlanSelector 
-                                            partnerType={companyType as PlanCategory}
-                                            selectedPlan={selectedPlan}
-                                            onSelectPlan={(plan) => setValue('subscriptionPlan', plan, { shouldValidate: true })}
-                                        />
-                                        {errors.subscriptionPlan && <p className="text-red-500 text-sm mt-2 text-center">Please select a subscription plan.</p>}
-                                    </div>
-                                )}
-                            </section>
-                        )}
-                        
-                        {currentStep === 2 && (
-                            <section className="animate-fadeIn space-y-6">
-                                <h2 className="text-2xl font-bold mb-2">{t_page.step2_title}</h2>
-                                <p className="text-gray-500 mb-6">{t_page.step2_subtitle}</p>
-                                
-                                <div className="p-4 border rounded-md">
-                                    <h3 className="font-semibold mb-2">{t_page.companyInfo}</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormField label={t_page.companyName} id="companyName" error={errors.companyName?.message}><Input {...register("companyName", { required: true })} /></FormField>
-                                        <FormField label={t_page.companyAddress} id="companyAddress" error={errors.companyAddress?.message}><Input {...register("companyAddress", { required: true })} /></FormField>
-                                        <FormField label={t_page.website} id="website"><Input {...register("website")} /></FormField>
-                                    </div>
-                                    <div className="mt-4">
-                                        <FormField label={t_page.companyDescription} id="description" error={errors.description?.message}><Textarea {...register("description", { required: true })} rows={3} /></FormField>
-                                    </div>
-                                </div>
+                                <FormField label={t_page.companyAddress} id="companyAddress" error={errors.companyAddress?.message}>
+                                    <Input {...register('companyAddress')} />
+                                </FormField>
+                                <FormField label={t_page.contactName} id="contactName" error={errors.contactName?.message}>
+                                    <Input {...register('contactName')} />
+                                </FormField>
+                                <FormField label={t_page.contactPhone} id="contactPhone" error={errors.contactPhone?.message}>
+                                    <Input {...register('contactPhone')} placeholder="01xxxxxxxxx" />
+                                </FormField>
+                                <FormField label={t_page.contactEmail} id="contactEmail" error={errors.contactEmail?.message}>
+                                    <Input {...register('contactEmail')} type="email" />
+                                </FormField>
+                                <FormField label={t_page.website} id="website" error={errors.website?.message}>
+                                    <Input {...register('website')} placeholder="https://..." />
+                                </FormField>
+                            </div>
+                            <div className="mt-6">
+                                 <FormField label={t_page.companyDescription} id="description" error={errors.description?.message}>
+                                    <textarea {...register('description')} className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none" rows={4} />
+                                </FormField>
+                            </div>
+                            
+                            <div className="mt-8 flex justify-between">
+                                <Button type="button" variant="secondary" onClick={prevStep}>{t_page.back}</Button>
+                                <Button type="button" onClick={nextStep}>{t_page.next}</Button>
+                            </div>
+                        </section>
+                    )}
+                    
+                    {currentStep === 3 && (
+                         <section className="animate-fadeIn space-y-6">
+                            <h2 className="text-2xl font-bold mb-2">{t_page.step3_title}</h2>
+                            <p className="text-gray-500 mb-6">{t_page.step3_subtitle}</p>
 
-                                <div className="p-4 border rounded-md">
-                                    <h3 className="font-semibold mb-2">{t_page.primaryContact}</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <FormField label={t_page.contactName} id="contactName" error={errors.contactName?.message}><Input {...register("contactName", { required: true })} /></FormField>
-                                        <FormField label={t_page.contactEmail} id="contactEmail" error={errors.contactEmail?.message}><Input type="email" {...register("contactEmail", { required: true })} /></FormField>
-                                        <FormField label={t_page.contactPhone} id="contactPhone" error={errors.contactPhone?.message}><Input type="tel" {...register("contactPhone", { required: true })} /></FormField>
-                                    </div>
-                                </div>
-                                
-                                <div className="p-4 border rounded-md">
-                                    <h3 className="font-semibold mb-2">{t_page.managementContacts}</h3>
-                                    <div className="space-y-4">
-                                        {fields.map((field, index) => (
-                                            <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 items-end p-2 bg-gray-50 rounded">
-                                                <FormField label={t_page.managementName} id={`managementContacts[${index}].name`}><Input {...register(`managementContacts.${index}.name`)} /></FormField>
-                                                <FormField label={t_page.managementPosition} id={`managementContacts[${index}].position`}><Input {...register(`managementContacts.${index}.position`)} /></FormField>
-                                                <FormField label={t_page.managementEmail} id={`managementContacts[${index}].email`}><Input type="email" {...register(`managementContacts.${index}.email`)} /></FormField>
-                                                <div className="flex items-center gap-2">
-                                                    <FormField label={t_page.managementPhone} id={`managementContacts[${index}].phone`}><Input type="tel" {...register(`managementContacts.${index}.phone`)} /></FormField>
-                                                    <Button type="button" variant="danger" size="icon" onClick={() => remove(index)}><CloseIcon className="w-4 h-4" /></Button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <Button type="button" variant="secondary" size="sm" onClick={() => append({ name: '', position: '', email: '', phone: '' })} className="mt-4">{t_page.addManagementContact}</Button>
-                                </div>
-                            </section>
-                        )}
-                        
-                        {currentStep === 3 && (
-                             <section className="animate-fadeIn space-y-6">
-                                <h2 className="text-2xl font-bold mb-2">{t_page.step3_title}</h2>
-                                <p className="text-gray-500 mb-6">{t_page.step3_subtitle}</p>
-
-                                <FormField label={t_page.companyLogo} id="logo" error={errors.logo?.message}>
-                                    <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} required />
+                            <form onSubmit={handleSubmit(handleFinalSubmit)} className="space-y-6">
+                                <FormField label={t_page.companyLogo} id="logo">
+                                    <Input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files ? e.target.files[0] : null)} required />
                                 </FormField>
                                 
-                                <FormField label={t_page.officialDocs} id="documents" error={errors.documents?.message}>
-                                    <div className="flex items-center gap-2 p-4 border-2 border-dashed rounded-lg">
+                                <FormField label={t_page.officialDocs} id="documents">
+                                    <div className="flex items-center gap-2 p-4 border-2 border-dashed rounded-lg bg-gray-50">
                                         <ClipboardDocumentListIcon className="w-8 h-8 text-gray-400"/>
-                                        <Input type="file" multiple onChange={(e) => handleFileChange(e, 'documents')} />
+                                        <Input type="file" multiple onChange={(e) => setDocFiles(e.target.files)} />
                                     </div>
                                 </FormField>
 
@@ -275,19 +289,18 @@ const RegisterPage: React.FC = () => {
                                         </p>
                                     </div>
                                 )}
-                            </section>
-                        )}
 
-                        <div className="mt-12 flex justify-between">
-                            {currentStep > 1 && <Button type="button" variant="secondary" onClick={prevStep}>{t_page.back}</Button>}
-                            {currentStep < steps.length && <Button type="button" onClick={nextStep} disabled={!companyType || !selectedPlan}>{t_page.next}</Button>}
-                            {currentStep === steps.length && <Button type="submit" isLoading={mutation.isPending}>
-                                {selectedPlan && companyType && PLAN_PRICES[companyType]?.[selectedPlan] > 0 
-                                    ? (language === 'ar' ? 'متابعة للدفع' : 'Proceed to Payment') 
-                                    : t_page.submitRequest}
-                            </Button>}
-                        </div>
-                    </form>
+                                <div className="mt-12 flex justify-between">
+                                    <Button type="button" variant="secondary" onClick={prevStep}>{t_page.back}</Button>
+                                    <Button type="submit" isLoading={mutation.isPending}>
+                                        {selectedPlan && companyType && PLAN_PRICES[companyType]?.[selectedPlan] > 0 
+                                            ? (language === 'ar' ? 'متابعة للدفع' : 'Proceed to Payment') 
+                                            : t_page.submitRequest}
+                                    </Button>
+                                </div>
+                            </form>
+                        </section>
+                    )}
                  </div>
             </div>
         </div>

@@ -158,3 +158,6 @@ export const LockClosedIcon: React.FC<IconProps> = ({ className }) => (
 export const EyeIcon: React.FC<IconProps> = ({ className }) => (
     <svg {...defaultSvgProps} className={className} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
 );
+export const LightBulbIcon: React.FC<IconProps> = ({ className }) => (
+    <svg {...defaultSvgProps} className={className} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-1.94c0-.833.289-1.623.818-2.233l.178-.205c.817-.94 1.298-2.142 1.298-3.372a4.75 4.75 0 10-9.5 0c0 1.23.48 2.432 1.298 3.372l.178.205c.53.61.818 1.4.818 2.233V18m0 0h6m-6 0a2.25 2.25 0 002.25 2.25h1.5A2.25 2.25 0 0018 18" /></svg>
+);

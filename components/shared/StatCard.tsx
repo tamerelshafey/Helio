@@ -10,7 +10,7 @@ interface StatCardProps {
     linkTo: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, linkTo }) => (
+const StatCard: React.FC<StatCardProps> = React.memo(({ title, value, icon: Icon, linkTo }) => (
     <Link to={linkTo} className="block">
         <Card className="hover:shadow-lg hover:border-amber-500/50 transition-all transform hover:-translate-y-1 p-0">
             <CardContent className="p-6">
@@ -26,6 +26,6 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, linkTo })
             </CardContent>
         </Card>
     </Link>
-);
+));
 
 export default StatCard;

@@ -68,6 +68,7 @@ const AdminRequestDetailsPage: React.FC = () => {
             
             if (request.type === RequestType.LEAD) {
                  updates.payload = { ...(request.payload as any), status: actionStatus };
+                 // Map generic lead statuses to request statuses for consistency
                  if (['contacted', 'quoted', 'site-visit'].includes(actionStatus as string)) statusToSave = 'in-progress';
                  if (actionStatus === 'completed') statusToSave = 'closed';
                  if (actionStatus === 'cancelled') statusToSave = 'rejected';
@@ -109,23 +110,74 @@ const AdminRequestDetailsPage: React.FC = () => {
                 } else if (request.type === RequestType.PROPERTY_LISTING_REQUEST) {
                      const r = request.payload as any;
                      const pd = r.propertyDetails;
-                     const newProperty: any = { // Simplified for brevity in refactor
+
+                     // Safety Check for required fields
+                     if (!pd || !pd.propertyType) {
+                         throw new Error("Incomplete property details. Cannot create listing.");
+                     }
+                     
+                     // Helper to safe parse numbers and text
+                     const safeNum = (val: any) => Number(val) || 0;
+                     const getEn = (obj: any) => obj?.en || '';
+                     const getAr = (obj: any) => obj?.ar || '';
+
+                     const priceNumeric = safeNum(pd.price);
+                     const area = safeNum(pd.area);
+                     const pricePerMeter = area > 0 ? Math.round(priceNumeric / area) : 0;
+
+                     const newProperty: Omit<Property, 'id' | 'partnerName' | 'partnerImageUrl' | 'projectName'> = {
                         partnerId: 'individual-listings',
-                        title: pd.title,
-                        description: pd.description,
-                        price: { en: `EGP ${pd.price.toLocaleString()}`, ar: `${pd.price.toLocaleString()} ج.م` },
-                        priceNumeric: pd.price,
-                        imageUrl: r.images[0] || '',
-                        gallery: r.images.slice(1),
+                        title: { 
+                            en: getEn(pd.title) || 'Untitled Property', 
+                            ar: getAr(pd.title) || 'عقار بدون عنوان' 
+                        },
+                        description: { 
+                            en: getEn(pd.description) || '', 
+                            ar: getAr(pd.description) || '' 
+                        },
+                        address: { en: pd.address || '', ar: pd.address || '' },
+                        location: pd.location || { lat: 30.0, lng: 31.0 },
+                        status: pd.purpose || { en: 'For Sale', ar: 'للبيع' },
+                        type: { 
+                            en: (getEn(pd.propertyType) || 'Apartment') as any, 
+                            ar: getAr(pd.propertyType) || 'شقة' 
+                        },
+                        finishingStatus: pd.finishingStatus ? { 
+                            en: getEn(pd.finishingStatus), 
+                            ar: getAr(pd.finishingStatus) 
+                        } : undefined,
+                        area: area,
+                        price: { 
+                            en: `EGP ${priceNumeric.toLocaleString('en-US')}`,
+                            ar: `${priceNumeric.toLocaleString('ar-EG')} ج.م`
+                        },
+                        priceNumeric: priceNumeric,
+                        pricePerMeter: pricePerMeter > 0 ? {
+                            en: `EGP ${pricePerMeter.toLocaleString('en-US')}/m²`,
+                            ar: `${pricePerMeter.toLocaleString('ar-EG')} ج.م/م²`
+                        } : undefined,
+                        beds: safeNum(pd.bedrooms),
+                        baths: safeNum(pd.bathrooms),
+                        floor: safeNum(pd.floor),
+                        amenities: pd.amenities || { en: [], ar: [] },
+                        isInCompound: !!pd.isInCompound,
+                        delivery: { 
+                            isImmediate: pd.deliveryType === 'immediate', 
+                            date: pd.deliveryType === 'future' ? `${pd.deliveryYear}-${pd.deliveryMonth}` : undefined
+                        },
+                        installmentsAvailable: !!pd.hasInstallments,
+                        installments: pd.hasInstallments ? {
+                            downPayment: safeNum(pd.downPayment),
+                            monthlyInstallment: safeNum(pd.monthlyInstallment),
+                            years: safeNum(pd.years)
+                        } : undefined,
+                        realEstateFinanceAvailable: !!pd.realEstateFinanceAvailable,
+                        imageUrl: r.images && r.images[0] ? r.images[0] : 'https://via.placeholder.com/800x600?text=No+Image',
+                        gallery: r.images ? r.images.slice(1) : [],
                         listingStatus: 'active',
-                        type: pd.propertyType,
-                        amenities: pd.amenities,
-                        status: pd.purpose,
-                        area: pd.area,
-                        beds: pd.bedrooms,
-                        baths: pd.bathrooms,
-                        address: { en: pd.address, ar: pd.address },
-                        location: pd.location,
+                        contactMethod: pd.contactMethod || 'platform',
+                        ownerPhone: pd.ownerPhone,
+                        listingStartDate: pd.listingStartDate || new Date().toISOString().split('T')[0],
                     };
                     await addProperty(newProperty);
                 }
@@ -135,6 +187,10 @@ const AdminRequestDetailsPage: React.FC = () => {
         onSuccess: (_, action) => {
              showToast(`Request ${action}.`, 'success');
              queryClient.invalidateQueries({ queryKey: ['request', requestId] });
+        },
+        onError: (error: any) => {
+            console.error("Approval error:", error);
+            showToast(error.message || 'Action failed. Please try again.', 'error');
         }
     });
 
@@ -219,7 +275,7 @@ const AdminRequestDetailsPage: React.FC = () => {
 
                 {/* RIGHT COLUMN: MANAGEMENT PANEL */}
                 <div className="lg:col-span-1 space-y-6">
-                    <Card className="border-t-4 border-t-amber-500 sticky top-6">
+                    <Card className="border-t-4 border-t-amber-500 sticky top-24">
                         <CardHeader><CardTitle>Management Panel</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                             <div>

@@ -1,4 +1,5 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode, useCallback } from 'react';
+
+import React, { createContext, useState, useEffect, useContext, ReactNode, useCallback, useMemo } from 'react';
 import type { Theme } from '../../types';
 
 interface ThemeContextType {
@@ -45,7 +46,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
     }, []);
 
-    const value = { theme, setTheme };
+    const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme]);
 
     return (
         <ThemeContext.Provider value={value}>

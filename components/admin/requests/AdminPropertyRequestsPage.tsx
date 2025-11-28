@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -60,14 +61,14 @@ const AdminPropertyRequestsPage: React.FC = () => {
                                 </TableCell>
                                 <TableCell>
                                     <div className="font-medium">
-                                        {req.propertyDetails.propertyType[language]} - {req.propertyDetails.area}m²
+                                        {req.propertyDetails?.propertyType?.[language] || 'N/A'} - {req.propertyDetails?.area || 0}m²
                                     </div>
                                     <div className="text-sm text-gray-500">
                                         {new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', {
                                             style: 'currency',
                                             currency: 'EGP',
                                             minimumFractionDigits: 0,
-                                        }).format(req.propertyDetails.price)}
+                                        }).format(req.propertyDetails?.price || 0)}
                                     </div>
                                 </TableCell>
                                 <TableCell>{new Date(req.createdAt).toLocaleDateString(language)}</TableCell>
@@ -110,10 +111,10 @@ const AdminPropertyRequestsPage: React.FC = () => {
                     </span>
                 </div>
                 <div className="border-t border-gray-100 dark:border-gray-700 pt-2">
-                    <p className="text-sm font-semibold text-amber-600">{req.propertyDetails.propertyType[language]}</p>
+                    <p className="text-sm font-semibold text-amber-600">{req.propertyDetails?.propertyType?.[language] || 'Unknown Type'}</p>
                     <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mt-1">
-                         <span>{req.propertyDetails.area} m²</span>
-                         <span>{new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', { style: 'currency', currency: 'EGP', minimumFractionDigits: 0 }).format(req.propertyDetails.price)}</span>
+                         <span>{req.propertyDetails?.area} m²</span>
+                         <span>{new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', { style: 'currency', currency: 'EGP', minimumFractionDigits: 0 }).format(req.propertyDetails?.price || 0)}</span>
                     </div>
                 </div>
                 <p className="text-xs text-gray-400 text-right">{new Date(req.createdAt).toLocaleDateString(language)}</p>

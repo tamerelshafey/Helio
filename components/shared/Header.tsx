@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import type { Partner } from '../../types';
-import { QuoteIcon, HeartIcon, MenuIcon } from '../ui/Icons';
+import { LightBulbIcon, HeartIcon, MenuIcon } from '../ui/Icons';
 import { SiteLogo } from './SiteLogo';
 import { useLanguage } from './LanguageContext';
 import NotificationBell from './NotificationBell';
@@ -79,7 +80,7 @@ export const Header: React.FC<HeaderProps> = React.memo(({
                             className="hidden lg:block text-gray-500 hover:text-amber-500 transition-colors"
                             aria-label="Quiet Zone"
                         >
-                            <QuoteIcon className="h-6 w-6" />
+                            <LightBulbIcon className="h-6 w-6" />
                         </button>
                         <button
                             onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}

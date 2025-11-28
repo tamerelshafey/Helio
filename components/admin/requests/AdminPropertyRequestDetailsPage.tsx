@@ -31,19 +31,41 @@ const AdminPropertyRequestDetailsPage: React.FC = () => {
             if (status === 'approved' && request) {
                 const pd = request.propertyDetails;
 
-                const priceNumeric = pd.price;
-                const pricePerMeter = (pd.area > 0) ? Math.round(priceNumeric / pd.area) : 0;
+                if (!pd) {
+                    showToast('Cannot approve: Missing property details.', 'error');
+                    return;
+                }
+
+                const priceNumeric = Number(pd.price) || 0;
+                const area = Number(pd.area) || 0;
+                const pricePerMeter = area > 0 ? Math.round(priceNumeric / area) : 0;
+
+                // Safe access helpers
+                const getEn = (obj: any) => obj?.en || '';
+                const getAr = (obj: any) => obj?.ar || '';
 
                 const newProperty: Omit<Property, 'id' | 'partnerName' | 'partnerImageUrl' | 'projectName'> = {
                     partnerId: 'individual-listings',
-                    title: pd.title,
-                    description: pd.description,
-                    address: { en: pd.address, ar: pd.address },
-                    location: pd.location,
-                    status: pd.purpose,
-                    type: { en: pd.propertyType.en as any, ar: pd.propertyType.ar },
-                    finishingStatus: pd.finishingStatus ? { en: pd.finishingStatus.en, ar: pd.finishingStatus.ar } : undefined,
-                    area: pd.area,
+                    title: { 
+                        en: getEn(pd.title) || 'Untitled Property', 
+                        ar: getAr(pd.title) || 'عقار بدون عنوان' 
+                    },
+                    description: { 
+                        en: getEn(pd.description) || '', 
+                        ar: getAr(pd.description) || '' 
+                    },
+                    address: { en: pd.address || '', ar: pd.address || '' },
+                    location: pd.location || { lat: 30.0, lng: 31.0 },
+                    status: pd.purpose || { en: 'For Sale', ar: 'للبيع' },
+                    type: { 
+                        en: (getEn(pd.propertyType) || 'Apartment') as any, 
+                        ar: getAr(pd.propertyType) || 'شقة' 
+                    },
+                    finishingStatus: pd.finishingStatus ? { 
+                        en: getEn(pd.finishingStatus), 
+                        ar: getAr(pd.finishingStatus) 
+                    } : undefined,
+                    area: area,
                     price: { 
                         en: `EGP ${priceNumeric.toLocaleString('en-US')}`,
                         ar: `${priceNumeric.toLocaleString('ar-EG')} ج.م`
@@ -53,26 +75,26 @@ const AdminPropertyRequestDetailsPage: React.FC = () => {
                         en: `EGP ${pricePerMeter.toLocaleString('en-US')}/m²`,
                         ar: `${pricePerMeter.toLocaleString('ar-EG')} ج.م/م²`
                     } : undefined,
-                    beds: pd.bedrooms || 0,
-                    baths: pd.bathrooms || 0,
-                    floor: pd.floor,
-                    amenities: pd.amenities,
-                    isInCompound: pd.isInCompound,
+                    beds: Number(pd.bedrooms) || 0,
+                    baths: Number(pd.bathrooms) || 0,
+                    floor: Number(pd.floor) || 0,
+                    amenities: pd.amenities || { en: [], ar: [] },
+                    isInCompound: !!pd.isInCompound,
                     delivery: { 
                         isImmediate: pd.deliveryType === 'immediate', 
                         date: pd.deliveryType === 'future' ? `${pd.deliveryYear}-${pd.deliveryMonth}` : undefined
                     },
-                    installmentsAvailable: pd.hasInstallments,
+                    installmentsAvailable: !!pd.hasInstallments,
                     installments: pd.hasInstallments ? {
-                        downPayment: pd.downPayment || 0,
-                        monthlyInstallment: pd.monthlyInstallment || 0,
-                        years: pd.years || 0
+                        downPayment: Number(pd.downPayment) || 0,
+                        monthlyInstallment: Number(pd.monthlyInstallment) || 0,
+                        years: Number(pd.years) || 0
                     } : undefined,
-                    realEstateFinanceAvailable: pd.realEstateFinanceAvailable,
-                    imageUrl: request.images[0] || '',
-                    gallery: request.images.slice(1),
+                    realEstateFinanceAvailable: !!pd.realEstateFinanceAvailable,
+                    imageUrl: request.images && request.images[0] ? request.images[0] : 'https://via.placeholder.com/800x600?text=No+Image',
+                    gallery: request.images ? request.images.slice(1) : [],
                     listingStatus: 'active',
-                    contactMethod: pd.contactMethod,
+                    contactMethod: pd.contactMethod || 'platform',
                     ownerPhone: pd.ownerPhone,
                     listingStartDate: pd.listingStartDate || new Date().toISOString().split('T')[0],
                 };
@@ -91,6 +113,11 @@ const AdminPropertyRequestDetailsPage: React.FC = () => {
     if (!request) return <div>Request not found.</div>;
     
     const { propertyDetails: pd } = request;
+
+    // Guard against missing pd
+    if (!pd) {
+        return <div className="p-8 text-center text-red-500">Error: Request data is corrupt or missing details.</div>;
+    }
 
     return (
         <div className="max-w-4xl mx-auto">
@@ -124,22 +151,22 @@ const AdminPropertyRequestDetailsPage: React.FC = () => {
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-y-4 gap-x-6">
                         <DetailItem label="Title (EN)" value={pd.title?.en} />
                         <DetailItem label="Title (AR)" value={pd.title?.ar} />
-                        <DetailItem label="Purpose" value={pd.purpose[language]} />
-                        <DetailItem label="Property Type" value={pd.propertyType[language]} />
+                        <DetailItem label="Purpose" value={pd.purpose?.[language]} />
+                        <DetailItem label="Property Type" value={pd.propertyType?.[language]} />
                         <DetailItem label="Finishing" value={pd.finishingStatus?.[language]} />
                         <DetailItem label="Area" value={`${pd.area} m²`} />
-                        <DetailItem label="Price" value={`EGP ${pd.price.toLocaleString()}`} />
+                        <DetailItem label="Price" value={`EGP ${pd.price?.toLocaleString()}`} />
                         <DetailItem label="Bedrooms" value={pd.bedrooms} />
                         <DetailItem label="Bathrooms" value={pd.bathrooms} />
                         <DetailItem label="Floor" value={pd.floor} />
-                        <DetailItem label="In Compound" value={pd.isInCompound} />
-                        <DetailItem label="Installments" value={pd.hasInstallments} />
-                        <DetailItem label="Real Estate Finance" value={pd.realEstateFinanceAvailable} />
+                        <DetailItem label="In Compound" value={pd.isInCompound ? t.propertyDetailsPage.yes : t.propertyDetailsPage.no} />
+                        <DetailItem label="Installments" value={pd.hasInstallments ? t.propertyDetailsPage.yes : t.propertyDetailsPage.no} />
+                        <DetailItem label="Real Estate Finance" value={pd.realEstateFinanceAvailable ? t.propertyDetailsPage.yes : t.propertyDetailsPage.no} />
                         <DetailItem label="Delivery" value={pd.deliveryType === 'immediate' ? 'Immediate' : `${pd.deliveryMonth}/${pd.deliveryYear}`} />
                      </div>
                      <div className="mt-4 space-y-2">
                          <DetailItem label="Address" value={pd.address} layout="grid"/>
-                         <DetailItem label="Location" value={`Lat: ${pd.location.lat}, Lng: ${pd.location.lng}`} layout="grid"/>
+                         <DetailItem label="Location" value={pd.location ? `Lat: ${pd.location.lat}, Lng: ${pd.location.lng}` : 'N/A'} layout="grid"/>
                          <DetailItem label="Description (EN)" value={<p className="whitespace-pre-line">{pd.description?.en}</p>} layout="grid"/>
                          <DetailItem label="Description (AR)" value={<p className="whitespace-pre-line">{pd.description?.ar}</p>} layout="grid"/>
                          <DetailItem label="Amenities" value={(pd.amenities?.en || []).join(', ')} layout="grid" />

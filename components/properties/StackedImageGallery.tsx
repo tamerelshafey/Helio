@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useCallback } from 'react';
 
 interface StackedImageGalleryProps {
@@ -14,22 +15,36 @@ const StackedImageGallery: React.FC<StackedImageGalleryProps> = ({ images, onIma
   // The last image in the array will be on top by default
   const [activeIndex, setActiveIndex] = useState(images.length - 1);
   const containerRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const width = rect.width;
-    // Divide the container width into segments, one for each image
-    const segmentWidth = width / images.length;
-    const index = Math.floor(x / segmentWidth);
     
-    if (index >= 0 && index < images.length) {
-      setActiveIndex(index);
+    const clientX = e.clientX;
+
+    if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
     }
+
+    rafRef.current = requestAnimationFrame(() => {
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const width = rect.width;
+        // Divide the container width into segments, one for each image
+        const segmentWidth = width / images.length;
+        const index = Math.floor(x / segmentWidth);
+        
+        if (index >= 0 && index < images.length) {
+          setActiveIndex(index);
+        }
+    });
   }, [images.length]);
 
   const handleMouseLeave = useCallback(() => {
+    if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+    }
     // Reset to the top-most image when the mouse leaves
     setActiveIndex(images.length - 1);
   }, [images.length]);

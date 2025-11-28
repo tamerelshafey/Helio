@@ -1,7 +1,6 @@
 
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language } from '../../types';
 import { useLanguage } from '../shared/LanguageContext';
 
 interface RequestListProps<T extends { id: string; createdAt: string; }> {
@@ -11,8 +10,8 @@ interface RequestListProps<T extends { id: string; createdAt: string; }> {
   itemRenderer: (item: T) => React.ReactNode;
 }
 
-const RequestList = <T extends { id: string; createdAt: string; }>({ title, requests, linkTo, itemRenderer }: RequestListProps<T>) => {
-    const { language, t } = useLanguage();
+function RequestListInner<T extends { id: string; createdAt: string; }>({ title, requests, linkTo, itemRenderer }: RequestListProps<T>) {
+    const { t } = useLanguage();
     const t_page = t.adminDashboard.customerRelationsHome;
     const recentRequests = useMemo(() => (requests || []).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5), [requests]);
 
@@ -31,6 +30,8 @@ const RequestList = <T extends { id: string; createdAt: string; }>({ title, requ
             )}
         </div>
     );
-};
+}
+
+const RequestList = React.memo(RequestListInner) as typeof RequestListInner;
 
 export default RequestList;

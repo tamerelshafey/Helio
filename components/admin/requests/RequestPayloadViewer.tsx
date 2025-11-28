@@ -54,14 +54,17 @@ const RequestPayloadViewer: React.FC<RequestPayloadViewerProps> = ({ request }) 
         case RequestType.PROPERTY_LISTING_REQUEST:
             const r = payload as any;
             const pd = r.propertyDetails;
+            
+            if (!pd) return <div className="text-red-500">Missing property details</div>;
+
             return (
                 <div className="space-y-6 animate-fadeIn">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DetailItem label="Property Type" value={pd.propertyType[language]} />
-                        <DetailItem label="Purpose" value={pd.purpose[language]} />
+                        <DetailItem label="Property Type" value={pd.propertyType?.[language] || 'N/A'} />
+                        <DetailItem label="Purpose" value={pd.purpose?.[language] || 'N/A'} />
                         <DetailItem label="Area" value={`${pd.area} m²`} />
-                        <DetailItem label="Price" value={`EGP ${pd.price.toLocaleString()}`} />
-                        <DetailItem label="Finishing" value={pd.finishingStatus?.[language]} />
+                        <DetailItem label="Price" value={`EGP ${pd.price?.toLocaleString()}`} />
+                        <DetailItem label="Finishing" value={pd.finishingStatus?.[language] || 'N/A'} />
                         <DetailItem label="Cooperation" value={r.cooperationType} />
                     </div>
                     

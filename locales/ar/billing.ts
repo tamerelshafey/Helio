@@ -44,5 +44,22 @@ export const billing = {
         "removeFromFavorites": "إزالة من المفضلة",
         "addedToFavorites": "تمت الإضافة إلى المفضلة بنجاح!",
         "removedFromFavorites": "تمت الإزالة من المفضلة."
+    },
+    "payment": {
+        "title": "إتمام الدفع",
+        "summary": "ملخص الطلب",
+        "total": "الإجمالي",
+        "selectMethod": "اختر طريقة الدفع",
+        "securePayment": "دفع آمن",
+        "transferDetails": "بيانات التحويل",
+        "uploadReceipt": "صورة الإيصال",
+        "confirmTransfer": "تأكيد التحويل",
+        "payNow": "الدفع الآن",
+        "successTitle": "تم الدفع بنجاح!",
+        "reviewTitle": "تم إرسال الطلب للمراجعة",
+        "successMessage": "تمت عملية الدفع بنجاح وتأكيد طلبك.",
+        "reviewMessage": "تم استلام إيصال التحويل. سيقوم فريقنا بمراجعة الطلب وتفعيله في أقرب وقت.",
+        "transactionId": "رقم المعاملة",
+        "returnHome": "العودة للقائمة الرئيسية"
     }
 };

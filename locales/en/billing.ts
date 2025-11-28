@@ -44,5 +44,22 @@ export const billing = {
         "removeFromFavorites": "Remove from Favorites",
         "addedToFavorites": "Added to favorites successfully!",
         "removedFromFavorites": "Removed from favorites."
+    },
+    "payment": {
+        "title": "Complete Payment",
+        "summary": "Order Summary",
+        "total": "Total",
+        "selectMethod": "Select Payment Method",
+        "securePayment": "Secure Payment",
+        "transferDetails": "Transfer Details",
+        "uploadReceipt": "Upload Receipt",
+        "confirmTransfer": "Confirm Transfer",
+        "payNow": "Pay Now",
+        "successTitle": "Payment Successful!",
+        "reviewTitle": "Payment Submitted for Review",
+        "successMessage": "Your payment was processed successfully and your request is confirmed.",
+        "reviewMessage": "Receipt received. Our team will review the transaction and activate your request shortly.",
+        "transactionId": "Transaction ID",
+        "returnHome": "Return to Home"
     }
 };

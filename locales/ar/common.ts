@@ -68,5 +68,30 @@ export const common = {
         "title": "404 - الصفحة غير موجودة",
         "subtitle": "عفواً، الصفحة التي تبحث عنها غير موجودة أو تم حذفها.",
         "backButton": "العودة إلى الصفحة الرئيسية"
+    },
+    "formOptions": {
+        "morning": "صباحاً (9ص - 12م)",
+        "afternoon": "ظهراً (12م - 3م)",
+        "evening": "مساءً (3م - 6م)",
+        "any_time": "أي وقت",
+        "apartment": "شقة",
+        "villa": "فيلا",
+        "duplex": "دوبلكس",
+        "commercial": "تجاري",
+        "office": "مكتب",
+        "land": "أرض",
+        "core_shell": "على الطوب",
+        "semi_finished": "محارة / نصف تشطيب",
+        "old_renovation": "قديم / يحتاج تجديد",
+        "fully_finished": "تشطيب كامل",
+        "luxury": "فاخر",
+        "economic": "اقتصادي",
+        "super_lux": "سوبر لوكس",
+        "ultra_lux": "الترا لوكس",
+        "hotel_standard": "فندقي",
+        "wall_sculpture": "منحوتة جدارية",
+        "canvas_painting": "لوحة كانفس",
+        "custom_furniture": "أثاث عمولة",
+        "antique_decor": "تحف / ديكور"
     }
 };

@@ -7,6 +7,7 @@ import {
 } from '../ui/Icons';
 import { SiteLogo } from './SiteLogo';
 import { type Partner, Permission, Role } from '../../types';
+import ErrorBoundary from './ErrorBoundary';
 
 interface NavLinkItem {
   name: (t: any) => string;
@@ -74,8 +75,7 @@ const SidebarContent: React.FC<Omit<DashboardSidebarProps, 'isOpen' | 'setIsOpen
     }, [visibleNavLinks]);
 
     const partnerName = t.partnerInfo[user.id]?.name || user.name;
-    const isAdminDashboard = hasPermission(Permission.MANAGE_USERS);
-    const dashboardTitle = isAdminDashboard ? (t.partnerInfo[user.id]?.name || user.name) : t.dashboard.title;
+    // const isAdminDashboard = hasPermission(Permission.MANAGE_USERS); // Unused variable removed
 
     return (
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-4 py-4 dashboard-sidebar scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
@@ -176,7 +176,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = (props) => {
     }, [isCollapsed]);
 
     return (
-        <>
+        <ErrorBoundary fallback={<div className="w-20 bg-gray-100 h-full flex items-center justify-center text-red-500">!</div>}>
             {/* Mobile sidebar */}
             <div className={`relative z-50 lg:hidden ${isOpen ? 'block' : 'hidden'}`} role="dialog" aria-modal="true">
                 <div className="fixed inset-0 bg-gray-900/80 transition-opacity" onClick={() => setIsOpen(false)} />
@@ -216,7 +216,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = (props) => {
                     </div>
                 </div>
             </div>
-        </>
+        </ErrorBoundary>
     );
 };
 

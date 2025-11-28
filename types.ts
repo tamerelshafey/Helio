@@ -50,7 +50,7 @@ export enum Permission {
     MANAGE_INQUIRY_ROUTING = 'manage_inquiry_routing',
     MANAGE_PLANS = 'manage_plans',
     MANAGE_AUTOMATION = 'manage_automation',
-    MANAGE_FORMS = 'manage_forms', // New Permission
+    MANAGE_FORMS = 'manage_forms',
     MANAGE_OWN_PROFILE = 'manage_own_profile',
     MANAGE_OWN_PROPERTIES = 'manage_own_properties',
     MANAGE_OWN_PROJECTS = 'manage_own_projects',
@@ -217,6 +217,7 @@ export interface Lead {
     assignedTo?: string;
     propertyId?: string;
     partnerName?: string;
+    referenceImage?: string;
 }
 
 export enum RequestType {
@@ -491,6 +492,8 @@ export type FormFieldType = 'text' | 'textarea' | 'number' | 'email' | 'tel' | '
 export type FormCategory = 'public' | 'lead_gen' | 'partner_app' | 'admin_internal';
 export type SubmissionDestination = 'email' | 'crm_leads' | 'crm_messages' | 'crm_partners';
 
+export type ValidationRuleType = 'none' | 'email' | 'phone_eg' | 'url' | 'number' | 'custom';
+
 export interface FormFieldDefinition {
     id: string;
     type: FormFieldType;
@@ -500,6 +503,13 @@ export interface FormFieldDefinition {
     options?: string[] | string; // For select/radio: comma separated or simple array
     placeholder?: { ar: string; en: string };
     width?: 'full' | 'half' | 'third'; // Layout hint
+    validation?: {
+        type: ValidationRuleType;
+        pattern?: string; // Custom Regex string if type is custom
+        minLength?: number;
+        maxLength?: number;
+        errorMessage?: { ar: string; en: string };
+    };
 }
 
 export interface FormDefinition {

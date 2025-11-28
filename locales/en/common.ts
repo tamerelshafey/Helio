@@ -68,5 +68,30 @@ export const common = {
         "title": "404 - Page Not Found",
         "subtitle": "Sorry, the page you are looking for does not exist or has been moved.",
         "backButton": "Back to Home"
+    },
+    "formOptions": {
+        "morning": "Morning (9am - 12pm)",
+        "afternoon": "Afternoon (12pm - 3pm)",
+        "evening": "Evening (3pm - 6pm)",
+        "any_time": "Any Time",
+        "apartment": "Apartment",
+        "villa": "Villa",
+        "duplex": "Duplex",
+        "commercial": "Commercial",
+        "office": "Office",
+        "land": "Land",
+        "core_shell": "Core & Shell",
+        "semi_finished": "Semi-finished",
+        "old_renovation": "Old / Needs Renovation",
+        "fully_finished": "Fully Finished",
+        "luxury": "Luxury",
+        "economic": "Economic",
+        "super_lux": "Super Lux",
+        "ultra_lux": "Ultra Lux",
+        "hotel_standard": "Hotel Standard",
+        "wall_sculpture": "Wall Sculpture",
+        "canvas_painting": "Canvas Painting",
+        "custom_furniture": "Custom Furniture",
+        "antique_decor": "Antique / Decor"
     }
 };
