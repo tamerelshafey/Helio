@@ -3,12 +3,10 @@ import React, { useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllProperties, updateProperty, deleteProperty } from '../../../services/properties';
-// FIX: Corrected import path for useAdminTable hook.
 import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import type { Property, ListingStatus } from '../../../types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
-// FIX: Corrected import path for Pagination from '../shared/Pagination' to '../../ui/Pagination'.
 import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
@@ -18,8 +16,7 @@ import { Card, CardContent } from '../../ui/Card';
 import TableSkeleton from '../../shared/TableSkeleton';
 import { LocationMarkerIcon, CalendarIcon } from '../../ui/Icons';
 import { Select } from '../../ui/Select';
-// Removed unused modal import
-// import AdminPropertyEditModal from '../AdminPropertyEditModal';
+import ErrorState from '../../shared/ErrorState';
 
 interface AdminPropertiesListPageProps {
     title?: string;
@@ -45,7 +42,7 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
     const [actionToConfirm, setActionToConfirm] = useState<'activate' | 'deactivate' | 'delete' | null>(null);
     const highlightedId = searchParams.get('highlight');
 
-    const { data: fetchedProperties, isLoading: fetchedIsLoading } = useQuery({ 
+    const { data: fetchedProperties, isLoading: fetchedIsLoading, isError, refetch } = useQuery({ 
         queryKey: ['allPropertiesAdmin'], 
         queryFn: getAllProperties,
         enabled: !propProperties // Only fetch if data isn't passed via props
@@ -59,8 +56,8 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
         itemsPerPage: 10,
         initialSort: { key: 'listingStartDate', direction: 'descending' },
         searchFn: (item: Property, term) => 
-            item.title.en.toLowerCase().includes(term) || 
-            item.title.ar.includes(term) ||
+            (item.title?.en?.toLowerCase().includes(term) || false) || 
+            (item.title?.ar?.includes(term) || false) ||
             (item.partnerName?.toLowerCase().includes(term) || false),
         filterFns: {},
     });
@@ -187,6 +184,10 @@ const AdminPropertiesListPage: React.FC<AdminPropertiesListPageProps> = ({
         </>
     );
     const emptyState = <div className="text-center py-8 text-gray-500">No properties found.</div>;
+
+    if (isError && !properties) {
+        return <ErrorState onRetry={refetch} />;
+    }
 
     return (
         <div>

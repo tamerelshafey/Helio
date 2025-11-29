@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Property } from '../../types';
@@ -15,6 +14,8 @@ import { useLanguage } from '../shared/LanguageContext';
 import { Select } from '../ui/Select';
 import { Card, CardContent, CardFooter } from '../ui/Card';
 import ConfirmationModal from '../shared/ConfirmationModal';
+import ErrorState from '../shared/ErrorState';
+import PropertyCardSkeleton from '../shared/PropertyCardSkeleton';
 
 const DashboardPropertiesPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -25,6 +26,7 @@ const DashboardPropertiesPage: React.FC = () => {
     const {
         data: partnerProperties,
         isLoading: loading,
+        isError,
         isLimitReached,
         refetch,
     } = useSubscriptionUsage('properties');
@@ -76,6 +78,10 @@ const DashboardPropertiesPage: React.FC = () => {
         area: language === 'ar' ? 'المساحة (م²)' : 'Area (m²)',
     };
 
+    if (isError) {
+        return <ErrorState onRetry={refetch} />;
+    }
+
     return (
         <div>
             {isUpgradeModalOpen && <UpgradePlanModal onClose={() => setIsUpgradeModalOpen(false)} />}
@@ -124,7 +130,9 @@ const DashboardPropertiesPage: React.FC = () => {
             </div>
 
             {loading ? (
-                <p>Loading properties...</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {Array.from({ length: 8 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
+                </div>
             ) : filteredProperties.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredProperties.map((prop) => {

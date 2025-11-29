@@ -109,10 +109,10 @@ const AdminRequestDetailsPage: React.FC = () => {
                     await addPartner(request.payload as any);
                 } else if (request.type === RequestType.PROPERTY_LISTING_REQUEST) {
                      const r = request.payload as any;
-                     const pd = r.propertyDetails;
+                     const pd = r.propertyDetails || {};
 
                      // Safety Check for required fields
-                     if (!pd || !pd.propertyType) {
+                     if (!pd) {
                          throw new Error("Incomplete property details. Cannot create listing.");
                      }
                      
@@ -120,10 +120,6 @@ const AdminRequestDetailsPage: React.FC = () => {
                      const safeNum = (val: any) => Number(val) || 0;
                      const getEn = (obj: any) => obj?.en || '';
                      const getAr = (obj: any) => obj?.ar || '';
-
-                     const priceNumeric = safeNum(pd.price);
-                     const area = safeNum(pd.area);
-                     const pricePerMeter = area > 0 ? Math.round(priceNumeric / area) : 0;
 
                      const newProperty: Omit<Property, 'id' | 'partnerName' | 'partnerImageUrl' | 'projectName'> = {
                         partnerId: 'individual-listings',
@@ -146,15 +142,15 @@ const AdminRequestDetailsPage: React.FC = () => {
                             en: getEn(pd.finishingStatus), 
                             ar: getAr(pd.finishingStatus) 
                         } : undefined,
-                        area: area,
+                        area: safeNum(pd.area),
                         price: { 
-                            en: `EGP ${priceNumeric.toLocaleString('en-US')}`,
-                            ar: `${priceNumeric.toLocaleString('ar-EG')} ج.م`
+                            en: `EGP ${safeNum(pd.price).toLocaleString('en-US')}`,
+                            ar: `${safeNum(pd.price).toLocaleString('ar-EG')} ج.م`
                         },
-                        priceNumeric: priceNumeric,
-                        pricePerMeter: pricePerMeter > 0 ? {
-                            en: `EGP ${pricePerMeter.toLocaleString('en-US')}/m²`,
-                            ar: `${pricePerMeter.toLocaleString('ar-EG')} ج.م/م²`
+                        priceNumeric: safeNum(pd.price),
+                        pricePerMeter: safeNum(pd.area) > 0 ? {
+                            en: `EGP ${Math.round(safeNum(pd.price) / safeNum(pd.area)).toLocaleString('en-US')}/m²`,
+                            ar: `${Math.round(safeNum(pd.price) / safeNum(pd.area)).toLocaleString('ar-EG')} ج.م/م²`
                         } : undefined,
                         beds: safeNum(pd.bedrooms),
                         baths: safeNum(pd.bathrooms),

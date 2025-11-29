@@ -19,6 +19,7 @@ import ConfirmationModal from '../../shared/ConfirmationModal';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import { Card, CardContent } from '../../ui/Card';
 import TableSkeleton from '../../shared/TableSkeleton';
+import ErrorState from '../../shared/ErrorState';
 
 const AdminPartnersPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -26,7 +27,7 @@ const AdminPartnersPage: React.FC = () => {
     const queryClient = useQueryClient();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const { data: partners, isLoading } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
+    const { data: partners, isLoading, isError, refetch } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
     useQuery({ queryKey: ['plans'], queryFn: getPlans }); 
 
     const [partnerToEdit, setPartnerToEdit] = useState<AdminPartner | null>(null);
@@ -237,6 +238,10 @@ const AdminPartnersPage: React.FC = () => {
         </>
     );
     const emptyState = <div className="text-center py-8 text-gray-500">No partners found.</div>;
+
+    if (isError) {
+        return <ErrorState onRetry={refetch} />;
+    }
 
     return (
         <div>

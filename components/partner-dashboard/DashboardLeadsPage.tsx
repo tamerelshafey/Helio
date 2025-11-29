@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import type { Language, Lead, LeadStatus } from '../../types';
+import type { Lead, LeadStatus } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import ExportDropdown from '../shared/ExportDropdown';
 import { getAllRequests } from '../../services/requests';
@@ -16,16 +16,8 @@ import { ResponsiveList } from '../shared/ResponsiveList';
 import CardSkeleton from '../ui/CardSkeleton';
 import TableSkeleton from '../shared/TableSkeleton';
 import { Input } from '../ui/Input';
-
-const statusColors: { [key in LeadStatus]: string } = {
-    new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-    contacted: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-    'site-visit': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
-    quoted: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
-    'in-progress': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-    completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-};
+import { StatusBadge } from '../ui/StatusBadge';
+import ErrorState from '../shared/ErrorState';
 
 type SortConfig = {
     key: keyof Lead;
@@ -37,7 +29,7 @@ const DashboardLeadsPage: React.FC = () => {
     const t_dash = t.dashboard;
     const { currentUser } = useAuth();
 
-    const { data: allRequests, isLoading: loading } = useQuery({
+    const { data: allRequests, isLoading: loading, isError, refetch } = useQuery({
         queryKey: ['allRequests'],
         queryFn: getAllRequests,
         enabled: !!currentUser,
@@ -111,26 +103,27 @@ const DashboardLeadsPage: React.FC = () => {
         createdAt: t_dash.leadTable.date,
     };
 
+    if (isError) {
+        return <ErrorState onRetry={refetch} />;
+    }
+
     const renderCard = (lead: Lead) => (
-        <Card key={lead.id} className="p-0">
-            <CardContent className="p-4 space-y-2">
-                <div>
-                    <p className="text-xs text-gray-500">{t_dash.leadTable.customer}</p>
-                    <p className="font-bold">{lead.customerName}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400" dir="ltr">{lead.customerPhone}</p>
+        <Card key={lead.id} className="p-0 hover:shadow-md transition-shadow duration-200">
+            <CardContent className="p-4 space-y-3">
+                <div className="flex justify-between items-start">
+                     <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{t_dash.leadTable.customer}</p>
+                        <p className="font-bold text-gray-900 dark:text-white">{lead.customerName}</p>
+                        <p className="text-sm text-gray-500 font-mono" dir="ltr">{lead.customerPhone}</p>
+                    </div>
+                    <StatusBadge status={lead.status} />
                 </div>
                  <div>
-                    <p className="text-xs text-gray-500">{t_dash.leadTable.service}</p>
-                    <p className="font-semibold truncate">{lead.serviceTitle}</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{t_dash.leadTable.service}</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-200 line-clamp-2">{lead.serviceTitle}</p>
                 </div>
-                <div className="flex justify-between items-center">
-                     <div>
-                        <p className="text-xs text-gray-500">{t_dash.leadTable.date}</p>
-                        <p>{new Date(lead.createdAt).toLocaleDateString(language)}</p>
-                    </div>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[lead.status]}`}>
-                        {t_dash.leadStatus[lead.status]}
-                    </span>
+                <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+                     <p className="text-xs text-gray-400 text-right">{new Date(lead.createdAt).toLocaleDateString(language)}</p>
                 </div>
             </CardContent>
             <CardFooter className="p-2 bg-gray-50 dark:bg-gray-800/50">
@@ -144,7 +137,7 @@ const DashboardLeadsPage: React.FC = () => {
     );
 
     const renderTable = (leads: Lead[]) => (
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -159,20 +152,18 @@ const DashboardLeadsPage: React.FC = () => {
                     {loading ? (
                         <TableRow><TableCell colSpan={5} className="text-center p-8">Loading leads...</TableCell></TableRow>
                     ) : leads.map(lead => (
-                        <TableRow key={lead.id}>
+                        <TableRow key={lead.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                             <TableCell className="font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                 <div>{lead.customerName}</div>
-                                <div className="font-normal text-gray-500 dark:text-gray-400" dir="ltr">{lead.customerPhone}</div>
+                                <div className="font-normal text-gray-500 dark:text-gray-400 text-xs" dir="ltr">{lead.customerPhone}</div>
                             </TableCell>
-                            <TableCell className="max-w-xs whitespace-normal break-words" title={lead.serviceTitle}>{lead.serviceTitle}</TableCell>
+                            <TableCell className="max-w-xs truncate" title={lead.serviceTitle}>{lead.serviceTitle}</TableCell>
                             <TableCell>{new Date(lead.createdAt).toLocaleDateString(language)}</TableCell>
                             <TableCell>
-                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[lead.status]}`}>
-                                    {t_dash.leadStatus[lead.status]}
-                                </span>
+                                <StatusBadge status={lead.status} />
                             </TableCell>
                             <TableCell>
-                                <Link to={`/dashboard/leads/${lead.id}`} className="font-medium text-amber-600 hover:underline">
+                                <Link to={`/dashboard/leads/${lead.id}`} className="font-medium text-amber-600 hover:text-amber-700 hover:underline">
                                     View Details
                                 </Link>
                             </TableCell>
@@ -194,11 +185,15 @@ const DashboardLeadsPage: React.FC = () => {
         </>
     );
 
-    const emptyState = <p className="text-center py-8">{t_dash.leadTable.noLeads}</p>;
+    const emptyState = (
+        <div className="text-center py-16 bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700">
+            <p className="text-gray-500 dark:text-gray-400">{t_dash.leadTable.noLeads}</p>
+        </div>
+    );
 
     return (
-        <div>
-            <div className="flex justify-between items-start mb-8">
+        <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_dash.leadsTitle}</h1>
                     <p className="text-gray-500 dark:text-gray-400">{t_dash.leadsSubtitle}</p>
@@ -206,7 +201,7 @@ const DashboardLeadsPage: React.FC = () => {
                 <ExportDropdown data={exportData} columns={exportColumns} filename="my-leads" />
             </div>
 
-            <div className="mb-4 flex flex-wrap items-center gap-4">
+            <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-wrap items-center gap-4">
                 <Input type="text" placeholder={t_dash.filter.search} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="max-w-xs" />
                 <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="max-w-xs">
                     <option value="all">{t_dash.filter.filterByStatus} ({t_dash.filter.all})</option>

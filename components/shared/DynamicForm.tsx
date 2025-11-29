@@ -14,8 +14,7 @@ import { Textarea } from '../ui/Textarea';
 import { Select } from '../ui/Select';
 import { Checkbox } from '../ui/Checkbox';
 import FormField, { inputClasses, selectClasses } from '../ui/FormField';
-import { BanknotesIcon } from '../ui/Icons';
-import { PATTERNS, MESSAGES } from '../../utils/validation';
+import { PATTERNS, MESSAGES, CONFIG } from '../../utils/validation';
 
 interface DynamicFormProps {
     slug: string;
@@ -24,11 +23,11 @@ interface DynamicFormProps {
     className?: string;
     contextData?: any; 
     children?: React.ReactNode; 
-    headerContent?: React.ReactNode; // New prop for content above fields
+    headerContent?: React.ReactNode; 
     customSubmit?: (data: any) => void; 
     submitButtonText?: string;
     submitButtonIcon?: React.ReactNode;
-    hiddenFields?: string[]; // New prop to hide specific fields by key
+    hiddenFields?: string[];
 }
 
 const fileToBase64 = (file: File): Promise<string> => {
@@ -81,6 +80,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         }
         return processedData;
     };
+
+    const validateFile = (file: File) => {
+        if (file.size > CONFIG.MAX_FILE_SIZE) {
+            return MESSAGES[language].file_too_large;
+        }
+        return true;
+    }
 
     const mutation = useMutation({
         mutationFn: async (processedData: any) => {
@@ -156,25 +162,26 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     if (!formDef) return <div className="text-red-500">Form not found: {slug}</div>;
     if (!formDef.isActive) return <div className="text-gray-500">This form is currently inactive.</div>;
 
-    // Build validation rules based on field configuration
     const getValidationRules = (field: FormFieldDefinition) => {
         const rules: any = {
             required: field.required ? MESSAGES[language].required : false
         };
 
-        // Native type validation patterns
         if (field.type === 'email') {
             rules.pattern = { value: PATTERNS.EMAIL, message: MESSAGES[language].invalid_email };
         }
         if (field.type === 'tel') {
-            // Basic default regex for tel input if no specific validation is set
-            rules.pattern = { value: /^[a-zA-Z0-9+\-\s()]*$/, message: MESSAGES[language].invalid_number }; 
+            rules.pattern = { value: /^[0-9+\-\s()]*$/, message: MESSAGES[language].invalid_number }; 
         }
         if (field.type === 'number') {
              rules.min = { value: 0, message: MESSAGES[language].invalid_number };
         }
+        if (field.type === 'file') {
+            rules.validate = {
+                fileSize: (files: FileList) => !files || files.length === 0 || validateFile(files[0])
+            }
+        }
 
-        // Advanced Validation from Admin Builder
         if (field.validation) {
             const { type, pattern, minLength, maxLength, errorMessage } = field.validation;
             
@@ -194,7 +201,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     rules.pattern = { value: PATTERNS.URL, message: customMsg || MESSAGES[language].invalid_url };
                     break;
                 case 'number':
-                    rules.pattern = { value: /^\d+$/, message: customMsg || MESSAGES[language].invalid_number };
+                    rules.pattern = { value: PATTERNS.NUMBERS_ONLY, message: customMsg || MESSAGES[language].invalid_number };
                     break;
                 case 'custom':
                     if (pattern) {
@@ -210,8 +217,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const renderField = (field: FormFieldDefinition) => {
         const label = field.label[language];
-        // @ts-ignore
-        const error = errors[field.key]?.message as string | undefined;
         const validationRules = getValidationRules(field);
         const isHidden = hiddenFields.includes(field.key);
 
@@ -234,7 +239,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     <Select {...commonProps} className={selectClasses}>
                         <option value="">{language === 'ar' ? 'اختر...' : 'Select...'}</option>
                         {options.map(opt => {
-                            // Try to translate option key using t.formOptions, fallback to original text
                             const label = t.formOptions?.[opt] || opt;
                             return <option key={opt} value={opt}>{label}</option>
                         })}
@@ -244,11 +248,18 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 return (
                     <div className="flex items-center gap-2">
                         <Checkbox {...commonProps} />
-                        <label htmlFor={field.id} className="text-sm text-gray-700 dark:text-gray-300">{label}</label>
+                        <label htmlFor={field.id} className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">{label}</label>
                     </div>
                 );
             case 'file':
-                return <Input type="file" {...commonProps} className="p-2 border rounded bg-white" accept="image/*,application/pdf" />;
+                return (
+                    <Input 
+                        type="file" 
+                        {...commonProps} 
+                        className="p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 dark:file:bg-amber-900 dark:file:text-amber-300" 
+                        accept="image/*,application/pdf" 
+                    />
+                );
             default:
                 return <Input type={field.type} {...commonProps} className={inputClasses} />;
         }
@@ -257,7 +268,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     return (
         <FormProvider {...methods}>
             <form onSubmit={handleSubmit(onSubmit)} className={`space-y-4 ${className}`}>
-                {/* Header Content (e.g. Location Map, Summaries) - Rendered ABOVE fields */}
                 {headerContent && <div className="mb-6">{headerContent}</div>}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -294,7 +304,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     })}
                 </div>
 
-                {/* Children Content (e.g. Images, Amenities, Disclaimers) - Rendered BELOW fields */}
                 {children && <div className="mt-6 space-y-6">{children}</div>}
 
                 <div className="pt-4 flex justify-end">

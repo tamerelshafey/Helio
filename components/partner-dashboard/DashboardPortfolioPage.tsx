@@ -14,6 +14,8 @@ import { useLanguage } from '../shared/LanguageContext';
 import { Card, CardContent, CardFooter } from '../ui/Card';
 import ConfirmationModal from '../shared/ConfirmationModal';
 import { useToast } from '../shared/ToastContext';
+import ErrorState from '../shared/ErrorState';
+import PortfolioItemSkeleton from '../shared/PortfolioItemSkeleton';
 
 type SortConfig = {
     key: 'title' | 'category';
@@ -31,7 +33,9 @@ const DashboardPortfolioPage: React.FC = () => {
     const {
         data: partnerPortfolio,
         isLoading: loading,
+        isError,
         isLimitReached,
+        refetch
     } = useSubscriptionUsage('portfolio');
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -78,6 +82,10 @@ const DashboardPortfolioPage: React.FC = () => {
 
     if (currentUser?.role !== Role.FINISHING_PARTNER) {
         return null;
+    }
+    
+    if (isError) {
+        return <ErrorState onRetry={refetch} />;
     }
 
     const requestSort = (key: 'title' | 'category') => {
@@ -148,7 +156,9 @@ const DashboardPortfolioPage: React.FC = () => {
             </div>
 
             {loading ? (
-                <p>Loading portfolio...</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {Array.from({ length: 8 }).map((_, i) => <PortfolioItemSkeleton key={i} />)}
+                </div>
             ) : sortedAndFilteredPortfolio.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {sortedAndFilteredPortfolio.map((item) => (

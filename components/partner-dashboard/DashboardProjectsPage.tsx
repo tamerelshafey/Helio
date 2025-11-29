@@ -1,5 +1,4 @@
 
-
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Project } from '../../types';
@@ -13,6 +12,8 @@ import UpgradePlanModal from '../shared/UpgradePlanModal';
 import { useSubscriptionUsage } from '../../hooks/useSubscriptionUsage';
 import { useLanguage } from '../shared/LanguageContext';
 import { Card, CardContent } from '../ui/Card';
+import ErrorState from '../shared/ErrorState';
+import ProjectCardSkeleton from '../shared/ProjectCardSkeleton';
 
 const DashboardProjectsPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -22,21 +23,33 @@ const DashboardProjectsPage: React.FC = () => {
 
     const { 
         data: partnerProjects, 
-        isLoading: isLoadingProjects, 
+        isLoading: isLoadingProjects,
+        isError: isErrorProjects, 
         isLimitReached,
         refetch: refetchProjects 
     } = useSubscriptionUsage('projects');
 
-    const { data: properties, isLoading: isLoadingProperties } = useQuery({
+    const { data: properties, isLoading: isLoadingProperties, isError: isErrorProperties, refetch: refetchProperties } = useQuery({
         queryKey: ['all-dashboard-properties'],
         queryFn: getProperties,
         enabled: !!currentUser && currentUser.role === Role.DEVELOPER_PARTNER,
     });
+    
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const loading = isLoadingProjects || isLoadingProperties;
+    const isError = isErrorProjects || isErrorProperties;
+
+    const refetchAll = useCallback(() => {
+        refetchProjects();
+        refetchProperties();
+    }, [refetchProjects, refetchProperties]);
 
     if (currentUser?.role !== Role.DEVELOPER_PARTNER) {
         return null;
+    }
+
+    if (isError) {
+        return <ErrorState onRetry={refetchAll} />;
     }
 
     const handleAddProjectClick = () => {
@@ -61,7 +74,9 @@ const DashboardProjectsPage: React.FC = () => {
             </div>
 
             {loading ? (
-                <p>Loading projects...</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {Array.from({ length: 6 }).map((_, i) => <ProjectCardSkeleton key={i} />)}
+                </div>
             ) : partnerProjects && partnerProjects.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {(partnerProjects as Project[]).map(project => {

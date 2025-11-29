@@ -1,88 +1,108 @@
-# ONLY HELIO - بوابة عقارية متكاملة
 
-## 🌟 Overview
+# 🌟 ONLY HELIO - The Integrated Real Estate Ecosystem
 
-**ONLY HELIO** is not just a real estate listing website; it is a comprehensive digital ecosystem designed specifically for the city of **New Heliopolis**. The core vision is to create a one-stop platform that serves every need of individuals, investors, and businesses within this promising city. It covers the entire user journey, from finding the perfect home to handling finishing, interior design, and decoration.
+**ONLY HELIO** is a cutting-edge, bilingual (Arabic/English) digital platform designed specifically for the city of **New Heliopolis**. It serves as a comprehensive ecosystem connecting property seekers, real estate developers, finishing companies, and decoration experts in one seamless interface.
 
-The platform aims to be the primary and most trusted digital destination for modern living in New Heliopolis.
+---
+
+## 🚀 Project Status: High-Fidelity MVP Complete
+
+The project has evolved from a basic listing site into a robust web application featuring advanced state management, dynamic routing, and a complete CRM/CMS administration system.
+
+### 🛠 Tech Stack & Architecture
+
+*   **Core:** React 19 (Vite), TypeScript.
+*   **State Management:**
+    *   **Server State:** TanStack Query v5 (Caching, Auto-refetching, Optimistic Updates).
+    *   **Global Client State:** Zustand (Lightweight, persistent store for Auth & Favorites).
+*   **Routing:** React Router v7 with Lazy Loading & Code Splitting.
+*   **Styling:** Tailwind CSS with Dark/Light mode support.
+*   **Forms & Validation:** 
+    *   **React Hook Form** for performance.
+    *   **Zod** for schema-based validation (`utils/validation.ts`).
+    *   **Custom Dynamic Form Engine** configurable via JSON/Admin Panel.
+*   **Localization:** Custom Context-based i18n system (AR/EN).
+*   **Mock Backend:** Service-repository pattern simulating API calls with realistic delays (`/services`).
 
 ---
 
 ## ✨ Key Features
 
-The platform is divided into three main user experiences:
+### 1. 🏢 Public Portal (User Experience)
+*   **Advanced Property Search:** Filter by price, location, type, finishing status, and amenities.
+*   **Interactive Map View:** Browse properties visually on a map.
+*   **Service Requests:** Book finishing consultations or request custom decoration designs using dynamic forms.
+*   **Favorites System:** Persisted wishlist for properties and portfolio items.
+*   **Responsive Design:** Fully optimized for mobile, tablet, and desktop.
 
-### 1. For Public Users & Property Seekers
+### 2. 🤝 Partner Dashboard (Developers & Agencies)
+*   **Project & Unit Management:** Add, edit, and manage listings with a multi-step wizard.
+*   **Lead CRM:** View incoming inquiries, update status (New -> Contacted -> Sold), and add internal notes.
+*   **Analytics:** Visual charts for listing performance and lead conversion.
+*   **Subscription Management:** View plan limits and upgrade options.
+*   **Finance Center:** Track payments, invoices, and subscription status.
 
--   **Smart Property Search:**
-    -   **Advanced Filters:** Dozens of precise criteria (property type, finishing status, price, installments, etc.).
-    -   **AI-Powered Natural Language Search:** Users can type what they're looking for in plain language (e.g., "3-bedroom apartment, fully finished, for 2 million EGP"), and the Gemini-powered system automatically applies the correct filters.
-    -   **Multiple Views:** Results can be displayed as a grid, a list, or on an interactive map.
-
--   **Integrated Post-Purchase Services:**
-    -   **Finishing Packages:** Pre-defined finishing and interior design packages with clear pricing.
-    -   **Exclusive Decorations:** A gallery of exclusive artworks like wall sculptures and paintings, with options for custom orders.
-
--   **Rich & Professional User Experience:**
-    -   **Favorites System:** Save properties, projects, and services to a personal list.
-    -   **Performance Optimized:** Utilizes modern web technologies like lazy loading and WebP image formats for ultra-fast page loads.
-    -   **Micro-interactions:** Subtle animations and visual feedback on user interactions make the site feel more professional and alive.
-
-### 2. For Partners (Developers, Agencies, Finishing Companies)
-
--   **Dedicated Partner Dashboard:** A powerful control panel to manage all business activities.
--   **Full Content Management:**
-    -   Developers can add and manage their projects and available units.
-    -   Finishing/Decoration companies can build a professional portfolio.
-    -   Agencies can manage their property listings.
--   **Advanced Lead Management:**
-    -   Receive and track customer inquiries directly within the dashboard.
-    -   Update lead status (New, Contacted, Completed, etc.) and add internal notes.
-
-### 3. For Site Administrators
-
--   **Comprehensive Super Admin Dashboard:** A central control room for the entire platform.
--   **User & Partner Management:**
-    -   Approve/reject new partner applications.
-    -   Manage account statuses (active, disabled).
-    -   **Bulk Actions:** Apply a single action (e.g., activate, delete) to multiple partners at once.
--   **Advanced Analytics & Reporting:**
-    -   In-depth dashboards showing user growth, property performance, and lead conversion rates.
-    -   Custom report generation and export (CSV, PDF).
--   **Full Site Content Management:**
-    -   Directly edit most of the public-facing content (hero section text/images, services, testimonials, banners, etc.) from the dashboard.
--   **System Configuration:**
-    -   Manage property filters, subscription plans, and automated request routing rules.
-
----
-
-## 💻 Tech Stack
-
--   **Frontend:** [React](https://reactjs.org/) (with TypeScript)
--   **Build Tool:** [Vite](https://vitejs.dev/)
--   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
--   **Data Fetching & State Management:** [Tanstack Query (React Query)](https://tanstack.com/query)
--   **Routing:** [React Router](https://reactrouter.com/)
--   **AI Features:** [Google Gemini API](https://ai.google.dev/gemini-api)
--   **Forms:** [React Hook Form](https://react-hook-form.com/)
--   **Charting:** [Chart.js](https://www.chartjs.org/)
--   **PDF Generation:** [jsPDF](https://github.com/parallax/jsPDF)
+### 3. 🛡️ Super Admin Dashboard (CMS & Control)
+*   **Dynamic Form Builder:** Create and modify forms (fields, validation rules, routing) without code changes. Includes advanced validation support (Regex, Min/Max).
+*   **Robust Validation:** Centralized validation logic (`utils/validation.ts`) ensures data integrity across all user inputs.
+*   **User & Partner Management:** Approve applications, manage roles/permissions, and toggle user access.
+*   **Content Management:** Edit homepage sliders, banners, testimonials, and legal pages directly.
+*   **Automation Rules:** Configure logic to automatically route leads to specific managers based on criteria.
+*   **System Health:** Monitor error logs and system alerts via Error Boundaries.
 
 ---
 
 ## 📂 Project Structure
 
-The project follows a feature-based directory structure to keep the codebase organized, scalable, and easy to navigate.
+The codebase follows a clean, feature-first architecture:
 
--   `src/components/`: Contains all React components, organized by feature or domain.
-    -   `admin/`: Components for the super admin dashboard.
-    -   `auth/`: Authentication components (Login, Register, context).
-    -   `partner-dashboard/`: Components for the partner dashboard.
-    -   `properties/`: Components related to property listings and details.
-    -   `shared/`: Reusable components shared across multiple features (e.g., Layouts, Modals, SEO).
-    -   `ui/`: Generic, low-level UI components (e.g., Button, Card, Input).
--   `src/services/`: Contains all API-related logic, simulating a backend. Each file corresponds to a data entity (e.g., `properties.ts`, `partners.ts`).
--   `src/data/`: Holds the mock database files (e.g., `propertiesData`, `partnersData`).
--   `src/hooks/`: Custom React hooks for shared logic, primarily for data fetching with Tanstack Query.
--   `src/types.ts`: Centralized TypeScript type definitions.
--   `src/utils/`: Utility functions.
+```
+src/
+├── components/
+│   ├── admin/          # Super Admin dashboard features (Forms, Users, Content)
+│   ├── auth/           # Authentication logic & Protected Routes
+│   ├── forms/          # Reusable form steps & wizards
+│   ├── partner-dashboard/ # Partner-specific views
+│   ├── properties/     # Property listing & detail components
+│   ├── shared/         # Shared utilities (Header, Footer, ErrorBoundary, Loaders)
+│   └── ui/             # Atomic UI components (Button, Card, Input, Modal)
+├── services/           # Mock API layer (simulating DB calls)
+├── hooks/              # Custom React Hooks (Data fetching, Logic)
+├── store/              # Zustand stores (Auth, Favorites)
+├── utils/              # Validation schemas, formatters, and constants
+├── data/               # Static mock data
+├── locales/            # Translation files (AR/EN)
+└── types.ts            # TypeScript definitions
+```
+
+---
+
+## 🔧 Getting Started
+
+1.  **Install Dependencies:**
+    ```bash
+    npm install
+    ```
+
+2.  **Run Development Server:**
+    ```bash
+    npm run dev
+    ```
+
+3.  **Build for Production:**
+    ```bash
+    npm run build
+    ```
+
+---
+
+## 🧪 Key Implementation Details
+
+*   **Dynamic Form Engine:** Located in `components/shared/DynamicForm.tsx`. It renders forms based on JSON configurations managed in the Admin Panel, allowing for flexible data collection strategies with Zod validation integrated via `utils/validation.ts`.
+*   **Centralized Validation:**  `utils/validation.ts` holds regex patterns (e.g., Egyptian phone numbers), Zod schemas, and error messages, ensuring consistent validation logic across the app.
+*   **Error Handling:** A global `ErrorBoundary` wraps the app to catch runtime errors, while `ErrorState` components handle granular API failures within widgets.
+*   **Performance:** Heavy components and routes are lazy-loaded using `React.lazy` and `Suspense` to ensure fast initial load times (`LoadingFallback`).
+
+---
+
+**© 2025 ONLY HELIO. Built for excellence.**

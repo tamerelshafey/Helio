@@ -1,6 +1,7 @@
 
 
 
+
 // ... (Keep existing types)
 
 export type Language = 'ar' | 'en';

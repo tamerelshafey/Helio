@@ -2,21 +2,25 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+// FIX: Corrected import paths for services.
 import { getAllProjects, deleteProject as apiDeleteProject } from '../../../services/projects';
 import { getAllPartnersForAdmin } from '../../../services/partners';
 import { getAllProperties } from '../../../services/properties';
-// FIX: Corrected import path for useAdminTable. It should be two levels up.
+// FIX: Corrected import path for useAdminTable hook. It should be two levels up.
 import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Project, AdminPartner } from '../../../types';
+// FIX: Corrected import path for ConfirmationModal from 'ui' to 'shared'.
 import ConfirmationModal from '../../shared/ConfirmationModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
+// FIX: Corrected import path for Pagination from 'ui' to 'shared'.
 import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import { Card, CardContent } from '../../ui/Card';
 import { BuildingIcon } from '../../ui/Icons';
+import ErrorState from '../../shared/ErrorState';
 
 const AdminProjectsPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -24,11 +28,18 @@ const AdminProjectsPage: React.FC = () => {
     const queryClient = useQueryClient();
     const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
 
-    const { data: projects, isLoading: loadingProjects } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
-    const { data: partners, isLoading: loadingPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
-    const { data: properties, isLoading: loadingProperties } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
+    const { data: projects, isLoading: loadingProjects, isError: isErrorProjects, refetch: refetchProjects } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects });
+    const { data: partners, isLoading: loadingPartners, isError: isErrorPartners, refetch: refetchPartners } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
+    const { data: properties, isLoading: loadingProperties, isError: isErrorProperties, refetch: refetchProperties } = useQuery({ queryKey: ['allProperties'], queryFn: getAllProperties });
 
     const isLoading = loadingProjects || loadingPartners || loadingProperties;
+    const isError = isErrorProjects || isErrorPartners || isErrorProperties;
+
+    const refetchAll = () => {
+        refetchProjects();
+        refetchPartners();
+        refetchProperties();
+    }
 
     const projectsWithDetails = React.useMemo(() => {
         if (isLoading) return [];
@@ -56,7 +67,10 @@ const AdminProjectsPage: React.FC = () => {
         data: projectsWithDetails,
         itemsPerPage: 10,
         initialSort: { key: 'name.en', direction: 'ascending' },
-        searchFn: (item: typeof projectsWithDetails[0], term) => item.name.en.toLowerCase().includes(term) || item.name.ar.includes(term) || item.partnerName.toLowerCase().includes(term),
+        searchFn: (item: typeof projectsWithDetails[0], term) => 
+            (item.name?.en?.toLowerCase().includes(term) || false) || 
+            (item.name?.ar?.includes(term) || false) || 
+            (item.partnerName?.toLowerCase().includes(term) || false),
         filterFns: {},
     });
 
@@ -116,6 +130,10 @@ const AdminProjectsPage: React.FC = () => {
             </CardContent>
         </Card>
     );
+
+    if (isError) {
+        return <ErrorState onRetry={refetchAll} />;
+    }
 
     return (
         <div>

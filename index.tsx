@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import App from './App';
-import { AuthProvider } from './components/auth/AuthContext';
+// AuthProvider and FavoritesProvider are removed (Zustand handles this now)
 import { ToastProvider } from './components/shared/ToastContext';
 import { LanguageProvider } from './components/shared/LanguageContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -54,11 +53,9 @@ root.render(
                 <QueryClientProvider client={queryClient}>
                     <ThemeProvider>
                         <ToastProvider>
-                            <AuthProvider>
-                                <LanguageProvider>
-                                    <App />
-                                </LanguageProvider>
-                            </AuthProvider>
+                            <LanguageProvider>
+                                <App />
+                            </LanguageProvider>
                         </ToastProvider>
                     </ThemeProvider>
                     <ReactQueryDevtools initialIsOpen={false} />

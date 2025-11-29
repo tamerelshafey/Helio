@@ -35,7 +35,6 @@ export const admin = {
             "platformProperties": "عقارات المنصة",
             "platformDecorations": "خدمات الديكور",
             "platformFinishing": "إدارة تشطيبات المنصة",
-            "aiEstimatorSettings": "إعدادات المقايسة الذكية",
             "finance": "المركز المالي",
             "forms": "إدارة النماذج"
         },
@@ -469,9 +468,6 @@ export const admin = {
                 "services": "الخدمات",
                 "plans": "الباقات"
             }
-        },
-        "aiEstimatorSettings": {
-            "title": "إعدادات المقايسة الذكية"
         }
     },
     "adminAnalytics": {

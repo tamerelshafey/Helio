@@ -1,3 +1,4 @@
+
 import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Role, Project, Property, Lead, PortfolioItem } from '../../types';
@@ -11,19 +12,50 @@ import StatCard from '../shared/StatCard';
 import { CubeIcon, BuildingIcon, InboxIcon, ClipboardDocumentListIcon, PhotoIcon } from '../ui/Icons';
 import { useLanguage } from '../shared/LanguageContext';
 import RequestList from '../shared/RequestList';
-
+import ErrorState from '../shared/ErrorState';
 
 const DashboardHomePage: React.FC = () => {
     const { language, t } = useLanguage();
     const { currentUser } = useAuth();
     const t_home = t.dashboardHome;
     
-    const { data: allProperties, isLoading: loadingProps } = useQuery({ queryKey: ['allPropertiesAdmin'], queryFn: getAllProperties, enabled: !!currentUser });
-    const { data: allProjects, isLoading: loadingProjs } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects, enabled: !!currentUser });
-    const { data: allLeads, isLoading: loadingLeads } = useQuery({ queryKey: ['allLeadsAdmin'], queryFn: getAllLeads, enabled: !!currentUser });
-    const { data: allPortfolioItems, isLoading: loadingPortfolio } = useQuery({ queryKey: ['allPortfolioItems'], queryFn: getAllPortfolioItems, enabled: !!currentUser });
+    const { 
+        data: allProperties, 
+        isLoading: loadingProps, 
+        isError: errorProps, 
+        refetch: refetchProps 
+    } = useQuery({ queryKey: ['allPropertiesAdmin'], queryFn: getAllProperties, enabled: !!currentUser });
+    
+    const { 
+        data: allProjects, 
+        isLoading: loadingProjs, 
+        isError: errorProjs, 
+        refetch: refetchProjs 
+    } = useQuery({ queryKey: ['allProjects'], queryFn: getAllProjects, enabled: !!currentUser });
+    
+    const { 
+        data: allLeads, 
+        isLoading: loadingLeads, 
+        isError: errorLeads, 
+        refetch: refetchLeads 
+    } = useQuery({ queryKey: ['allLeadsAdmin'], queryFn: getAllLeads, enabled: !!currentUser });
+    
+    const { 
+        data: allPortfolioItems, 
+        isLoading: loadingPortfolio, 
+        isError: errorPortfolio, 
+        refetch: refetchPortfolio 
+    } = useQuery({ queryKey: ['allPortfolioItems'], queryFn: getAllPortfolioItems, enabled: !!currentUser });
 
     const isLoading = loadingProps || loadingProjs || loadingLeads || loadingPortfolio;
+    const isError = errorProps || errorProjs || errorLeads || errorPortfolio;
+    
+    const refetchAll = () => {
+        refetchProps();
+        refetchProjs();
+        refetchLeads();
+        refetchPortfolio();
+    };
 
     const { properties, projects, leads, portfolio } = useMemo(() => {
         if (!currentUser) return { properties: [], projects: [], leads: [], portfolio: [] };
@@ -103,6 +135,10 @@ const DashboardHomePage: React.FC = () => {
             </Link>
         </li>
     );
+
+    if (isError) {
+        return <ErrorState onRetry={refetchAll} />;
+    }
 
     if (isLoading || !currentUser || !('type' in currentUser)) {
         return <div className="text-center p-8">Loading Dashboard...</div>;

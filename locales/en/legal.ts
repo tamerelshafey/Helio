@@ -12,8 +12,8 @@ export const legal = {
             "content": "We may collect the following types of data:\n• **Identity Information:** Full name, phone number, email address.\n• **Request Details:** Details of the property you wish to buy or sell, finishing preferences, and type of service requested.\n• **User-Generated Content:** Property photos, descriptions, and inquiries sent via forms.\n• **Technical Data:** IP address, browser type, and language preferences.\n• **Geolocation Data:** We may request access to your location to facilitate showing nearby properties, with your explicit consent."
         },
         "dataUsage": {
-            "title": "3. How We Use Your Data (Including AI)",
-            "content": "We use your data for the following purposes:\n• Connecting you with appropriate service providers (developers, brokers, finishing companies).\n• Improving the property search experience using recommendation algorithms.\n• **AI Usage:** We utilize Artificial Intelligence models (such as Google Gemini) to analyze your search queries to provide more accurate results and to generate initial finishing cost estimates. This data is processed securely and is not used to train public models in a way that reveals your identity.\n• Contacting you regarding request updates or new offers."
+            "title": "3. How We Use Your Data",
+            "content": "We use your data for the following purposes:\n• Connecting you with appropriate service providers (developers, brokers, finishing companies).\n• Improving the property search experience using recommendation algorithms.\n• Contacting you regarding request updates or new offers."
         },
         "dataSharing": {
             "title": "4. Data Sharing with Third Parties",

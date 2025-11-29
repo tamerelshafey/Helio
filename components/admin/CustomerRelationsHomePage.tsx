@@ -1,7 +1,4 @@
 
-
-
-
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { PartnerRequest, PropertyInquiryRequest, AddPropertyRequest, ContactRequest } from '../../types';
@@ -10,23 +7,9 @@ import { getAllPropertyRequests } from '../../services/propertyRequests';
 import { getAllPropertyInquiries } from '../../services/propertyInquiries';
 import { getAllContactRequests } from '../../services/contactRequests';
 import { InboxIcon, ClipboardDocumentListIcon, SearchIcon } from '../ui/Icons';
+import StatCard from '../shared/StatCard';
 import RequestList from '../shared/RequestList';
 import { useLanguage } from '../shared/LanguageContext';
-
-const StatCard: React.FC<{ title: string; value: number | string; icon: React.FC<{ className?: string }>; linkTo: string; }> = ({ title, value, icon: Icon, linkTo }) => (
-    <Link to={linkTo} className="block bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
-        <div className="flex items-center gap-4">
-            <div className="p-3 bg-amber-100 dark:bg-amber-900/50 rounded-full">
-                <Icon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-            </div>
-            <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{title}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
-            </div>
-        </div>
-    </Link>
-);
-
 
 const CustomerRelationsHomePage: React.FC = () => {
     const { language, t } = useLanguage();

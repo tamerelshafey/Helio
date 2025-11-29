@@ -35,7 +35,6 @@ export const admin = {
             "platformProperties": "Platform Properties",
             "platformDecorations": "Decor Services",
             "platformFinishing": "Platform Finishing",
-            "aiEstimatorSettings": "AI Estimator Settings",
             "finance": "Finance Center",
             "forms": "Form Management"
         },
@@ -469,9 +468,6 @@ export const admin = {
                 "services": "Services",
                 "plans": "Plans"
             }
-        },
-        "aiEstimatorSettings": {
-            "title": "AI Estimator Settings"
         }
     },
     "adminAnalytics": {

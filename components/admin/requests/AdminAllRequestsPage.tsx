@@ -21,17 +21,7 @@ import CardSkeleton from '../../ui/CardSkeleton';
 // FIX: Corrected import path for TableSkeleton from 'shared' to 'ui'.
 import TableSkeleton from '../../shared/TableSkeleton';
 import { PlusIcon } from '../../ui/Icons';
-
-const statusColors: { [key in RequestStatus]: string } = {
-    new: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-    reviewed: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
-    assigned: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300',
-    'in-progress': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-    closed: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-    approved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-    rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-};
+import { StatusBadge } from '../../ui/StatusBadge';
 
 const AdminAllRequestsPage: React.FC = () => {
     const { language, t } = useLanguage();
@@ -119,15 +109,13 @@ const AdminAllRequestsPage: React.FC = () => {
         : (t.adminDashboard as any).manageLeadsSubtitle;
 
     const renderCard = (req: Request) => (
-        <Card key={req.id} className="p-0">
+        <Card key={req.id} className="p-0 hover:shadow-md transition-shadow">
             <CardContent className="p-4 space-y-3">
                 <div className="flex justify-between items-start">
                     <p className="font-bold text-lg">{req.requesterInfo.name}</p>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[req.status]}`}>
-                        {req.type === RequestType.LEAD ? (t.dashboard.leadStatus[(req.payload as Lead).status] || (req.payload as Lead).status) : (t_admin.adminRequests.requestStatus[req.status] || req.status)}
-                    </span>
+                    <StatusBadge status={req.status} />
                 </div>
-                <p className="text-sm text-gray-500">{t.adminDashboard.requestTypes[req.type]}</p>
+                <p className="text-xs font-bold uppercase text-gray-500">{t.adminDashboard.requestTypes[req.type]}</p>
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-2">
                     <p className="text-sm"><strong className="text-gray-500">Subject: </strong> <span className="line-clamp-2">{getSubject(req)}</span></p>
                     <p className="text-sm"><strong className="text-gray-500">Date: </strong> {new Date(req.createdAt).toLocaleDateString()}</p>
@@ -135,7 +123,7 @@ const AdminAllRequestsPage: React.FC = () => {
                         <Select
                             value={req.assignedTo || ''}
                             onChange={(e) => updateStatusMutation.mutate({ id: req.id, updates: { assignedTo: e.target.value, status: 'assigned' } })}
-                            className="text-xs w-full mt-1"
+                            className="text-xs w-full mt-1 h-8 py-1"
                             disabled={!isSuperAdmin}
                         >
                             <option value="">Unassigned</option>
@@ -144,16 +132,16 @@ const AdminAllRequestsPage: React.FC = () => {
                     </div>
                 </div>
             </CardContent>
-             <CardFooter className="p-2 bg-gray-50 dark:bg-gray-800/50">
+             <CardFooter className="p-2 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
                 <Link to={`/admin/requests/${req.id}`} className="w-full">
-                    <Button variant="ghost" className="w-full">Details</Button>
+                    <Button variant="ghost" className="w-full text-amber-600 hover:text-amber-700">View Details</Button>
                 </Link>
             </CardFooter>
         </Card>
     );
 
     const renderTable = (items: Request[]) => (
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -168,24 +156,22 @@ const AdminAllRequestsPage: React.FC = () => {
                 </TableHeader>
                  <TableBody>
                     {items.map(req => (
-                        <TableRow key={req.id}>
-                            <TableCell className="font-medium text-gray-500 dark:text-gray-400">{t.adminDashboard.requestTypes[req.type]}</TableCell>
+                        <TableRow key={req.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <TableCell className="font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">{t.adminDashboard.requestTypes[req.type]}</TableCell>
                             <TableCell>
-                                <div>{req.requesterInfo.name}</div>
+                                <div className="font-medium">{req.requesterInfo.name}</div>
                                 <div className="text-xs text-gray-400">{req.requesterInfo.phone}</div>
                             </TableCell>
                             <TableCell className="max-w-xs whitespace-normal break-words" title={getSubject(req)}>{getSubject(req)}</TableCell>
                             <TableCell className="text-xs">{new Date(req.createdAt).toLocaleDateString()}</TableCell>
                             <TableCell>
-                                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[req.status]}`}>
-                                    {req.type === RequestType.LEAD ? (t.dashboard.leadStatus[(req.payload as Lead).status] || (req.payload as Lead).status) : (t_admin.adminRequests.requestStatus[req.status] || req.status)}
-                                </span>
+                                 <StatusBadge status={req.status} />
                             </TableCell>
                             <TableCell>
                                 <Select
                                     value={req.assignedTo || ''}
                                     onChange={(e) => updateStatusMutation.mutate({ id: req.id, updates: { assignedTo: e.target.value, status: 'assigned' } })}
-                                    className="text-xs w-40"
+                                    className="text-xs w-40 h-8 py-0"
                                     disabled={!isSuperAdmin}
                                 >
                                     <option value="">Unassigned</option>
@@ -193,13 +179,12 @@ const AdminAllRequestsPage: React.FC = () => {
                                 </Select>
                             </TableCell>
                             <TableCell>
-                                <Link to={`/admin/requests/${req.id}`}><Button variant="link" size="sm">Details</Button></Link>
+                                <Link to={`/admin/requests/${req.id}`}><Button variant="link" size="sm" className="text-amber-600 hover:text-amber-700">Details</Button></Link>
                             </TableCell>
                         </TableRow>
                     ))}
                  </TableBody>
             </Table>
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
         </div>
     );
     
@@ -214,7 +199,11 @@ const AdminAllRequestsPage: React.FC = () => {
         </>
     );
     
-    const emptyState = <div className="text-center py-16 text-gray-500">No requests found.</div>;
+    const emptyState = (
+        <div className="text-center py-16 bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700">
+            <p className="text-gray-500">No requests found matching your criteria.</p>
+        </div>
+    );
 
     return (
         <div>
@@ -225,21 +214,22 @@ const AdminAllRequestsPage: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     {isSuperAdmin && (
-                        <div className="flex-shrink-0 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg flex gap-1">
-                            <Button variant={viewMode === 'mine' ? 'primary' : 'secondary'} onClick={() => setViewMode('mine')} className="!py-1.5">{t.adminDashboard.requestsTriage.myRequests}</Button>
-                            <Button variant={viewMode === 'all' ? 'primary' : 'secondary'} onClick={() => setViewMode('all')} className="!py-1.5">{t.adminDashboard.requestsTriage.allRequests}</Button>
+                        <div className="hidden sm:flex flex-shrink-0 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg gap-1">
+                            <Button variant={viewMode === 'mine' ? 'primary' : 'ghost'} onClick={() => setViewMode('mine')} className="!py-1.5 text-sm">{t.adminDashboard.requestsTriage.myRequests}</Button>
+                            <Button variant={viewMode === 'all' ? 'primary' : 'ghost'} onClick={() => setViewMode('all')} className="!py-1.5 text-sm">{t.adminDashboard.requestsTriage.allRequests}</Button>
                         </div>
                     )}
                     <Link to="/admin/requests/new">
-                        <Button className="flex items-center gap-2">
+                        <Button className="flex items-center gap-2 shadow-sm">
                             <PlusIcon className="w-5 h-5" />
-                            {t.adminShared.add} Request
+                            <span className="hidden sm:inline">{t.adminShared.add} Request</span>
+                            <span className="sm:hidden">{t.adminShared.add}</span>
                         </Button>
                     </Link>
                 </div>
             </div>
             
-            <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border dark:border-gray-700">
+            <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
                 <Input placeholder={t_admin.filter.searchByRequesterOrPhone} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                 <Select value={filters.type || 'all'} onChange={e => updateUrlFilter('type', e.target.value)}>
                     <option value="all">{t_admin.filter.all} Types</option>
@@ -258,12 +248,17 @@ const AdminAllRequestsPage: React.FC = () => {
             </div>
             
             {isLoading ? loadingSkeletons : (
-                <ResponsiveList
-                    items={paginatedItems}
-                    renderCard={renderCard}
-                    renderTable={renderTable}
-                    emptyState={emptyState}
-                />
+                <>
+                    <ResponsiveList
+                        items={paginatedItems}
+                        renderCard={renderCard}
+                        renderTable={renderTable}
+                        emptyState={emptyState}
+                    />
+                    <div className="mt-6">
+                         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                    </div>
+                </>
             )}
         </div>
     );

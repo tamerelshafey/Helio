@@ -17,7 +17,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
-import { commonSchemas, MESSAGES, PATTERNS } from '../../utils/validation';
+import { commonSchemas } from '../../utils/validation';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -28,14 +28,14 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-// Validation Schema
+// Validation Schema using centralized utils
 const registerSchema = z.object({
     companyName: commonSchemas.name,
     contactName: commonSchemas.name,
     contactEmail: commonSchemas.email,
     contactPhone: commonSchemas.phoneEG,
     companyAddress: z.string().min(5, "Address is too short"),
-    website: z.string().url("Invalid URL").optional().or(z.literal("")),
+    website: commonSchemas.url,
     description: z.string().min(20, "Description must be at least 20 characters"),
 });
 
@@ -163,7 +163,7 @@ const RegisterPage: React.FC = () => {
                     <CheckCircleIcon className="w-20 h-20 text-green-500 mx-auto mb-6" />
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">{t.auth.registerSuccessTitle}</h1>
                     <p className="text-lg text-gray-600 mb-8">{t.auth.registerSuccessMessage}</p>
-                    <Link to="/" className="bg-amber-500 text-gray-900 font-semibold px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors">
+                    <Link to="/" className="bg-amber-50 text-gray-900 font-semibold px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors">
                         {t.addPropertyPage.backToHome}
                     </Link>
                 </div>
