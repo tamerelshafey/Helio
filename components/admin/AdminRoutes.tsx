@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoadingFallback from '../shared/LoadingFallback';
@@ -7,10 +8,13 @@ const AdminHomePage = React.lazy(() => import('./AdminHomePage'));
 const AdminAnalyticsPage = React.lazy(() => import('./AdminAnalyticsPage'));
 const AdminReportsPage = React.lazy(() => import('./AdminReportsPage'));
 const AdminUsersPage = React.lazy(() => import('./users/AdminUsersPage'));
+const AdminUserFormPage = React.lazy(() => import('./users/AdminUserFormPage')); // New
 const AdminRolesPage = React.lazy(() => import('./users/AdminRolesPage'));
 const AdminPlansPage = React.lazy(() => import('./AdminPlansPage'));
+const AdminPlanEditPage = React.lazy(() => import('./AdminPlanEditPage')); // New
 const AdminFilterManagementPage = React.lazy(() => import('./AdminFilterManagementPage'));
 const AdminBannersPage = React.lazy(() => import('./banners/AdminBannersPage'));
+const AdminBannerFormPage = React.lazy(() => import('./content/AdminBannerFormPage')); // New
 const AdminSettingsPage = React.lazy(() => import('./AdminSettingsPage'));
 const AdminProfilePage = React.lazy(() => import('./AdminProfilePage'));
 const PropertyFormPage = React.lazy(() => import('../forms/PropertyFormPage'));
@@ -24,6 +28,7 @@ const AdminCreateRequestPage = React.lazy(() => import('./requests/AdminCreateRe
 const AdminPartnersLayout = React.lazy(() => import('./partners/AdminPartnersLayout'));
 const AdminPartnersDashboard = React.lazy(() => import('./partners/AdminPartnersDashboard'));
 const AdminPartnersPage = React.lazy(() => import('./partners/AdminPartnersPage'));
+const AdminPartnerFormPage = React.lazy(() => import('./partners/AdminPartnerFormPage')); // New
 const AdminProjectsPage = React.lazy(() => import('./partners/AdminProjectsPage'));
 const AdminInquiryManagementPage = React.lazy(() => import('./inquiryManagement/AdminInquiryManagementPage'));
 const AdminPropertiesLayout = React.lazy(() => import('./properties/AdminPropertiesLayout'));
@@ -50,6 +55,7 @@ const RoutingRulesPage = React.lazy(() => import('./automation/RoutingRulesPage'
 const AllNotificationsPage = React.lazy(() => import('../shared/AllNotificationsPage'));
 const AdminFinancePage = React.lazy(() => import('./finance/AdminFinancePage'));
 const AdminFormsPage = React.lazy(() => import('./forms/AdminFormsPage'));
+const AdminPortfolioFormPage = React.lazy(() => import('./decorations/AdminPortfolioFormPage')); // New
 
 const AdminRoutes: React.FC = () => {
     return (
@@ -71,8 +77,12 @@ const AdminRoutes: React.FC = () => {
 
                 <Route path="platform-properties" element={<AdminPlatformPropertiesPage />} />
                 <Route path="platform-finishing/*" element={<AdminPlatformFinishingPage />} />
-                <Route path="platform-decorations/*" element={<AdminPlatformDecorationsPage />} />
                 
+                {/* Decorations Routes */}
+                <Route path="platform-decorations/*" element={<AdminPlatformDecorationsPage />} />
+                <Route path="platform-decorations/portfolio/new" element={<AdminPortfolioFormPage />} />
+                <Route path="platform-decorations/portfolio/edit/:itemId" element={<AdminPortfolioFormPage />} />
+
                 <Route path="decorations-management/*" element={<Navigate to="platform-decorations" replace />} />
                 <Route path="finishing-management/*" element={<Navigate to="platform-finishing" replace />} />
 
@@ -85,14 +95,19 @@ const AdminRoutes: React.FC = () => {
                 <Route path="partners" element={<AdminPartnersLayout />}>
                     <Route index element={<AdminPartnersDashboard />} />
                     <Route path="list" element={<AdminPartnersPage />} />
+                    <Route path="new" element={<AdminPartnerFormPage />} />
+                    <Route path="edit/:partnerId" element={<AdminPartnerFormPage />} />
                     <Route path="inquiry-routing" element={<AdminInquiryManagementPage />} />
                     <Route path="plans" element={<AdminPlansPage availableCategories={['developer', 'agency', 'individual']} />} />
+                    <Route path="plans/edit/:planCategory/:planKey" element={<AdminPlanEditPage />} />
                 </Route>
                 
                 <Route path="projects" element={<AdminProjectsPage />} />
                 <Route path="projects/edit/:projectId" element={<ProjectFormPage />} />
 
                 <Route path="users" element={<AdminUsersPage />} />
+                <Route path="users/new" element={<AdminUserFormPage />} />
+                <Route path="users/edit/:userId" element={<AdminUserFormPage />} />
                 
                 <Route path="properties" element={<AdminPropertiesLayout />}>
                     <Route index element={<AdminPropertiesDashboard />} />
@@ -106,7 +121,10 @@ const AdminRoutes: React.FC = () => {
                 <Route path="properties/edit/:propertyId" element={<PropertyFormPage />} />
 
                 <Route path="roles" element={<AdminRolesPage />} />
+                
                 <Route path="banners" element={<AdminBannersPage />} />
+                <Route path="banners/new" element={<AdminBannerFormPage />} />
+                <Route path="banners/edit/:bannerId" element={<AdminBannerFormPage />} />
                 
                 <Route path="content" element={<AdminContentLayout />}>
                     <Route index element={<Navigate to="hero" replace />} />

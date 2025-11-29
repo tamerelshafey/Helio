@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { CloseIcon } from './Icons';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './Card';
@@ -19,6 +20,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, className, ...
             if (isOpen) {
                 dialog.showModal();
                 document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                
+                // Move focus to first focusable element
+                const firstFocusable = dialog.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])') as HTMLElement;
+                if (firstFocusable) firstFocusable.focus();
+                
             } else {
                 dialog.close();
                 document.body.style.overflow = '';
@@ -56,10 +62,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, className, ...
             ref={dialogRef}
             onClick={handleBackdropClick}
             onClose={onClose}
-            className="p-0 bg-transparent backdrop:bg-black/70 backdrop:backdrop-blur-sm rounded-lg shadow-xl max-w-lg w-full"
+            className="p-0 bg-transparent backdrop:bg-black/70 backdrop:backdrop-blur-sm rounded-lg shadow-xl max-w-lg w-full m-auto"
+            aria-modal="true"
             {...props}
         >
-            <Card className={`w-full animate-fadeIn ${className}`}>{children}</Card>
+            <div className="w-full h-full flex items-center justify-center p-4">
+                <Card className={`w-full animate-fadeIn max-h-[90vh] overflow-y-auto ${className}`}>{children}</Card>
+            </div>
         </dialog>
     );
 };
@@ -69,12 +78,13 @@ const ModalHeader: React.FC<{ children: React.ReactNode; onClose: () => void; id
     onClose,
     id,
 }) => (
-    <CardHeader className="flex flex-row items-center justify-between">
+    <CardHeader className="flex flex-row items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-4 mb-2">
         <CardTitle id={id}>{children}</CardTitle>
         <button
             onClick={onClose}
-            className="p-1 rounded-full text-gray-500 hover:bg-gray-100"
+            className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             aria-label="Close"
+            autoFocus
         >
             <CloseIcon className="w-5 h-5" />
         </button>

@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import type { Banner } from '../../../types';
-import AdminBannerFormModal from '../content/AdminBannerFormModal'; // FIXED PATH
 import { PhotoIcon } from '../../ui/Icons';
 import { getAllBanners, deleteBanner as apiDeleteBanner } from '../../../services/banners';
 import { useQuery } from '@tanstack/react-query';
@@ -24,7 +24,6 @@ const AdminBannersPage: React.FC = () => {
     const { language, t } = useLanguage();
     const t_banners = t.adminDashboard.manageBanners;
     const { data: banners, isLoading: loading, refetch } = useQuery({ queryKey: ['banners'], queryFn: getAllBanners });
-    const [modalState, setModalState] = useState<{ isOpen: boolean, bannerToEdit?: Banner }>({ isOpen: false });
     const [bannerToDelete, setBannerToDelete] = useState<string | null>(null);
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -72,11 +71,6 @@ const AdminBannersPage: React.FC = () => {
             setBannerToDelete(null);
             refetch();
         }
-    };
-
-    const handleModalClose = () => {
-        setModalState({ isOpen: false });
-        refetch();
     };
 
     const renderTable = (items: Banner[]) => (
@@ -133,7 +127,9 @@ const AdminBannersPage: React.FC = () => {
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex gap-2">
-                                        <Button variant="secondary" size="sm" onClick={() => setModalState({ isOpen: true, bannerToEdit: banner })}>{t_banners.edit}</Button>
+                                        <Link to={`/admin/banners/edit/${banner.id}`}>
+                                            <Button variant="secondary" size="sm">{t_banners.edit}</Button>
+                                        </Link>
                                         <Button variant="danger" size="sm" className="bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 border-none" onClick={() => setBannerToDelete(banner.id)}>{t_banners.delete}</Button>
                                     </div>
                                 </TableCell>
@@ -171,7 +167,9 @@ const AdminBannersPage: React.FC = () => {
                 </div>
             </CardContent>
             <CardFooter className="p-3 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
-                <Button variant="secondary" size="sm" onClick={() => setModalState({ isOpen: true, bannerToEdit: banner })}>{t_banners.edit}</Button>
+                 <Link to={`/admin/banners/edit/${banner.id}`}>
+                    <Button variant="secondary" size="sm">{t_banners.edit}</Button>
+                </Link>
                 <Button variant="danger" size="sm" className="bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 border-none shadow-none" onClick={() => setBannerToDelete(banner.id)}>{t_banners.delete}</Button>
             </CardFooter>
         </Card>
@@ -179,12 +177,6 @@ const AdminBannersPage: React.FC = () => {
 
     return (
         <div>
-            {modalState.isOpen && (
-                <AdminBannerFormModal
-                    bannerToEdit={modalState.bannerToEdit}
-                    onClose={handleModalClose}
-                />
-            )}
             {bannerToDelete && (
                 <ConfirmationModal
                     isOpen={!!bannerToDelete}
@@ -201,10 +193,12 @@ const AdminBannersPage: React.FC = () => {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_banners.title}</h1>
                     <p className="text-gray-500 dark:text-gray-400">Create and manage advertising banners across the site.</p>
                 </div>
-                <Button onClick={() => setModalState({ isOpen: true })} className="flex items-center gap-2">
-                    <PhotoIcon className="w-5 h-5" />
-                    {t_banners.addBanner}
-                </Button>
+                <Link to="/admin/banners/new">
+                    <Button className="flex items-center gap-2">
+                        <PhotoIcon className="w-5 h-5" />
+                        {t_banners.addBanner}
+                    </Button>
+                </Link>
             </div>
             
             <ResponsiveList

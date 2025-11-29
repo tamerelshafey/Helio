@@ -58,3 +58,16 @@ export const commonSchemas = {
     name: z.string().min(2, "Name must be at least 2 characters"),
     url: z.string().optional().or(z.literal("")).refine((val) => !val || PATTERNS.URL.test(val), "Invalid URL"),
 };
+
+/**
+ * Safe Data Validation Helper
+ * Validates data against a Zod schema and returns a safe result.
+ */
+export const validateData = <T>(schema: z.ZodSchema<T>, data: unknown): { success: boolean, data?: T, error?: string } => {
+    const result = schema.safeParse(data);
+    if (result.success) {
+        return { success: true, data: result.data };
+    } else {
+        return { success: false, error: result.error.errors[0].message };
+    }
+};

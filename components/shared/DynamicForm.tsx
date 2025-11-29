@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, FieldValues, RegisterOptions } from 'react-hook-form';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { getFormBySlug } from '../../services/forms';
 import { addRequest } from '../../services/requests';
@@ -18,13 +17,13 @@ import { PATTERNS, MESSAGES, CONFIG } from '../../utils/validation';
 
 interface DynamicFormProps {
     slug: string;
-    defaultValues?: Record<string, any>;
+    defaultValues?: Record<string, unknown>;
     onSuccess?: () => void;
     className?: string;
-    contextData?: any; 
+    contextData?: Record<string, unknown>; 
     children?: React.ReactNode; 
     headerContent?: React.ReactNode; 
-    customSubmit?: (data: any) => void; 
+    customSubmit?: (data: Record<string, unknown>) => void; 
     submitButtonText?: string;
     submitButtonIcon?: React.ReactNode;
     hiddenFields?: string[];
@@ -60,13 +59,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         queryFn: () => getFormBySlug(slug),
     });
 
-    const methods = useForm({
+    const methods = useForm<FieldValues>({
         defaultValues: defaultValues || {}
     });
     
     const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = methods;
 
-    const processFiles = async (formData: any, fields: FormFieldDefinition[]) => {
+    const processFiles = async (formData: FieldValues, fields: FormFieldDefinition[]) => {
         const processedData = { ...formData };
         const fileFields = fields.filter(f => f.type === 'file');
         
@@ -89,16 +88,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     }
 
     const mutation = useMutation({
-        mutationFn: async (processedData: any) => {
+        mutationFn: async (processedData: Record<string, unknown>) => {
             if (!formDef) throw new Error('Form definition not found');
             const destination = formDef.destination as SubmissionDestination;
 
             const payload = { ...processedData, ...contextData };
 
             const requesterInfo = {
-                name: payload.name || payload.customerName || payload.fullName || 'Anonymous',
-                phone: payload.phone || payload.customerPhone || '',
-                email: payload.email || payload.contactEmail || ''
+                name: String(payload.name || payload.customerName || payload.fullName || 'Anonymous'),
+                phone: String(payload.phone || payload.customerPhone || ''),
+                email: String(payload.email || payload.contactEmail || '')
             };
 
             switch (destination) {
@@ -113,8 +112,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         payload: {
                             customerName: requesterInfo.name,
                             customerPhone: requesterInfo.phone,
-                            serviceType: payload.serviceType || 'general',
-                            serviceTitle: payload.serviceTitle || `${formDef.title.en} Submission`,
+                            serviceType: (payload.serviceType as any) || 'general',
+                            serviceTitle: (payload.serviceTitle as string) || `${formDef.title.en} Submission`,
                             ...payload
                         }
                     });
@@ -124,6 +123,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         payload: { ...payload, status: 'pending' }
                     });
                  case 'email':
+                    // Simulate email sending delay
                     return new Promise(resolve => setTimeout(resolve, 1000));
                 default:
                      return addRequest(RequestType.PROPERTY_INQUIRY, {
@@ -143,7 +143,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         }
     });
 
-    const onSubmit: SubmitHandler<any> = async (data) => {
+    const onSubmit: SubmitHandler<FieldValues> = async (data) => {
         if (!formDef) return;
         try {
             const processedData = await processFiles(data, formDef.fields);
@@ -162,8 +162,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     if (!formDef) return <div className="text-red-500">Form not found: {slug}</div>;
     if (!formDef.isActive) return <div className="text-gray-500">This form is currently inactive.</div>;
 
-    const getValidationRules = (field: FormFieldDefinition) => {
-        const rules: any = {
+    const getValidationRules = (field: FormFieldDefinition): RegisterOptions => {
+        const rules: RegisterOptions = {
             required: field.required ? MESSAGES[language].required : false
         };
 
@@ -178,7 +178,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         }
         if (field.type === 'file') {
             rules.validate = {
-                fileSize: (files: FileList) => !files || files.length === 0 || validateFile(files[0])
+                fileSize: (files: any) => !files || files.length === 0 || validateFile(files[0])
             }
         }
 
@@ -239,7 +239,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     <Select {...commonProps} className={selectClasses}>
                         <option value="">{language === 'ar' ? 'اختر...' : 'Select...'}</option>
                         {options.map(opt => {
-                            const label = t.formOptions?.[opt] || opt;
+                            const label = t.formOptions?.[opt as keyof typeof t.formOptions] || opt;
                             return <option key={opt} value={opt}>{label}</option>
                         })}
                     </Select>
@@ -286,7 +286,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     <FormField 
                                         label={field.label[language]} 
                                         id={field.id} 
-                                        // @ts-ignore
                                         error={errors[field.key]?.message as string}
                                     >
                                         {renderField(field)}
@@ -295,7 +294,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                 {field.type === 'checkbox' && (
                                     <div className="pt-6">
                                         {renderField(field)}
-                                        {/* @ts-ignore */}
                                         {errors[field.key] && <p className="text-red-500 text-sm mt-1">{errors[field.key]?.message as string}</p>}
                                     </div>
                                 )}

@@ -81,7 +81,7 @@ const AdminFinancePage: React.FC = () => {
     const { data: transactions, isLoading } = useQuery({ queryKey: ['allTransactions'], queryFn: getAllTransactions });
     
     const [detailsTxn, setDetailsTxn] = useState<Transaction | null>(null);
-    const [dateRange, setDateRange] = useState({ start: '', end: '' });
+    const [dateRange, setDateRange] = useState<{start: string, end: string}>({ start: '', end: '' });
 
     const updateMutation = useMutation({
         mutationFn: ({ id, status }: { id: string, status: TransactionStatus }) => updateTransactionStatus(id, status),

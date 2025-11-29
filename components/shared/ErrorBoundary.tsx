@@ -1,10 +1,11 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 import { Button } from '../ui/Button';
-import { ExclamationCircleIcon } from '../ui/Icons';
+import { ExclamationCircleIcon, HomeIcon, ArrowRightIcon } from '../ui/Icons';
 
 interface ErrorBoundaryProps {
   children?: ReactNode;
   fallback?: ReactNode;
+  onReset?: () => void;
 }
 
 interface ErrorBoundaryState {
@@ -12,19 +13,18 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   public state: ErrorBoundaryState = {
     hasError: false,
     error: null
   };
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    // Update state so the next render will show the fallback UI.
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+    console.error("Uncaught error in ErrorBoundary:", error, errorInfo);
   }
 
   handleReload = () => {
@@ -32,7 +32,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   };
 
   handleRetry = () => {
+      this.props.onReset?.();
       this.setState({ hasError: false, error: null });
+  };
+
+  handleGoHome = () => {
+      window.location.href = '/';
   };
 
   render() {
@@ -42,28 +47,39 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-          <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center border border-red-100 dark:border-red-900/30">
-            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div 
+            className="min-h-[400px] flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12 rounded-lg"
+            role="alert" 
+            aria-live="assertive"
+        >
+          <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg text-center border border-red-100 dark:border-red-900/30">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
               <ExclamationCircleIcon className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+            
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
               Something went wrong
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              We apologize for the inconvenience. An unexpected error has occurred.
+            </h2>
+            
+            <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm leading-relaxed">
+              We encountered an unexpected error while rendering this component.
             </p>
-            <div className="p-4 bg-gray-100 dark:bg-gray-900 rounded-md mb-6 text-left overflow-auto max-h-32">
-                <code className="text-xs text-red-500 font-mono">
-                    {this.state.error?.message}
+            
+            <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-lg mb-8 text-left overflow-hidden border border-red-100 dark:border-red-900/20">
+                <p className="text-xs font-bold text-red-800 dark:text-red-300 mb-1 uppercase tracking-wider">Error Details:</p>
+                <code className="text-xs text-red-600 dark:text-red-400 font-mono break-words block">
+                    {this.state.error?.message || 'Unknown Error'}
                 </code>
             </div>
-            <div className="flex gap-3 justify-center">
-                <Button onClick={this.handleRetry} variant="secondary">
+            
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button onClick={this.handleRetry} variant="primary" className="w-full sm:w-auto">
+                    <ArrowRightIcon className="w-4 h-4 mr-2" />
                     Try Again
                 </Button>
-                <Button onClick={this.handleReload}>
-                    Reload Page
+                <Button onClick={this.handleGoHome} variant="secondary" className="w-full sm:w-auto">
+                    <HomeIcon className="w-4 h-4 mr-2" />
+                    Go Home
                 </Button>
             </div>
           </div>

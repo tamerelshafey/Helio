@@ -7,6 +7,7 @@ import { Line, Doughnut } from 'react-chartjs-2';
 import { useLanguage } from '../shared/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { useAdminAnalytics, TimePeriod } from '../../hooks/useAdminAnalytics';
+import AsyncBoundary from '../shared/AsyncBoundary';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
@@ -26,12 +27,12 @@ const StatCard: React.FC<{ title: string; value: number | string; icon: React.Re
     </Card>
 );
 
-const AdminAnalyticsPage: React.FC = () => {
+const AnalyticsContent: React.FC<{ timePeriod: TimePeriod, setTimePeriod: (p: TimePeriod) => void }> = ({ timePeriod, setTimePeriod }) => {
     const { language, t } = useLanguage();
     const t_analytics = t.adminAnalytics;
-    const { loading, analyticsData, timePeriod, setTimePeriod } = useAdminAnalytics();
+    const { analyticsData } = useAdminAnalytics(); // Hook now handles suspense internally if configured, or parent suspense
 
-    if (loading || !analyticsData) return <div>Loading analytics...</div>;
+    if (!analyticsData) return null;
     
     const { leadsOverTime, requestTypeDistribution } = analyticsData;
     
@@ -77,24 +78,8 @@ const AdminAnalyticsPage: React.FC = () => {
     };
 
     return (
-        <div className="space-y-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_analytics.title}</h1>
-                    <p className="text-gray-500 dark:text-gray-400">{t_analytics.subtitle}</p>
-                </div>
-                <div className="flex-shrink-0 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg flex gap-1">
-                    {(Object.keys(t_analytics) as (keyof typeof t_analytics)[]).filter(k => String(k).startsWith('last') || String(k).startsWith('this')).map(periodKey => {
-                        const periodMap: Record<string, TimePeriod> = { last7days: '7d', last30days: '30d', thismonth: 'month', thisyear: 'year' };
-                        const key = String(periodKey).replace(/([A-Z])/g, '$1').toLowerCase();
-                        return (
-                            <button key={key} onClick={() => setTimePeriod(periodMap[key])} className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${timePeriod === periodMap[key] ? 'bg-white dark:bg-gray-700 shadow text-amber-600' : 'text-gray-600 dark:text-gray-400'}`}>{t_analytics[periodKey] as string}</button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="space-y-8 animate-fadeIn">
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard title={t_analytics.newLeads} value={analyticsData.newLeads} icon={<InboxIcon className="w-6 h-6" />} />
                 <StatCard title={t_analytics.newPartners} value={analyticsData.newPartners} icon={<UsersIcon className="w-6 h-6" />} />
                 <StatCard title={t_analytics.newProperties} value={analyticsData.newProperties} icon={<BuildingIcon className="w-6 h-6" />} />
@@ -103,7 +88,25 @@ const AdminAnalyticsPage: React.FC = () => {
             
             <Card>
                 <CardHeader>
-                    <CardTitle>{t_analytics.leadsOverTime}</CardTitle>
+                    <div className="flex justify-between items-center">
+                         <CardTitle>{t_analytics.leadsOverTime}</CardTitle>
+                         <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg gap-1">
+                            {(Object.keys(t_analytics) as (keyof typeof t_analytics)[]).filter(k => String(k).startsWith('last') || String(k).startsWith('this')).map(periodKey => {
+                                const periodMap: Record<string, TimePeriod> = { last7days: '7d', last30days: '30d', thismonth: 'month', thisyear: 'year' };
+                                const key = String(periodKey).replace(/([A-Z])/g, '$1').toLowerCase();
+                                const targetPeriod = periodMap[key];
+                                return (
+                                    <button 
+                                        key={key} 
+                                        onClick={() => setTimePeriod(targetPeriod)} 
+                                        className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${timePeriod === targetPeriod ? 'bg-white dark:bg-gray-700 shadow text-amber-600' : 'text-gray-600 dark:text-gray-400'}`}
+                                    >
+                                        {t_analytics[periodKey] as string}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </CardHeader>
                 <CardContent className="h-80"><Line data={lineChartData} options={commonChartOptions}/></CardContent>
             </Card>
@@ -152,6 +155,27 @@ const AdminAnalyticsPage: React.FC = () => {
                 </CardContent>
             </Card>
             </div>
+        </div>
+    );
+}
+
+const AdminAnalyticsPage: React.FC = () => {
+    const { t } = useLanguage();
+    const t_analytics = t.adminAnalytics;
+    const { timePeriod, setTimePeriod } = useAdminAnalytics();
+
+    return (
+        <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_analytics.title}</h1>
+                    <p className="text-gray-500 dark:text-gray-400">{t_analytics.subtitle}</p>
+                </div>
+            </div>
+            
+            <AsyncBoundary>
+                <AnalyticsContent timePeriod={timePeriod} setTimePeriod={setTimePeriod} />
+            </AsyncBoundary>
         </div>
     );
 };

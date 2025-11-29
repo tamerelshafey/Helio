@@ -1,22 +1,27 @@
-
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { ArrowUpIcon, ArrowDownIcon } from '../ui/Icons';
-import { useDebounce } from '../../hooks/useDebounce';
+import { useDebounce } from './useDebounce';
 
 type SortDirection = 'ascending' | 'descending';
 
 export type SortConfig<T> = {
-    key: string;
+    key: keyof T | string; // Allow string for dot notation
     direction: SortDirection;
 } | null;
 
-const getNestedValue = (obj: Record<string, any>, path: string): any => {
+// Generic helper for safe nested property access
+function getNestedValue<T>(obj: T, path: string): unknown {
     if (!path) return obj;
-    return path.split('.').reduce((o: any, i) => (o ? o[i] : undefined), obj);
-};
+    // Safe traversal without 'any'
+    return path.split('.').reduce((o: unknown, i: string) => {
+        if (o && typeof o === 'object' && i in (o as object)) {
+            return (o as Record<string, unknown>)[i];
+        }
+        return undefined;
+    }, obj);
+}
 
-export function useAdminTable<T extends Record<string, any>>({
+export function useAdminTable<T>({
     data = [],
     itemsPerPage = 10,
     initialSort,
@@ -37,7 +42,6 @@ export function useAdminTable<T extends Record<string, any>>({
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
     const [filters, setFilters] = useState<Record<string, string>>(initialFilters);
 
-    // Update filters if initialFilters change (e.g. navigation between dashboard links)
     useEffect(() => {
         if (Object.keys(initialFilters).length > 0) {
             setFilters(prev => ({ ...prev, ...initialFilters }));
@@ -46,18 +50,20 @@ export function useAdminTable<T extends Record<string, any>>({
 
     const setFilter = useCallback((key: string, value: string) => {
         setFilters((prev) => ({ ...prev, [key]: value }));
-        setCurrentPage(1); // Reset page when filters change
+        setCurrentPage(1); 
     }, []);
 
     const processedData = useMemo(() => {
         if (!data) return [];
         let items = [...data];
 
+        // 1. Search
         if (debouncedSearchTerm.trim()) {
             const lowercasedTerm = debouncedSearchTerm.trim().toLowerCase();
             items = items.filter((item) => searchFn(item, lowercasedTerm));
         }
 
+        // 2. Filter
         for (const key in filters) {
             if (Object.prototype.hasOwnProperty.call(filters, key)) {
                 const value = filters[key];
@@ -67,34 +73,33 @@ export function useAdminTable<T extends Record<string, any>>({
             }
         }
 
+        // 3. Sort
         if (sortConfig) {
             items.sort((a, b) => {
-                const aValue = getNestedValue(a, sortConfig.key);
-                const bValue = getNestedValue(b, sortConfig.key);
+                const aValue = getNestedValue(a, sortConfig.key as string);
+                const bValue = getNestedValue(b, sortConfig.key as string);
                 const dir = sortConfig.direction === 'ascending' ? 1 : -1;
 
-                // Rule 1: Handle null, undefined, or empty values. They go to the end.
-                const aIsNull = aValue == null || aValue === '';
-                const bIsNull = bValue == null || bValue === '';
-                if (aIsNull && bIsNull) return 0;
-                if (aIsNull) return 1; // a is null, b is not, so a goes after b
-                if (bIsNull) return -1; // b is null, a is not, so b goes after a
+                // Safe Type checking for sorting
+                if (aValue === bValue) return 0;
+                
+                // Handle nulls/undefined
+                if (aValue === null || aValue === undefined) return 1;
+                if (bValue === null || bValue === undefined) return -1;
 
-                // Rule 2: If both are numbers, compare numerically.
+                // Handle numbers
                 if (typeof aValue === 'number' && typeof bValue === 'number') {
                     return (aValue - bValue) * dir;
                 }
                 
-                // Rule 3: If both are booleans, compare them.
+                // Handle booleans
                 if (typeof aValue === 'boolean' && typeof bValue === 'boolean') {
-                    if (aValue === bValue) return 0;
-                    return (aValue ? -1 : 1) * dir;
+                    return (aValue === bValue ? 0 : aValue ? -1 : 1) * dir;
                 }
 
-                // Rule 4: Coerce to string for all other types (string, date, etc.)
-                // This is safe because we've handled null/undefined.
-                const stringA = aValue.toString();
-                const stringB = bValue.toString();
+                // Default to string comparison
+                const stringA = String(aValue).toLowerCase();
+                const stringB = String(bValue).toLowerCase();
 
                 return stringA.localeCompare(stringB) * dir;
             });
@@ -102,8 +107,8 @@ export function useAdminTable<T extends Record<string, any>>({
         return items;
     }, [data, debouncedSearchTerm, filters, sortConfig, searchFn, filterFns]);
 
+    // Reset page if data length changes significantly
     useEffect(() => {
-        // Reset to page 1 if filters or search reduce total pages
         const newTotalPages = Math.ceil(processedData.length / itemsPerPage);
         if (currentPage > newTotalPages && newTotalPages > 0) {
             setCurrentPage(newTotalPages);
@@ -133,15 +138,15 @@ export function useAdminTable<T extends Record<string, any>>({
         (key: string) => {
             if (!sortConfig || sortConfig.key !== key) {
                 return (
-                    <span className="w-4 h-4 ml-1 inline-block opacity-0 group-hover:opacity-50">
+                    <span className="w-4 h-4 ml-1 inline-block opacity-0 group-hover:opacity-50" aria-hidden="true">
                         <ArrowUpIcon />
                     </span>
                 );
             }
             return sortConfig.direction === 'ascending' ? (
-                <ArrowUpIcon className="w-4 h-4 ml-1 inline-block" />
+                <ArrowUpIcon className="w-4 h-4 ml-1 inline-block text-amber-500" aria-label="Sorted Ascending" />
             ) : (
-                <ArrowDownIcon className="w-4 h-4 ml-1 inline-block" />
+                <ArrowDownIcon className="w-4 h-4 ml-1 inline-block text-amber-500" aria-label="Sorted Descending" />
             );
         },
         [sortConfig]

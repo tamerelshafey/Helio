@@ -1,22 +1,28 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { ArrowUpIcon, ArrowDownIcon } from '../components/ui/Icons';
 import { useDebounce } from './useDebounce';
 
 type SortDirection = 'ascending' | 'descending';
 
 export type SortConfig<T> = {
-    key: string;
+    key: keyof T | string; // Allow string for dot notation
     direction: SortDirection;
 } | null;
 
-const getNestedValue = (obj: Record<string, any>, path: string): any => {
+// Generic helper for safe nested property access
+function getNestedValue<T>(obj: T, path: string): unknown {
     if (!path) return obj;
-    return path.split('.').reduce((o: any, i) => (o ? o[i] : undefined), obj);
-};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return path.split('.').reduce((o: any, i: string) => {
+        if (o && typeof o === 'object' && i in o) {
+            return o[i];
+        }
+        return undefined;
+    }, obj);
+}
 
-export function useAdminTable<T extends Record<string, any>>({
+export function useAdminTable<T>({
     data = [],
     itemsPerPage = 10,
     initialSort,
@@ -45,18 +51,20 @@ export function useAdminTable<T extends Record<string, any>>({
 
     const setFilter = useCallback((key: string, value: string) => {
         setFilters((prev) => ({ ...prev, [key]: value }));
-        setCurrentPage(1);
+        setCurrentPage(1); 
     }, []);
 
     const processedData = useMemo(() => {
         if (!data) return [];
         let items = [...data];
 
+        // 1. Search
         if (debouncedSearchTerm.trim()) {
             const lowercasedTerm = debouncedSearchTerm.trim().toLowerCase();
             items = items.filter((item) => searchFn(item, lowercasedTerm));
         }
 
+        // 2. Filter
         for (const key in filters) {
             if (Object.prototype.hasOwnProperty.call(filters, key)) {
                 const value = filters[key];
@@ -66,14 +74,17 @@ export function useAdminTable<T extends Record<string, any>>({
             }
         }
 
+        // 3. Sort
         if (sortConfig) {
             items.sort((a, b) => {
-                const aValue = getNestedValue(a, sortConfig.key);
-                const bValue = getNestedValue(b, sortConfig.key);
+                const aValue = getNestedValue(a, sortConfig.key as string);
+                const bValue = getNestedValue(b, sortConfig.key as string);
                 const dir = sortConfig.direction === 'ascending' ? 1 : -1;
 
-                const aIsNull = aValue == null || aValue === '';
-                const bIsNull = bValue == null || bValue === '';
+                // Safe Type checking for sorting
+                const aIsNull = aValue === null || aValue === undefined || aValue === '';
+                const bIsNull = bValue === null || bValue === undefined || bValue === '';
+                
                 if (aIsNull && bIsNull) return 0;
                 if (aIsNull) return 1;
                 if (bIsNull) return -1;
@@ -87,8 +98,8 @@ export function useAdminTable<T extends Record<string, any>>({
                     return (aValue ? -1 : 1) * dir;
                 }
 
-                const stringA = aValue.toString();
-                const stringB = bValue.toString();
+                const stringA = String(aValue).toLowerCase();
+                const stringB = String(bValue).toLowerCase();
 
                 return stringA.localeCompare(stringB) * dir;
             });
@@ -96,6 +107,7 @@ export function useAdminTable<T extends Record<string, any>>({
         return items;
     }, [data, debouncedSearchTerm, filters, sortConfig, searchFn, filterFns]);
 
+    // Reset page if data length changes significantly
     useEffect(() => {
         const newTotalPages = Math.ceil(processedData.length / itemsPerPage);
         if (currentPage > newTotalPages && newTotalPages > 0) {
@@ -126,15 +138,15 @@ export function useAdminTable<T extends Record<string, any>>({
         (key: string) => {
             if (!sortConfig || sortConfig.key !== key) {
                 return (
-                    <span className="w-4 h-4 ml-1 inline-block opacity-0 group-hover:opacity-50">
+                    <span className="w-4 h-4 ml-1 inline-block opacity-0 group-hover:opacity-50" aria-hidden="true">
                         <ArrowUpIcon />
                     </span>
                 );
             }
             return sortConfig.direction === 'ascending' ? (
-                <ArrowUpIcon className="w-4 h-4 ml-1 inline-block" />
+                <ArrowUpIcon className="w-4 h-4 ml-1 inline-block text-amber-500" aria-label="Sorted Ascending" />
             ) : (
-                <ArrowDownIcon className="w-4 h-4 ml-1 inline-block" />
+                <ArrowDownIcon className="w-4 h-4 ml-1 inline-block text-amber-500" aria-label="Sorted Descending" />
             );
         },
         [sortConfig]

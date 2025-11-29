@@ -1,14 +1,11 @@
 
-
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import type { PortfolioItem, DecorationCategory } from '../../../types';
+import type { PortfolioItem } from '../../../types';
 import { useQuery } from '@tanstack/react-query';
 import { getAllPortfolioItems, deletePortfolioItem as apiDeletePortfolioItem } from '../../../services/portfolio';
 import { getAllPartnersForAdmin } from '../../../services/partners';
 import { getDecorationCategories } from '../../../services/decorations';
-import AdminPortfolioItemFormModal from '../AdminPortfolioItemFormModal';
-// FIX: Corrected import path for Pagination from 'ui' to 'shared'.
 import Pagination from '../../shared/Pagination';
 import { useLanguage } from '../../shared/LanguageContext';
 
@@ -22,7 +19,6 @@ const PortfolioManagement: React.FC = () => {
     const { data: decorationCategories, isLoading: loadingCategories } = useQuery({ queryKey: ['decorationCategories'], queryFn: getDecorationCategories });
     const loading = loadingPortfolio || loadingPartners || loadingCategories;
 
-    const [modalState, setModalState] = useState<{ isOpen: boolean; itemToEdit?: PortfolioItem }>({ isOpen: false });
     const [currentPage, setCurrentPage] = useState(1);
     
     const decorationCategoryNames = useMemo(() => (decorationCategories || []).flatMap(c => [c.name.en, c.name.ar]), [decorationCategories]);
@@ -47,18 +43,12 @@ const PortfolioManagement: React.FC = () => {
         }
     };
 
-    const handleSave = () => {
-        setModalState({ isOpen: false });
-        refetchPortfolio();
-    };
-
     return (
         <div>
-             {modalState.isOpen && <AdminPortfolioItemFormModal itemToEdit={modalState.itemToEdit} onClose={() => setModalState({ isOpen: false })} onSave={handleSave} />}
             <div className="flex justify-end mb-4">
-                <button onClick={() => setModalState({ isOpen: true })} className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600 h-fit">
+                <Link to="/admin/platform-decorations/portfolio/new" className="bg-amber-500 text-gray-900 font-semibold px-4 py-2 rounded-lg hover:bg-amber-600 h-fit">
                     {t_decor.addNewItem}
-                </button>
+                </Link>
             </div>
             
             <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-x-auto">
@@ -77,7 +67,7 @@ const PortfolioManagement: React.FC = () => {
                                         <p className="text-sm text-gray-500 dark:text-gray-400">{item.category[language]}</p>
                                     </div>
                                     <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/50">
-                                        <button onClick={() => setModalState({ isOpen: true, itemToEdit: item })} className="font-medium text-amber-600 dark:text-amber-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900/50">{t_decor.editItem}</button>
+                                        <Link to={`/admin/platform-decorations/portfolio/edit/${item.id}`} className="font-medium text-amber-600 dark:text-amber-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-amber-900/50">{t_decor.editItem}</Link>
                                         <button onClick={() => handleDelete(item.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline text-sm px-3 py-1 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50">{t.adminShared.delete}</button>
                                     </div>
                                 </div>

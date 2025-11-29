@@ -1,12 +1,11 @@
-
 import React, { useMemo, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
 import { 
     ChevronDoubleLeftIcon, ChevronDoubleRightIcon, LogoutIcon, CloseIcon, GlobeAltIcon
-} from '../ui/Icons';
+} from '@/components/ui/Icons';
 import { SiteLogo } from './SiteLogo';
-import { type Partner, Permission, Role } from '../../types';
+import { type Partner, Permission, Role } from '@/types';
 import ErrorBoundary from './ErrorBoundary';
 
 interface NavLinkItem {
@@ -75,7 +74,6 @@ const SidebarContent: React.FC<Omit<DashboardSidebarProps, 'isOpen' | 'setIsOpen
     }, [visibleNavLinks]);
 
     const partnerName = t.partnerInfo[user.id]?.name || user.name;
-    // const isAdminDashboard = hasPermission(Permission.MANAGE_USERS); // Unused variable removed
 
     return (
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-4 py-4 dashboard-sidebar scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">

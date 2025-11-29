@@ -1,14 +1,12 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin, updatePartnerStatus, deletePartner } from '../../../services/partners';
 import { getPlans } from '../../../services/plans';
 import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import type { AdminPartner, PartnerStatus } from '../../../types';
-import AdminPartnerEditModal from './AdminPartnerEditModal';
-import AdminPartnerFormModal from './AdminPartnerFormModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';
@@ -30,19 +28,9 @@ const AdminPartnersPage: React.FC = () => {
     const { data: partners, isLoading, isError, refetch } = useQuery({ queryKey: ['allPartnersAdmin'], queryFn: getAllPartnersForAdmin });
     useQuery({ queryKey: ['plans'], queryFn: getPlans }); 
 
-    const [partnerToEdit, setPartnerToEdit] = useState<AdminPartner | null>(null);
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [selectedPartners, setSelectedPartners] = useState<string[]>([]);
     const [actionToConfirm, setActionToConfirm] = useState<'activate' | 'deactivate' | 'delete' | null>(null);
     const highlightedId = searchParams.get('highlight');
-
-    useEffect(() => {
-        const editId = searchParams.get('edit');
-        if (editId) {
-            const partner = (partners || []).find(p => p.id === editId);
-            if (partner) setPartnerToEdit(partner);
-        }
-    }, [searchParams, partners]);
 
     const statusMutation = useMutation({
         mutationFn: ({ id, status }: { id: string, status: PartnerStatus }) => updatePartnerStatus(id, status),
@@ -120,7 +108,6 @@ const AdminPartnersPage: React.FC = () => {
         queryClient.invalidateQueries({ queryKey: ['allPartnersAdmin'] });
     };
     
-    // Helper to update URL when filters change
     const updateUrlFilter = (key: string, value: string) => {
         setFilter(key, value);
         setSearchParams(prev => {
@@ -180,9 +167,9 @@ const AdminPartnersPage: React.FC = () => {
                                 />
                             </TableCell>
                             <TableCell>
-                                <Button variant="link" onClick={() => setPartnerToEdit(p)}>
-                                    {t.adminShared.edit}
-                                </Button>
+                                <Link to={`/admin/partners/edit/${p.id}`}>
+                                    <Button variant="link">{t.adminShared.edit}</Button>
+                                </Link>
                             </TableCell>
                         </TableRow>
                     ))}
@@ -221,9 +208,9 @@ const AdminPartnersPage: React.FC = () => {
                         onChange={() => handleStatusToggle(p.id, p.status)}
                         disabled={p.status === 'pending' || statusMutation.isPending}
                     />
-                    <Button variant="link" size="sm" onClick={() => setPartnerToEdit(p)}>
-                        {t.adminShared.edit}
-                    </Button>
+                     <Link to={`/admin/partners/edit/${p.id}`}>
+                        <Button variant="link" size="sm">{t.adminShared.edit}</Button>
+                    </Link>
                 </div>
             </CardContent>
         </Card>
@@ -245,9 +232,6 @@ const AdminPartnersPage: React.FC = () => {
 
     return (
         <div>
-            {partnerToEdit && <AdminPartnerEditModal partner={partnerToEdit} onClose={() => { setPartnerToEdit(null); setSearchParams({}); }} />}
-            {isAddModalOpen && <AdminPartnerFormModal onClose={() => setIsAddModalOpen(false)} />}
-            
             {actionToConfirm && selectedPartners.length > 0 && (
                 <ConfirmationModal
                     isOpen={!!actionToConfirm}
@@ -264,7 +248,9 @@ const AdminPartnersPage: React.FC = () => {
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_admin.partnersTitle}</h1>
                     <p className="text-gray-500 dark:text-gray-400">{t_admin.partnersSubtitle}</p>
                 </div>
-                <Button onClick={() => setIsAddModalOpen(true)}>{t.adminShared.add}</Button>
+                <Link to="/admin/partners/new">
+                    <Button>{t.adminShared.add}</Button>
+                </Link>
             </div>
             
             <div className="mb-4 flex flex-wrap gap-4">
@@ -285,7 +271,6 @@ const AdminPartnersPage: React.FC = () => {
                 </Select>
             </div>
 
-             {/* Mobile Bulk Actions Bar */}
              <div className="lg:hidden mb-4 sticky top-16 z-20">
                  {selectedPartners.length > 0 && (
                     <div className="p-3 bg-white dark:bg-gray-800 flex items-center justify-between gap-2 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md animate-fadeIn">

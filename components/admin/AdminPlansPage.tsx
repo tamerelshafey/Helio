@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { SubscriptionPlan, SubscriptionPlanDetails, PlanCategory } from '../../types';
-import AdminPlanEditModal from './AdminPlanEditModal';
 import { CheckCircleIcon } from '../ui/Icons';
 import { getPlans } from '../../services/plans';
 import { useQuery } from '@tanstack/react-query';
@@ -9,14 +9,18 @@ import { useLanguage } from '../shared/LanguageContext';
 
 const PlanCard: React.FC<{ 
     plan: SubscriptionPlanDetails, 
-    onEdit: () => void,
+    planKey: string,
+    planType: string,
     language: 'ar' | 'en'
-}> = ({ plan, onEdit, language }) => {
+}> = ({ plan, planKey, planType, language }) => {
     const { t } = useLanguage();
-    // Check if plan is defined before trying to access its properties.
     if (!plan) {
         return <div className="bg-red-100 p-4 rounded-lg text-red-800">Error: Plan data is missing.</div>;
     }
+    
+    // Encode planType if it contains slashes/special chars (though here it's usually simple strings like 'developer')
+    const encodedType = encodeURIComponent(planType);
+
     return (
         <div className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-6 flex flex-col">
             <h3 className="text-2xl font-bold text-amber-600 dark:text-amber-400">{plan.name}</h3>
@@ -39,12 +43,12 @@ const PlanCard: React.FC<{
                 ))}
             </ul>
 
-            <button
-                onClick={onEdit}
-                className="w-full font-bold py-2 rounded-lg mt-auto bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-amber-500 hover:text-gray-900 transition-colors"
+            <Link
+                to={`/admin/partners/plans/edit/${encodedType}/${planKey}`}
+                className="w-full block text-center font-bold py-2 rounded-lg mt-auto bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-amber-500 hover:text-gray-900 transition-colors"
             >
                 {t.adminShared.edit}
-            </button>
+            </Link>
         </div>
     );
 };
@@ -53,9 +57,8 @@ const PlanCard: React.FC<{
 const AdminPlansPage: React.FC<{ availableCategories?: PlanCategory[] }> = ({ availableCategories }) => {
     const { language, t } = useLanguage();
     const t_plans = t.adminDashboard.plans;
-    const { data: plans, isLoading: loading, refetch } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
+    const { data: plans, isLoading: loading } = useQuery({ queryKey: ['plans'], queryFn: getPlans });
     
-    // Updated tabs to separate individual plans into top-level tabs
     const allTabs: { key: string, name: string }[] = [
         { key: 'developer', name: t_plans.planCategories.developer },
         { key: 'agency', name: t_plans.planCategories.agency },
@@ -76,14 +79,7 @@ const AdminPlansPage: React.FC<{ availableCategories?: PlanCategory[] }> = ({ av
     };
     
     const tabs = getVisibleTabs();
-
     const [activeTab, setActiveTab] = useState<string>(tabs[0]?.key || 'developer');
-    const [editingPlan, setEditingPlan] = useState<{ planType: PlanCategory, planKey: SubscriptionPlan, subCategory?: 'sale' | 'rent' } | null>(null);
-    
-    const handleSave = () => {
-        refetch();
-        setEditingPlan(null);
-    }
     
     const renderPlans = () => {
         if (loading || !plans) {
@@ -97,21 +93,13 @@ const AdminPlansPage: React.FC<{ availableCategories?: PlanCategory[] }> = ({ av
         }
 
         let plansToRender: any;
-        let planTypeForModal: PlanCategory;
-        let subCategoryForModal: 'sale' | 'rent' | undefined = undefined;
-
-        // Safe navigation with optional chaining to prevent crashes if plans structure isn't loaded yet
+        
         if (activeTab === 'individual-sale') {
             plansToRender = plans?.individual?.sale || {};
-            planTypeForModal = 'individual';
-            subCategoryForModal = 'sale';
         } else if (activeTab === 'individual-rent') {
             plansToRender = plans?.individual?.rent || {};
-            planTypeForModal = 'individual';
-            subCategoryForModal = 'rent';
         } else {
             plansToRender = (plans as any)?.[activeTab] || {};
-            planTypeForModal = activeTab as PlanCategory;
         }
 
         if (!plansToRender || Object.keys(plansToRender).length === 0) {
@@ -123,8 +111,9 @@ const AdminPlansPage: React.FC<{ availableCategories?: PlanCategory[] }> = ({ av
                 {(Object.keys(plansToRender) as SubscriptionPlan[]).map(planKey => (
                     <PlanCard 
                         key={planKey}
+                        planKey={planKey}
+                        planType={activeTab}
                         plan={plansToRender[planKey]?.[language]}
-                        onEdit={() => setEditingPlan({ planType: planTypeForModal, planKey, subCategory: subCategoryForModal })}
                         language={language}
                     />
                 ))}
@@ -134,15 +123,6 @@ const AdminPlansPage: React.FC<{ availableCategories?: PlanCategory[] }> = ({ av
 
     return (
         <div>
-             {editingPlan && (
-                <AdminPlanEditModal 
-                    planType={editingPlan.planType}
-                    planKey={editingPlan.planKey}
-                    subCategory={editingPlan.subCategory}
-                    onClose={() => setEditingPlan(null)}
-                    onSave={handleSave}
-                />
-            )}
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t_plans.title}</h1>
             <p className="text-gray-500 dark:text-gray-400 mb-8">{t_plans.subtitle}</p>
             

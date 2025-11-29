@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllPartnersForAdmin, deletePartner } from '../../../services/partners';
 import { useAdminTable } from '../../hooks/useAdminTable';
@@ -10,7 +11,6 @@ import Pagination from '../../shared/Pagination';
 import { Input } from '../../ui/Input';
 import { Select } from '../../ui/Select';
 import { Button } from '../../ui/Button';
-import AdminUserFormModal from './AdminUserFormModal';
 import ConfirmationModal from '../../shared/ConfirmationModal';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import { Card, CardContent } from '../../ui/Card';
@@ -19,7 +19,6 @@ const AdminUsersPage: React.FC = () => {
     const { language, t } = useLanguage();
     const t_admin = t.adminDashboard;
     const queryClient = useQueryClient();
-    const [modalState, setModalState] = useState<{ isOpen: boolean; userToEdit?: AdminPartner }>({ isOpen: false });
     const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
     const { data: partners, isLoading } = useQuery({
@@ -111,7 +110,9 @@ const AdminUsersPage: React.FC = () => {
                                 </span>
                             </TableCell>
                             <TableCell className="space-x-2">
-                                <Button variant="link" onClick={() => setModalState({ isOpen: true, userToEdit: user })}>{t_admin.userManagement.editUser}</Button>
+                                <Link to={`/admin/users/edit/${user.id}`}>
+                                    <Button variant="link">{t_admin.userManagement.editUser}</Button>
+                                </Link>
                                 <Button variant="link" className="text-red-500" onClick={() => setUserToDelete(user.id)}>{t.adminShared.delete}</Button>
                             </TableCell>
                         </TableRow>
@@ -135,7 +136,9 @@ const AdminUsersPage: React.FC = () => {
                  </div>
             </CardContent>
             <div className="flex border-t border-gray-200 dark:border-gray-700">
-                 <Button variant="ghost" className="flex-1 rounded-none rounded-bl-lg" onClick={() => setModalState({ isOpen: true, userToEdit: user })}>{t_admin.userManagement.editUser}</Button>
+                 <Link to={`/admin/users/edit/${user.id}`} className="flex-1">
+                     <Button variant="ghost" className="w-full rounded-none rounded-bl-lg">{t_admin.userManagement.editUser}</Button>
+                 </Link>
                  <div className="w-px bg-gray-200 dark:bg-gray-700"></div>
                  <Button variant="ghost" className="flex-1 rounded-none rounded-br-lg text-red-500 hover:bg-red-50" onClick={() => setUserToDelete(user.id)}>{t.adminShared.delete}</Button>
             </div>
@@ -144,12 +147,6 @@ const AdminUsersPage: React.FC = () => {
 
     return (
         <div>
-            {modalState.isOpen && (
-                <AdminUserFormModal
-                    userToEdit={modalState.userToEdit}
-                    onClose={() => setModalState({ isOpen: false })}
-                />
-            )}
             {userToDelete && (
                 <ConfirmationModal
                     isOpen={!!userToDelete}
@@ -161,7 +158,9 @@ const AdminUsersPage: React.FC = () => {
             )}
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t_admin.userManagement.title}</h1>
-                <Button onClick={() => setModalState({ isOpen: true })}>{t_admin.userManagement.addUser}</Button>
+                 <Link to="/admin/users/new">
+                    <Button>{t_admin.userManagement.addUser}</Button>
+                </Link>
             </div>
 
             <div className="mb-4 flex gap-4 flex-wrap">

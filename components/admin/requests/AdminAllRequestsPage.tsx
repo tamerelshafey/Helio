@@ -1,14 +1,11 @@
-
 import React, { useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllRequests, updateRequest } from '../../../services/requests';
 import { getAllPartnersForAdmin } from '../../../services/partners';
-// FIX: Corrected import path for useAdminTable hook.
 import { useAdminTable } from '../../hooks/useAdminTable';
 import { useLanguage } from '../../shared/LanguageContext';
 import { Request, RequestStatus, RequestType, Lead, Role } from '../../../types';
-// FIX: Corrected import path for Pagination from 'ui' to 'shared'.
 import Pagination from '../../shared/Pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/Table';
 import { Input } from '../../ui/Input';
@@ -18,7 +15,6 @@ import { useAuth } from '../../auth/AuthContext';
 import { Card, CardContent, CardFooter } from '../../ui/Card';
 import { ResponsiveList } from '../../shared/ResponsiveList';
 import CardSkeleton from '../../ui/CardSkeleton';
-// FIX: Corrected import path for TableSkeleton from 'shared' to 'ui'.
 import TableSkeleton from '../../shared/TableSkeleton';
 import { PlusIcon } from '../../ui/Icons';
 import { StatusBadge } from '../../ui/StatusBadge';
@@ -67,11 +63,11 @@ const AdminAllRequestsPage: React.FC = () => {
         itemsPerPage: 15,
         initialSort: { key: 'createdAt', direction: 'descending' },
         initialFilters,
-        searchFn: (item, term) => item.requesterInfo.name.toLowerCase().includes(term),
+        searchFn: (item: Request, term: string) => item.requesterInfo.name.toLowerCase().includes(term),
         filterFns: {
-            type: (item, value) => item.type === value,
-            status: (item, value) => item.status === value,
-            assignedTo: (item, value) => item.assignedTo === value,
+            type: (item: Request, value: string) => item.type === value,
+            status: (item: Request, value: string) => item.status === value,
+            assignedTo: (item: Request, value: string) => item.assignedTo === value,
         },
     });
     

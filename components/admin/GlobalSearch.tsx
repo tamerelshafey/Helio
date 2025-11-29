@@ -1,14 +1,13 @@
-
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { AdminPartner, Property, Project } from '../../types';
+import type { AdminPartner, Property, Project } from '@/types';
 import { useQuery } from '@tanstack/react-query';
-import { getAllPartnersForAdmin } from '../../services/partners';
-import { getAllProperties } from '../../services/properties';
-import { getAllProjects } from '../../services/projects';
-import { SearchIcon, CloseIcon } from '../ui/Icons';
-import { useDebounce } from '../hooks/useDebounce';
-import { useLanguage } from '../shared/LanguageContext';
+import { getAllPartnersForAdmin } from '@/services/partners';
+import { getAllProperties } from '@/services/properties';
+import { getAllProjects } from '@/services/projects';
+import { SearchIcon, CloseIcon } from '@/components/ui/Icons';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useLanguage } from '@/components/shared/LanguageContext';
 
 const GlobalSearch: React.FC = () => {
     const { language } = useLanguage();

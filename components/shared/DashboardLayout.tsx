@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -6,9 +5,9 @@ import { useLanguage } from './LanguageContext';
 import GlobalSearch from '../admin/GlobalSearch';
 import DashboardSidebar from './DashboardSidebar';
 import NotificationBell from './NotificationBell';
-import { MenuIcon, GlobeAltIcon } from '../ui/Icons';
-import { Permission } from '../../types';
-import type { NavLinkItem } from '../../data/navigation';
+import { MenuIcon, GlobeAltIcon } from '@/components/ui/Icons';
+import { Permission } from '@/types';
+import type { NavLinkItem } from '@/data/navigation';
 
 interface DashboardLayoutProps {
   navLinks: NavLinkItem[];
@@ -56,7 +55,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ navLinks, pageTitle }
                         </div>
                         
                         <div className="flex items-center gap-x-4 lg:gap-x-6">
-                            {/* Return to Site Button (Icon only on mobile, Text on Desktop) */}
+                            {/* Return to Site Button */}
                             <Link 
                                 to="/" 
                                 target="_blank"
