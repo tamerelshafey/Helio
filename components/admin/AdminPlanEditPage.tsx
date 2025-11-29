@@ -78,9 +78,9 @@ const AdminPlanEditPage: React.FC = () => {
     };
     
     const planName = useMemo(() => {
-        if (!plans) return '';
+        if (!plans || !realPlanType || !planKey) return '';
         const planSource = subCategory ? (plans as any)?.[realPlanType]?.[subCategory] : plans?.[realPlanType];
-        return planSource?.[planKey]?.en.name || planKey;
+        return planSource?.[planKey as string]?.en.name || planKey;
     }, [realPlanType, planKey, subCategory, plans]);
 
     if (isLoading) return <div>Loading...</div>;

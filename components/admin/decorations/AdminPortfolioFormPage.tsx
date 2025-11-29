@@ -36,12 +36,19 @@ const AdminPortfolioFormPage: React.FC = () => {
     
     const itemToEdit = itemId ? portfolioItems?.find(i => i.id === itemId) : undefined;
 
-    const [formData, setFormData] = useState({
+    // Explicitly define the type for the state to avoid "as const" type narrowing issues
+    const [formData, setFormData] = useState<{
+        title: { ar: string; en: string };
+        categoryId: string;
+        price: string | number;
+        dimensions: string;
+        availability: 'In Stock' | 'Made to Order';
+    }>({
         title: { ar: '', en: '' },
         categoryId: '',
-        price: '' as string | number,
+        price: '',
         dimensions: '',
-        availability: 'In Stock' as const,
+        availability: 'In Stock',
     });
 
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -93,7 +100,10 @@ const AdminPortfolioFormPage: React.FC = () => {
         const { name, value } = e.target;
         if (name.includes('.')) {
             const [field, lang] = name.split('.');
-            setFormData(prev => ({ ...prev, [field]: { ...(prev as any)[field], [lang]: value } }));
+            setFormData(prev => ({ 
+                ...prev, 
+                [field]: { ...(prev as any)[field], [lang]: value } 
+            }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -129,7 +139,7 @@ const AdminPortfolioFormPage: React.FC = () => {
             alt: formData.title.en || 'Decoration work',
             price: formData.price ? parseInt(String(formData.price), 10) : undefined,
             dimensions: formData.dimensions || undefined,
-            availability: formData.availability as 'In Stock' | 'Made to Order',
+            availability: formData.availability,
         };
 
         if (itemId) {

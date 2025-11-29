@@ -41,12 +41,14 @@ const AdminUserFormPage: React.FC = () => {
 
     useEffect(() => {
         if (userToEdit) {
+            // Cast to any or AdminPartner to access specific admin fields if necessary
+            const user = userToEdit as any;
             reset({
-                nameAr: userToEdit.nameAr || userToEdit.name,
-                nameEn: userToEdit.name,
-                email: userToEdit.email,
-                type: userToEdit.type,
-                status: userToEdit.status,
+                nameAr: user.nameAr || user.name,
+                nameEn: user.name,
+                email: user.email,
+                type: user.type,
+                status: user.status,
             });
         }
     }, [userToEdit, reset]);
