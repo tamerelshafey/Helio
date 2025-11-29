@@ -34,6 +34,7 @@ export const MESSAGES = {
         invalid_number: "يجب إدخال أرقام فقط",
         file_too_large: `حجم الملف كبير جداً (الحد الأقصى ${CONFIG.MAX_FILE_SIZE / 1024 / 1024} ميجابايت)`,
         invalid_file_type: "نوع الملف غير مدعوم",
+        password_min: "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
     },
     en: {
         required: "This field is required",
@@ -45,6 +46,7 @@ export const MESSAGES = {
         invalid_number: "Must be numbers only",
         file_too_large: `File size is too large (Max ${CONFIG.MAX_FILE_SIZE / 1024 / 1024}MB)`,
         invalid_file_type: "Unsupported file type",
+        password_min: "Password must be at least 8 characters",
     }
 };
 

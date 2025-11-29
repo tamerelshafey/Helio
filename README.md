@@ -43,8 +43,8 @@ The project has evolved from a basic listing site into a robust web application 
 *   **Finance Center:** Track payments, invoices, and subscription status.
 
 ### 3. 🛡️ Super Admin Dashboard (CMS & Control)
-*   **Dynamic Form Builder:** Create and modify forms (fields, validation rules, routing) without code changes. Includes advanced validation support (Regex, Min/Max).
-*   **Robust Validation:** Centralized validation logic (`utils/validation.ts`) ensures data integrity across all user inputs.
+*   **Dynamic Form Builder:** Create and modify forms (fields, validation rules, routing) without code changes. Includes advanced validation support (Regex, Min/Max, File Limits).
+*   **Robust Validation:** Centralized validation logic (`utils/validation.ts`) ensures data integrity across all user inputs including file uploads.
 *   **User & Partner Management:** Approve applications, manage roles/permissions, and toggle user access.
 *   **Content Management:** Edit homepage sliders, banners, testimonials, and legal pages directly.
 *   **Automation Rules:** Configure logic to automatically route leads to specific managers based on criteria.
@@ -99,7 +99,7 @@ src/
 ## 🧪 Key Implementation Details
 
 *   **Dynamic Form Engine:** Located in `components/shared/DynamicForm.tsx`. It renders forms based on JSON configurations managed in the Admin Panel, allowing for flexible data collection strategies with Zod validation integrated via `utils/validation.ts`.
-*   **Centralized Validation:**  `utils/validation.ts` holds regex patterns (e.g., Egyptian phone numbers), Zod schemas, and error messages, ensuring consistent validation logic across the app.
+*   **Centralized Validation:**  `utils/validation.ts` holds regex patterns (e.g., Egyptian phone numbers), Zod schemas, error messages, and file validation logic, ensuring consistent validation logic across the app.
 *   **Error Handling:** A global `ErrorBoundary` wraps the app to catch runtime errors, while `ErrorState` components handle granular API failures within widgets.
 *   **Performance:** Heavy components and routes are lazy-loaded using `React.lazy` and `Suspense` to ensure fast initial load times (`LoadingFallback`).
 
